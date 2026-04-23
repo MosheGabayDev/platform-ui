@@ -17,6 +17,33 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-24 — Round 014: Platform Capabilities Catalog
+
+### Files Created (platform-ui)
+- `docs/system-upgrade/26-platform-capabilities-catalog.md` — **created** (30 platform capabilities; 7 fields each: purpose, modules, libraries, first scope, security/multi-tenant, AI-maintainability, priority)
+
+### Files Updated (platform-ui)
+- `docs/system-upgrade/10-target-architecture.md` — **updated** (added capability-first AI principle; added Platform Capabilities Layer section with status table)
+- `docs/system-upgrade/12-migration-roadmap.md` — **updated** (added migration principle #9: capability-first)
+- `docs/system-upgrade/15-action-backlog.md` — **updated** (new "Platform Capabilities Catalog" section: 25 tasks across now/next/later tiers)
+- `docs/system-upgrade/96-rounds-index.md` — **updated** (Round 014 entry)
+- `docs/system-upgrade/98-change-log.md` — **updated** (this entry)
+
+### Capability Status Snapshot (as of Round 014)
+| Status | Capabilities |
+|--------|-------------|
+| ✅ Implemented | DataGrid (01), PermissionGate (05), TenantContext (19), API Client (22) |
+| 🔵 Partial | Dashboard (02), ImportExport CSV (06), DetailView (08), ModuleRegistry (18) |
+| ⬜ Pending Now | ErrorBoundary (21), PageShell (07), Form (03), Action (04), FeatureFlags (17), Notifications (12) |
+| ⬜ Pending Next | Timeline (09), ApprovalFlow (13), Settings (16), Realtime (11+23), JobRunner (14), Wizard (15), Billing (26), Policy (27) |
+| ⬜ Pending Later | AuditLog (10), FileManager (24), Integration (25), Privacy (20), Help (28), TestHarness (29), DevDocs (30) |
+
+### New Rules Added
+- Capability-First Rule: check `26-platform-capabilities-catalog.md` before building any module feature (added to doc 10 §AI Principles, doc 12 §Migration Principles)
+- Module-local implementations used in 2+ modules must be promoted to the catalog
+
+---
+
 ## 2026-04-24 — Round 013: Module 02 Organizations
 
 ### Files Created (platformengineer)

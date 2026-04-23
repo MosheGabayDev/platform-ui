@@ -44,8 +44,33 @@ These principles apply to every file written or modified in this project:
 | **Self-describing headers** | Module-level docstring (Python) or JSDoc (TypeScript) on every file; states purpose, auth requirement, tenant-scoping |
 | **Explicit boundaries** | `apps/A/` does not import from `apps/B/`; `lib/api/` does not import from `app/`; boundaries declared and enforced by `import-linter` |
 | **One canonical implementation** | When an old and new version of the same thing co-exist, the old one is archived or deleted — never left as a sibling file |
+| **Capability-first** | Before building any new module feature, check `26-platform-capabilities-catalog.md` — if a shared capability exists or should exist, build/extend it first, then use it. Module-local implementations used in 2+ modules must be promoted to the catalog. |
 
 For the full policy see `23-ai-maintainability-and-code-cleanup.md`.
+
+---
+
+## Platform Capabilities Layer
+
+Platform capabilities are horizontal building blocks reused across all 19 modules. They are NOT module-specific components — they are platform-owned patterns that any module composes.
+
+**Canonical location:** `components/shared/` (UI components), `lib/hooks/` (hooks), `lib/utils/` (utilities)
+
+**Full catalog:** `docs/system-upgrade/26-platform-capabilities-catalog.md`
+
+**Key capabilities (as of Round 014):**
+
+| Capability | Status | Location |
+|-----------|--------|----------|
+| PlatformDataGrid | ✅ | `components/shared/data-table/` |
+| PermissionGate | ✅ | `components/shared/permission-gate.tsx` |
+| PlatformTenantContext | ✅ | `lib/auth/`, `app/api/proxy/` |
+| PlatformAPI Client | ✅ | `lib/api/`, `app/api/proxy/` |
+| PlatformImportExport (CSV) | 🔵 partial | `lib/utils/csv.ts` |
+| PlatformDetailView | 🔵 partial | `app/(dashboard)/users/[id]/`, `organizations/[id]/` |
+| PlatformPageShell | ⬜ pending | inline in pages — needs extraction |
+| PlatformForm | ⬜ pending | `lib/modules/*/schemas.ts` — needs wrapper |
+| PlatformErrorBoundary | ⬜ pending | — |
 
 ---
 

@@ -209,6 +209,21 @@ _Updated after each round — append, never overwrite entries._
 
 ---
 
+## Round 014 — Platform Capabilities Catalog
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-24 |
+| **Topic** | Define 30 horizontal platform capabilities to build once and reuse across all 19 modules |
+| **Objective** | Prevent duplication by cataloging every shared capability: purpose, consuming modules, libraries, first scope, security rules, AI-maintainability notes, priority. Add "capability-first" rule to architecture and migration docs. |
+| **Key Findings** | • Users and Orgs detail pages both have identical `InfoRow` + `BoolBadge` helpers — first promotion candidates <br>• `StatChip` pattern is also duplicated — promote to `StatCard` <br>• `PageShell` header+motion pattern duplicated across all module list pages — extract immediately <br>• 6 capabilities already partially implemented: DataGrid, PermissionGate, TenantContext, API Client, CSV export, DetailView pattern <br>• 11 capabilities needed before Round 015 (Helpdesk, Users Phase B) — ErrorBoundary, PageShell, DetailView, StatCard, PlatformForm, usePlatformMutation, ConfirmDialog, ActionButton, FeatureFlags, NotificationBell |
+| **Files Created (platform-ui)** | `docs/system-upgrade/26-platform-capabilities-catalog.md` (30 capabilities, 7 fields each) |
+| **Files Updated (platform-ui)** | `docs/system-upgrade/10-target-architecture.md` (capability-first principle + capabilities layer table), `docs/system-upgrade/12-migration-roadmap.md` (principle #9: capability-first), `docs/system-upgrade/15-action-backlog.md` (Platform Capabilities Catalog section: 25 new tasks across now/next/later), `docs/system-upgrade/96-rounds-index.md`, `docs/system-upgrade/98-change-log.md` |
+| **Decisions Proposed** | Capability-First Rule: before building any module feature, check catalog — enforced in code review |
+| **Next Recommended Round** | Round 015: Extract shared capabilities from existing code (PageShell, DetailView, StatCard, ErrorBoundary) + Users Phase B (create/edit form using PlatformForm) |
+
+---
+
 ## Upcoming Rounds (Proposed)
 
 | Round | Topic | Why Now |

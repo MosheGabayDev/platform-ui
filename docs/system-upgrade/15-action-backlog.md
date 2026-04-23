@@ -144,6 +144,58 @@ _Last updated: 2026-04-24_
 
 ---
 
+## Platform Capabilities Catalog (Phase 1 — shared building blocks)
+
+_Reference: `docs/system-upgrade/26-platform-capabilities-catalog.md`_
+
+> **Rule:** Before building any new module feature, check whether it belongs in the catalog. If yes — build/extend the shared capability first.
+
+### Now (needed before Round 014+ module builds)
+
+| Task | Capability | File(s) | Priority | Status |
+|------|-----------|---------|----------|--------|
+| **Add `PlatformErrorBoundary`** | §21 | `components/shared/error-boundary.tsx` + wire into `app/(dashboard)/layout.tsx` | P1 | `[ ]` |
+| **Extract `ErrorState` component** | §21 | `components/shared/error-state.tsx` — unify inline error patterns from users/orgs pages | P1 | `[ ]` |
+| **Extract `PageShell` component** | §07 | `components/shared/page-shell.tsx` — extract header+motion from users/orgs pages | P1 | `[ ]` |
+| **Extract `DetailView` components** | §08 | `components/shared/detail-view/` — extract `InfoRow`, `BoolBadge`, `DetailSection` from users/orgs detail pages | P1 | `[ ]` |
+| **Extract `StatCard` component** | §02 | `components/shared/stat-card.tsx` — extract `StatChip` from users/orgs pages; promote to shared | P1 | `[ ]` |
+| **Build `PlatformForm` wrapper** | §03 | `components/shared/form/platform-form.tsx` + `form-field.tsx` + `form-section.tsx` | P1 | `[ ]` |
+| **Build `usePlatformMutation` hook** | §03/04 | `lib/hooks/use-platform-mutation.ts` — wraps useMutation + audit headers + toast | P1 | `[ ]` |
+| **Build `ConfirmDialog` component** | §04 | `components/shared/confirm-dialog.tsx` — destructive action confirmation | P1 | `[ ]` |
+| **Build `ActionButton` component** | §04 | `components/shared/action-button.tsx` — loading state + disabled during mutation | P2 | `[ ]` |
+| **Build `PlatformFeatureFlags` hook** | §17 | `lib/hooks/use-feature-flag.ts` + `components/shared/feature-flag.tsx` + `lib/api/feature-config.ts` | P1 | `[ ]` |
+| **Build `NotificationBell` (polling)** | §12 | `components/shell/notification-bell.tsx` + `lib/hooks/use-notifications.ts` | P2 | `[ ]` |
+
+### Next (Phase 1-2 — Weeks 3-20)
+
+| Task | Capability | File(s) | Priority | Status |
+|------|-----------|---------|----------|--------|
+| **Build `PlatformTimeline`** | §09 | `components/shared/timeline/` — when Helpdesk (04) starts | P1 | `[ ]` |
+| **Build `ApprovalQueue` UI** | §13 | `components/shared/approval/` — approval table + modal + status badge | P1 | `[ ]` |
+| **Build `SettingsLayout`** | §16 | `components/shared/settings/` — sidebar nav + section cards | P2 | `[ ]` |
+| **Build `useEventSource` SSE hook** | §23 | `lib/hooks/use-event-source.ts` — when AI Agents (05) starts | P1 | `[ ]` |
+| **Build `CommandPalette` (nav only)** | §11 | `components/shell/command-palette.tsx` — ⌘K, nav shortcuts only | P2 | `[ ]` |
+| **Build `JobProgress` + polling hook** | §14 | `components/shared/job-runner/` — when Module Export/Import starts | P2 | `[ ]` |
+| **Build `PlatformWizard`** | §15 | `components/shared/wizard/` — when Onboarding starts | P2 | `[ ]` |
+| **Build `UsageMeter`** | §26 | `components/modules/billing/usage-meter.tsx` — when Billing (08) starts | P2 | `[ ]` |
+| **Build `PolicyRuleTable` + form** | §27 | `components/modules/settings/policy-rule-*.tsx` — when Helpdesk (04) settings | P1 | `[ ]` |
+| **Build `ExportButton` component** | §06 | `components/shared/export-button.tsx` — wraps existing csv.ts | P2 | `[ ]` |
+| **Build `AuditLogTable`** | §10 | `components/shared/audit-log/` — when Audit Log (13) starts | P2 | `[ ]` |
+| **Promote to `ModuleRegistry`** | §18 | `lib/modules/registry.ts` + wire into nav-items.ts | P2 | `[ ]` |
+
+### Later (Phase 3+)
+
+| Task | Capability | Priority | Status |
+|------|-----------|----------|--------|
+| **Build `FileUploadZone`** | §24 | P2 | `[ ]` |
+| **Build `IntegrationCard` framework** | §25 | P2 | `[ ]` |
+| **Build `PiiField` masking** | §20 | P2 | `[ ]` |
+| **Build `FeatureTour`** | §28 | P3 | `[ ]` |
+| **Build `TestRunner` UI** | §29 | P3 | `[ ]` |
+| **Build Developer Docs portal** | §30 | P3 | `[ ]` |
+
+---
+
 ## Open-Source Capability Layer (Phase 1 — install + shared components)
 
 _Reference: `docs/system-upgrade/25-open-source-capability-layer.md` | ADR-016_
