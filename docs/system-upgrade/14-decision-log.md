@@ -1,7 +1,7 @@
 # 14 — Decision Log
 
 _Format: ADR (Architecture Decision Record)_
-_Last updated: 2026-04-23_
+_Last updated: 2026-04-24_
 
 ---
 
@@ -149,6 +149,49 @@ Error case:
 - Existing endpoints not changed immediately
 - New endpoints and migrated endpoints follow this standard
 - platform-ui API client updated to unwrap `data` automatically
+
+---
+
+---
+
+## ADR-011 — Auth Bridge: next-auth Credentials + Flask JWT
+
+**Status**: Accepted
+
+**Context**: platform-ui has zero working authentication. The login form is a stub. Flask has two parallel auth systems: Flask-Login (session cookie, browser/Jinja2) and JWT (`/api/auth/login`, mobile app). platform-ui must connect to one of them without browser CORS issues.
+
+**Options considered**:
+- A: Pure Flask session cookie proxy — opaque, hard to extract user data, SameSite complexity
+- B: next-auth + Flask session cookie (hybrid dual-cookie) — fragile, two expiry systems
+- C: next-auth Credentials + Flask JWT — clean JSON contract, user data in token, server-to-server (no CORS) ✅
+- D: Auth.js v5 — breaking API, still beta, package.json already has v4
+
+**Chosen direction**: **Option C** — next-auth v4 Credentials provider calls `POST /api/auth/login` (existing mobile JWT endpoint). Stores `{accessToken, refreshToken, user: {id, email, role, org_id, permissions}}` in next-auth JWT session cookie. Proxy attaches `Authorization: Bearer <accessToken>` on every upstream call.
+
+**Consequences**:
+- `NEXTAUTH_SECRET` must be added to SSM Parameter Store + K8s `platform-secrets`
+- Flask `POST /api/auth/login` is now shared by mobile app + platform-ui (no change needed)
+- Flask needs two small additions: `POST /api/auth/logout` (invalidate refresh token) + `GET /api/auth/me` (validation)
+- Flask CORS allow-list must include `http://localhost:3000` (dev) and `https://platform-ui-domain` (prod)
+- Mobile app: no change — continues to use JWT endpoint directly
+
+**Risks**:
+- MFA flow: `POST /login` may redirect to `/two-factor-login` instead of returning JSON — needs handling in `authorize` callback
+- 15-min JWT access token: next-auth JWT callback must refresh transparently
+
+**Follow-up tasks**: See `15-action-backlog.md §Auth Bridge Implementation`
+
+---
+
+## ADR-012 — No CSRF Token for platform-ui API Calls
+
+**Status**: Accepted
+
+**Context**: Flask has `WTF_CSRF_CHECK_DEFAULT = False` — CSRF auto-check is disabled for all routes. All platform-ui API calls use `Content-Type: application/json` through a Next.js proxy with `Authorization: Bearer` header.
+
+**Chosen direction**: No CSRF token required for platform-ui → Flask calls. JWT Bearer token provides equivalent protection. next-auth session cookie is `SameSite=Lax` which blocks cross-origin form submissions.
+
+**Consequences**: No `X-CSRFToken` header implementation needed.
 
 ---
 

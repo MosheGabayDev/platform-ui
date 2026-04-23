@@ -17,6 +17,41 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-24 — Round 005: Authentication Bridge
+
+### Files Changed
+- `docs/system-upgrade/16-auth-bridge-design.md` — **created** (auth bridge design, 15 sections)
+- `docs/system-upgrade/14-decision-log.md` — **updated** (ADR-011, ADR-012 added)
+- `docs/system-upgrade/13-open-questions.md` — **updated** (Q1/Q2 resolved; Q13/Q14/Q15 added)
+- `docs/system-upgrade/15-action-backlog.md` — **updated** (Phase A/B/C auth tasks added; old tasks marked done)
+- `docs/system-upgrade/96-rounds-index.md` — **updated** (Round 005 entry added)
+- `docs/system-upgrade/98-change-log.md` — **updated** (this entry)
+
+### New Findings
+- Flask has two auth systems: Flask-Login (session) + JWT (`/api/auth/login` for mobile). Platform-ui will use JWT.
+- `POST /api/auth/login` returns `{data: {token, refresh_token, user: {id,email,org_id,roles}}}` — clean contract.
+- `POST /api/auth/refresh` exists — rotation-based (7-day opaque token, SHA256-hashed in DB).
+- `next-auth` v4 is installed but not configured. Login page is a stub (no API call).
+- No `middleware.ts` — dashboard routes are publicly accessible.
+- CSRF auto-check is disabled Flask-side — no CSRF header needed for platform-ui.
+- Flask CORS allows only Flutter/localhost ports, not `localhost:3000` — must fix for dev.
+- `SESSION_COOKIE_SECURE` not set in Flask production config — security gap.
+- RBAC: `@role_required` / `@permission_required` in `rbac.py`. `is_admin=True` bypasses all.
+- `_user_to_dict()` in `jwt_routes.py` does NOT include `permissions[]`, only `roles[]`.
+- MFA: TOTP session-based. JSON behavior for MFA users is unresolved (Q13).
+
+### Decision Changes
+- ADR-011 added: next-auth Credentials + Flask JWT is the chosen auth bridge
+- ADR-012 added: No CSRF token required for platform-ui API calls
+
+### Backlog Changes
+- Phase A (Next.js side): 8 tasks added — next-auth handler, options, types, SessionProvider, login page, middleware, proxy Bearer header, env vars
+- Phase B (Flask side): 4 tasks added — logout endpoint, /me endpoint, CORS, permissions in JWT response
+- Phase C (Hardening): 4 tasks added — SSM secret, role nav, E2E test, Flask cookie security
+- Previous Phase 0 tasks updated: proxy route marked done, Q1/Q4 marked done
+
+---
+
 ## 2026-04-24 — Round 004: Deep Upgrade Planning
 
 ### Files Changed

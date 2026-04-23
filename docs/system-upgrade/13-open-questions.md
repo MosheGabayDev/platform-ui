@@ -1,6 +1,6 @@
 # 13 — Open Questions
 
-_Last updated: 2026-04-23_
+_Last updated: 2026-04-24_
 
 ---
 
@@ -12,9 +12,12 @@ These questions cannot be reliably answered from the codebase alone. Each needs 
 
 | # | Question | Why It Matters | How to Answer |
 |---|----------|---------------|---------------|
-| Q1 | Does Flask's `POST /api/auth/login` return a JWT or a session cookie? Which is the intended contract for platform-ui? | Determines next-auth credentials provider implementation | Read `apps/authentication/api_auth.py` + test with curl |
-| Q2 | Is there a `POST /api/auth/refresh` token refresh endpoint? | Without it, 15-min JWTs require re-login every session | Code search + test |
-| Q3 | Which OAuth providers are configured and tested in production? (Flask-Dance used) | Determines what social login options are available to wire in next-auth | Check `.env.sample` + Flask-Dance config |
+| Q1 | ~~Does Flask's `POST /api/auth/login` return a JWT or a session cookie?~~ | — | **[RESOLVED 2026-04-24]** `POST /api/auth/login` returns JWT + refresh token. `POST /login` (HTML route) also accepts JSON and returns session cookie. Platform-ui will use the JWT endpoint. See `16-auth-bridge-design.md`. |
+| Q2 | ~~Is there a `POST /api/auth/refresh` token refresh endpoint?~~ | — | **[RESOLVED 2026-04-24]** Yes — `POST /api/auth/refresh` exists in `jwt_routes.py`. Accepts `{refresh_token}`, returns new JWT + refresh (rotation). |
+| Q3 | Which OAuth providers are configured and tested in production? | Determines social login options for next-auth | `.env` check required — GitHub + Google clients configured in Flask-Dance; production status unknown |
+| Q13 | Does Flask `POST /login` MFA flow return JSON or redirect to `/two-factor-login` when `is_json=True`? | If redirect, next-auth `authorize` callback must handle MFA separately | Test with curl: `POST /login` with `Content-Type: application/json` for an MFA-enabled user |
+| Q14 | What exact fields does `POST /api/auth/login` return in `user` object? Are `permissions[]` included or only `roles[]`? | Determines if a second call to `/api/auth/me` is needed for permissions | Read `jwt_routes.py:_user_to_dict` — currently only `{id, email, org_id, name, roles}` — no permissions list |
+| Q15 | Is `SESSION_COOKIE_SECURE` set in EKS production Flask deployment? | Security risk if False on HTTPS | Check K8s ConfigMap / SSM for `SESSION_COOKIE_SECURE` |
 
 ---
 

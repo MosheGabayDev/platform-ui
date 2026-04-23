@@ -69,11 +69,25 @@ _Updated after each round — append, never overwrite entries._
 
 ---
 
+## Round 005 — Authentication Bridge
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-24 |
+| **Topic** | Auth bridge design — next-auth + Flask JWT |
+| **Objective** | Answer all auth questions from codebase investigation. Design the complete auth bridge. Unblock all module development. |
+| **Key Findings** | • Flask has TWO auth systems: Flask-Login (session cookie) + JWT (`/api/auth/login`, mobile). Platform-ui uses JWT. <br>• `POST /api/auth/login` returns `{data: {token, refresh_token, user: {id,email,org_id,roles}}}` — clean JSON contract. <br>• `POST /api/auth/refresh` exists in `jwt_routes.py` — rotation-based refresh. <br>• JWT expiry: 15-min access, 7-day refresh. <br>• `next-auth` v4 already in `package.json` — NOT yet configured. Login page is a stub. <br>• No `middleware.ts` — all dashboard routes publicly accessible. <br>• CSRF auto-check disabled Flask-side (`WTF_CSRF_CHECK_DEFAULT=False`) — no CSRF needed for API calls. <br>• Flask CORS allows only localhost Flutter ports, NOT `localhost:3000` — must add for dev. <br>• `Session_COOKIE_SECURE` not set — production security gap. <br>• RBAC via `@role_required`, `@permission_required` in `rbac.py`. Admins bypass all checks. <br>• `MFA`: TOTP-based, session-based (`pending_user_id`) — may redirect instead of returning JSON for MFA users (Q13 unresolved). |
+| **Files Updated** | `16-auth-bridge-design.md` (created), `14-decision-log.md` (ADR-011, ADR-012), `13-open-questions.md` (Q1/Q2 resolved, Q13-15 added), `15-action-backlog.md` (Phase A/B/C tasks added), `96-rounds-index.md`, `98-change-log.md` |
+| **Decisions Proposed** | ADR-011: next-auth Credentials + Flask JWT (Option C) <br>ADR-012: No CSRF token needed for platform-ui API calls |
+| **Next Recommended Round** | Round 006: Implement Phase A auth (next-auth config, login, middleware, proxy update) — confirm working in TEST |
+
+---
+
 ## Upcoming Rounds (Proposed)
 
 | Round | Topic | Why Now |
 |-------|-------|---------|
-| **005** | Authentication bridge | Blocker for all modules — next-auth + Flask JWT/session contract |
+| **005** | Authentication bridge | ✅ Complete — design in `16-auth-bridge-design.md` |
 | **006** | Module 01: Users | First Critical module, no dependencies |
 | **007** | Module 04: Helpdesk | Largest module, most business value |
 | **008** | SSE infrastructure | Enables live data across all future modules |

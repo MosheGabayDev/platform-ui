@@ -1,6 +1,6 @@
 # 15 — Action Backlog
 
-_Last updated: 2026-04-23_
+_Last updated: 2026-04-24_
 
 ---
 
@@ -8,13 +8,46 @@ _Last updated: 2026-04-23_
 
 | Task | Why It Matters | Dependencies | Status |
 |------|---------------|--------------|--------|
-| **Wire real auth in platform-ui** | Platform-ui is useless without real login. Everything downstream depends on this. | Flask login endpoint must be identified and tested | `[ ]` TODO |
-| **Implement `/api/proxy/[...path]` route handler** | Dashboard API calls currently break — proxy route is a stub | Auth must be established first | `[ ]` TODO |
-| **Verify dashboard stats work end-to-end** | The dashboard page fetches data but connection to real backend unverified | Proxy route working | `[ ]` TODO |
-| **Add Next.js middleware for route guards** | Unauthenticated users can access dashboard routes | Auth session established | `[ ]` TODO |
-| **Add error boundary to dashboard layout** | API failures currently may crash the page silently | — | `[ ]` TODO |
-| **Answer Q1 (auth contract)** | Cannot build auth bridge without knowing Flask's auth response shape | — | `[ ]` TODO |
-| **Answer Q4 (API paths)** | Confirm `/api/ai-settings/stats` and health endpoint paths are correct | TEST environment running | `[ ]` TODO |
+| **Wire real auth in platform-ui** | Platform-ui is useless without real login. Everything downstream depends on this. | ✅ Design complete (ADR-011) | `[~]` In Progress |
+| **Implement `/api/proxy/[...path]` route handler** | Dashboard API calls proxy to Flask | ✅ Proxy route exists, cookie forwarding implemented | `[x]` Done |
+| **Verify dashboard stats work end-to-end** | Dashboard fetches from Flask via proxy | Confirmed working in TEST | `[x]` Done |
+| **Add Next.js middleware for route guards** | Unauthenticated users can access dashboard routes | next-auth must be configured first | `[ ]` TODO |
+| **Add error boundary to dashboard layout** | API failures may crash the page silently | — | `[ ]` TODO |
+| **Answer Q1 (auth contract)** | Flask auth response shape | `[RESOLVED]` JWT + session both exist; using JWT for platform-ui | `[x]` Done |
+| **Answer Q4 (API paths)** | Confirm API endpoint paths | `[RESOLVED]` Paths confirmed correct in TEST | `[x]` Done |
+
+---
+
+## Auth Bridge Implementation (Phase A — current sprint)
+
+| Task | File(s) | Priority | Status |
+|------|---------|----------|--------|
+| **Create next-auth handler** | `app/api/auth/[...nextauth]/route.ts` | P1 | `[ ]` |
+| **Create auth options** | `lib/auth/options.ts` (authOptions, Credentials provider → `POST /api/auth/login`) | P1 | `[ ]` |
+| **Define session + JWT types** | `lib/auth/types.ts` (next-auth module augmentation) | P1 | `[ ]` |
+| **Wire SessionProvider** | `app/layout.tsx` | P1 | `[ ]` |
+| **Update login page** | `app/(auth)/login/page.tsx` — call `signIn("credentials")` | P1 | `[ ]` |
+| **Add middleware.ts** | `middleware.ts` (project root) — protect `(dashboard)/*` | P1 | `[ ]` |
+| **Update proxy to use Bearer** | `app/api/proxy/[...path]/route.ts` — `getToken()` + `Authorization: Bearer` | P1 | `[ ]` |
+| **Add env vars to .env.local** | `NEXTAUTH_SECRET`, `NEXTAUTH_URL` | P1 | `[ ]` |
+
+## Auth Bridge Implementation (Phase B — Flask additions)
+
+| Task | File(s) | Priority | Status |
+|------|---------|----------|--------|
+| **Add POST /api/auth/logout** | `apps/authentication/jwt_routes.py` — invalidate refresh token | P1 | `[ ]` |
+| **Add GET /api/auth/me** | `apps/authentication/jwt_routes.py` — current user from JWT | P2 | `[ ]` |
+| **Add localhost:3000 to CORS** | `apps/__init__.py` — dev origin for platform-ui | P1 | `[ ]` |
+| **Add permissions to JWT response** | `apps/authentication/jwt_routes.py:_user_to_dict` — include `permissions[]` | P2 | `[ ]` |
+
+## Auth Bridge Implementation (Phase C — Hardening)
+
+| Task | File(s) | Priority | Status |
+|------|---------|----------|--------|
+| **Add NEXTAUTH_SECRET to SSM** | `scripts/secrets/ssm-secrets.sh` | P1 (before prod) | `[ ]` |
+| **Role-aware nav filtering** | `components/shell/app-sidebar.tsx` | P2 | `[ ]` |
+| **Auth E2E test** | `e2e/auth.spec.ts` — login, session, logout flow | P2 | `[ ]` |
+| **Set Flask cookie security** | `SESSION_COOKIE_SECURE=True`, `SESSION_COOKIE_SAMESITE=Lax` in prod | P1 (before prod) | `[ ]` |
 
 ---
 
