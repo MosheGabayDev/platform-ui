@@ -151,19 +151,21 @@ _Reference: `docs/system-upgrade/25-open-source-capability-layer.md` | ADR-016_
 | Task | File(s) | Priority | Status |
 |------|---------|----------|--------|
 | **Install `nuqs`** | `package.json` — URL filter state for all list pages | P1 | `[ ]` |
-| **Create shared `DataTable<T>` component** | `components/ui/data-table.tsx` — wraps TanStack Table with standard skeleton, empty, error states | P1 | `[ ]` |
+| **Create shared `DataTable<T>` component** | `components/shared/data-table/` — wraps TanStack Table with standard skeleton, empty, error states | P1 | `[x] 2026-04-24` |
 | **Create `StatCard` + `ChartCard` wrappers** | `components/ui/stat-card.tsx`, `components/ui/chart-card.tsx` | P1 | `[ ]` |
-| **Create `EmptyState` component** | `components/ui/empty-state.tsx` — standard empty/no-results/error states | P1 | `[ ]` |
-| **Create `TableRowSkeleton` + `DetailSkeleton`** | `components/ui/table-row-skeleton.tsx`, `components/ui/detail-skeleton.tsx` | P1 | `[ ]` |
-| **Create `usePermission()` hook** | `lib/auth/use-permission.ts` — wraps session, hasRole, hasPermission | P1 | `[ ]` |
-| **Create `<PermissionGate>` component** | `components/auth/permission-gate.tsx` — permission/role/adminOnly props | P1 | `[ ]` |
-| **Create date utilities** | `lib/utils/date.ts` — `formatDate()`, `formatRelative()` with he-IL locale | P1 | `[ ]` |
+| **Create `EmptyState` component** | `components/shared/empty-state.tsx` — standard empty/no-results/error states | P1 | `[x]` already existed |
+| **Create `TableRowSkeleton`** | `components/shared/data-table/table-skeleton.tsx` | P1 | `[x] 2026-04-24` |
+| **Create `usePermission()` hook** | `lib/hooks/use-permission.ts` — wraps session, hasRole, hasPermission | P1 | `[x] 2026-04-24` |
+| **Create `<PermissionGate>` component** | `components/shared/permission-gate.tsx` — permission/role/adminOnly/mode props | P1 | `[x] 2026-04-24` |
+| **Create date utilities** | `lib/utils/format.ts` — `formatDate()`, `formatDateTime()`, `formatRelativeTime()`, `formatNumber()`, `formatCurrency()` | P1 | `[x] 2026-04-24` |
 | **Install `papaparse`** | `package.json` + `@types/papaparse` — CSV export/import | P2 | `[ ]` |
-| **Create CSV export utility** | `lib/utils/export.ts` — `exportToCsv()` with BOM for Hebrew Excel compat | P2 | `[ ]` |
+| **Create CSV export utility** | `lib/utils/csv.ts` — `exportToCsv()`, `rowsToCsv()` with BOM for Hebrew Excel compat | P2 | `[x] 2026-04-24` |
 | **Install `@tanstack/react-virtual`** | `package.json` — virtual scroll for tables >500 rows | P2 | `[ ]` |
 | **Add shadcn Calendar + DatePicker** | `npx shadcn@latest add calendar date-picker` | P2 | `[ ]` |
-| **Update proxy to attach audit headers** | `app/api/proxy/[...path]/route.ts` — add `X-User-Id`, `X-Org-Id`, `X-Action-Source: platform-ui` | P1 | `[ ]` |
+| **Update proxy to attach audit headers** | `app/api/proxy/[...path]/route.ts` — add `X-Request-ID`, `X-User-Id`, `X-Org-Id`, `X-Client-Source` | P1 | `[x] 2026-04-24` |
+| **Create request context helper** | `lib/api/request-context.ts` — `buildAuditHeaders()`, `generateRequestId()` | P1 | `[x] 2026-04-24` |
 | **Migrate Users list to `nuqs` filters** | `app/(dashboard)/users/page.tsx` — replace manual searchParams with `useQueryState` | P2 | `[ ]` |
+| **Refactor `UsersTable` to use shared `DataTable`** | `components/modules/users/users-table.tsx` — delegates skeleton/pagination to shared component | P1 | `[x] 2026-04-24` |
 
 ---
 

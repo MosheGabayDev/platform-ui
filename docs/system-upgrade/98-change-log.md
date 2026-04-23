@@ -17,6 +17,45 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-24 — Round 012: Capability Layer Foundation
+
+### Files Created (platform-ui)
+- `components/shared/data-table/types.ts` — **created** (DataTableProps, PaginationState interfaces)
+- `components/shared/data-table/table-skeleton.tsx` — **created** (animated skeleton rows for loading state)
+- `components/shared/data-table/pagination.tsx` — **created** (RTL-aware prev/next pagination with page indicator)
+- `components/shared/data-table/data-table.tsx` — **created** (generic server-side DataTable wrapping TanStack Table)
+- `components/shared/data-table/index.ts` — **created** (barrel exports)
+- `components/shared/permission-gate.tsx` — **created** (role/permission/adminOnly gate with hide/disable modes)
+- `lib/hooks/use-permission.ts` — **created** (session-aware isRole/can/isAdmin helpers)
+- `lib/utils/format.ts` — **created** (formatDate, formatDateTime, formatRelativeTime, formatNumber, formatCurrency, formatBytes — he-IL locale, Asia/Jerusalem TZ)
+- `lib/utils/csv.ts` — **created** (rowsToCsv, downloadCsv, exportToCsv with BOM for Hebrew Excel compat)
+- `lib/api/request-context.ts` — **created** (buildAuditHeaders, generateRequestId)
+
+### Files Updated (platform-ui)
+- `components/shared/data-table.tsx` → **renamed** to `components/shared/data-table-client.tsx` (client-side legacy table; avoid directory name collision)
+- `components/modules/users/users-table.tsx` — **refactored** (delegates table shell to shared DataTable; uses formatDate from lib/utils/format; reduced from 241 to ~120 lines)
+- `app/api/proxy/[...path]/route.ts` — **updated** (attaches X-Request-ID, X-User-Id, X-Org-Id, X-Client-Source audit headers)
+- `docs/modules/02-organizations/PLAN.md` — **updated** (full endpoint audit: all routes use session cookie auth, not JWT; ADR-015 pattern required; capability layer alignment section added)
+- `docs/system-upgrade/25-open-source-capability-layer.md` — **updated** (implementation status updated, DataTable reference path corrected)
+- `docs/system-upgrade/15-action-backlog.md` — **updated** (10 tasks marked done, 2 new tasks added)
+- `docs/system-upgrade/96-rounds-index.md` — **updated** (Round 012 entry)
+- `docs/system-upgrade/98-change-log.md` — **updated** (this entry)
+
+### New Findings
+- `components/shared/data-table.tsx` existed (client-side only, no TanStack) — renamed to avoid name conflict
+- `components/shared/empty-state.tsx` existed and was already good — no changes needed
+- Organizations endpoints all use `_require_admin()` (Flask-Login session) — ADR-015 pattern required again
+- JWT token in proxy is `token.user.id` / `token.user.org_id` (not flat `token.userId`)
+
+### Decision Changes
+- None new — implements ADR-016
+
+### Backlog Changes
+- 10 capability layer tasks marked `[x] 2026-04-24`
+- 2 new tasks added: request-context helper, UsersTable refactor
+
+---
+
 ## 2026-04-24 — Round 011: Open-Source Capability Layer
 
 ### Files Changed (platform-ui)

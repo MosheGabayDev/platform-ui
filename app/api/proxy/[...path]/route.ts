@@ -10,6 +10,7 @@
 
 import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
+import { buildAuditHeaders } from "@/lib/api/request-context";
 
 const FLASK = process.env.FLASK_API_URL ?? "http://localhost:5000";
 
@@ -71,11 +72,18 @@ async function proxy(req: NextRequest, params: { path: string[] }) {
   const downstream = `${FLASK}${flaskPrefix}${rest.length ? `/${rest.join("/")}` : ""}${req.nextUrl.search}`;
 
   try {
+    const auditHeaders = buildAuditHeaders({
+      userId: token.user?.id ?? null,
+      orgId: token.user?.org_id ?? null,
+      route: req.headers.get("referer"),
+    });
+
     const upstream = await fetch(downstream, {
       method: req.method,
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token.accessToken}`,
+        ...auditHeaders,
       },
       body: req.method !== "GET" && req.method !== "HEAD"
         ? await req.text()

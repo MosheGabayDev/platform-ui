@@ -175,6 +175,21 @@ _Updated after each round — append, never overwrite entries._
 
 ---
 
+## Round 012 — Capability Layer Foundation
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-24 |
+| **Topic** | Implement shared capability layer foundations + Organizations preparation |
+| **Objective** | Extract reusable primitives from Users module so Organizations and all future modules don't duplicate table/permission/format/CSV logic. |
+| **Key Findings** | • `components/shared/data-table.tsx` existed but was client-side only (in-memory filter/sort) — renamed to `data-table-client.tsx` to avoid name collision with new server-side `data-table/` directory <br>• `components/shared/empty-state.tsx` already existed and was already good — no changes needed <br>• Organizations `/admin/api/organizations` routes use `_require_admin()` (session cookie) — same ADR-015 problem as Users; need new JWT-authenticated blueprint `apps/admin/org_api_routes.py` <br>• Token JWT shape in proxy is `token.user.id` / `token.user.org_id` (not `token.userId`) — fixed in proxy update <br>• TypeScript typecheck: EXIT 0 after fixes |
+| **Files Created (platform-ui)** | `components/shared/data-table/types.ts`, `components/shared/data-table/table-skeleton.tsx`, `components/shared/data-table/pagination.tsx`, `components/shared/data-table/data-table.tsx`, `components/shared/data-table/index.ts`, `components/shared/permission-gate.tsx`, `lib/hooks/use-permission.ts`, `lib/utils/format.ts`, `lib/utils/csv.ts`, `lib/api/request-context.ts` |
+| **Files Updated (platform-ui)** | `components/shared/data-table.tsx` → renamed to `data-table-client.tsx`, `components/modules/users/users-table.tsx` (refactored to use shared DataTable), `app/api/proxy/[...path]/route.ts` (audit headers), `docs/modules/02-organizations/PLAN.md` (full endpoint audit + capability alignment), `docs/system-upgrade/25-open-source-capability-layer.md`, `docs/system-upgrade/15-action-backlog.md`, `docs/system-upgrade/96-rounds-index.md`, `docs/system-upgrade/98-change-log.md` |
+| **Decisions Proposed** | None new — implements ADR-016 capability layer |
+| **Next Recommended Round** | Round 013: Module 02 Organizations — create Flask JWT org API + platform-ui pages using shared DataTable + PermissionGate |
+
+---
+
 ## Upcoming Rounds (Proposed)
 
 | Round | Topic | Why Now |
@@ -186,7 +201,8 @@ _Updated after each round — append, never overwrite entries._
 | **009** | Auth Phase B (Flask additions) | ✅ Complete — /me fixed, /logout added, serialize_auth_user with permissions |
 | **010** | Module 01: Users | ✅ Complete — list + detail pages, Flask JSON API, types, components, ADR-015 |
 | **011** | Open-Source Capability Layer | ✅ Complete — ADR-016, 25-open-source-capability-layer.md, 14 backlog tasks |
-| **012** | Capability foundation + Module 02: Organizations | Install nuqs, create shared components, then Organizations module |
-| **013** | Module 04: Helpdesk | Largest module, most business value |
-| **014** | SSE infrastructure | Enables live data across all future modules |
-| **015** | CI/CD pipeline for platform-ui | Required before shipping to production |
+| **012** | Capability Layer Foundation | ✅ Complete — shared DataTable, PermissionGate, format utils, CSV util, request context, audit headers |
+| **013** | Module 02: Organizations | Flask JWT org API + platform-ui list/detail pages using shared components |
+| **014** | Module 04: Helpdesk | Largest module, most business value |
+| **015** | SSE infrastructure | Enables live data across all future modules |
+| **016** | CI/CD pipeline for platform-ui | Required before shipping to production |

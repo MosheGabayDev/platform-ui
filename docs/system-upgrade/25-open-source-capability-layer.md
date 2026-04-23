@@ -2,7 +2,7 @@
 
 _Format: Library evaluation + integration standards_
 _Last updated: 2026-04-24_
-_Round: 011_
+_Round: 011 (created), 012 (foundation implemented)_
 
 ---
 
@@ -25,8 +25,8 @@ This document standardizes the open-source libraries that provide **horizontal c
 | CSV import preview | `papaparse` | ❌ Pending install | P2 |
 | Dashboard drag-resize | `react-grid-layout` | ❌ Pending install | P3 |
 | Virtual scroll | `@tanstack/react-virtual` | ❌ Pending install | P2 |
-| Permission-aware actions | Internal pattern (see §6) | — | P0 |
-| Audit mutations | Internal pattern (see §8) | — | P0 |
+| Permission-aware actions | Internal pattern (see §6) | ✅ Implemented (Round 012) | P0 |
+| Audit mutations | Internal pattern (see §8) | ✅ Proxy headers implemented (Round 012) | P0 |
 
 ---
 
@@ -41,7 +41,7 @@ This document standardizes the open-source libraries that provide **horizontal c
 
 ### Canonical DataTable Pattern
 
-All module list pages must use `DataTable<T>` from `components/ui/data-table.tsx` (to be created as shared). The Users module `UsersTable` is the reference implementation.
+All module list pages must use `DataTable<T>` from `components/shared/data-table` (implemented Round 012). The Users module `UsersTable` is the reference implementation and has been refactored to use it.
 
 **Required props pattern:**
 
