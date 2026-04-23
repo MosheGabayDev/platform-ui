@@ -35,6 +35,7 @@ _Last updated: 2026-04-23_
 
 ### Deliverables
 
+- [ ] **Capability layer foundation**: install `nuqs`; create shared `DataTable<T>`, `EmptyState`, `StatCard`, `PermissionGate`, `usePermission()`, date utils (see `25-open-source-capability-layer.md`)
 - [ ] OpenAPI setup on Flask: add `flask-smorest` or `apispec` to 10 highest-priority endpoints
 - [ ] TypeScript codegen: `openapi-typescript` runs in CI; generates `lib/api/generated/`
 - [ ] Standard API response envelope: `{ data, error, meta }` — implement + enforce on annotated endpoints

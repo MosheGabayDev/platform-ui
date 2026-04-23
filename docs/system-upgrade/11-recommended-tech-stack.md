@@ -34,6 +34,19 @@ _Last updated: 2026-04-23_
 
 ---
 
+### Capability Layer Standards (Round 011)
+
+Horizontal capabilities (DataGrid, forms, import/export, permissions, audit mutations) are standardized in `docs/system-upgrade/25-open-source-capability-layer.md`. Do not evaluate these choices per-module — follow ADR-016.
+
+**Approved additions to install:**
+- `nuqs` — URL filter/pagination state (Phase 1)
+- `papaparse` — CSV import/export (Phase 2)
+- `@tanstack/react-virtual` — virtual scroll for large tables (Phase 2)
+- `react-grid-layout` — dashboard drag-resize (Phase 3, deferred)
+- `xlsx` — Excel export, per-module only (Phase 3)
+
+---
+
 ### TanStack Query v5 ✓ ALREADY CHOSEN
 
 **Why it fits**: Server state management (cache, background refresh, optimistic updates) is exactly what investigation status and approval notifications need.

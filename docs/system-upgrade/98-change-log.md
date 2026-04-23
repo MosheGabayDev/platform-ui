@@ -17,6 +17,33 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-24 — Round 011: Open-Source Capability Layer
+
+### Files Changed (platform-ui)
+- `docs/system-upgrade/25-open-source-capability-layer.md` — **created** (18 sections: DataGrid, charts, forms, URL state, import/export, permissions, multi-tenant safety, audit mutations, dashboard layout, dates, toasts, skeletons, empty states, RTL conventions, file gates, install order, what NOT to add, ADR reference)
+- `docs/system-upgrade/14-decision-log.md` — **updated** (ADR-016: Open-Source Capability Layer)
+- `docs/system-upgrade/15-action-backlog.md` — **updated** (new section: 14 capability layer tasks — install nuqs, shared components, PermissionGate, date utils, CSV export, proxy audit headers)
+- `docs/system-upgrade/11-recommended-tech-stack.md` — **updated** (capability layer standards block with approved additions list)
+- `docs/system-upgrade/12-migration-roadmap.md` — **updated** (Phase 1: capability layer foundation added as first deliverable)
+- `docs/modules/ROADMAP.md` — **updated** (module start checklist: step 3 now requires reading capability layer doc; module file structure expanded)
+- `docs/system-upgrade/96-rounds-index.md` — **updated** (Round 011 entry, upcoming rounds updated)
+- `docs/system-upgrade/98-change-log.md` — **updated** (this entry)
+
+### New Findings
+- BOM (`\uFEFF`) required for Hebrew CSV export (Excel on Windows misreads UTF-8 without it)
+- `nuqs` not yet installed — blocks all list page filter/pagination URL state
+- `PermissionGate` + `usePermission()` missing — must be created before any module with destructive actions
+- `react-grid-layout` correctly deferred to Phase 3 (no dashboard builder until Monitoring module)
+- `org_id` safety rule formalized: always from `session.user.org_id`, never URL params
+
+### Decision Changes
+- ADR-016 added: Open-Source Capability Layer — standardizes library choices for all 19 modules
+
+### Backlog Changes
+- Added "Open-Source Capability Layer" section to `15-action-backlog.md` (14 new P1/P2 tasks)
+
+---
+
 ## 2026-04-24 — Round 010: Module 01 Users (First Module)
 
 ### Files Changed (platformengineer)

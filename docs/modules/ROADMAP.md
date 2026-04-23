@@ -60,7 +60,9 @@ Organizations ──┘
 
 1. Read `docs/modules/<N>-<name>/PLAN.md`
 2. Read `CLAUDE.md` for coding rules
-3. Create `app/(dashboard)/<route>/page.tsx`
-4. Add proxy routes to `lib/api/client.ts` + `lib/api/types.ts` + `lib/api/query-keys.ts`
-5. Mark status as 🔵 in this file
-6. When done: mark ✅ and update `components/shell/nav-items.ts` badge counts
+3. Read `docs/system-upgrade/25-open-source-capability-layer.md` — follow all horizontal patterns (DataTable, forms, permissions, mutations, RTL, dates)
+4. Create `app/(dashboard)/<route>/page.tsx` (≤200 lines)
+5. Add types to `lib/modules/<module>/types.ts`, schema to `lib/modules/<module>/schemas.ts`, mutations to `lib/modules/<module>/mutations.ts`
+6. Add proxy routes to `lib/api/client.ts` + query keys to `lib/api/query-keys.ts`
+7. Mark status as 🔵 in this file
+8. When done: mark ✅ and update `components/shell/nav-items.ts` badge counts

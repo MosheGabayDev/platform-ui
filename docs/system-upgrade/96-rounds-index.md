@@ -160,6 +160,21 @@ _Updated after each round — append, never overwrite entries._
 
 ---
 
+## Round 011 — Open-Source Capability Layer
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-24 |
+| **Topic** | Standardize horizontal capabilities across all 19 modules |
+| **Objective** | Define which open-source libraries handle DataGrid, charts, forms, URL state, file import/export, permission-aware UI, multi-tenant safety, and audit mutations — so these are never re-evaluated per module. |
+| **Key Findings** | • `@tanstack/react-table` v8, `recharts` v3, `react-hook-form` v7, `zod` v4, `sonner` already installed — no new P0 libraries needed <br>• `nuqs` missing — must be installed before any list page with filters (URL state) <br>• RTL pagination direction flip: ChevronRight=previous, ChevronLeft=next (logical) — must be standard everywhere <br>• BOM (`\uFEFF`) mandatory in CSV export — Excel on Windows misreads Hebrew UTF-8 without it <br>• `org_id` from `session.user.org_id` only — never from URL params or request body (tenant safety rule) <br>• `react-grid-layout` deferred to Phase 3 (dashboard builder, Monitoring module only) <br>• `xlsx` deferred — dynamic import, per-module only for helpdesk/billing Excel exports <br>• `PermissionGate` component + `usePermission()` hook missing — must be created before any module with destructive actions <br>• All module mutations must live in `lib/modules/<module>/mutations.ts` — not inline in components |
+| **Files Created (platform-ui)** | `docs/system-upgrade/25-open-source-capability-layer.md` (18 sections) |
+| **Files Updated (platform-ui)** | `docs/system-upgrade/14-decision-log.md` (ADR-016), `docs/system-upgrade/15-action-backlog.md` (14 new tasks), `docs/system-upgrade/11-recommended-tech-stack.md` (capability layer section), `docs/system-upgrade/12-migration-roadmap.md` (Phase 1 prerequisite), `docs/modules/ROADMAP.md` (module start checklist updated) |
+| **Decisions Proposed** | ADR-016: Open-Source Capability Layer (standardizes all library choices for 19 modules) |
+| **Next Recommended Round** | Round 012: Capability layer foundation — install nuqs, create shared DataTable, PermissionGate, EmptyState, date utils; then Module 02 Organizations |
+
+---
+
 ## Upcoming Rounds (Proposed)
 
 | Round | Topic | Why Now |
@@ -169,8 +184,9 @@ _Updated after each round — append, never overwrite entries._
 | **007** | Auth implementation (Phase A) | ✅ Complete — all Phase A files implemented |
 | **008** | Module data export/import design | ✅ Complete — spec in `24-core-platform-and-module-system.md` |
 | **009** | Auth Phase B (Flask additions) | ✅ Complete — /me fixed, /logout added, serialize_auth_user with permissions |
-| **010** | Module 01: Users | ✅ Partial — list + detail pages, Flask JSON API, types, components |
-| **011** | Module 02: Organizations OR Users Phase 2 (create/edit forms) | Continue core modules |
-| **012** | Module 04: Helpdesk | Largest module, most business value |
-| **013** | SSE infrastructure | Enables live data across all future modules |
-| **014** | CI/CD pipeline for platform-ui | Required before shipping to production |
+| **010** | Module 01: Users | ✅ Complete — list + detail pages, Flask JSON API, types, components, ADR-015 |
+| **011** | Open-Source Capability Layer | ✅ Complete — ADR-016, 25-open-source-capability-layer.md, 14 backlog tasks |
+| **012** | Capability foundation + Module 02: Organizations | Install nuqs, create shared components, then Organizations module |
+| **013** | Module 04: Helpdesk | Largest module, most business value |
+| **014** | SSE infrastructure | Enables live data across all future modules |
+| **015** | CI/CD pipeline for platform-ui | Required before shipping to production |

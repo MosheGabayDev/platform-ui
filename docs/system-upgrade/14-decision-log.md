@@ -292,4 +292,38 @@ Error case:
 
 ---
 
+## ADR-016 — Open-Source Capability Layer (Round 011)
+
+**Status**: Accepted
+
+**Context**: 19 modules need the same horizontal capabilities: data grids, charts, forms, file import/export, permission gates, multi-tenant safety, and audit mutations. Without a standardized choice, each module developer would evaluate libraries independently, creating bundle duplication and inconsistent UX patterns.
+
+**Options considered**:
+- Per-module library choices (rejected — creates 19 inconsistent patterns)
+- AG Grid for tables (rejected — enterprise license needed for RTL; conflicts with TanStack Query cache ownership)
+- Material UI / Ant Design component libraries (rejected — conflicts with shadcn/ui; heavy bundle)
+- `moment.js` / `date-fns` for dates (rejected — `Intl.*` covers all use cases at zero bundle cost)
+
+**Chosen direction**: Standardize on the libraries already installed (`@tanstack/react-table`, `react-hook-form`, `zod`, `recharts`, `sonner`, `zustand`) plus a minimal set of approved additions (`nuqs`, `papaparse`, `@tanstack/react-virtual`, `react-day-picker` via shadcn). `react-grid-layout` and `xlsx` are deferred to Phase 3, installed per-module only.
+
+**Internal patterns** (not libraries):
+- `usePermission()` hook + `<PermissionGate>` component for all action gating
+- `useAuditedMutation` pattern (TanStack Query mutations with meta context)
+- Org ID always from `session.user.org_id` — never from URL params or request body
+
+**Consequences**:
+- Every module list page uses `DataTable<T>` (TanStack Table, `manualPagination: true`)
+- Every form uses react-hook-form + zod, schema in `lib/modules/<module>/schemas.ts`
+- Every mutation lives in `lib/modules/<module>/mutations.ts`
+- Filter/pagination state uses `nuqs` after it's installed (Phase 1)
+- CSV export with BOM (Hebrew Excel compatibility)
+- `react-grid-layout` deferred to Phase 3 (Monitoring module)
+- Libraries listed in "What NOT to Add" table in `25-open-source-capability-layer.md` require explicit approval before installation
+
+**Full reference**: `docs/system-upgrade/25-open-source-capability-layer.md`
+
+**Affected modules**: All 19 modules
+
+---
+
 _Add new ADRs here as decisions are made during implementation._
