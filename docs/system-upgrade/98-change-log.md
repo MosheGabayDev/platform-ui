@@ -17,6 +17,37 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-24 — Round 006: AI-Maintainability and Code Cleanup Policy
+
+### Files Changed
+- `docs/system-upgrade/23-ai-maintainability-and-code-cleanup.md` — **created** (15 sections, full cleanup policy)
+- `docs/system-upgrade/08-technical-debt-register.md` — **updated** (3 new AI-maintainability debt items: missing INDEX.md, missing file headers, Vite app duplication, Jinja2 co-existence)
+- `docs/system-upgrade/09-modernization-opportunities.md` — **updated** (QW-3 expanded from "Delete Dead Code" stub to full AI-maintainability foundations plan)
+- `docs/system-upgrade/10-target-architecture.md` — **updated** (added principle 7 + AI-Agent Design Principles table)
+- `docs/system-upgrade/12-migration-roadmap.md` — **updated** (added Migration Principles 6-8: cleanup-first, delete Jinja2 on parity, file size gate)
+- `docs/system-upgrade/14-decision-log.md` — **updated** (ADR-013 added)
+- `docs/system-upgrade/15-action-backlog.md` — **updated** (Phase 0.5 AI-Maintainability section added: 10 tasks)
+- `docs/system-upgrade/96-rounds-index.md` — **updated** (Round 006 entry added; upcoming rounds renumbered)
+- `docs/system-upgrade/97-source-of-truth.md` — **updated** (AI-maintainability policy row added; ADR highest updated to ADR-013)
+- `docs/system-upgrade/98-change-log.md` — **updated** (this entry)
+
+### New Findings
+- `api_auth_OLD_BACKUP.py` confirmed dead — no imports found; safe to delete after grep-confirm
+- No per-module `INDEX.md` exists in any `apps/<module>/` directory — AI agents read full module without orientation
+- 4 Vite apps (`ai-agents-ui/`, `ala-ui/`, `ops-ui/`, `dyn-dt-ui/`) have no inventory of feature-vs-platform-ui parity — must scope before retirement
+- Jinja2 templates have no tracked relationship to their `render_template` callers — retirement order undefined
+- `run.py` is 15KB god-file — primary driver of incorrect agent module attribution
+- 39 Alembic parallel heads are intentional — must NOT be consolidated (documented in MEMORY.md)
+- File size limits are undefined in current CLAUDE.md — agents generate unbounded files
+
+### Decision Changes
+- ADR-013 added: AI-maintainable codebase and cleanup-first modernization
+
+### Backlog Changes
+- Phase 0.5 AI-Maintainability section added to `15-action-backlog.md`: 10 tasks covering dead-code sweep, INDEX.md template, file header standard, oversized file list, platform-ui knip scan, Vite app inventory, Jinja2 template inventory
+
+---
+
 ## 2026-04-24 — Round 005: Authentication Bridge
 
 ### Files Changed

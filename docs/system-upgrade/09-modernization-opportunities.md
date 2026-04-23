@@ -1,6 +1,6 @@
 # 09 — Modernization Opportunities
 
-_Last updated: 2026-04-23_
+_Last updated: 2026-04-24_
 
 ---
 
@@ -26,15 +26,18 @@ _Last updated: 2026-04-23_
 
 **Risk**: Low — additive only
 
-### QW-3: Delete Dead Code
+### QW-3: AI-Maintainability Foundations
 
-**What**: Remove `apps/authentication/api_auth_OLD_BACKUP.py`, `apps/authentication/api_auth_optimized.py` (if superseded), dead commented-out blocks in `requirements.txt`. Move old files to `.archive/`.
+**What**: Three parallel tracks:
+1. **Dead-code sweep**: Delete `api_auth_OLD_BACKUP.py` and all `*_OLD_*`/`*_BACKUP*` files after grep-confirm; run `vulture` on `apps/` and `knip` on platform-ui
+2. **File headers**: Add standard module-level docstring to every file touched in the current sprint
+3. **Module INDEX.md**: Create `INDEX.md` in each `apps/<module>/` directory visited; use `DOCS/templates/INDEX_TEMPLATE.md`
 
-**Why**: Reduces confusion; new developers don't know what's canonical.
+**Why**: AI coding assistants generate better, safer changes when the codebase has no dead code, clear file headers, and local index files. This is the single highest-leverage DX improvement before starting the 19-module migration. See full strategy in `23-ai-maintainability-and-code-cleanup.md`.
 
-**Effort**: 0.5 days
+**Effort**: 1-2 days initial sweep; ongoing as modules are touched
 
-**Risk**: Low
+**Risk**: Low — archive first, hard-delete after 1-week no-error period
 
 ### QW-4: Role-Based Route Guards in platform-ui
 

@@ -195,4 +195,35 @@ Error case:
 
 ---
 
+## ADR-013 — AI-Maintainable Codebase and Cleanup-First Modernization
+
+**Status**: Accepted
+
+**Context**: This project relies heavily on AI coding assistants (Claude Code) for implementation. AI agents generate better, safer code when they can read a clean, well-structured codebase. The current codebase has: dead backup files (`api_auth_OLD_BACKUP.py`), no per-module INDEX.md files, missing file headers, 4 embedded Vite apps with duplicated components, and Jinja2 templates co-existing with platform-ui equivalents. This creates context pollution that degrades agent output quality and increases the risk of agents modifying the wrong layer.
+
+**Options considered**:
+- A: Clean up only when convenient — no policy, ad hoc
+- B: Clean up after migration — retire Jinja2 last, delete dead code last
+- C: Cleanup-first per module — before building a platform-ui page for a module, sweep dead code and create INDEX.md for that module's backend; delete Jinja2 on parity (same PR) ✅
+
+**Chosen direction**: **Option C** — cleanup is a first-class development activity, not a follow-up. Each module is cleaned before its platform-ui equivalent is built. Jinja2 templates are deleted the same day the platform-ui equivalent reaches parity.
+
+**AI-agent-friendly conventions required by this ADR**:
+1. Every `apps/<module>/` has `INDEX.md` (created before or during the module's platform-ui migration)
+2. Every new/modified file has a standard module-level header (purpose + auth + tenant scope)
+3. `*_OLD_*` and `*_BACKUP*` files are deleted after grep-confirm + 1-week monitor; not archived indefinitely
+4. File size gates enforced: Python routes ≤200 lines, TypeScript pages ≤150 lines
+5. `vulture` + `knip` run as part of the pre-migration checklist for each module
+6. Jinja2 template deleted in same PR as platform-ui parity confirmation — no dual-maintenance
+
+**Consequences**:
+- Each module migration starts with a cleanup subtask (estimated 0.5 days overhead per module)
+- `docs/system-upgrade/23-ai-maintainability-and-code-cleanup.md` is the reference document
+- The cleanup checklist in §13 of that document is added to every module PLAN.md's DoD
+- Vite app retirement follows the explicit schedule in §10 of that document
+
+**Affected modules**: All 19 modules + `platformengineer/apps/` directory
+
+---
+
 _Add new ADRs here as decisions are made during implementation._

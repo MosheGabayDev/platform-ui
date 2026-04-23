@@ -137,6 +137,9 @@ _Last updated: 2026-04-23_
 3. **RBAC on both sides** — backend `@role_required` + frontend route guard + hidden nav items
 4. **RTL always tested** — every new page must pass manual RTL check before merge
 5. **No big-bang releases** — each domain migrated independently behind feature flag if needed
+6. **Cleanup-first per module** — before building a platform-ui page for a module, run the dead-code sweep and create INDEX.md for that module's `apps/<module>/` directory (see `23-ai-maintainability-and-code-cleanup.md §8`)
+7. **Delete Jinja2 on parity** — the day a domain reaches feature parity in platform-ui, delete the Jinja2 template in the same PR (not a follow-up); document deleted routes in the PR description
+8. **File size gate** — no new file may exceed 300 lines (Python) or 200 lines (TypeScript) without a documented reason; split before merging
 
 ---
 

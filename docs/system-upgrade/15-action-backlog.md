@@ -51,6 +51,23 @@ _Last updated: 2026-04-24_
 
 ---
 
+## AI-Maintainability (Phase 0.5 — alongside auth, before module builds)
+
+| Task | File(s) | Priority | Status |
+|------|---------|----------|--------|
+| **Dead-code inventory** | Run `find apps/ -name "*_OLD*" -o -name "*_BACKUP*"` + `vulture apps/ --min-confidence 80` | P1 | `[ ]` |
+| **Delete `api_auth_OLD_BACKUP.py`** | `apps/authentication/api_auth_OLD_BACKUP.py` — grep-confirm, then delete | P1 | `[ ]` |
+| **Delete all other `*_OLD_*`/`*_BACKUP*` files** | Full `apps/` sweep; archive to `.archive/` first if uncertain | P2 | `[ ]` |
+| **Module INDEX.md template** | Create `DOCS/templates/MODULE_INDEX_TEMPLATE.md` for `apps/<module>/INDEX.md` | P1 | `[ ]` |
+| **Platform-ui route README template** | Create `DOCS/templates/ROUTE_README_TEMPLATE.md` for `app/(dashboard)/<route>/README.md` | P2 | `[ ]` |
+| **File header standard** | Document Python + TypeScript header format in `CLAUDE.md §Code Documentation`; add to PR checklist | P1 | `[ ]` |
+| **Oversized file list** | `find apps/ -name "*.py" | xargs wc -l | sort -rn | head -20` — identify top 20 biggest files | P2 | `[ ]` |
+| **platform-ui knip scan** | `npx knip --no-exit-code` — find unused exports, files, dependencies | P2 | `[ ]` |
+| **Vite app inventory** | Document exactly what each Vite app (`ai-agents-ui/`, `ala-ui/`, `ops-ui/`, `dyn-dt-ui/`) does that platform-ui doesn't yet — scope the migration | P2 | `[ ]` |
+| **Jinja2 template inventory** | List all active templates + their Flask `render_template` callers — baseline for retirement | P2 | `[ ]` |
+
+---
+
 ## Next (Phase 1 — 2-8 weeks)
 
 | Task | Why It Matters | Dependencies | Status |

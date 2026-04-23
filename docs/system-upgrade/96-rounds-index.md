@@ -83,13 +83,28 @@ _Updated after each round — append, never overwrite entries._
 
 ---
 
+## Round 006 — AI-Maintainability and Code Cleanup Policy
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-24 |
+| **Topic** | AI-maintainability as a first-class architectural goal |
+| **Objective** | Define the complete cleanup strategy — dead code, file size limits, module INDEX.md, Jinja2 retirement, Vite app consolidation — so that AI coding assistants produce reliably correct changes throughout the 19-module migration. |
+| **Key Findings** | • `api_auth_OLD_BACKUP.py` confirmed dead — safe to delete after grep-confirm <br>• 4 Vite apps have no inventory of what they do vs platform-ui — scoping needed before retirement <br>• No per-module INDEX.md exists in `apps/` — agent navigates by reading every file <br>• No file size enforcement — `run.py` is 15KB god-file <br>• Jinja2 templates not yet tracked against their Flask callers — retirement order undefined <br>• 39 Alembic parallel heads intentional — must NOT consolidate (documented in MEMORY.md) |
+| **Files Updated** | `23-ai-maintainability-and-code-cleanup.md` (created), `08-technical-debt-register.md`, `09-modernization-opportunities.md`, `10-target-architecture.md`, `12-migration-roadmap.md`, `14-decision-log.md` (ADR-013), `15-action-backlog.md`, `96-rounds-index.md`, `97-source-of-truth.md`, `98-change-log.md` |
+| **Decisions Proposed** | ADR-013: AI-maintainable codebase and cleanup-first modernization |
+| **Next Recommended Round** | Round 007: Implement Phase A auth (next-auth config, login, middleware, proxy update) — confirm working in TEST |
+
+---
+
 ## Upcoming Rounds (Proposed)
 
 | Round | Topic | Why Now |
 |-------|-------|---------|
 | **005** | Authentication bridge | ✅ Complete — design in `16-auth-bridge-design.md` |
-| **006** | Module 01: Users | First Critical module, no dependencies |
-| **007** | Module 04: Helpdesk | Largest module, most business value |
-| **008** | SSE infrastructure | Enables live data across all future modules |
-| **009** | AI command bar + insight chips | Highest-impact UX upgrade, surgical change to existing files |
-| **010** | CI/CD pipeline for platform-ui | Required before shipping to production |
+| **006** | AI-maintainability policy | ✅ Complete — policy in `23-ai-maintainability-and-code-cleanup.md` |
+| **007** | Auth implementation (Phase A) | Implement next-auth, login page, middleware, proxy Bearer |
+| **008** | Module 01: Users | First critical module, no dependencies |
+| **009** | Module 04: Helpdesk | Largest module, most business value |
+| **010** | SSE infrastructure | Enables live data across all future modules |
+| **011** | CI/CD pipeline for platform-ui | Required before shipping to production |

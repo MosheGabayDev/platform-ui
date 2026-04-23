@@ -12,6 +12,24 @@ _Last updated: 2026-04-23_
 4. **Multi-tenant security at every layer** — org_id enforced from auth session down
 5. **Real-time where it matters** — investigation status, approvals, voice calls
 6. **Observability from day one** — every new service ships with metrics + logs
+7. **AI-maintainable codebase** — every module has an INDEX.md; file headers state purpose + auth; dead code is deleted, not commented out; file size stays bounded so AI agents read the whole module in one context window
+
+---
+
+## AI-Agent Design Principles
+
+These principles apply to every file written or modified in this project:
+
+| Principle | Rule |
+|-----------|------|
+| **Navigable** | Every `apps/<module>/` has `INDEX.md`; every platform-ui route has `README.md` |
+| **Bounded files** | Python routes ≤200 lines; TypeScript page components ≤150 lines; split beyond that |
+| **No dead addresses** | `*_OLD_*`, `*_BACKUP*`, and commented-out implementations are deleted (not kept) |
+| **Self-describing headers** | Module-level docstring (Python) or JSDoc (TypeScript) on every file; states purpose, auth requirement, tenant-scoping |
+| **Explicit boundaries** | `apps/A/` does not import from `apps/B/`; `lib/api/` does not import from `app/`; boundaries declared and enforced by `import-linter` |
+| **One canonical implementation** | When an old and new version of the same thing co-exist, the old one is archived or deleted — never left as a sibling file |
+
+For the full policy see `23-ai-maintainability-and-code-cleanup.md`.
 
 ---
 
