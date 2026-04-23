@@ -8,10 +8,10 @@ _Last updated: 2026-04-24_
 
 | Task | Why It Matters | Dependencies | Status |
 |------|---------------|--------------|--------|
-| **Wire real auth in platform-ui** | Platform-ui is useless without real login. Everything downstream depends on this. | ✅ Design complete (ADR-011) | `[~]` In Progress |
+| **Wire real auth in platform-ui** | Platform-ui is useless without real login. Everything downstream depends on this. | Phase A complete (Round 006) | `[x] 2026-04-24` |
 | **Implement `/api/proxy/[...path]` route handler** | Dashboard API calls proxy to Flask | ✅ Proxy route exists, cookie forwarding implemented | `[x]` Done |
 | **Verify dashboard stats work end-to-end** | Dashboard fetches from Flask via proxy | Confirmed working in TEST | `[x]` Done |
-| **Add Next.js middleware for route guards** | Unauthenticated users can access dashboard routes | next-auth must be configured first | `[ ]` TODO |
+| **Add Next.js middleware for route guards** | Unauthenticated users can access dashboard routes | next-auth must be configured first | `[x] 2026-04-24` |
 | **Add error boundary to dashboard layout** | API failures may crash the page silently | — | `[ ]` TODO |
 | **Answer Q1 (auth contract)** | Flask auth response shape | `[RESOLVED]` JWT + session both exist; using JWT for platform-ui | `[x]` Done |
 | **Answer Q4 (API paths)** | Confirm API endpoint paths | `[RESOLVED]` Paths confirmed correct in TEST | `[x]` Done |
@@ -22,14 +22,16 @@ _Last updated: 2026-04-24_
 
 | Task | File(s) | Priority | Status |
 |------|---------|----------|--------|
-| **Create next-auth handler** | `app/api/auth/[...nextauth]/route.ts` | P1 | `[ ]` |
-| **Create auth options** | `lib/auth/options.ts` (authOptions, Credentials provider → `POST /api/auth/login`) | P1 | `[ ]` |
-| **Define session + JWT types** | `lib/auth/types.ts` (next-auth module augmentation) | P1 | `[ ]` |
-| **Wire SessionProvider** | `app/layout.tsx` | P1 | `[ ]` |
-| **Update login page** | `app/(auth)/login/page.tsx` — call `signIn("credentials")` | P1 | `[ ]` |
-| **Add middleware.ts** | `middleware.ts` (project root) — protect `(dashboard)/*` | P1 | `[ ]` |
-| **Update proxy to use Bearer** | `app/api/proxy/[...path]/route.ts` — `getToken()` + `Authorization: Bearer` | P1 | `[ ]` |
-| **Add env vars to .env.local** | `NEXTAUTH_SECRET`, `NEXTAUTH_URL` | P1 | `[ ]` |
+| **Create next-auth handler** | `app/api/auth/[...nextauth]/route.ts` | P1 | `[x] 2026-04-24` |
+| **Create auth options** | `lib/auth/options.ts` (authOptions, Credentials provider → `POST /api/auth/login`) | P1 | `[x] 2026-04-24` |
+| **Define session + JWT types** | `lib/auth/types.ts` (next-auth module augmentation) | P1 | `[x] 2026-04-24` |
+| **Create RBAC helpers** | `lib/auth/rbac.ts` — hasRole, hasPermission, getOrgId | P1 | `[x] 2026-04-24` |
+| **Wire SessionProvider** | `app/layout.tsx` → `components/providers/session-provider.tsx` | P1 | `[x] 2026-04-24` |
+| **Update login page** | `app/(auth)/login/page.tsx` — calls `signIn("credentials")`, real error state | P1 | `[x] 2026-04-24` |
+| **Add middleware.ts** | `middleware.ts` (project root) — protects all routes, 401 for proxy, redirect for pages | P1 | `[x] 2026-04-24` |
+| **Update proxy to use Bearer** | `app/api/proxy/[...path]/route.ts` — `getToken()` + `Authorization: Bearer` | P1 | `[x] 2026-04-24` |
+| **Add env vars to .env.example** | `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `FLASK_API_URL` documented | P1 | `[x] 2026-04-24` |
+| **Create auth documentation** | `docs/auth/README.md` — flow diagram, session shape, proxy behavior, gaps, agent guide | P1 | `[x] 2026-04-24` |
 
 ## Auth Bridge Implementation (Phase B — Flask additions)
 

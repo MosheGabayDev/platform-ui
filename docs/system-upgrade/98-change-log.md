@@ -17,6 +17,43 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-24 — Round 007: Auth Phase A Implementation
+
+### Files Created
+- `lib/auth/types.ts` — Flask response types, NormalizedAuthUser, next-auth Session/JWT augmentation
+- `lib/auth/options.ts` — authOptions: Credentials provider, jwt callback (with refresh), session callback
+- `lib/auth/rbac.ts` — hasRole, hasAnyRole, hasPermission, isSystemAdmin, getOrgId
+- `app/api/auth/[...nextauth]/route.ts` — NextAuth handler (thin, no logic)
+- `components/providers/session-provider.tsx` — client SessionProvider wrapper
+- `middleware.ts` — route guard: 401 for proxy, redirect for pages, RefreshTokenError handling
+- `docs/auth/README.md` — auth flow diagram, session shape, proxy behavior, backend gaps, agent guide
+- `.env.example` — NEXTAUTH_SECRET, NEXTAUTH_URL, FLASK_API_URL documented
+
+### Files Updated
+- `app/(auth)/login/page.tsx` — replaced fake setTimeout with `signIn("credentials")`, Hebrew error state
+- `app/api/proxy/[...path]/route.ts` — Bearer token via `getToken()`, added PUT/DELETE handlers, expanded PATH_MAP
+- `app/layout.tsx` — added NextAuthSessionProvider wrapper
+- `docs/system-upgrade/15-action-backlog.md` — Phase A tasks all marked done
+- `docs/system-upgrade/96-rounds-index.md` — Round 007 entry added
+
+### New Findings
+- `roles` in Flask JWT response is an array — `roles[0]` is the primary role
+- `is_admin` not yet returned by `_user_to_dict()` — derived from role name (tracked: Q14 backlog)
+- Typecheck passes (tsc --noEmit exit 0) after all auth files created
+- No backend changes needed for Phase A (proxy is server-to-server, CORS not an issue)
+- `expiresAt` must be tracked manually in Credentials provider (no `account.expires_at` for non-OAuth)
+
+### Decision Changes
+- None new — implements ADR-011 and ADR-012 as designed
+
+### Backlog Changes
+- Phase A auth tasks: all 10 marked `[x] 2026-04-24`
+- Phase 0 "Wire real auth" marked done
+- Phase 0 "Add Next.js middleware" marked done
+- Remaining: Phase B (Flask additions) and Phase C (hardening)
+
+---
+
 ## 2026-04-24 — Round 006: AI-Maintainability and Code Cleanup Policy
 
 ### Files Changed

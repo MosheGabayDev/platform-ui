@@ -97,14 +97,30 @@ _Updated after each round — append, never overwrite entries._
 
 ---
 
+## Round 007 — Auth Phase A Implementation (Next.js)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-24 |
+| **Topic** | Authentication bridge Phase A — Next.js implementation |
+| **Objective** | Implement the minimum viable auth layer in platform-ui: next-auth handler, options, types, RBAC helpers, login page, middleware, proxy Bearer token, session provider, env docs, auth README. |
+| **Key Findings** | • next-auth v4 `authorize` callback returns `null` on any failure — all Flask errors safely normalized <br>• Flask `POST /api/auth/login` returns `{data: {token, refresh_token, user: {id,email,org_id,roles}}}` — contract confirmed <br>• `roles` is an array; `is_admin` not yet in JWT response — derived from role name for now <br>• TypeScript typecheck passes (exit 0) after all auth files created <br>• `refreshToken` correctly excluded from client-visible session — stored only in server-side JWT cookie <br>• Middleware handles two behaviors: 401 JSON for `/api/proxy/*`, redirect for pages <br>• `expiresAt` tracked manually since Credentials provider has no `account.expires_at` <br>• No backend changes required for Phase A (proxy is server-to-server, no CORS issue) |
+| **Files Created** | `lib/auth/types.ts`, `lib/auth/options.ts`, `lib/auth/rbac.ts`, `app/api/auth/[...nextauth]/route.ts`, `components/providers/session-provider.tsx`, `middleware.ts`, `docs/auth/README.md`, `.env.example` |
+| **Files Updated** | `app/(auth)/login/page.tsx`, `app/api/proxy/[...path]/route.ts`, `app/layout.tsx`, `15-action-backlog.md` |
+| **Decisions Proposed** | None new — implements ADR-011 (auth bridge) and ADR-012 (no CSRF) |
+| **Next Recommended Round** | Round 008: Phase B Flask additions — `POST /api/auth/logout`, `GET /api/auth/me`, CORS `localhost:3000` |
+
+---
+
 ## Upcoming Rounds (Proposed)
 
 | Round | Topic | Why Now |
 |-------|-------|---------|
 | **005** | Authentication bridge | ✅ Complete — design in `16-auth-bridge-design.md` |
 | **006** | AI-maintainability policy | ✅ Complete — policy in `23-ai-maintainability-and-code-cleanup.md` |
-| **007** | Auth implementation (Phase A) | Implement next-auth, login page, middleware, proxy Bearer |
-| **008** | Module 01: Users | First critical module, no dependencies |
-| **009** | Module 04: Helpdesk | Largest module, most business value |
-| **010** | SSE infrastructure | Enables live data across all future modules |
-| **011** | CI/CD pipeline for platform-ui | Required before shipping to production |
+| **007** | Auth implementation (Phase A) | ✅ Complete — all Phase A files implemented |
+| **008** | Auth Phase B (Flask additions) | Add logout endpoint, /me, CORS for localhost:3000 |
+| **009** | Module 01: Users | First critical module, unblocked by auth |
+| **010** | Module 04: Helpdesk | Largest module, most business value |
+| **011** | SSE infrastructure | Enables live data across all future modules |
+| **012** | CI/CD pipeline for platform-ui | Required before shipping to production |

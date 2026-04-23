@@ -125,8 +125,13 @@ components/
     skeleton-card.tsx  — StatCardSkeleton, FeedItemSkeleton, ServiceRowSkeleton, TableSkeleton
   providers/
     query-provider.tsx — QueryClient with default options
+    session-provider.tsx — NextAuthSessionProvider client wrapper (wraps next-auth SessionProvider)
 
 lib/
+  auth/
+    types.ts           — Flask response types, NormalizedAuthUser, next-auth Session/JWT augmentation
+    options.ts         — authOptions (Credentials provider, jwt callback with refresh, session callback)
+    rbac.ts            — hasRole, hasPermission, getOrgId — use everywhere for RBAC checks
   api/
     client.ts          — typed fetch functions (fetchDashboardStats, fetchTimeSeries, fetchServiceHealth)
     types.ts           — TypeScript interfaces for all API responses
