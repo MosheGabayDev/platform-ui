@@ -37,10 +37,17 @@ _Last updated: 2026-04-24_
 
 | Task | File(s) | Priority | Status |
 |------|---------|----------|--------|
-| **Add POST /api/auth/logout** | `apps/authentication/jwt_routes.py` — invalidate refresh token | P1 | `[ ]` |
-| **Add GET /api/auth/me** | `apps/authentication/jwt_routes.py` — current user from JWT | P2 | `[ ]` |
-| **Add localhost:3000 to CORS** | `apps/__init__.py` — dev origin for platform-ui | P1 | `[ ]` |
-| **Add permissions to JWT response** | `apps/authentication/jwt_routes.py:_user_to_dict` — include `permissions[]` | P2 | `[ ]` |
+| **Add POST /api/auth/logout** | `apps/authentication/jwt_routes.py` — invalidate refresh token | P1 | `[x] 2026-04-24` |
+| **Add GET /api/auth/me** | `apps/authentication/jwt_routes.py` — JWT required, returns serialize_auth_user() | P2 | `[x] 2026-04-24` |
+| **Add localhost:3000 to CORS** | `apps/__init__.py` — dev origin for platform-ui | P1 | `[x] 2026-04-24` (already covered by `http://localhost` prefix match in after_request handler — no change needed) |
+| **Add permissions to JWT response** | `apps/authentication/jwt_routes.py:serialize_auth_user` — includes `permissions[]`, `is_admin`, `is_system_admin`, `is_manager`, `is_ai_agent` | P2 | `[x] 2026-04-24` |
+
+## Auth Bridge Implementation (Phase B.1 — Follow-up from Round 009)
+
+| Task | File(s) | Priority | Status |
+|------|---------|----------|--------|
+| **Remove is_admin role-name workaround** | `lib/auth/options.ts:normalizeFlaskUser` — backend now returns `is_admin` directly; remove `primaryRole === "admin"` derivation | P1 | `[ ]` |
+| **Remove is_admin workaround note from auth docs** | `docs/auth/README.md` — update backend gaps table; logout + /me now exist | P2 | `[ ]` |
 
 ## Auth Bridge Implementation (Phase C — Hardening)
 

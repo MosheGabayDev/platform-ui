@@ -127,6 +127,22 @@ _Updated after each round — append, never overwrite entries._
 
 ---
 
+## Round 009 — Backend Auth Contract Hardening
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-24 |
+| **Topic** | Flask backend auth additions for platform-ui |
+| **Objective** | Implement the minimum backend contract required by platform-ui: fix /me, add /logout, expand user serializer with permissions + admin flags, write tests, update docs. |
+| **Key Findings** | • Existing `GET /api/auth/me` was buggy: used `payload.get('sub')` (JWT uses `user_id`), wrong response format, no `@jwt_required` decorator <br>• `POST /api/auth/logout` did not exist — `mobile_refresh_token` field exists for real revocation <br>• `_user_to_dict()` missing: `permissions[]`, `is_admin`, `is_system_admin`, `is_manager`, `is_ai_agent` <br>• CORS already covered: `apps/__init__.py` `after_request` handler matches `http://localhost` prefix — no change needed for `localhost:3000` <br>• `is_admin` is a real boolean column on User — the role-name derivation workaround in `normalizeFlaskUser()` can be removed |
+| **Files Created** | `apps/authentication/tests/test_jwt_routes_v2.py` (10 tests) |
+| **Files Updated** | `apps/authentication/jwt_routes.py` (`serialize_auth_user`, fixed `/me`, new `/logout`), `apps/authentication/INDEX.md` (platform-ui integration section) |
+| **Planning Files Updated** | `13-open-questions.md` (Q14 fully resolved), `15-action-backlog.md` (Phase B all done + B.1 follow-ups added), `96-rounds-index.md`, `98-change-log.md` |
+| **Decisions Proposed** | None new — implements Phase B from ADR-011 (auth bridge) |
+| **Next Recommended Round** | Round 010: Module 01 Users — first full module build, unblocked by auth |
+
+---
+
 ## Upcoming Rounds (Proposed)
 
 | Round | Topic | Why Now |
@@ -135,7 +151,7 @@ _Updated after each round — append, never overwrite entries._
 | **006** | AI-maintainability policy | ✅ Complete — policy in `23-ai-maintainability-and-code-cleanup.md` |
 | **007** | Auth implementation (Phase A) | ✅ Complete — all Phase A files implemented |
 | **008** | Module data export/import design | ✅ Complete — spec in `24-core-platform-and-module-system.md` |
-| **009** | Auth Phase B (Flask additions) | Add logout endpoint, /me, CORS for localhost:3000, permissions in JWT |
+| **009** | Auth Phase B (Flask additions) | ✅ Complete — /me fixed, /logout added, serialize_auth_user with permissions |
 | **010** | Module 01: Users | First critical module, unblocked by auth |
 | **011** | Module 04: Helpdesk | Largest module, most business value |
 | **012** | SSE infrastructure | Enables live data across all future modules |

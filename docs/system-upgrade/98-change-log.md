@@ -17,6 +17,32 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-24 — Round 009: Backend Auth Contract Hardening
+
+### Files Changed
+- `apps/authentication/jwt_routes.py` — **updated** (`_user_to_dict` → `serialize_auth_user` with `permissions[]`, `is_admin`, `is_system_admin`, `is_manager`, `is_ai_agent`; `GET /api/auth/me` fixed with `@jwt_required` + correct response envelope; `POST /api/auth/logout` added)
+- `apps/authentication/tests/test_jwt_routes_v2.py` — **created** (10 tests: serialize_auth_user × 4, /me × 3, /logout × 3)
+- `apps/authentication/INDEX.md` — **updated** (JWT routes quick lookup expanded; platform-ui integration section added with field table + security rules)
+- `docs/system-upgrade/13-open-questions.md` — **updated** (Q14 fully resolved — permissions now returned)
+- `docs/system-upgrade/15-action-backlog.md` — **updated** (Phase B all 4 tasks marked done; Phase B.1 follow-ups added: remove is_admin workaround from options.ts, update auth README)
+- `docs/system-upgrade/96-rounds-index.md` — **updated** (Round 009 entry added; upcoming rounds updated)
+- `docs/system-upgrade/98-change-log.md` — **updated** (this entry)
+
+### New Findings
+- `apps/__init__.py` CORS `after_request` already matches `http://localhost*` — `localhost:3000` covered, no change needed
+- Existing `/me` had two bugs: wrong JWT claim key (`sub` vs `user_id`) and non-standard response format
+- `is_admin` is a real DB boolean column — `normalizeFlaskUser()` role-name derivation in `lib/auth/options.ts` can now be removed
+- `mobile_refresh_token` stores SHA256 hash — logout can genuinely revoke refresh tokens (not just expiry-based)
+
+### Decision Changes
+- None new — Phase B tasks close out ADR-011 implementation
+
+### Backlog Changes
+- Phase B: 4 tasks → `[x] 2026-04-24`
+- Phase B.1 added: remove is_admin workaround (P1), update auth README (P2)
+
+---
+
 ## 2026-04-24 — Round 008: Module Data Export/Import Design
 
 ### Files Changed
