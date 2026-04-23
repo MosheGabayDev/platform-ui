@@ -190,6 +190,25 @@ _Updated after each round — append, never overwrite entries._
 
 ---
 
+## Round 013 — Module 02: Organizations
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-24 |
+| **Topic** | Module 02 Organizations — Flask JWT API + platform-ui list/detail pages |
+| **Objective** | Deliver the second reference module using the shared capability layer. Validate that DataTable, PermissionGate, formatDate, OrgStatusBadge all compose correctly. |
+| **Key Findings** | • `data-table-client.tsx` confirmed unused (not imported anywhere) — deleted <br>• PermissionGate `systemAdminOnly` works correctly; non-admins see "no permission" message <br>• Flask `org_api_routes.py` uses raw SQL (same as existing admin routes) — Organization model only has `id` column <br>• TypeScript typecheck: EXIT 0 |
+| **Files Created (platformengineer)** | `apps/admin/org_api_routes.py` (5 endpoints, JWT auth, tenant safety) |
+| **Files Updated (platformengineer)** | `apps/__init__.py` (registered `org_api_bp`) |
+| **Files Created (platform-ui)** | `lib/modules/organizations/types.ts`, `lib/api/organizations.ts`, `components/modules/organizations/org-status-badge.tsx`, `components/modules/organizations/orgs-table.tsx`, `app/(dashboard)/organizations/page.tsx`, `app/(dashboard)/organizations/[id]/page.tsx`, `docs/modules/02-organizations/module.manifest.json` |
+| **Files Updated (platform-ui)** | `app/api/proxy/[...path]/route.ts` (added "organizations" to PATH_MAP), `lib/api/query-keys.ts` (added `orgs` keys), `docs/modules/02-organizations/PLAN.md` (DoD updated), `docs/system-upgrade/96-rounds-index.md`, `docs/system-upgrade/98-change-log.md` |
+| **Files Deleted (platform-ui)** | `components/shared/data-table-client.tsx` (unused legacy) |
+| **Decisions Proposed** | None new |
+| **Capability Reuse Validated** | DataTable ✓, PermissionGate ✓, OrgStatusBadge ✓, formatDate ✓, usePermission ✓ |
+| **Next Recommended Round** | Round 014: Module 03 Helpdesk OR Users Phase B (create/edit form + zod schema) |
+
+---
+
 ## Upcoming Rounds (Proposed)
 
 | Round | Topic | Why Now |

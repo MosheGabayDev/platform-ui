@@ -27,6 +27,7 @@ const PATH_MAP: Record<string, string> = {
   "automation": "/automation",
   "integrations": "/integrations",
   "users": "/api/users",
+  "organizations": "/api/organizations",
 };
 
 export async function GET(

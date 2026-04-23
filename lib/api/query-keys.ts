@@ -12,4 +12,12 @@ export const queryKeys = {
     detail:  (id: number) => ["users", "detail", id]          as const,
     pending: () => ["users", "pending"]                        as const,
   },
+
+  // Module 02: Organizations
+  orgs: {
+    all:    () => ["orgs"]                                      as const,
+    stats:  () => ["orgs", "stats"]                            as const,
+    list:   (params?: object) => ["orgs", "list", params]      as const,
+    detail: (id: number) => ["orgs", "detail", id]            as const,
+  },
 } as const;

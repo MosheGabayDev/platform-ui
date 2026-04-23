@@ -183,17 +183,19 @@ This module must use:
 
 ## Definition of Done
 
-- [ ] Backend: `apps/admin/org_api_routes.py` with JWT Bearer auth (Round 013)
-- [ ] Backend: register blueprint in `apps/__init__.py`
-- [ ] Proxy: `"organizations": "/api/organizations"` added
-- [ ] Types: `lib/modules/organizations/types.ts`
-- [ ] Schema: `lib/modules/organizations/schemas.ts`
-- [ ] Mutations: `lib/modules/organizations/mutations.ts`
-- [ ] List page: `/organizations` — system-admin gate, DataTable, search, empty state
-- [ ] Detail page: `/organizations/[id]` — own-org or system-admin
-- [ ] Create form: react-hook-form + zod schema
-- [ ] `PermissionGate adminOnly` on create/edit/delete buttons
-- [ ] Skeleton + EmptyState on all data states
-- [ ] TypeScript typecheck passes
-- [ ] nav-items.ts badge not needed (orgs don't have a pending count)
+- [x] Backend: `apps/admin/org_api_routes.py` with JWT Bearer auth (Round 013)
+- [x] Backend: register blueprint in `apps/__init__.py`
+- [x] Proxy: `"organizations": "/api/organizations"` added
+- [x] Types: `lib/modules/organizations/types.ts`
+- [ ] Schema: `lib/modules/organizations/schemas.ts` — Phase B
+- [ ] Mutations: `lib/modules/organizations/mutations.ts` — Phase B
+- [x] List page: `/organizations` — system-admin gate, DataTable, search, empty state
+- [x] Detail page: `/organizations/[id]` — own-org or system-admin
+- [ ] Create form: react-hook-form + zod schema — Phase B
+- [x] `PermissionGate systemAdminOnly` on list page
+- [x] Skeleton + EmptyState on all data states
+- [x] TypeScript typecheck passes (EXIT 0)
+- [x] nav-items.ts badge not needed (orgs don't have a pending count)
 - [ ] Playwright E2E tests — Phase C backlog
+
+_Round 013 delivered: Flask API, proxy, types, API client, query keys, OrgsTable, OrgStatusBadge, list page, detail page. Phase B (create/edit form) deferred._

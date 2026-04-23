@@ -1,0 +1,16 @@
+{
+  "module": "organizations",
+  "version": "1.0.0",
+  "routes": ["/organizations", "/organizations/[id]"],
+  "permissions": ["system_admin"],
+  "ownedTables": ["organizations"],
+  "referencedTables": ["users"],
+  "secretColumns": [],
+  "piiColumns": [],
+  "flaskBlueprint": "org_api_bp",
+  "flaskPrefix": "/api/organizations",
+  "proxyPrefix": "organizations",
+  "phase": "A",
+  "status": "delivered",
+  "round": "013"
+}
