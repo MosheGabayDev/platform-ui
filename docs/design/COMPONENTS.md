@@ -129,6 +129,100 @@ import { TiltCard } from "@/components/shared/tilt-card";
 </LazyMotion>
 ```
 
+## TiltCard (3D hover effect)
+
+```tsx
+import { TiltCard } from "@/components/shared/tilt-card";
+// Wrap any card — auto-disabled on touch devices (pointer: coarse)
+<TiltCard>
+  <Card>...</Card>
+</TiltCard>
+// Props: maxTilt (default 8deg), className
+```
+
+## CursorGlow (spotlight effect)
+
+```tsx
+import { CursorGlow } from "@/components/shared/cursor-glow";
+// Radial spotlight follows cursor — desktop only
+<CursorGlow>
+  <Card>...</Card>
+</CursorGlow>
+// Props: size (default 300px radius), className
+```
+
+## EmptyState Pattern
+
+```tsx
+import { EmptyState } from "@/components/shared/empty-state";
+import { Users } from "lucide-react";
+
+<EmptyState
+  icon={Users}
+  title="אין משתמשים"
+  description="הוסף משתמש ראשון לארגון"
+  action={{ label: "הוסף משתמש", onClick: () => router.push("/users/new") }}
+  size="md"  // "sm" | "md" | "lg"
+/>
+```
+
+## Skeleton Loading States
+
+```tsx
+import {
+  StatCardSkeleton,
+  FeedItemSkeleton,
+  ServiceRowSkeleton,
+  TableSkeleton,
+} from "@/components/shared/skeleton-card";
+
+// Show during isLoading — matches exact shape of real content
+{isLoading
+  ? Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} index={i} />)
+  : <RealContent />
+}
+```
+
+## DataTable Pattern
+
+```tsx
+import { DataTable } from "@/components/shared/data-table";
+import type { Column } from "@/components/shared/data-table";
+
+const columns: Column<User>[] = [
+  { key: "name", label: "שם", sortable: true },
+  { key: "email", label: "אימייל", sortable: true },
+  { key: "role", label: "תפקיד", render: (v) => <Badge>{String(v)}</Badge> },
+];
+
+<DataTable
+  data={users}
+  columns={columns}
+  pageSize={10}
+  searchable
+  searchKeys={["name", "email"]}
+  emptyState={<EmptyState icon={Users} title="אין משתמשים" />}
+/>
+```
+
+## ConnectionIndicator
+
+```tsx
+// Already in Topbar — shows real-time latency dot
+// green = connected, amber = reconnecting, red = disconnected
+// Uses window online/offline events + simulated latency drift
+import { ConnectionIndicator } from "@/components/shell/connection-indicator";
+```
+
+## SidebarSearch
+
+```tsx
+// Already in AppSidebar — do not duplicate
+// Shortcut: press "/" anywhere to focus
+// Keyboard: ↑↓ navigate, ↵ go, Esc close
+// Highlights matching characters, shows group label
+```
+
 ## Anti-Patterns (NEVER DO)
 
 | ❌ Don't | ✅ Do instead |
@@ -145,3 +239,9 @@ import { TiltCard } from "@/components/shared/tilt-card";
 | Animation without `prefers-reduced-motion` fallback | Always add `@media (prefers-reduced-motion)` |
 | `useTheme()` result used directly in JSX | Guard with `mounted` state |
 | Modifying files in `components/ui/` | Use `components/shared/` for custom variants |
+| Raw `fetch` in components | `useQuery` + `lib/api/client.ts` |
+| Inline query strings in `queryKey` | Define in `lib/api/query-keys.ts` |
+| Direct Flask URL from client | `/api/proxy/*` Next.js proxy |
+| Calling Flask without cookie forwarding | Proxy handles it automatically |
+| Missing skeleton on data load | Always show Skeleton during `isLoading` |
+| Page without `pb-20 md:pb-0` | Required for bottom nav clearance |
