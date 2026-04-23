@@ -8,6 +8,8 @@ import { CommandPalette } from "@/components/shell/command-palette";
 import { AuroraBackground } from "@/components/shell/aurora-background";
 import { motion, LazyMotion, domAnimation, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
+import { ShortcutsDialog } from "@/components/shell/shortcuts-dialog";
+import { useKeyboardShortcuts } from "@/lib/hooks/use-keyboard-shortcuts";
 
 const ease = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
@@ -23,6 +25,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  useKeyboardShortcuts();
 
   return (
     <LazyMotion features={domAnimation}>
@@ -47,6 +50,7 @@ export default function DashboardLayout({
           </main>
         </SidebarInset>
         <BottomNav />
+        <ShortcutsDialog />
       </SidebarProvider>
     </LazyMotion>
   );

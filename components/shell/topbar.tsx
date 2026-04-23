@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
 import { AccentPicker } from "./accent-picker";
+import { ConnectionIndicator } from "./connection-indicator";
 import { toast } from "sonner";
 
 export function Topbar() {
@@ -52,6 +53,7 @@ export function Topbar() {
       </button>
 
       <div className="flex items-center gap-1 ms-auto">
+        <ConnectionIndicator />
         {/* Theme toggle */}
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
           <Button
