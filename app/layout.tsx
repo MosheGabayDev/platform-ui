@@ -18,7 +18,16 @@ const cairo = Cairo({
 
 export const metadata: Metadata = {
   title: "Platform Engineer",
-  description: "AI-powered IT platform",
+  description: "AI Command Center — Infrastructure Management Platform",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Platform Engineer",
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+  },
 };
 
 export default function RootLayout({
@@ -33,6 +42,10 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${rubik.variable} ${cairo.variable} h-full antialiased`}
     >
+      <head>
+        <meta name="theme-color" content="#1a1a1a" />
+        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+      </head>
       <body suppressHydrationWarning className="min-h-full flex flex-col font-[family-name:var(--font-rubik)]">
         <ThemeProvider
           attribute="class"

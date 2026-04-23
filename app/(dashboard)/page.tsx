@@ -12,6 +12,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useCountUp } from "@/lib/hooks/use-count-up";
+import { TiltCard } from "@/components/shared/tilt-card";
+import { CursorGlow } from "@/components/shared/cursor-glow";
 
 const ease = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
@@ -73,7 +75,9 @@ function StatCard({ title, rawValue, numericValue, suffix = "", change, up, icon
 
   return (
     <motion.div custom={index} variants={scaleIn} initial="hidden" animate="show">
-      <Card className={`relative overflow-hidden border ${border} bg-gradient-to-br ${color} hover:scale-[1.02] transition-transform duration-300 cursor-default`}>
+      <TiltCard>
+      <CursorGlow>
+      <Card className={`relative overflow-hidden border ${border} bg-gradient-to-br ${color} cursor-default`}>
         <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent pointer-events-none" />
         <CardHeader className="flex flex-row items-center justify-between pb-1 pt-4 px-4">
           <CardTitle className="text-xs font-medium text-muted-foreground">{title}</CardTitle>
@@ -109,6 +113,8 @@ function StatCard({ title, rawValue, numericValue, suffix = "", change, up, icon
           </ResponsiveContainer>
         </div>
       </Card>
+      </CursorGlow>
+      </TiltCard>
     </motion.div>
   );
 }
@@ -116,7 +122,7 @@ function StatCard({ title, rawValue, numericValue, suffix = "", change, up, icon
 export default function DashboardPage() {
   return (
     <LazyMotion features={domAnimation}>
-      <div className="space-y-6">
+      <div className="space-y-6 pb-20 md:pb-0">
 
         {/* Header */}
         <motion.div
