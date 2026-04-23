@@ -33,6 +33,7 @@ _Defines which file owns each concern. When you have new information, look up th
 | **Module specs** | `docs/modules/<N>-<name>/PLAN.md` | `15-action-backlog.md` | One file per module. Flask endpoints, TypeScript types, pages, components, DoD. |
 | **Deep upgrade roadmap** | `docs/UPGRADE_ROADMAP.md` | `09-modernization-opportunities.md` | 5-tier upgrade plan with quick wins, dependency order, risk register. |
 | **AI-maintainability policy** | `23-ai-maintainability-and-code-cleanup.md` | `08-technical-debt-register.md`, `10-target-architecture.md`, `12-migration-roadmap.md` | Dead-code strategy, file size limits, INDEX.md standards, Vite app retirement, Jinja2 retirement schedule. |
+| **Module system + data export/import** | `24-core-platform-and-module-system.md` | `10-target-architecture.md §Module Data Ownership`, `12-migration-roadmap.md §Phase 3.5`, `14-decision-log.md (ADR-014)` | Module lifecycle, data ownership (owned/referenced/core), export package format, import modes, data contract spec, security rules, backend models, UI flows. |
 | **Round history** | `96-rounds-index.md` (this workspace) | — | Every investigation round. |
 | **Change log** | `98-change-log.md` (this workspace) | — | What changed in each round. |
 
@@ -79,6 +80,6 @@ Add the question immediately when it arises, not after the round ends.
 
 1. **Same terminology throughout**: "platform-ui" (frontend), "platformengineer" (backend), "Flask" (never "Django"), "TanStack Query" (never "React Query").
 2. **Dates**: ISO format `YYYY-MM-DD` everywhere.
-3. **ADR IDs**: sequential, never reuse. Current highest: ADR-013.
+3. **ADR IDs**: sequential, never reuse. Current highest: ADR-014.
 4. **Module numbers**: always zero-padded two digits (`01`, `04`, `17`).
 5. **Status markers**: `[ ]` TODO, `[~]` In Progress, `[x]` Done, `[!]` Blocked.

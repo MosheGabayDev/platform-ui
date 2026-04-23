@@ -16,6 +16,22 @@ _Last updated: 2026-04-23_
 
 ---
 
+## Module Data Ownership
+
+Every database table in the system must be classified into one of three categories:
+
+| Category | Definition | Export/Import |
+|----------|-----------|--------------|
+| **Owned** | Lifecycle belongs to the module | Module may export and import rows |
+| **Referenced** | Module reads but does not own | Export reference key only; remap on import |
+| **Core/Shared** | Owned by platform (`users`, `orgs`, `roles`) | Never overwritten on import; remapped only |
+
+Each module declares its data ownership in a `dataContract` section in its manifest. See `24-core-platform-and-module-system.md` for full specification.
+
+Export packages are versioned JSONL archives — not SQL dumps. Every import runs a mandatory dry-run before writing. Secrets are never exported.
+
+---
+
 ## AI-Agent Design Principles
 
 These principles apply to every file written or modified in this project:

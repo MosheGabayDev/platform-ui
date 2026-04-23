@@ -70,6 +70,73 @@ _Last updated: 2026-04-24_
 
 ---
 
+## Module Data Export/Import (Phase 3.5 — design complete, implementation in Phase 3)
+
+### Foundation
+
+| Task | File(s) | Priority | Status |
+|------|---------|----------|--------|
+| **Define `dataContract` schema** | Create JSON Schema for `dataContract` section of module manifests; validate in CI | P1 | `[ ]` |
+| **Owned table inventory** | For each of 19 modules: classify every table as owned/referenced/core in PLAN.md | P1 | `[ ]` |
+| **Secret column registry** | `apps/core/secret_columns.py` — authoritative list checked at export build time | P1 | `[ ]` |
+| **PII column declaration** | Audit all owned tables; add `piiColumns` declarations to each module's dataContract | P2 | `[ ]` |
+
+### Backend models
+
+| Task | File(s) | Priority | Status |
+|------|---------|----------|--------|
+| **`ModuleExportJob` model** | `apps/module_system/models.py` — export job with status, scope, row counts, download URL | P1 | `[ ]` |
+| **`ModuleImportJob` model** | `apps/module_system/models.py` — import job with mode, status, validation result | P1 | `[ ]` |
+| **`ModuleDataContract` model** | `apps/module_system/models.py` — persisted dataContract per module version | P1 | `[ ]` |
+| **`ModuleImportValidationResult` model** | `apps/module_system/models.py` | P1 | `[ ]` |
+| **`ModuleImportRowError` model** | `apps/module_system/models.py` — quarantine table | P2 | `[ ]` |
+| **`ModuleImportAuditEvent` model** | `apps/module_system/models.py` — per-row audit trail | P1 | `[ ]` |
+| **DB migration** | `scripts/migrations/` — add all 6 models above | P1 | `[ ]` |
+
+### Export pipeline
+
+| Task | File(s) | Priority | Status |
+|------|---------|----------|--------|
+| **JSONL export writer** | `apps/module_system/export_writer.py` — streams owned table rows to .jsonl files | P1 | `[ ]` |
+| **id-map.json generator** | Part of export writer — records original_id → export_uuid | P1 | `[ ]` |
+| **user-map.json + org-map.json generator** | Part of export writer — records referenced user/org identifiers | P1 | `[ ]` |
+| **Anonymization engine** | `apps/module_system/anonymizer.py` — replaces PII columns per anonymizationRules | P2 | `[ ]` |
+| **Checksum + signature** | `apps/module_system/packager.py` — SHA256 checksums.sha256 + signature.json | P1 | `[ ]` |
+| **Signed S3 download URL** | `apps/module_system/export_routes.py` — time-limited pre-signed URL | P2 | `[ ]` |
+| **Celery export task** | `apps/module_system/tasks.py` — async export with progress updates | P1 | `[ ]` |
+
+### Import pipeline
+
+| Task | File(s) | Priority | Status |
+|------|---------|----------|--------|
+| **Package validator** | `apps/module_system/import_validator.py` — signature + checksum + schema compat | P1 | `[ ]` |
+| **Dry-run import validator** | `apps/module_system/dry_run.py` — FK check, PII check, conflict report, no DB write | P1 | `[ ]` |
+| **ID remapping engine** | `apps/module_system/id_remapper.py` — applies id-map.json to all FK columns | P1 | `[ ]` |
+| **User/org resolver** | `apps/module_system/tenant_mapper.py` — resolves user-map.json + org-map.json against target DB | P1 | `[ ]` |
+| **Import writer** | `apps/module_system/import_writer.py` — transactional JSONL row insert/upsert per import mode | P1 | `[ ]` |
+| **Rollback engine** | `apps/module_system/rollback.py` — calls rollbackHooks + deletes in reverse FK order | P1 | `[ ]` |
+| **Celery import task** | `apps/module_system/tasks.py` — async import with progress, error quarantine | P1 | `[ ]` |
+
+### Security + compliance
+
+| Task | File(s) | Priority | Status |
+|------|---------|----------|--------|
+| **Cross-tenant leakage test** | `apps/module_system/tests/test_cross_tenant.py` — assert org_id filter never crossed | P1 | `[ ]` |
+| **Secret exclusion test** | `apps/module_system/tests/test_secret_exclusion.py` — assert secretColumns never in package | P1 | `[ ]` |
+| **system-admin scope enforcement** | Import routes: assert `is_system_admin` for `replace-module-data` and `restore-snapshot` | P1 | `[ ]` |
+
+### Platform-UI
+
+| Task | File(s) | Priority | Status |
+|------|---------|----------|--------|
+| **Export modal** | `app/(dashboard)/settings/modules/[id]/export/` — scope select, filter, PII ack, progress | P2 | `[ ]` |
+| **Dry-run result screen** | Show valid/invalid/conflict counts, schema compat, user mapping status | P2 | `[ ]` |
+| **Conflict resolution screen** | Per-table strategy selector; user remapping table | P2 | `[ ]` |
+| **Import progress screen** | Table-by-table progress, live row count, error count | P2 | `[ ]` |
+| **Export/Import history** | Tabs on module management page — date, scope, user, status, download | P2 | `[ ]` |
+
+---
+
 ## Next (Phase 1 — 2-8 weeks)
 
 | Task | Why It Matters | Dependencies | Status |

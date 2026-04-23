@@ -17,6 +17,36 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-24 — Round 008: Module Data Export/Import Design
+
+### Files Changed
+- `docs/system-upgrade/24-core-platform-and-module-system.md` — **created** (14 sections: data ownership, dataContract spec, package format, export scopes, import modes, ID remapping, tenant mapping, security rules, 7 backend models, UI flows, AI-agent safety, risks, acceptance criteria)
+- `docs/system-upgrade/10-target-architecture.md` — **updated** (Module Data Ownership section added before AI-Agent Design Principles)
+- `docs/system-upgrade/12-migration-roadmap.md` — **updated** (Phase 3.5 Module Export/Import added)
+- `docs/system-upgrade/14-decision-log.md` — **updated** (ADR-014 added)
+- `docs/system-upgrade/15-action-backlog.md` — **updated** (Module Data Export/Import section: 35 tasks across foundation, models, export pipeline, import pipeline, security, platform-ui)
+- `docs/system-upgrade/13-open-questions.md` — **updated** (Q21–Q25 added: large tables, blob attachments, Celery queues, S3 setup, existing manifests)
+- `docs/system-upgrade/97-source-of-truth.md` — **updated** (module system row added; ADR highest updated to ADR-014)
+- `docs/system-upgrade/96-rounds-index.md` — **updated** (Round 008 entry added; upcoming rounds updated)
+- `docs/system-upgrade/98-change-log.md` — **updated** (this entry)
+
+### New Findings
+- Raw SQL dump is the anti-pattern to avoid — governed JSONL package is the correct model
+- Three table categories (owned/referenced/core) must be declared per module before export is enabled
+- Secrets must be excluded at the platform level (registry), not solely at the module level
+- `replace-module-data` and `restore-snapshot` import modes are system-admin only
+- Download link expiry policy: 24h tenant data, 7d config-only, 4h system-wide
+- Q21–Q25 added: need to audit large tables (>100k rows), S3 setup, and existing manifests before implementation
+
+### Decision Changes
+- ADR-014 added: Tenant-Aware Module Data Export/Import
+
+### Backlog Changes
+- 35 new tasks added in §Module Data Export/Import section of `15-action-backlog.md`
+- Covers: dataContract schema, secret registry, 7 backend models, JSONL export writer, ID remapping, dry-run validator, import transaction wrapper, anonymization, checksums, 5 platform-ui screens, 3 security tests
+
+---
+
 ## 2026-04-24 — Round 007: Auth Phase A Implementation
 
 ### Files Created

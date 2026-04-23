@@ -109,6 +109,35 @@ _Last updated: 2026-04-23_
 
 ---
 
+## Phase 3.5 — Module Data Export/Import (Weeks 30-38, parallel to Phase 3)
+
+**Goal**: Enable governed tenant data movement — tenant migrations, environment promotions (TEST→PROD), support packages, and disaster recovery snapshots.
+
+### Deliverables
+
+- [ ] `ModuleDataContract` schema defined and validated for top 5 modules (helpdesk, billing, users, knowledge, agents)
+- [ ] Secret column registry: platform-managed list, enforced at export build time
+- [ ] `ModuleExportJob` + `ModuleImportJob` models in DB + Celery tasks for async execution
+- [ ] JSONL export pipeline: query owned tables by `org_id`, write to ZIP, attach manifest + checksums
+- [ ] Dry-run import validator: schema check + FK check + PII detection + conflict report
+- [ ] ID remapping engine: `id-map.json` generation on export, FK rewrite on import
+- [ ] User/org mapping resolver: `user-map.json` + `org-map.json` generation and resolution
+- [ ] Import transaction wrapper: full DB transaction with rollback on any error
+- [ ] Export/import audit trail: `ModuleImportAuditEvent` for every row action
+- [ ] Anonymization mode: PII columns replaced per `anonymizationRules`
+- [ ] package signature: SHA256 checksums + system-key signature
+- [ ] Time-limited download links via signed S3 URLs
+- [ ] platform-ui: export modal, dry-run result screen, conflict resolution, import progress, history tabs
+
+**Dependencies**: Phase 3 domain migrations establishing owned table inventory per module
+
+**Risks**:
+- Large tenant data (helpdesk sessions > 100k rows): requires streaming JSONL writer, not in-memory
+- FK dependency order bugs: wrong insert order causes constraint violations — test with circular FK scenarios
+- Cross-tenant import authorization bypass: must be tested with role injection attacks
+
+---
+
 ## Phase 4 — Hardening and Scale (Weeks 41-52)
 
 **Goal**: Production-grade observability, security, and performance.

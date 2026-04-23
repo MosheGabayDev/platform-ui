@@ -226,4 +226,39 @@ Error case:
 
 ---
 
+## ADR-014 — Tenant-Aware Module Data Export/Import
+
+**Status**: Accepted (design; implementation pending)
+
+**Context**: Module configuration export/import alone is insufficient for a production SaaS system. Tenant migrations, environment promotions (TEST → PROD), disaster recovery, and support debugging all require moving actual database table data between tenants or environments. A raw DB dump is unsafe (exports all tenants, all secrets, no versioning). A governed, per-module, tenant-scoped package format is required.
+
+**Options considered**:
+- A: Raw `pg_dump` / SQL restore — fast to implement; exports everything including secrets and cross-tenant data; no dry-run; no versioning
+- B: CSV per table — simple; no FK awareness; no schema version; no signature; no PII handling
+- C: Governed JSONL module package with manifest, dry-run, ID remapping, and audit log ✅
+
+**Chosen direction**: **Option C** — versioned ZIP package per module per tenant, with JSONL data files, explicit owned/referenced/core table classification, mandatory dry-run before write, ID remapping, signature, and full audit trail. See full specification in `24-core-platform-and-module-system.md`.
+
+**Core invariants this ADR enforces**:
+1. Exports are not raw DB dumps — they are module-owned data packages
+2. Owned/referenced/core table distinction is mandatory in every module `dataContract`
+3. Import must complete a dry-run validation before any write operation
+4. Every import attempt (including dry-runs) creates an audit record
+5. Secrets (`secretColumns`) are never exported regardless of manifest declarations
+6. PII columns must be declared; anonymized in non-full exports
+7. Cross-tenant imports (source org ≠ target org) require `is_system_admin=True`
+8. Core tables (`users`, `organizations`, `roles`, `permissions`) may never be overwritten by module import — only remapped via `user-map.json` / `org-map.json`
+
+**Consequences**:
+- Each module must define a `dataContract` before enabling export/import
+- Platform must maintain an authoritative `secretColumns` registry (not module-declared)
+- Import pipeline wraps writes in a DB transaction; rollback on any error
+- Download links are time-limited (24h for tenant data; 7d for config-only)
+- Export/import history visible in module management UI
+- 15 backlog tasks added — see `15-action-backlog.md §Module Data Export/Import`
+
+**Affected modules**: All 19 modules (at varying priority); core platform; billing; helpdesk highest priority
+
+---
+
 _Add new ADRs here as decisions are made during implementation._

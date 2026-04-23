@@ -70,6 +70,18 @@ These questions cannot be reliably answered from the codebase alone. Each needs 
 
 ---
 
+## Module Data Export/Import
+
+| # | Question | Why It Matters | How to Answer |
+|---|----------|---------------|---------------|
+| Q21 | Which modules have tables with more than 100k rows per tenant in production? | Streaming JSONL writer is required above this threshold; in-memory export fails | `SELECT relname, n_live_tup FROM pg_stat_user_tables ORDER BY n_live_tup DESC` |
+| Q22 | Are there any blob/file attachments owned by helpdesk or knowledge modules (not just S3 keys)? | Determines whether `files/` directory in export package is needed for Phase 1 or can defer | Audit `helpdesk_sessions`, `knowledge_articles`, `tool_invocations` for file column types |
+| Q23 | Is there a Celery task queue separation for long-running jobs vs short tasks? | Export of large tables must not block the main task queue | Check `apps/__init__.py` Celery queue config |
+| Q24 | What is the current S3 bucket setup for file storage? Who owns the IAM policy? | Signed download URLs require S3 access; encryption at rest requires KMS key ARN | Check SSM Parameter Store for `STORAGE_BUCKET` + IAM role attached to web-api pod |
+| Q25 | Are there any existing module manifest files in `platformengineer`? | Determines if we're extending existing structure or creating from scratch | `find apps/ -name "manifest.json" -o -name "module.json"` |
+
+---
+
 ## Infrastructure
 
 | # | Question | Why It Matters | How to Answer |

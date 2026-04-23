@@ -112,6 +112,21 @@ _Updated after each round — append, never overwrite entries._
 
 ---
 
+## Round 008 — Module Data Export/Import Design
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-24 |
+| **Topic** | Tenant-aware module data export/import architecture |
+| **Objective** | Design a safe, governed module data package system for moving tenant data between environments. Owned/referenced/core table classification, JSONL package format, dry-run import, ID remapping, PII/secret handling, audit trail, backend models, UI flows. |
+| **Key Findings** | • Raw SQL dump is never acceptable — export must be governed, versioned, tenant-scoped <br>• Three table categories: owned (exportable), referenced (export key only), core (remap only) <br>• JSONL chosen over CSV/Parquet for Phase 1 — streaming-friendly, schema-preserving <br>• Dry-run is mandatory before any write — enforced at pipeline level, not UI level <br>• Secrets must be excluded at platform level (registry), not module-declared only <br>• Cross-tenant imports require `is_system_admin` — cannot be delegated to org-admin <br>• 6 new backend models needed: ExportJob, ImportJob, DataContract, ExportFile, ValidationResult, RowError, AuditEvent <br>• `replace-module-data` and `restore-snapshot` modes are system-admin only — highest risk <br>• Download link expiry: 24h for tenant data, 7d for config-only, 4h for system-wide <br>• Q21–Q25 added: need large table size audit, S3 setup, existing manifest check |
+| **Files Created** | `24-core-platform-and-module-system.md` (14 sections, 400+ lines) |
+| **Files Updated** | `10-target-architecture.md`, `12-migration-roadmap.md`, `14-decision-log.md` (ADR-014), `15-action-backlog.md` (35+ tasks added), `13-open-questions.md` (Q21–Q25), `97-source-of-truth.md`, `96-rounds-index.md`, `98-change-log.md` |
+| **Decisions Proposed** | ADR-014: Tenant-Aware Module Data Export/Import (accepted) |
+| **Next Recommended Round** | Round 009: Auth Phase B Flask additions — `POST /api/auth/logout`, `GET /api/auth/me`, CORS `localhost:3000`, `permissions[]` in JWT response |
+
+---
+
 ## Upcoming Rounds (Proposed)
 
 | Round | Topic | Why Now |
@@ -119,8 +134,9 @@ _Updated after each round — append, never overwrite entries._
 | **005** | Authentication bridge | ✅ Complete — design in `16-auth-bridge-design.md` |
 | **006** | AI-maintainability policy | ✅ Complete — policy in `23-ai-maintainability-and-code-cleanup.md` |
 | **007** | Auth implementation (Phase A) | ✅ Complete — all Phase A files implemented |
-| **008** | Auth Phase B (Flask additions) | Add logout endpoint, /me, CORS for localhost:3000 |
-| **009** | Module 01: Users | First critical module, unblocked by auth |
-| **010** | Module 04: Helpdesk | Largest module, most business value |
-| **011** | SSE infrastructure | Enables live data across all future modules |
-| **012** | CI/CD pipeline for platform-ui | Required before shipping to production |
+| **008** | Module data export/import design | ✅ Complete — spec in `24-core-platform-and-module-system.md` |
+| **009** | Auth Phase B (Flask additions) | Add logout endpoint, /me, CORS for localhost:3000, permissions in JWT |
+| **010** | Module 01: Users | First critical module, unblocked by auth |
+| **011** | Module 04: Helpdesk | Largest module, most business value |
+| **012** | SSE infrastructure | Enables live data across all future modules |
+| **013** | CI/CD pipeline for platform-ui | Required before shipping to production |
