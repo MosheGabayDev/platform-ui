@@ -39,7 +39,7 @@ const REFRESH_BUFFER_SECONDS = 60;
 /**
  * Converts the raw Flask user payload to the normalized shape stored in session.
  * Derives role from roles[0] (Flask RBAC uses a single active role per user).
- * Derives is_admin from role name until backend returns the flag explicitly.
+ * Round 009 fix: is_admin and permissions[] are now real values from serialize_auth_user().
  */
 function normalizeFlaskUser(user: FlaskUserPayload): NormalizedAuthUser {
   const roles = Array.isArray(user.roles) ? user.roles : [];
@@ -49,12 +49,10 @@ function normalizeFlaskUser(user: FlaskUserPayload): NormalizedAuthUser {
     email: user.email,
     username: user.name ?? user.email.split("@")[0],
     role: primaryRole,
-    // Backend gap (Q14): _user_to_dict() does not return permissions yet.
-    // Use role checks via hasRole() in lib/auth/rbac.ts until this is fixed.
     permissions: user.permissions ?? [],
     org_id: user.org_id,
-    // Treat "admin" role as is_admin until backend returns the boolean directly.
-    is_admin: user.is_admin ?? primaryRole === "admin",
+    // is_admin is now a real boolean from Flask User.is_admin column (Round 009).
+    is_admin: user.is_admin ?? false,
   };
 }
 

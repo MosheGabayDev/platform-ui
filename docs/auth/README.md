@@ -161,11 +161,17 @@ The `accessToken` comes from `getToken({ req })` server-side. Flask's `@jwt_requ
 
 | Gap | Tracking | Impact |
 |-----|----------|--------|
-| `permissions[]` missing from JWT response | Q14 in `13-open-questions.md` | RBAC works by role only for now |
-| `POST /api/auth/logout` does not exist | Phase B task in `15-action-backlog.md` | Logout only clears next-auth cookie; Flask refresh token not revoked |
-| `GET /api/auth/me` does not exist | Phase B task | No server-side session validation endpoint |
-| `localhost:3000` not in Flask CORS | Phase B task | Direct browser→Flask calls would fail (proxy avoids this) |
 | `SESSION_COOKIE_SECURE` not set in prod | Q15, Phase C task | Security gap in Flask session cookies |
+
+### Resolved (Round 009)
+
+| Item | Resolution |
+|------|-----------|
+| `permissions[]` missing from JWT response | Fixed — `serialize_auth_user()` returns real `permissions[]` |
+| `POST /api/auth/logout` does not exist | Fixed — clears `mobile_refresh_token`, returns `{success: true}` |
+| `GET /api/auth/me` does not exist | Fixed — `@jwt_required`, returns `{success, data: {user}}` envelope |
+| `localhost:3000` not in Flask CORS | Pre-existing `http://localhost*` prefix match covers `:3000` |
+| `is_admin` derived from role name | Fixed — real boolean from `User.is_admin` column; workaround removed from `normalizeFlaskUser()` |
 
 ---
 

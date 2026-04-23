@@ -1,0 +1,71 @@
+{
+  "id": "users",
+  "name": "Users",
+  "version": "1.0.0",
+  "category": "core",
+  "description": "Platform user management — list, view, approve, manage roles",
+  "status": "partial",
+
+  "routes": [
+    { "path": "/users", "title": "משתמשים", "protected": true, "minRole": null },
+    { "path": "/users/[id]", "title": "פרטי משתמש", "protected": true, "minRole": null },
+    { "path": "/users/pending", "title": "ממתינים לאישור", "protected": true, "minRole": "admin", "status": "backlog" },
+    { "path": "/users/new", "title": "משתמש חדש", "protected": true, "minRole": "admin", "status": "backlog" }
+  ],
+
+  "permissions": {
+    "view": "any authenticated user",
+    "viewOthers": "admin | system_admin",
+    "approve": "admin | system_admin",
+    "create": "admin | system_admin (backlog)",
+    "edit": "admin | system_admin (backlog)",
+    "delete": "system_admin only (backlog)"
+  },
+
+  "flaskEndpoints": [
+    { "method": "GET",  "path": "/api/users",              "auth": "jwt", "orgScoped": true },
+    { "method": "GET",  "path": "/api/users/stats",        "auth": "jwt", "orgScoped": true },
+    { "method": "GET",  "path": "/api/users/pending",      "auth": "jwt+admin", "orgScoped": true },
+    { "method": "GET",  "path": "/api/users/<id>",         "auth": "jwt", "orgScoped": true },
+    { "method": "POST", "path": "/api/users/<id>/approve", "auth": "jwt+admin", "orgScoped": true }
+  ],
+
+  "navigation": {
+    "group": "ניהול",
+    "icon": "Users",
+    "order": 1,
+    "shortcut": "g u"
+  },
+
+  "dataOwnership": {
+    "ownedTables": ["users"],
+    "referencedTables": ["roles", "permissions", "organizations"],
+    "coreTables": [],
+    "notes": "Users table is owned — exportable per org. Roles/permissions are referenced (export key only). Passwords and MFA secrets are excluded from all exports.",
+    "importExportStatus": "not-implemented",
+    "secretColumns": ["password_hash", "mobile_refresh_token", "mobile_refresh_expires", "mfa_secret", "totp_secret", "email_verification_token"],
+    "piiColumns": ["email", "first_name", "last_name", "bio"]
+  },
+
+  "dependencies": ["auth"],
+
+  "implementedFeatures": [
+    "user-list-paginated",
+    "user-list-search",
+    "user-detail-view",
+    "user-stats-badge",
+    "pending-approval-banner",
+    "approve-pending-user-api"
+  ],
+
+  "backlogFeatures": [
+    "pending-approval-page",
+    "create-user-form",
+    "edit-user-form",
+    "delete-user",
+    "role-filter-ui",
+    "bulk-approve",
+    "user-activity-log",
+    "e2e-tests"
+  ]
+}

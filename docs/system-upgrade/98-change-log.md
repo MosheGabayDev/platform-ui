@@ -17,6 +17,47 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-24 — Round 010: Module 01 Users (First Module)
+
+### Files Changed (platformengineer)
+- `apps/authentication/user_api_routes.py` — **created** (JWT user management API: list, stats, pending, detail, approve)
+- `apps/__init__.py` — **updated** (register user_api_bp at /api/users)
+
+### Files Changed (platform-ui)
+- `lib/modules/users/types.ts` — **created** (UserSummary, UserDetail, response envelopes, UsersListParams)
+- `lib/api/users.ts` — **created** (fetchUsers, fetchUser, fetchUserStats, fetchPendingUsers, approveUser)
+- `lib/api/query-keys.ts` — **updated** (users.all/stats/list/detail/pending keys)
+- `lib/auth/options.ts` — **updated** (remove is_admin role-name workaround; Round 009 fix applied)
+- `app/api/proxy/[...path]/route.ts` — **updated** (users PATH_MAP: /admin/users → /api/users)
+- `app/(dashboard)/users/page.tsx` — **created** (list page: stats, pending banner, search, paginated table, error/empty states)
+- `app/(dashboard)/users/[id]/page.tsx` — **created** (detail page: profile, security, permissions)
+- `components/modules/users/users-table.tsx` — **created** (TanStack Table with pagination, search, skeleton)
+- `components/modules/users/user-status-badge.tsx` — **created** (active/inactive/pending badge)
+- `components/modules/users/user-role-badge.tsx` — **created** (colored role badge)
+- `docs/modules/01-users/IMPLEMENTATION.md` — **created** (data flow, file map, limitations, agent guide, checklist)
+- `docs/modules/01-users/module.manifest.json` — **created** (routes, permissions, endpoints, data ownership)
+- `docs/modules/01-users/PLAN.md` — **updated** (actual endpoints, DoD status)
+- `docs/modules/ROADMAP.md` — **updated** (Users: ⬜ → 🔵)
+- `docs/auth/README.md` — **updated** (resolved Round 009 gaps)
+- `docs/system-upgrade/14-decision-log.md` — **updated** (ADR-015 added)
+- `docs/system-upgrade/96-rounds-index.md` — **updated** (Round 010 entry)
+- `docs/system-upgrade/98-change-log.md` — **updated** (this entry)
+
+### New Findings
+- `/admin/users` routes are HTML-only (Jinja2) — cannot be used from platform-ui
+- `/api/v1/users` uses API Token auth, incompatible with JWT Bearer
+- Module-first JSON API pattern needed for every module migration (ADR-015)
+- AI agent users are now filtered from all list queries by default
+
+### Decision Changes
+- ADR-015 added: module-first JSON API pattern
+- ADR-015 superceeds the PLAN.md assumption that `/admin/users` returns JSON
+
+### Backlog Changes
+- Users Phase 2: create form, edit form, pending approval page — added as Phase 2 items
+
+---
+
 ## 2026-04-24 — Round 009: Backend Auth Contract Hardening
 
 ### Files Changed

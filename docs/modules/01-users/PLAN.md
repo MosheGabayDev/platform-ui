@@ -71,11 +71,32 @@ users: {
 - `UserStatusBadge` — active/inactive/pending badge
 - `ApprovalQueue` — pending users list with approve/reject actions
 
+## Actual Endpoints Used (Round 010)
+
+> **CRITICAL FINDING**: `/admin/users` routes return HTML (Jinja2), NOT JSON.
+> A new JWT-authenticated JSON API was created: `apps/authentication/user_api_routes.py`
+> Proxy maps `users` → `/api/users` (not `/admin/users`).
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/users` | List users (paginated, filterable, org-scoped) |
+| GET | `/api/users/stats` | Quick counts (total/active/pending/admins) |
+| GET | `/api/users/pending` | Pending approval queue (admin only) |
+| GET | `/api/users/<id>` | User detail (admin sees all, user sees own) |
+| POST | `/api/users/<id>/approve` | Approve pending user (admin only) |
+
 ## Definition of Done
 
-- [ ] List page with search + pagination
-- [ ] Create / edit form with validation
-- [ ] Pending approval queue
-- [ ] Skeleton loading on all data states
-- [ ] EmptyState when no users
-- [ ] nav-items badge shows pending count
+- [x] List page with search + pagination — `app/(dashboard)/users/page.tsx`
+- [x] Skeleton loading on all data states
+- [x] EmptyState when no users
+- [x] Error state with retry button
+- [x] Stats header (total/active/pending)
+- [x] Pending approval banner for admins
+- [x] User detail page — `app/(dashboard)/users/[id]/page.tsx`
+- [x] TypeScript typecheck passes
+- [ ] Create / edit form with validation — Phase 2 backlog
+- [ ] Pending approval queue page — Phase 2 backlog
+- [ ] nav-items badge shows pending count — Phase 2 backlog
+- [ ] Role filter dropdown — Phase 2 backlog
+- [ ] Playwright E2E tests — Phase C backlog

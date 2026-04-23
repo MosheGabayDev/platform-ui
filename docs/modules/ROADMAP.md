@@ -7,7 +7,7 @@
 | # | Module | Priority | Status | Est. Days |
 |---|---|---|---|---|
 | 0 | Dashboard + Shell | — | ✅ Complete | — |
-| 1 | [Users](./01-users/PLAN.md) | 🔴 Critical | ⬜ Pending | 2 |
+| 1 | [Users](./01-users/PLAN.md) | 🔴 Critical | 🔵 Partial | 2 |
 | 2 | [Organizations](./02-organizations/PLAN.md) | 🔴 Critical | ⬜ Pending | 2 |
 | 3 | [Roles & Permissions](./03-roles-permissions/PLAN.md) | 🔴 Critical | ⬜ Pending | 2 |
 | 4 | [Helpdesk](./04-helpdesk/PLAN.md) | 🔴 Critical | ⬜ Pending | 4 |

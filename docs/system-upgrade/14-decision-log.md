@@ -261,4 +261,35 @@ Error case:
 
 ---
 
+## ADR-015 — Module-First JSON API Pattern (Round 010)
+
+**Status**: Accepted
+
+**Context**: Existing Flask routes for admin user management (`/admin/users/*`) return HTML via `render_template()` — they are Jinja2 views, not JSON APIs. The existing `/api/v1/users` endpoint uses API Token auth (`@api_token_required`), not JWT Bearer. Platform-ui needs JWT-authenticated, org-scoped JSON endpoints.
+
+**Decision**: For each module being migrated to platform-ui, create a dedicated JSON API blueprint alongside (not replacing) the existing Jinja2 admin routes. New endpoints use `@jwt_required`, are scoped by `g.jwt_user.org_id`, and exclude AI agents and sensitive fields by default. The Jinja2 routes remain for backward compatibility until fully retired.
+
+**Pattern**:
+- New file: `apps/<module>/api_routes.py` or `apps/authentication/user_api_routes.py`
+- Blueprint URL prefix: `/api/<module>` (e.g. `/api/users`)
+- Auth: always `@jwt_required`
+- Org scoping: always from `g.jwt_user.org_id`, never from request body
+- Response envelope: `{success: bool, data: {...}}` consistent with other JWT endpoints
+- Exclude from responses: all password fields, tokens, MFA secrets
+
+**Proxy mapping**: Each new module JSON API gets an entry in platform-ui proxy PATH_MAP:
+```
+"<module>": "/api/<module>"
+```
+
+**Consequences**:
+- Two auth systems coexist temporarily: session cookie (Jinja2) + JWT Bearer (platform-ui)
+- Module JSON API is additive — does not break existing admin panel
+- Each module migration requires creating a new `*_api_routes.py` file
+- Long-term: retire Jinja2 routes once all modules migrated (Phase 4)
+
+**Affected modules**: All 19 modules; Users is the reference implementation
+
+---
+
 _Add new ADRs here as decisions are made during implementation._

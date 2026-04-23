@@ -143,6 +143,23 @@ _Updated after each round — append, never overwrite entries._
 
 ---
 
+## Round 010 — Module 01 Users (First Module)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-24 |
+| **Topic** | Module 01 Users — first production-quality authenticated module |
+| **Objective** | Build Users module as the implementation standard for all future modules. Auth contract verification, Flask JSON API, platform-ui pages + components + types. |
+| **Key Findings** | • `/admin/users` routes return HTML, NOT JSON — cannot use from platform-ui <br>• `/api/v1/users` exists but uses API Token auth, not JWT — incompatible with platform-ui Bearer flow <br>• Created new `apps/authentication/user_api_routes.py` — JWT Bearer, org-scoped, excludes AI agents, excludes sensitive fields <br>• Proxy PATH_MAP corrected: `users` → `/api/users` (was `/admin/users`) <br>• `normalizeFlaskUser()` `is_admin` workaround removed — backend now returns real boolean (Round 009 fix) <br>• Module manifest draft created: owned/referenced/core table classification |
+| **Files Created (platformengineer)** | `apps/authentication/user_api_routes.py` (5 endpoints) |
+| **Files Updated (platformengineer)** | `apps/__init__.py` (register user_api_bp) |
+| **Files Created (platform-ui)** | `lib/modules/users/types.ts`, `lib/api/users.ts`, `components/modules/users/users-table.tsx`, `components/modules/users/user-status-badge.tsx`, `components/modules/users/user-role-badge.tsx`, `app/(dashboard)/users/page.tsx`, `app/(dashboard)/users/[id]/page.tsx`, `docs/modules/01-users/IMPLEMENTATION.md`, `docs/modules/01-users/module.manifest.json` |
+| **Files Updated (platform-ui)** | `lib/api/query-keys.ts` (users keys), `lib/auth/options.ts` (remove is_admin workaround), `app/api/proxy/[...path]/route.ts` (users path fix), `docs/auth/README.md` (resolved gaps), `docs/modules/01-users/PLAN.md`, `docs/modules/ROADMAP.md` |
+| **Decisions Proposed** | ADR-015: Module-first JSON API pattern (new JWT endpoints separate from Jinja2 admin routes) |
+| **Next Recommended Round** | Round 011: Module 02 Organizations OR Users Phase 2 (create/edit + pending page) |
+
+---
+
 ## Upcoming Rounds (Proposed)
 
 | Round | Topic | Why Now |
@@ -152,7 +169,8 @@ _Updated after each round — append, never overwrite entries._
 | **007** | Auth implementation (Phase A) | ✅ Complete — all Phase A files implemented |
 | **008** | Module data export/import design | ✅ Complete — spec in `24-core-platform-and-module-system.md` |
 | **009** | Auth Phase B (Flask additions) | ✅ Complete — /me fixed, /logout added, serialize_auth_user with permissions |
-| **010** | Module 01: Users | First critical module, unblocked by auth |
-| **011** | Module 04: Helpdesk | Largest module, most business value |
-| **012** | SSE infrastructure | Enables live data across all future modules |
-| **013** | CI/CD pipeline for platform-ui | Required before shipping to production |
+| **010** | Module 01: Users | ✅ Partial — list + detail pages, Flask JSON API, types, components |
+| **011** | Module 02: Organizations OR Users Phase 2 (create/edit forms) | Continue core modules |
+| **012** | Module 04: Helpdesk | Largest module, most business value |
+| **013** | SSE infrastructure | Enables live data across all future modules |
+| **014** | CI/CD pipeline for platform-ui | Required before shipping to production |
