@@ -16,6 +16,12 @@ import {
   BookOpen,
   HardDrive,
   Bell,
+  Zap,
+  Puzzle,
+  Network,
+  FileText,
+  Mic,
+  UserCog,
 } from "lucide-react";
 
 export type NavItem = {
@@ -43,47 +49,72 @@ export const navGroups: NavGroup[] = [
     items: [
       { title: "משתמשים", href: "/users", icon: Users },
       { title: "תפקידים והרשאות", href: "/roles", icon: ShieldCheck },
-      { title: "ארגונים", href: "/orgs", icon: Building2 },
-      { title: "מחלקות", href: "/departments", icon: Building2 },
+      { title: "ארגונים", href: "/organizations", icon: Building2 },
+      { title: "מחלקות", href: "/departments", icon: UserCog },
     ],
   },
   {
-    label: "מערכת",
+    label: "הלפדסק",
     items: [
-      { title: "מפתחות API", href: "/api-keys", icon: KeyRound },
-      { title: "יומן ביקורת", href: "/audit-log", icon: ClipboardList },
-      { title: "גיבויים", href: "/backups", icon: HardDrive },
+      { title: "דשבורד הלפדסק", href: "/helpdesk", icon: HeadphonesIcon },
       {
-        title: "הגדרות",
-        href: "/settings",
-        icon: Settings,
-        children: [
-          { title: "מערכת", href: "/settings/system", icon: Settings },
-          { title: "ארגון", href: "/settings/org", icon: Building2 },
-          { title: "פיצ'רים", href: "/settings/features", icon: Activity },
-          { title: "התראות", href: "/settings/notifications", icon: Bell },
-          { title: "אינטגרציות", href: "/settings/integrations", icon: Activity },
-        ],
+        title: "כרטיסים",
+        href: "/helpdesk/tickets",
+        icon: ClipboardList,
+        badge: undefined, // populated at runtime from API
       },
+      { title: "טכנאים", href: "/helpdesk/technicians", icon: Users },
+      { title: "SLA", href: "/helpdesk/sla", icon: Activity },
+      { title: "בסיס ידע", href: "/helpdesk/kb", icon: BookOpen },
+    ],
+  },
+  {
+    label: "AI & קול",
+    items: [
+      { title: "סוכני AI", href: "/ai-agents", icon: Bot },
+      { title: "ALA — Voice AI", href: "/ala", icon: Mic },
+      { title: "שיחות קוליות", href: "/voice", icon: Phone },
+      { title: "ידע ו-RAG", href: "/knowledge", icon: Brain },
+    ],
+  },
+  {
+    label: "פעולות",
+    items: [
+      { title: "אוטומציה", href: "/automation", icon: Zap },
+      { title: "אינטגרציות", href: "/integrations", icon: Puzzle },
     ],
   },
   {
     label: "ניטור",
     items: [
-      { title: "בריאות המערכת", href: "/health", icon: Activity },
-      { title: "לוגים", href: "/logs", icon: ClipboardList },
+      { title: "בריאות המערכת", href: "/monitoring", icon: Network },
+      { title: "לוגים", href: "/logs", icon: FileText },
       { title: "מטריקות", href: "/metrics", icon: BarChart2 },
+      { title: "יומן ביקורת", href: "/audit-log", icon: ClipboardList },
     ],
   },
   {
     label: "עסקי",
     items: [
       { title: "חיוב", href: "/billing", icon: CreditCard },
-      { title: "הלפדסק", href: "/helpdesk", icon: HeadphonesIcon },
-      { title: "סוכני AI", href: "/agents", icon: Bot },
-      { title: "ALA", href: "/ala", icon: Brain },
-      { title: "ידע ו-RAG", href: "/knowledge", icon: BookOpen },
-      { title: "שיחות קוליות", href: "/voice", icon: Phone },
+      { title: "גיבויים", href: "/backups", icon: HardDrive },
+      { title: "מפתחות API", href: "/api-keys", icon: KeyRound },
+    ],
+  },
+  {
+    label: "הגדרות",
+    items: [
+      {
+        title: "הגדרות",
+        href: "/settings",
+        icon: Settings,
+        children: [
+          { title: "כללי", href: "/settings/general", icon: Settings },
+          { title: "אימייל", href: "/settings/email", icon: Bell },
+          { title: "ספקי AI", href: "/settings/ai-providers", icon: Bot },
+          { title: "מגבלות שימוש", href: "/settings/usage-limits", icon: Activity },
+        ],
+      },
     ],
   },
 ];
