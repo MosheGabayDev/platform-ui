@@ -273,6 +273,24 @@ _Updated after each round — append, never overwrite entries._
 
 ---
 
+## Round 019 — Organizations Phase B + Admin Mutation Standard
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-24 |
+| **Topic** | Organizations Phase B: create/edit org forms + backend hardening |
+| **Objective** | Validate that the R017 usePlatformMutation form pattern generalizes cleanly to a second multi-tenant, system-admin-only module before moving to Helpdesk. |
+| **Key Findings** | • Backend POST + PATCH were already implemented in R013 — only security hardening needed <br>• Raw `str(exc)` was leaking DB constraint details — fixed with `IntegrityError` catch → 409 <br>• Slug auto-generation from name is idiomatic UX; slug is immutable after creation (no `slug` field in PATCH) <br>• `is_active` deactivation in edit form is acceptable UX; dedicated `ConfirmActionDialog` action is backlog <br>• Pattern confirmed: `createOrgSchema` / `editOrgSchema` → `usePlatformMutation` → cache invalidation works cleanly <br>• Typecheck: EXIT 0 |
+| **Files Created (platformengineer)** | (hardening only — no new files) |
+| **Files Updated (platformengineer)** | `apps/admin/org_api_routes.py` (IntegrityError, slug regex, name length) |
+| **Files Created (platform-ui)** | `lib/modules/organizations/schemas.ts`, `components/modules/organizations/organization-form.tsx` |
+| **Files Updated (platform-ui)** | `lib/api/organizations.ts`, `app/(dashboard)/organizations/page.tsx`, `app/(dashboard)/organizations/[id]/page.tsx`, `docs/modules/02-organizations/IMPLEMENTATION.md`, `docs/modules/02-organizations/module.manifest.json` |
+| **Commits** | platformengineer: `735b88ae` · platform-ui: `885358a` |
+| **Decisions Proposed** | None — ADR-019 (usePlatformMutation) confirmed valid for multi-tenant system-admin modules |
+| **Next Recommended Round** | Round 020: Helpdesk Phase A — list + detail pages (tickets + sessions) |
+
+---
+
 ## Upcoming Rounds (Proposed)
 
 | Round | Topic | Why Now |
@@ -291,4 +309,5 @@ _Updated after each round — append, never overwrite entries._
 | **016** | Cross-Platform Structure Audit + CP-0 | ✅ Complete — `lib/platform/` created, auth types split, readiness 55→68/100 |
 | **017** | Users Phase B — Mutations + Form Standard | ✅ Complete — create/edit user forms, usePlatformMutation, Zod schemas, PATCH proxy, backend endpoints |
 | **018** | Roles & Permissions Core Module | ✅ Complete — Flask role API (6 endpoints), full frontend module with form + table + detail |
+| **019** | Organizations Phase B | ✅ Complete — create/edit forms, backend hardening (IntegrityError, slug validation), immutable slug |
 | **016** | CI/CD pipeline for platform-ui | Required before shipping to production |

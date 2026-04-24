@@ -196,6 +196,23 @@ _Reference: `docs/system-upgrade/26-platform-capabilities-catalog.md`_
 
 ---
 
+## Module 02 — Organizations Phase B (R019 ✅ Complete)
+
+| Task | Status |
+|------|--------|
+| Harden backend (IntegrityError, slug regex, name length, no raw exc) | `[x]` R019 |
+| `lib/modules/organizations/schemas.ts` (Zod) | `[x]` R019 |
+| `lib/api/organizations.ts` use Zod-inferred types | `[x]` R019 |
+| `OrgCreateSheet` (slug auto-generate, system_admin only) | `[x]` R019 |
+| `OrgEditSheet` (slug read-only, is_active toggle) | `[x]` R019 |
+| Wire create/edit into list + detail pages | `[x]` R019 |
+| Module docs updated (IMPLEMENTATION.md + manifest) | `[x]` R019 |
+| Dedicated deactivate org + ConfirmActionDialog | `[ ]` backlog |
+| Org members list tab (cross-module Users) | `[ ]` backlog |
+| E2E tests | `[ ]` backlog |
+
+---
+
 ## Module 03 — Roles & Permissions (R018 ✅ Complete)
 
 | Task | Status |

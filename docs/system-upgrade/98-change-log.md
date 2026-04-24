@@ -17,6 +17,33 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-24 — Round 019: Organizations Phase B + Admin Mutation Standard
+
+### Files Changed
+- `apps/admin/org_api_routes.py` — **hardened** (IntegrityError handling, slug regex, name length, no raw exc leak)
+- `lib/modules/organizations/schemas.ts` — **created** (createOrgSchema + editOrgSchema)
+- `lib/api/organizations.ts` — **updated** (CreateOrgInput/EditOrgInput from schemas)
+- `components/modules/organizations/organization-form.tsx` — **created** (OrgCreateSheet + OrgEditSheet)
+- `app/(dashboard)/organizations/page.tsx` — **updated** (add create button + OrgCreateSheet)
+- `app/(dashboard)/organizations/[id]/page.tsx` — **updated** (add edit button + OrgEditSheet)
+- `docs/modules/02-organizations/IMPLEMENTATION.md` — **rewritten** (Phase B complete)
+- `docs/modules/02-organizations/module.manifest.json` — **updated** (v1.1.0, Phase B features)
+
+### New Findings
+- Backend POST/PATCH were already implemented in R013 — only hardening needed
+- Slug auto-generation (client-side only) is idiomatic for org creation UX
+- Slug must be immutable after creation — no `slug` field in PATCH, edit form shows it read-only
+- `OrgCreateSheet` + `OrgEditSheet` pattern validates the R017 mutation standard on a second multi-tenant module
+- `is_active` toggle in edit form is safe UX; dedicated deactivation action with `ConfirmActionDialog` is backlog
+
+### Decision Changes
+- No new ADRs — pattern confirms ADR-019 (usePlatformMutation) is reusable across multi-tenant modules
+
+### Backlog Changes
+- Organizations: create/edit marked ✅; deactivate-with-confirm + org-members-list remain backlog
+
+---
+
 ## 2026-04-24 — Round 018: Roles & Permissions Core Module
 
 ### Files Changed

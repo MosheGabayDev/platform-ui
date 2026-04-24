@@ -1,16 +1,68 @@
 {
-  "module": "organizations",
-  "version": "1.0.0",
-  "routes": ["/organizations", "/organizations/[id]"],
-  "permissions": ["system_admin"],
-  "ownedTables": ["organizations"],
-  "referencedTables": ["users"],
-  "secretColumns": [],
-  "piiColumns": [],
-  "flaskBlueprint": "org_api_bp",
-  "flaskPrefix": "/api/organizations",
-  "proxyPrefix": "organizations",
-  "phase": "A",
-  "status": "delivered",
-  "round": "013"
+  "id": "organizations",
+  "name": "Organizations",
+  "version": "1.1.0",
+  "category": "core",
+  "description": "Platform organization management — list, view, create, edit. System admin only.",
+  "status": "active",
+
+  "routes": [
+    { "path": "/organizations",     "title": "ארגונים",      "protected": true, "minRole": "system_admin" },
+    { "path": "/organizations/[id]","title": "פרטי ארגון",   "protected": true, "minRole": null }
+  ],
+
+  "permissions": {
+    "view": "system_admin",
+    "viewOwn": "any authenticated user (own org only)",
+    "create": "system_admin only",
+    "edit": "system_admin only",
+    "delete": "system_admin only (not yet implemented)"
+  },
+
+  "flaskEndpoints": [
+    { "method": "GET",   "path": "/api/organizations",      "auth": "jwt+system_admin", "orgScoped": false },
+    { "method": "GET",   "path": "/api/organizations/stats","auth": "jwt+system_admin", "orgScoped": false },
+    { "method": "GET",   "path": "/api/organizations/<id>", "auth": "jwt",              "orgScoped": "own or system_admin" },
+    { "method": "POST",  "path": "/api/organizations",      "auth": "jwt+system_admin", "orgScoped": false },
+    { "method": "PATCH", "path": "/api/organizations/<id>", "auth": "jwt+system_admin", "orgScoped": false }
+  ],
+
+  "navigation": {
+    "group": "ניהול",
+    "icon": "Building2",
+    "order": 2,
+    "shortcut": "g o"
+  },
+
+  "dataOwnership": {
+    "ownedTables": ["organizations"],
+    "referencedTables": ["users"],
+    "coreTables": [],
+    "notes": "Slug is immutable after creation. is_active=false blocks all users of the org.",
+    "importExportStatus": "not-implemented",
+    "secretColumns": [],
+    "piiColumns": ["name", "description", "slug"]
+  },
+
+  "dependencies": ["auth"],
+
+  "implementedFeatures": [
+    "org-list-paginated",
+    "org-list-search",
+    "org-detail-view",
+    "org-stats-cards",
+    "create-org-form",
+    "edit-org-form",
+    "slug-auto-generation",
+    "slug-immutable-after-creation",
+    "integrity-error-409",
+    "backend-slug-validation"
+  ],
+
+  "backlogFeatures": [
+    "deactivate-org-confirm-dialog",
+    "org-members-list-tab",
+    "delete-org",
+    "e2e-tests"
+  ]
 }
