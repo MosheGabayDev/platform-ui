@@ -255,6 +255,24 @@ _Updated after each round — append, never overwrite entries._
 
 ---
 
+## Round 018 — Roles & Permissions Core Module
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-24 |
+| **Topic** | Module 03: Roles & Permissions — Flask API + full platform-ui module |
+| **Objective** | Expose role/permission data via JWT-auth API; build list + detail pages + create/edit forms using all established shared capabilities; document permission model standard. |
+| **Key Findings** | • Roles are GLOBAL (no org_id) — shared across all orgs <br>• `/api/roles/permissions` must be registered BEFORE `/<int:id>` to avoid Flask routing conflict <br>• `groupPermissions()` utility splits dot-notation codenames into namespace groups client-side <br>• Two-mutation strategy in `RoleEditSheet`: PATCH meta → PATCH permissions (only if changed) <br>• Permission checklist grouped by namespace; `PermissionChecklist` fetches `queryKeys.roles.permissions()` <br>• All shared capabilities reused: PageShell, StatCard, DataTable, PlatformForm, usePlatformMutation, DetailView <br>• Typecheck: EXIT 0 |
+| **Files Created (platformengineer)** | `apps/authentication/role_api_routes.py` (261 lines, 6 endpoints) |
+| **Files Updated (platformengineer)** | `apps/__init__.py` (role_api_bp registration) |
+| **Files Created (platform-ui)** | `lib/modules/roles/types.ts`, `lib/modules/roles/schemas.ts`, `lib/api/roles.ts`, `components/modules/roles/role-permission-badge.tsx`, `components/modules/roles/roles-table.tsx`, `components/modules/roles/role-form.tsx`, `app/(dashboard)/roles/page.tsx`, `app/(dashboard)/roles/[id]/page.tsx`, `docs/modules/03-roles-permissions/IMPLEMENTATION.md`, `docs/modules/03-roles-permissions/module.manifest.json` |
+| **Files Updated (platform-ui)** | `app/api/proxy/[...path]/route.ts` (roles PATH_MAP), `lib/api/query-keys.ts` (roles keys), `docs/modules/03-roles-permissions/PLAN.md` |
+| **Commits** | platformengineer: `d1a6299d` · platform-ui: `1e7257a` |
+| **Decisions Proposed** | Permission dot-notation standard: `module.action`; `groupPermissions()` = client-side namespace splitter |
+| **Next Recommended Round** | Round 019: Organizations Phase B (create/edit org forms) OR Helpdesk Phase A (list + detail pages) |
+
+---
+
 ## Upcoming Rounds (Proposed)
 
 | Round | Topic | Why Now |
@@ -272,4 +290,5 @@ _Updated after each round — append, never overwrite entries._
 | **015** | Capability Hardening | ✅ Complete — 6 shared capability folders, all 4 module pages refactored |
 | **016** | Cross-Platform Structure Audit + CP-0 | ✅ Complete — `lib/platform/` created, auth types split, readiness 55→68/100 |
 | **017** | Users Phase B — Mutations + Form Standard | ✅ Complete — create/edit user forms, usePlatformMutation, Zod schemas, PATCH proxy, backend endpoints |
+| **018** | Roles & Permissions Core Module | ✅ Complete — Flask role API (6 endpoints), full frontend module with form + table + detail |
 | **016** | CI/CD pipeline for platform-ui | Required before shipping to production |

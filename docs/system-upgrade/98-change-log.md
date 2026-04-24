@@ -17,6 +17,40 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-24 — Round 018: Roles & Permissions Core Module
+
+### Files Changed
+- `apps/authentication/role_api_routes.py` — **created** (platformengineer; 6 endpoints)
+- `apps/__init__.py` — **updated** (role_api_bp registration)
+- `lib/modules/roles/types.ts` — **created**
+- `lib/modules/roles/schemas.ts` — **created**
+- `lib/api/roles.ts` — **created**
+- `lib/api/query-keys.ts` — **updated** (roles keys)
+- `components/modules/roles/role-permission-badge.tsx` — **created**
+- `components/modules/roles/roles-table.tsx` — **created**
+- `components/modules/roles/role-form.tsx` — **created** (RoleCreateSheet + RoleEditSheet + PermissionChecklist)
+- `app/(dashboard)/roles/page.tsx` — **created**
+- `app/(dashboard)/roles/[id]/page.tsx` — **created**
+- `app/api/proxy/[...path]/route.ts` — **updated** (roles PATH_MAP)
+- `docs/modules/03-roles-permissions/PLAN.md` — **updated** (actual implementation)
+- `docs/modules/03-roles-permissions/IMPLEMENTATION.md` — **created**
+- `docs/modules/03-roles-permissions/module.manifest.json` — **created**
+
+### New Findings
+- Roles are GLOBAL (no org_id) — shared across all organizations
+- Flask routing order matters: static routes (`/permissions`) must precede param routes (`/<int:id>`)
+- Two-mutation edit strategy: PATCH meta first, PATCH permissions only if set changed
+- Permission dot-notation (`module.action`) enables client-side grouping via `groupPermissions()`
+- All shared capabilities (PageShell, PlatformForm, usePlatformMutation, DataTable, DetailView) reused without modification
+
+### Decision Changes
+- Permission model standard: codenames use `module.action` dot-notation; `groupPermissions()` is the client-side splitter
+
+### Backlog Changes
+- Roles module backlog: delete-role, role-users-list-tab, permission-create-ui, bulk-role-assign, e2e-tests
+
+---
+
 ## 2026-04-24 — Round 017: Users Phase B — Mutations + Form Standard
 
 ### Files Changed (platform-ui — commit 2592dde)

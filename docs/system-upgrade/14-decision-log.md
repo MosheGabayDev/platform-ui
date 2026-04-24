@@ -415,4 +415,21 @@ Error case:
 
 ---
 
+## ADR-020 — Permission Dot-Notation Standard + groupPermissions Utility (2026-04-24)
+
+**Context:** Module 03 (Roles) needs to display and group permissions. Codenames in the DB are arbitrary strings. Need a consistent grouping strategy for checklist, tag cloud, and badge color-coding.
+
+**Decision:** Permission codenames MUST use `module.action` dot-notation (e.g. `ops.admin`, `ai_providers.read`). `groupPermissions(permissions)` in `lib/modules/roles/types.ts` splits by the first dot. Codenames without a dot fall into "general". Grouping is client-side only.
+
+**Rules:**
+- New permissions defined in Flask: `@permission_required("module.action")`
+- `RolePermissionBadge` NAMESPACE_STYLES map must be updated when a new module namespace is added
+- Only `groupPermissions()` handles grouping — no duplication in form or detail view
+
+**Consequences:** Checklist + tag cloud use identical grouping. New namespaces auto-colorize once added to `NAMESPACE_STYLES`.
+
+**Affected modules**: 03-Roles (primary); all future modules that define permissions.
+
+---
+
 _Add new ADRs here as decisions are made during implementation._

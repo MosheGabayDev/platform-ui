@@ -196,6 +196,27 @@ _Reference: `docs/system-upgrade/26-platform-capabilities-catalog.md`_
 
 ---
 
+## Module 03 — Roles & Permissions (R018 ✅ Complete)
+
+| Task | Status |
+|------|--------|
+| Flask role API (6 endpoints) | `[x]` R018 |
+| Proxy PATH_MAP: roles → /api/roles | `[x]` R018 |
+| `lib/modules/roles/types.ts` + `schemas.ts` | `[x]` R018 |
+| `lib/api/roles.ts` (6 API functions) | `[x]` R018 |
+| `queryKeys.roles.*` | `[x]` R018 |
+| `RolePermissionBadge` component | `[x]` R018 |
+| `RolesTable` component | `[x]` R018 |
+| `RoleCreateSheet` + `RoleEditSheet` forms | `[x]` R018 |
+| `/roles` list page | `[x]` R018 |
+| `/roles/[id]` detail page | `[x]` R018 |
+| Module docs (PLAN, IMPLEMENTATION, manifest) | `[x]` R018 |
+| Delete role (system_admin only) | `[ ]` backlog |
+| Role users list tab in detail | `[ ]` backlog |
+| E2E tests | `[ ]` backlog |
+
+---
+
 ## Cross-Platform Readiness (Phase CP — prerequisite for mobile/desktop)
 
 _Reference: `docs/system-upgrade/28-cross-platform-structure-audit.md`_

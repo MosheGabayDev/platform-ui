@@ -144,7 +144,7 @@ This rule is enforced by code review. Reviewers must reject PRs that duplicate e
 
 ## 04 — PlatformAction
 
-**Status:** 🔵 Partial (Round 017) | **Priority:** now
+**Status:** 🔵 Partial (Round 017–018) | **Priority:** now
 
 **Purpose:** Standard pattern for all UI-initiated write operations: button → confirm dialog (optional) → mutation → toast → cache invalidation. Eliminates the repeated pattern of `useState(loading)` + `catch(e)` + `toast.error` in every page component.
 
@@ -157,10 +157,13 @@ This rule is enforced by code review. Reviewers must reject PRs that duplicate e
 - `components/shared/confirm-dialog.tsx` — `ConfirmDialog` (destructive action confirmation: title, description, confirm label, variant)
 - `components/shared/action-button.tsx` — `ActionButton` (button + loading spinner + disabled state during mutation)
 
-**First implementation scope:**
-1. `ConfirmDialog` — used for delete/deactivate actions; standard shadcn `AlertDialog` wrapper
-2. `ActionButton` — loading state injected from `isPending` flag
-3. `usePlatformMutation` — shared with PlatformForm
+**Implemented consumers (R017–R018):**
+- `usePlatformMutation` ✅ — `lib/hooks/use-platform-mutation.ts`
+- `ConfirmActionDialog` ✅ — `components/shared/confirm-action-dialog.tsx`
+- Users create/edit (R017), Roles create/edit (R018)
+
+**Still needed:**
+- `ActionButton` component — loading spinner + disabled state during mutation
 
 **Security/multi-tenant:** Confirm dialogs must show the resource name (e.g., "Delete organization Acme?") — not just a generic message — to prevent accidental cross-tenant actions in system-admin views.
 
