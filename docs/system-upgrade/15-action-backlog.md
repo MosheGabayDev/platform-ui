@@ -541,14 +541,31 @@ _Must complete before any module ships LLM-calling features. Spec: `docs/system-
 | Migrate `apps/ala/tasks/commitment_task.py` | Direct openai → gateway | 1 hr | `[ ]` R027 |
 | Test: P1 migrated modules — usage log created, billing emitted | `apps/ai_providers/tests/test_p1_migration.py` | 2 hr | `[ ]` R027 |
 
+## AI Provider Gateway — Phase 2 — P0 Migrations (pre-production, URGENT)
+
+_Audit source: `docs/system-upgrade/41-direct-llm-call-audit-and-migration.md §13`_
+_These files have no key_resolver and no billing — highest risk._
+
+| Task | File | Effort | Status |
+|------|------|--------|--------|
+| Migrate `apps/voice_support/call_manager.py` | module-level genai import — fails at load if key missing | 1 hr | `[ ]` R031 |
+| Migrate `apps/fitness_nutrition/ai_service.py` | module-level genai import | 30 min | `[ ]` R031 |
+| Migrate `apps/fitness_nutrition/ai_coach.py` | module-level genai import | 30 min | `[ ]` R031 |
+| Migrate `apps/jira_integration/ai_service.py` | no key_resolver, no billing, multi-provider | 2 hr | `[ ]` R031 |
+| Migrate `apps/jira_integration/troubleshooting_service.py` | direct openai_client, no billing | 1 hr | `[ ]` R031 |
+| Migrate `apps/jira_integration/routes.py` + `devops_ai_service.py` | inline openai imports | 1 hr | `[ ]` R031 |
+| Migrate `apps/ala/tasks/commitment_task.py` | Celery task, voice adjacent, no billing | 1 hr | `[ ]` R031 |
+| Delete `apps/personal_info/ai_chat/providers/openai_provider.py` | bypass wrapper, Critical PII | 15 min | `[ ]` R031 |
+| Delete `apps/personal_info/ai_chat/providers/gemini_provider.py` | bypass wrapper, Critical PII | 15 min | `[ ]` R031 |
+
 ## AI Provider Gateway — Phase 3 (P2/P3 migration, production cleanup)
 
 | Task | Modules | Effort | Status |
 |------|---------|--------|--------|
-| Migrate `apps/ops_intelligence/` (5 files) | ops_query_service, rag_indexer, summarizer, trend_analyzer, bootstrap_catalog | 4 hr | `[ ]` R030 |
-| Migrate `apps/personal_info/` (8 files) | gemini_provider, openai_provider, secretary_service, rag_answer_service, etc. | 5 hr | `[ ]` R030 |
-| Migrate `apps/life_assistant/` (12 files) | all analyzers, gemini_client (delete), openai_fallback (delete) | 6 hr | `[ ]` R031 |
-| Migrate remaining 37 files | see scan results in doc 40 §03 | 10 hr | `[ ]` R031 |
+| Migrate `apps/ops_intelligence/` (5 files) | ops_query_service, rag_indexer, summarizer, trend_analyzer, bootstrap_catalog | 4 hr | `[ ]` R032 |
+| Migrate `apps/personal_info/` (8 files) | secretary_service, rag_answer_service, memory_indexing, transcription, routes, etc. | 5 hr | `[ ]` R032 |
+| Migrate `apps/life_assistant/` (3 files) | gemini_client (delete), openai_fallback (delete), recording_transcriber | 2 hr | `[ ]` R032 |
+| Migrate remaining 15+ files | see doc 41 §15 P2 list | 6 hr | `[ ]` R032 |
 | Delete `apps/life_assistant/services/gemini_client.py` | after migration verified | 15 min | `[ ]` R031 |
 | Delete `apps/life_assistant/services/openai_fallback.py` | after migration verified | 15 min | `[ ]` R031 |
 | Delete `apps/personal_info/ai_chat/providers/` wrapper layer | after migration verified | 30 min | `[ ]` R031 |

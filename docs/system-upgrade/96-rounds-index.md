@@ -395,6 +395,22 @@ _Updated after each round — append, never overwrite entries._
 
 ---
 
+## Round 030 — Direct LLM Call Audit + Gateway Migration Plan
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-24 |
+| **Topic** | Complete inventory of direct LLM provider calls that bypass `apps/ai_providers/`, migration risk classification, gateway readiness assessment, and enforcement design |
+| **Objective** | Before implementing any new AI feature, identify and classify every file that bypasses the AI Provider Gateway. Create a phased migration plan with P0/P1/P2/P3 priority, document bypass wrapper deletion criteria, assess gateway Phase 1 readiness, and design CI enforcement. Code audit + planning only — no runtime changes. |
+| **Key Findings** | • **40 production files in `apps/`** bypass `apps/ai_providers/` — calling OpenAI/Gemini/Anthropic directly <br>• **3 dedicated bypass wrappers** exist: `life_assistant/services/gemini_client.py`, `life_assistant/services/openai_fallback.py`, `personal_info/ai_chat/providers/openai_provider.py` + `gemini_provider.py` <br>• **10 P0 files** have no key_resolver, no billing, no attribution — must migrate before any new AI feature <br>• 3 files have **module-level genai imports** (`voice_support/call_manager.py`, `fitness_nutrition/ai_service.py`, `ai_coach.py`) — fail at import time if key missing <br>• `personal_info/ai_chat/providers/` — Critical PII risk, no billing, no key_resolver, passes raw API key as constructor arg <br>• `apps/ai_providers/` is **70% complete** — registry, adapters, key_resolver, circuit breaker all production-ready; missing: `gateway.py`, `policy.py`, `billing_adapter.py`, schema extension, CI lint <br>• `gemini_client.py` is already semi-compliant (uses registry + fallback) but adds no billing — easiest P1 migration <br>• `openai_fallback.py` creates double-fallback risk if left after gateway ships <br>• No quota pre-check anywhere — orgs can exceed plan limits with no enforcement <br>• Critical PII gap: `personal_info` sends raw diary/document data to OpenAI/Gemini without PII redaction policy |
+| **Files Created (platform-ui)** | `docs/system-upgrade/41-direct-llm-call-audit-and-migration.md` |
+| **Files Updated (platform-ui)** | `docs/system-upgrade/35-platform-capabilities-build-order.md` (gateway track updated with P0 phase + audit doc reference), `docs/system-upgrade/15-action-backlog.md` (P0 migration tasks: 9 items), `docs/system-upgrade/96-rounds-index.md`, `docs/system-upgrade/98-change-log.md` |
+| **Files Inspected (platformengineer)** | All `apps/*.py` files grepped for direct LLM imports; `apps/life_assistant/services/gemini_client.py`, `openai_fallback.py`, `apps/personal_info/ai_chat/providers/openai_provider.py`, `gemini_provider.py`, `apps/ai_agents/engine/agent_runner.py`, `apps/helpdesk/services/vision_service.py`, `screen_analyzer.py`, `incident_memory_service.py`, `apps/ai_settings/services/agent_engine.py`, `apps/ala/text_session.py`, `apps/mobile_voice/conversation_engine.py`, `apps/ops_intelligence/services/ops_rag_indexer.py`, `apps/voice_support/call_manager.py`, `apps/fitness_nutrition/ai_service.py`, `ai_coach.py` |
+| **Decisions Proposed** | None — audit round, no new ADR required |
+| **Next Recommended Round** | Gateway Phase 1 implementation (`gateway.py`, `policy.py`, `billing_adapter.py`, `schemas.py`, AIUsageLog migration) + P0 module migrations |
+
+---
+
 ## Round 029 — AI Provider Gateway + Billing Metering Architecture
 
 | Field | Value |

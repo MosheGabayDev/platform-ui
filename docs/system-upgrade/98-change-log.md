@@ -17,6 +17,33 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-24 — Round 030 (Audit): Direct LLM Call Audit + Gateway Migration Plan
+
+### Files Changed
+- `docs/system-upgrade/41-direct-llm-call-audit-and-migration.md` — **created** (20 sections: executive summary, bypass count, provider/module summary, bypass wrapper deep review, full inventory table P0/P1/P2/P3, billing gaps, attribution gaps, PII risk review, streaming/voice gaps, gateway readiness assessment, migration phases 1–4, P0/P1/P2/P3 lists, enforcement design with CI lint script + allowlist, required tests, deletion criteria, risks, acceptance criteria)
+- `docs/system-upgrade/35-platform-capabilities-build-order.md` — **updated** (gateway migration track: P0 migration phase added, audit doc reference added)
+- `docs/system-upgrade/15-action-backlog.md` — **updated** (Gateway Phase 2 P0 migration tasks: 9 items added before existing Phase 3 table; Phase 3 file count corrected to match audit)
+- `docs/system-upgrade/96-rounds-index.md` — **updated** (Round 030 entry)
+- `docs/system-upgrade/98-change-log.md` — **updated** (this entry)
+
+### New Findings
+- **3 module-level genai imports** found: `voice_support/call_manager.py`, `fitness_nutrition/ai_service.py`, `fitness_nutrition/ai_coach.py` — these fail silently at import time if the API key is missing
+- **`personal_info/ai_chat/providers/`** receives raw API key as constructor arg with no key_resolver — Critical PII module with no billing trail
+- **`apps/jira_integration/ai_service.py`** is the most complex bypass: 3000+ line file, multi-provider switch (OpenAI + Gemini), 5 direct chat completion calls, no attribution
+- **`apps/ai_providers/`** is 70% complete for gateway role — registry, adapters, circuit breaker all production-ready; `gateway.py` wrapper and quota enforcement are the missing 30%
+- **Double-fallback risk**: `openai_fallback.py` must be deleted in same PR as `gemini_client.py` migration — leaving both active causes cascading duplicate calls
+- **No PII redaction policy** applied anywhere in the 40 bypass files — `personal_info` sends raw diary data, documents, and transcripts to OpenAI/Gemini
+
+### Decision Changes
+- No new ADR — audit round only
+
+### Backlog Changes
+- Gateway Phase 2 P0 migration section added to `15-action-backlog.md` (9 tasks)
+- Gateway Phase 3 module count corrected from "37 files" to accurate P2/P3 split per audit
+- Phase 2 migration gate clarified: P0 files must migrate before **any** new AI feature merges
+
+---
+
 ## 2026-04-24 — Round 029 (Architecture): AI Provider Gateway + Billing Metering
 
 ### Files Changed

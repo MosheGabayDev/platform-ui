@@ -581,13 +581,15 @@ Must start before any AI feature module merges to production.
 |-------|------|------|
 | Phase 1 | `gateway.py` + `policy.py` + `billing_adapter.py` + `schemas.py` written | Blocks all migrations |
 | Phase 1 | `AIUsageLog` 12-field extension migration (`20260424_extend_ai_usage_log`) | Blocks usage tracking |
-| Phase 1 | CI lint rule: direct LLM imports blocked | Blocks Phase 2 enforcement |
+| Phase 1 | CI lint rule: direct LLM imports blocked (warn-only until Phase 2 complete) | Blocks Phase 2 enforcement |
+| **Phase 2** | **P0 migrations**: voice_support, fitness_nutrition, jira_integration, ala/commitment_task, personal_info/ai_chat/providers/ | **Before any new AI feature** |
 | Phase 2 | Helpdesk, mobile_voice, ai_agents, ala migrated to gateway (P1 modules) | Before R027 ships |
-| Phase 3 | ops_intelligence, personal_info migrated (P2) | Before R030 |
-| Phase 3 | life_assistant, remaining 37 files migrated (P3) | Before Production Ready gate |
-| Phase 3 | `life_assistant/services/gemini_client.py` and `openai_fallback.py` deleted | After P3 complete |
+| Phase 3 | ops_intelligence, personal_info (10 files), life_assistant migrated (P2) | Before R032 |
+| Phase 3 | Remaining 15+ files migrated | Before Production Ready gate |
+| Phase 3 | `life_assistant/services/gemini_client.py`, `openai_fallback.py`, `personal_info/ai_chat/providers/` deleted | After Phase 3 complete |
 
 Full spec: `docs/system-upgrade/40-ai-provider-gateway-billing.md §17`
+Audit inventory: `docs/system-upgrade/41-direct-llm-call-audit-and-migration.md` (R030 — 40 files classified, P0/P1/P2/P3 assigned, deletion criteria documented)
 
 ---
 
