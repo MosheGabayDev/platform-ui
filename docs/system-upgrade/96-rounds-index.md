@@ -224,6 +224,22 @@ _Updated after each round — append, never overwrite entries._
 
 ---
 
+## Round 015 — Capability Hardening from Users + Organizations
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-24 |
+| **Topic** | Extract shared capabilities from Users + Organizations; refactor both modules to use them |
+| **Objective** | Eliminate duplicated `InfoRow`, `BoolBadge`, `StatChip`, `PageShell`, inline error patterns from Users and Organizations pages. Build 6 shared capability folders before any more modules are added. |
+| **Key Findings** | • Users and Orgs detail pages had identical `InfoRow` + `BoolBadge` + `ease` constant — exact duplication <br>• `LazyMotion` + header animation pattern duplicated in both list pages — extracted to `PageShell` <br>• `StatChip` pattern in both list pages — extracted to `StatCard` with optional `icon` prop <br>• Inline error state duplicated in all 4 pages — unified to `ErrorState` with HTTP status message mapping <br>• `useRouter` in detail pages was only for back button — moved into `DetailBackButton` <br>• Typecheck: EXIT 0 throughout |
+| **Files Created (platform-ui)** | `lib/ui/motion.ts`, `components/shared/detail-view/` (6 files + index), `components/shared/stats/` (3 files + index), `components/shared/page-shell/` (2 files + index), `components/shared/error-state.tsx`, `components/shared/error-boundary.tsx`, `components/shared/form/` (3 files + index), `components/shared/confirm-action-dialog.tsx`, `docs/modules/02-organizations/IMPLEMENTATION.md` |
+| **Files Updated (platform-ui)** | `app/(dashboard)/users/[id]/page.tsx`, `app/(dashboard)/users/page.tsx`, `app/(dashboard)/organizations/[id]/page.tsx`, `app/(dashboard)/organizations/page.tsx`, `docs/system-upgrade/14-decision-log.md` (ADR-017), `docs/system-upgrade/15-action-backlog.md` (7 tasks marked done), `docs/system-upgrade/26-platform-capabilities-catalog.md` (6 statuses updated) |
+| **Decisions Proposed** | ADR-017: Shared Capabilities Promotion Policy — pattern in 2+ module files → promote to `components/shared/` |
+| **Capability Reuse Validated** | PageShell ✓, StatCard ✓, DetailView ✓, ErrorState ✓, ErrorBoundary ✓, PlatformForm ✓, ConfirmActionDialog ✓ |
+| **Next Recommended Round** | Round 016: Users Phase B (create user form + zod schema + usePlatformMutation) OR Module 04 Helpdesk Phase A |
+
+---
+
 ## Upcoming Rounds (Proposed)
 
 | Round | Topic | Why Now |
@@ -236,7 +252,8 @@ _Updated after each round — append, never overwrite entries._
 | **010** | Module 01: Users | ✅ Complete — list + detail pages, Flask JSON API, types, components, ADR-015 |
 | **011** | Open-Source Capability Layer | ✅ Complete — ADR-016, 25-open-source-capability-layer.md, 14 backlog tasks |
 | **012** | Capability Layer Foundation | ✅ Complete — shared DataTable, PermissionGate, format utils, CSV util, request context, audit headers |
-| **013** | Module 02: Organizations | Flask JWT org API + platform-ui list/detail pages using shared components |
-| **014** | Module 04: Helpdesk | Largest module, most business value |
-| **015** | SSE infrastructure | Enables live data across all future modules |
+| **013** | Module 02: Organizations | ✅ Complete — Flask JWT org API + platform-ui list/detail pages |
+| **014** | Platform Capabilities Catalog | ✅ Complete — 30 capabilities documented, capability-first rule added |
+| **015** | Capability Hardening | ✅ Complete — 6 shared capability folders, all 4 module pages refactored |
+| **016** | Users Phase B OR Helpdesk Phase A | Users create/edit form (PlatformForm + zod) OR Helpdesk list+detail |
 | **016** | CI/CD pipeline for platform-ui | Required before shipping to production |

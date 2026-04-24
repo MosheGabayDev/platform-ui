@@ -326,4 +326,31 @@ Error case:
 
 ---
 
+---
+
+## ADR-017 — Shared Capabilities Promotion Policy
+
+**Date:** 2026-04-24
+**Round:** 015
+
+**Context:** Users and Organizations detail pages each defined identical `InfoRow`, `BoolBadge`, and `StatChip` helpers locally. List pages duplicated `LazyMotion` + header animation boilerplate. Risk of drift as more modules are added.
+
+**Decision:** Any pattern appearing in 2+ module files is promoted to `components/shared/` or `lib/ui/`. No local re-definitions allowed.
+
+**Promotion threshold:** 2 occurrences in production code, OR 2nd consumer is planned within 1 sprint.
+
+**Alternatives:**
+- Copy-paste with comment (rejected — silent drift)
+- Abstract only at 3+ consumers (rejected — 3rd consumer always arrives with API differences, forcing a breaking change)
+
+**Consequences:**
+- `components/shared/detail-view/`, `components/shared/stats/`, `components/shared/page-shell/`, `components/shared/form/`, `components/shared/error-state.tsx`, `components/shared/error-boundary.tsx`, `components/shared/confirm-action-dialog.tsx` all created R015
+- All future module list pages MUST use `PageShell` as outermost wrapper
+- All future detail pages MUST use `DetailSection` + `InfoRow` + `DetailHeaderCard`
+- All future forms MUST use `PlatformForm` + `FormActions` + `FormError`
+
+**Affected modules**: All 19 (policy), 01-Users + 02-Organizations (first consumers)
+
+---
+
 _Add new ADRs here as decisions are made during implementation._

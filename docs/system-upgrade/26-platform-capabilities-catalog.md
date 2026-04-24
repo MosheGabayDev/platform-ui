@@ -32,13 +32,13 @@ This rule is enforced by code review. Reviewers must reject PRs that duplicate e
 | # | Capability | Priority | Status | Round |
 |---|-----------|----------|--------|-------|
 | 01 | [PlatformDataGrid](#01-platformdatagrid) | **now** | ✅ Implemented | 012 |
-| 02 | [PlatformDashboard](#02-platformdashboard) | **now** | 🔵 Partial | — |
-| 03 | [PlatformForm](#03-platformform) | **now** | ⬜ Pending | — |
-| 04 | [PlatformAction](#04-platformaction) | **now** | ⬜ Pending | — |
+| 02 | [PlatformDashboard](#02-platformdashboard) | **now** | 🔵 Partial | 015 |
+| 03 | [PlatformForm](#03-platformform) | **now** | ✅ Implemented | 015 |
+| 04 | [PlatformAction](#04-platformaction) | **now** | 🔵 Partial | 015 |
 | 05 | [PermissionGate / Access Control UI](#05-permissiongate--access-control-ui) | **now** | ✅ Implemented | 012 |
 | 06 | [PlatformImportExport](#06-platformimportexport) | **next** | 🔵 Partial | 012 |
-| 07 | [PlatformPageShell](#07-platformpageshell) | **now** | ⬜ Pending | — |
-| 08 | [PlatformDetailView](#08-platformdetailview) | **now** | 🔵 Partial | 013 |
+| 07 | [PlatformPageShell](#07-platformpageshell) | **now** | ✅ Implemented | 015 |
+| 08 | [PlatformDetailView](#08-platformdetailview) | **now** | ✅ Implemented | 015 |
 | 09 | [PlatformTimeline](#09-platformtimeline) | **next** | ⬜ Pending | — |
 | 10 | [PlatformAuditLog](#10-platformauditlog) | **next** | ⬜ Pending | — |
 | 11 | [PlatformSearch / Command Palette](#11-platformsearch--command-palette) | **next** | ⬜ Pending | — |
@@ -51,7 +51,7 @@ This rule is enforced by code review. Reviewers must reject PRs that duplicate e
 | 18 | [PlatformModuleRegistry](#18-platformmoduleregistry) | **next** | 🔵 Partial | 013 |
 | 19 | [PlatformTenantContext](#19-platformtenantcontext) | **now** | ✅ Implemented | 007 |
 | 20 | [PlatformPrivacy / PII Masking](#20-platformprivacy--pii-masking) | **later** | ⬜ Pending | — |
-| 21 | [PlatformErrorBoundary / ErrorState](#21-platformerrorboundary--errorstate) | **now** | ⬜ Pending | — |
+| 21 | [PlatformErrorBoundary / ErrorState](#21-platformerrorboundary--errorstate) | **now** | ✅ Implemented | 015 |
 | 22 | [PlatformAPI Client](#22-platformapi-client) | **now** | ✅ Implemented | 008 |
 | 23 | [PlatformRealtime](#23-platformrealtime) | **next** | ⬜ Pending | — |
 | 24 | [PlatformFileManager](#24-platformfilemanager) | **later** | ⬜ Pending | — |

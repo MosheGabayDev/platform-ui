@@ -154,14 +154,14 @@ _Reference: `docs/system-upgrade/26-platform-capabilities-catalog.md`_
 
 | Task | Capability | File(s) | Priority | Status |
 |------|-----------|---------|----------|--------|
-| **Add `PlatformErrorBoundary`** | §21 | `components/shared/error-boundary.tsx` + wire into `app/(dashboard)/layout.tsx` | P1 | `[ ]` |
-| **Extract `ErrorState` component** | §21 | `components/shared/error-state.tsx` — unify inline error patterns from users/orgs pages | P1 | `[ ]` |
-| **Extract `PageShell` component** | §07 | `components/shared/page-shell.tsx` — extract header+motion from users/orgs pages | P1 | `[ ]` |
-| **Extract `DetailView` components** | §08 | `components/shared/detail-view/` — extract `InfoRow`, `BoolBadge`, `DetailSection` from users/orgs detail pages | P1 | `[ ]` |
-| **Extract `StatCard` component** | §02 | `components/shared/stat-card.tsx` — extract `StatChip` from users/orgs pages; promote to shared | P1 | `[ ]` |
-| **Build `PlatformForm` wrapper** | §03 | `components/shared/form/platform-form.tsx` + `form-field.tsx` + `form-section.tsx` | P1 | `[ ]` |
+| **Add `PlatformErrorBoundary`** | §21 | `components/shared/error-boundary.tsx` + wire into `app/(dashboard)/layout.tsx` | P1 | `[x]` R015 |
+| **Extract `ErrorState` component** | §21 | `components/shared/error-state.tsx` — unify inline error patterns from users/orgs pages | P1 | `[x]` R015 |
+| **Extract `PageShell` component** | §07 | `components/shared/page-shell/` — extract header+motion from users/orgs pages | P1 | `[x]` R015 |
+| **Extract `DetailView` components** | §08 | `components/shared/detail-view/` — extract `InfoRow`, `BoolBadge`, `DetailSection` from users/orgs detail pages | P1 | `[x]` R015 |
+| **Extract `StatCard` component** | §02 | `components/shared/stats/` — extract `StatChip` from users/orgs pages; promote to shared | P1 | `[x]` R015 |
+| **Build `PlatformForm` wrapper** | §03 | `components/shared/form/` — `PlatformForm`, `FormActions`, `FormError` | P1 | `[x]` R015 |
 | **Build `usePlatformMutation` hook** | §03/04 | `lib/hooks/use-platform-mutation.ts` — wraps useMutation + audit headers + toast | P1 | `[ ]` |
-| **Build `ConfirmDialog` component** | §04 | `components/shared/confirm-dialog.tsx` — destructive action confirmation | P1 | `[ ]` |
+| **Build `ConfirmDialog` component** | §04 | `components/shared/confirm-action-dialog.tsx` — destructive action confirmation | P1 | `[x]` R015 |
 | **Build `ActionButton` component** | §04 | `components/shared/action-button.tsx` — loading state + disabled during mutation | P2 | `[ ]` |
 | **Build `PlatformFeatureFlags` hook** | §17 | `lib/hooks/use-feature-flag.ts` + `components/shared/feature-flag.tsx` + `lib/api/feature-config.ts` | P1 | `[ ]` |
 | **Build `NotificationBell` (polling)** | §12 | `components/shell/notification-bell.tsx` + `lib/hooks/use-notifications.ts` | P2 | `[ ]` |

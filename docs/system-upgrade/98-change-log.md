@@ -17,6 +17,40 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-24 — Round 015: Capability Hardening
+
+### Files Changed
+- `lib/ui/motion.ts` — **created** (shared PAGE_EASE constant)
+- `components/shared/detail-view/` — **created** (InfoRow, BoolBadge, DetailSection, DetailHeaderCard, DetailBackButton, DetailLoadingSkeleton + index)
+- `components/shared/stats/` — **created** (StatCard, StatsGrid + index)
+- `components/shared/page-shell/` — **created** (PageShell + index)
+- `components/shared/error-state.tsx` — **created**
+- `components/shared/error-boundary.tsx` — **created**
+- `components/shared/form/` — **created** (PlatformForm, FormActions, FormError + index)
+- `components/shared/confirm-action-dialog.tsx` — **created**
+- `app/(dashboard)/users/[id]/page.tsx` — **refactored** (removed local InfoRow/BoolBadge/ease/back button/loading/error)
+- `app/(dashboard)/users/page.tsx` — **refactored** (replaced StatChip + LazyMotion header + inline error with PageShell + StatCard + ErrorState)
+- `app/(dashboard)/organizations/[id]/page.tsx` — **refactored** (same as users detail page)
+- `app/(dashboard)/organizations/page.tsx` — **refactored** (same as users list page)
+- `docs/modules/02-organizations/IMPLEMENTATION.md` — **created**
+- `docs/system-upgrade/14-decision-log.md` — **updated** (ADR-017 added)
+- `docs/system-upgrade/15-action-backlog.md` — **updated** (7 tasks marked done)
+- `docs/system-upgrade/26-platform-capabilities-catalog.md` — **updated** (6 capability statuses updated)
+
+### New Findings
+- `InfoRow` + `BoolBadge` helpers were character-for-character identical in Users and Orgs detail pages — classic promotion case
+- `PageShell` removes ~20 lines of boilerplate from every future module list page
+- `DetailBackButton` subsumes `useRouter` — detail pages no longer need the router import for navigation
+- `ConfirmActionDialog` uses `shadcn/ui Dialog` (not AlertDialog — not installed); this is the correct pattern
+
+### Decision Changes
+- ADR-017: Shared Capabilities Promotion Policy (2+ occurrences → promote to `components/shared/`)
+
+### Backlog Changes
+- Marked done: ErrorBoundary, ErrorState, PageShell, DetailView, StatCard, PlatformForm, ConfirmDialog
+
+---
+
 ## 2026-04-24 — Round 014: Platform Capabilities Catalog
 
 ### Files Created (platform-ui)
