@@ -1,6 +1,30 @@
 # 06 — Security Assessment
 
-_Last updated: 2026-04-23_
+_Last updated: 2026-04-24 (Round 021 deep audit)_
+
+> **R021 Summary**: Deep audit performed. No criticals found. 3 HIGH fixed, 1 MEDIUM fixed, 1 LOW fixed. Overall score: 8.5/10. Foundation is safe for continued development. Full findings: [30-security-hardening-audit.md](30-security-hardening-audit.md).
+
+---
+
+## Status After Round 021
+
+| Finding | R001 Status | R021 Status |
+|---------|------------|------------|
+| C2 — Auth bridge stub | CRITICAL | ✅ Fixed (Rounds 005–009) |
+| H1 — No formal API auth contract | HIGH | ✅ Fixed (JWT throughout) |
+| H2 — RBAC not enforced in platform-ui | HIGH | ✅ Fixed (PermissionGate, role guards) |
+| M2 — Token/session expiry | MEDIUM | ✅ Fixed (refresh rotation, 8h session) |
+| **R021-H1** — Proxy PATH_MAP fallback | NEW HIGH | ✅ Fixed R021 |
+| **R021-H2** — Missing /users/active endpoint | NEW HIGH | ✅ Fixed R021 |
+| **R021-H3** — Missing /orgs/active endpoint | NEW HIGH | ✅ Fixed R021 |
+| **R021-M1** — X-User-Id header naming | NEW MEDIUM | ✅ Fixed R021 |
+| **R021-L1** — Logout no refresh invalidation | NEW LOW | ✅ Fixed R021 |
+| **R021-M2** — is_system_admin in types | NEW MEDIUM | Deferred |
+| **R021-AUD-001** — Audit trail gaps | NEW HIGH | Deferred (pre-prod blocker) |
+| **R021-PII-001** — Email in user list | NEW MEDIUM | Deferred (pre-prod blocker) |
+| C1 — SAML disabled | CRITICAL | Still open — not in scope |
+
+---
 
 ---
 

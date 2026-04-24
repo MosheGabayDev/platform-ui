@@ -77,7 +77,14 @@ async function proxy(req: NextRequest, params: { path: string[] }) {
 
   const segments = params.path ?? [];
   const [prefix, ...rest] = segments;
-  const flaskPrefix = PATH_MAP[prefix] ?? `/api/${prefix}`;
+
+  // Strict allowlist — never fall back to arbitrary Flask paths.
+  // Unknown prefix → 404, not proxy-forward. Prevents path traversal to unlisted endpoints.
+  if (!Object.prototype.hasOwnProperty.call(PATH_MAP, prefix)) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  const flaskPrefix = PATH_MAP[prefix];
   const downstream = `${FLASK}${flaskPrefix}${rest.length ? `/${rest.join("/")}` : ""}${req.nextUrl.search}`;
 
   try {

@@ -17,6 +17,72 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-24 — Round 021: Security Hardening Audit
+
+### Files Changed
+
+**platformengineer:**
+- `apps/authentication/user_api_routes.py` — **added** `PATCH /api/users/<id>/active` with admin guard, self-deactivation block, idempotency, `UserActivity` audit write
+- `apps/admin/org_api_routes.py` — **added** `PATCH /api/organizations/<id>/active` with system-admin guard, idempotency, `UserActivity` audit write
+
+**platform-ui:**
+- `app/api/proxy/[...path]/route.ts` — **hardened** proxy PATH_MAP: strict allowlist, unknown prefix → 404 (removed `?? /api/${prefix}` fallback)
+- `lib/platform/request/context.ts` — **hardened** header names: `X-User-Id` → `X-Client-User-Id`, `X-Org-Id` → `X-Client-Org-Id`
+- `lib/auth/options.ts` — **added** `events.signOut` handler calling Flask `/api/auth/logout` to invalidate refresh token
+- `docs/system-upgrade/30-security-hardening-audit.md` — **created** (full audit findings, RBAC matrix, tenant isolation review, audit readiness matrix)
+- `docs/system-upgrade/06-security-assessment.md` — **updated** with R021 status table
+- `docs/system-upgrade/96-rounds-index.md` — **updated** (R020 + R021 entries)
+- `docs/system-upgrade/98-change-log.md` — **updated**
+
+### New Findings
+- **HIGH** Proxy PATH_MAP fallback: authenticated users could reach any Flask endpoint → FIXED
+- **HIGH** Missing `/users/<id>/active` and `/organizations/<id>/active` Flask endpoints → FIXED
+- **MEDIUM** `X-User-Id`/`X-Org-Id` header names look authoritative → FIXED (renamed)
+- **LOW** Logout didn't invalidate Flask refresh token → FIXED
+- **DEFERRED** AUD-001: audit trail gaps for create/update events — pre-production blocker
+- **DEFERRED** PII-001: email visible in user list to all org members — pre-production blocker
+- **DEFERRED** M2: `is_system_admin` not in NormalizedAuthUser — before enterprise multi-tenant
+- **DEFERRED** L3: query-param `?token=` in `jwt_required` — before production
+
+### Decision Changes
+- Confirmed: backend must never trust `X-Client-*` advisory headers for auth decisions
+
+### Backlog Changes
+- AUD-001 added to pre-production backlog (audit trail for create/update)
+- PII-001 added to pre-production backlog (email visibility restriction)
+- L3 (query-param token removal) added to pre-production backlog
+
+---
+
+## 2026-04-24 — Round 020: Dangerous Actions + ConfirmAction Standard
+
+### Files Changed
+- `lib/platform/actions/` — **created** (types.ts, danger-level.ts, definitions.ts, index.ts — ADR-021 cross-platform standard)
+- `lib/hooks/use-dangerous-action.ts` — **created** (ties PlatformAction to mutation with dialog state)
+- `components/shared/confirm-action-dialog.tsx` — **hardened** (full DangerLevel support: badge, reason textarea, typed confirmation)
+- `lib/api/users.ts` — **added** `setUserActive(id, isActive, reason)`
+- `lib/api/organizations.ts` — **added** `setOrgActive(id, isActive, reason)`
+- `app/(dashboard)/users/[id]/page.tsx` — **added** deactivate/reactivate buttons + ConfirmActionDialog
+- `app/(dashboard)/organizations/[id]/page.tsx` — **added** deactivate/reactivate buttons + ConfirmActionDialog
+- `lib/auth/options.ts` — **removed** `accessToken` from client session (XSS fix)
+- `app/(auth)/login/page.tsx` — **fixed** open redirect on callbackUrl
+- `app/api/proxy/[...path]/route.ts` — **fixed** catch block topology leak
+
+### New Findings
+- `accessToken` in session.user = XSS/extension exfiltration risk → removed
+- `callbackUrl` query param not validated → open redirect → fixed
+- Proxy catch block leaked error messages with internal URLs → stripped
+- `useCountUp` in `.map()` = React hooks violation → extracted component
+- Unstable `reset` function caused infinite render loop → wrapped in `useCallback`
+
+### Decision Changes
+- ADR-021: Dangerous Action Standard adopted (`DangerLevel` scale, `useDangerousAction`, `ConfirmActionDialog`)
+
+### Backlog Changes
+- Deactivate/reactivate user and org promoted from backlog to done
+
+---
+
 ## 2026-04-24 — Round 019: Organizations Phase B + Admin Mutation Standard
 
 ### Files Changed

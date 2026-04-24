@@ -176,6 +176,28 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
 
+  events: {
+    /**
+     * Called when the user signs out via next-auth signOut().
+     * Invalidates the Flask refresh token so it cannot be used after logout.
+     * Access token expires naturally (max 15 min) — platform-ui drops it immediately.
+     */
+    async signOut({ token }) {
+      const jwt = token as { accessToken?: string } | null;
+      if (jwt?.accessToken) {
+        try {
+          await fetch(`${FLASK_URL}/api/auth/logout`, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${jwt.accessToken}` },
+            signal: AbortSignal.timeout(3_000),
+          });
+        } catch {
+          // Logout call failing must never prevent local session destruction.
+        }
+      }
+    },
+  },
+
   callbacks: {
     /**
      * jwt() is called on every getToken() / getServerSession() call.

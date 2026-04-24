@@ -29,11 +29,13 @@ export function buildAuditHeaders(context: {
     "X-Client-Source": "platform-ui",
   };
 
+  // Prefixed X-Client-* to make it explicit these are advisory hints, NOT authorization.
+  // Flask MUST derive identity from the Bearer JWT only, never from these headers.
   if (context.userId != null) {
-    headers["X-User-Id"] = String(context.userId);
+    headers["X-Client-User-Id"] = String(context.userId);
   }
   if (context.orgId != null) {
-    headers["X-Org-Id"] = String(context.orgId);
+    headers["X-Client-Org-Id"] = String(context.orgId);
   }
   if (context.route) {
     headers["X-Client-Route"] = context.route.slice(0, 100);

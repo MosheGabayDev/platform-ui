@@ -291,6 +291,39 @@ _Updated after each round — append, never overwrite entries._
 
 ---
 
+## Round 020 — Dangerous Actions + ConfirmAction Standard
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-24 |
+| **Topic** | ADR-021 Dangerous Action Standard — platform-wide UX + enforcement for sensitive actions |
+| **Objective** | Create `lib/platform/actions/` cross-platform standard; implement deactivate/reactivate for users and orgs; harden ConfirmActionDialog; fix security findings from audit review. |
+| **Key Findings** | • `accessToken` in client session = XSS risk — removed from `session()` callback <br>• `refreshToken` was already server-side only — confirmed safe <br>• `callbackUrl` open redirect fix: now strips non-relative paths <br>• Proxy catch block was leaking internal error messages — stripped to generic message <br>• `useEffect` deps with inline `reset` caused infinite loop — fixed with `useCallback` <br>• `useCountUp` in `.map()` = hooks violation — extracted to `AnimatedStatItem` component <br>• Typecheck: EXIT 0 |
+| **Files Created (platform-ui)** | `lib/platform/actions/types.ts`, `lib/platform/actions/danger-level.ts`, `lib/platform/actions/definitions.ts`, `lib/platform/actions/index.ts`, `lib/hooks/use-dangerous-action.ts` |
+| **Files Updated (platform-ui)** | `lib/platform/index.ts`, `components/shared/confirm-action-dialog.tsx`, `lib/api/users.ts`, `lib/api/organizations.ts`, `app/(dashboard)/users/[id]/page.tsx`, `app/(dashboard)/organizations/[id]/page.tsx`, `app/(auth)/login/page.tsx`, `app/api/proxy/[...path]/route.ts`, `lib/auth/options.ts`, `lib/auth/types.ts`, `components/modules/users/user-form.tsx` |
+| **Commits** | platform-ui: `e634ca3` |
+| **Decisions Proposed** | ADR-021: Dangerous Action Standard — DangerLevel scale, useDangerousAction, ConfirmActionDialog |
+| **Next Recommended Round** | Round 021: Security Hardening Audit |
+
+---
+
+## Round 021 — Post-Dangerous-Actions Security Hardening Audit
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-24 |
+| **Topic** | Deep security audit of auth, proxy, RBAC, tenant isolation, dangerous actions, audit readiness |
+| **Objective** | Verify no critical/high security gaps before Helpdesk development. Fix all HIGH findings. Document deferred items. |
+| **Key Findings** | • Proxy PATH_MAP fallback allowed routing to arbitrary Flask endpoints (HIGH) — fixed <br>• `setUserActive`/`setOrgActive` called non-existent Flask endpoints (HIGH) — fixed <br>• `X-User-Id`/`X-Org-Id` header names look authoritative (MEDIUM) — renamed to `X-Client-*` <br>• `signOut` didn't invalidate Flask refresh token (LOW) — fixed via events.signOut <br>• Full audit trail gaps documented as AUD-001 (pre-prod blocker) <br>• PII gap: email in user list visible to all org members (pre-prod blocker) <br>• Overall security score: 7.2 → 8.5/10 <br>• Typecheck: EXIT 0 |
+| **Files Created (platform-ui)** | `docs/system-upgrade/30-security-hardening-audit.md` |
+| **Files Updated (platform-ui)** | `app/api/proxy/[...path]/route.ts`, `lib/platform/request/context.ts`, `lib/auth/options.ts`, `docs/system-upgrade/06-security-assessment.md`, `docs/system-upgrade/96-rounds-index.md`, `docs/system-upgrade/98-change-log.md` |
+| **Files Updated (platformengineer)** | `apps/authentication/user_api_routes.py` (add `/active` route + audit), `apps/admin/org_api_routes.py` (add `/active` route + audit) |
+| **Commits** | platform-ui: (this round) · platformengineer: (this round) |
+| **Decisions Proposed** | None — confirmed: backend must never trust X-Client-* headers |
+| **Next Recommended Round** | Round 022: Helpdesk Phase A (list + detail pages for tickets/sessions) |
+
+---
+
 ## Upcoming Rounds (Proposed)
 
 | Round | Topic | Why Now |
