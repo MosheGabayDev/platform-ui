@@ -19,7 +19,7 @@
  * never passed as a form field or prop to this hook.
  */
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useMutation, useQueryClient, type MutationFunction, type QueryKey } from "@tanstack/react-query";
 
 export interface UsePlatformMutationOptions<TData, TVariables> {
@@ -65,10 +65,10 @@ export function usePlatformMutation<TData, TVariables>({
     },
   });
 
-  const reset = () => {
+  const reset = useCallback(() => {
     resetMutation();
     setServerError(null);
-  };
+  }, [resetMutation]);
 
   return { mutate, mutateAsync, isPending, serverError, reset };
 }

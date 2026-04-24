@@ -124,7 +124,7 @@ export function OrgCreateSheet({ open, onOpenChange, onSuccess }: OrgCreateSheet
       form.reset();
       reset();
     }
-  }, [open, form, reset]);
+  }, [open, reset]); // form.reset is stable (RHF); reset is now stable via useCallback
 
   // Auto-generate slug from name (only when slug hasn't been manually changed)
   const watchedName = form.watch("name");

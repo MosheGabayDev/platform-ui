@@ -145,7 +145,7 @@ export function RoleCreateSheet({ open, onOpenChange, onSuccess }: RoleCreateShe
       form.reset();
       reset();
     }
-  }, [open, form, reset]);
+  }, [open, reset]); // form.reset stable (RHF)
 
   const onSubmit = form.handleSubmit(async (values) => {
     await mutateAsync({

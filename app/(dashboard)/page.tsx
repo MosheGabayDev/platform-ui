@@ -39,6 +39,26 @@ const scaleIn = {
   }),
 };
 
+/* ─── Animated Stat Item ────────────────────────────────────── */
+function AnimatedStatItem({ label, value, suffix, icon: Icon, delay }: {
+  label: string; value: number; suffix?: string; icon: React.ElementType; delay: number;
+}) {
+  const count = useCountUp(value, 1600, delay);
+  return (
+    <div className="flex items-center gap-2.5">
+      <div className="size-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+        <Icon className="size-3.5 text-primary/70" />
+      </div>
+      <div>
+        <p className="text-[11px] text-muted-foreground/70 leading-none mb-1">{label}</p>
+        <p className="text-sm font-bold tabular-nums">
+          {value > 100 ? count.toLocaleString("he") : count}{suffix ?? ""}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Stat Card ──────────────────────────────────────────────── */
 function StatCard({ title, numericValue, suffix = "", change, up, icon: Icon, color, accent, border, spark, sparkColor, index }: {
   title: string; numericValue: number; suffix?: string;
@@ -366,23 +386,9 @@ export default function DashboardPage() {
                     { label: "מקורות RAG",           value: stats?.knowledge.total_chunks ?? 0,    icon: Zap },
                     { label: "פרופילים פעילים",      value: profilesActive,                         icon: Users },
                     { label: "שגיאות 7 ימים",       value: stats?.actions.error ?? 0,              icon: Shield },
-                  ].map((item, i) => {
-                    // eslint-disable-next-line react-hooks/rules-of-hooks
-                    const count = useCountUp(item.value, 1600, 600 + i * 100);
-                    return (
-                      <div key={item.label} className="flex items-center gap-2.5">
-                        <div className="size-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                          <item.icon className="size-3.5 text-primary/70" />
-                        </div>
-                        <div>
-                          <p className="text-[11px] text-muted-foreground/70 leading-none mb-1">{item.label}</p>
-                          <p className="text-sm font-bold tabular-nums">
-                            {item.value > 100 ? count.toLocaleString("he") : count}{item.suffix ?? ""}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })}
+                  ].map((item, i) => (
+                    <AnimatedStatItem key={item.label} {...item} delay={600 + i * 100} />
+                  ))}
                 </div>
               )}
             </CardContent>
