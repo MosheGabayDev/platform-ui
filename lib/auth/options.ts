@@ -49,6 +49,8 @@ function normalizeFlaskUser(user: FlaskUserPayload): NormalizedAuthUser {
     email: user.email,
     username: user.name ?? user.email.split("@")[0],
     role: primaryRole,
+    // TODO(Q14): Flask must return populated permissions[] in JWT payload.
+    // Until then hasPermission() always returns false for non-admins (silent RBAC gap).
     permissions: user.permissions ?? [],
     org_id: user.org_id,
     // is_admin is now a real boolean from Flask User.is_admin column (Round 009).
@@ -211,9 +213,9 @@ export const authOptions: NextAuthOptions = {
      */
     async session({ session, token }) {
       session.user = token.user;
-      session.accessToken = token.accessToken;
+      // accessToken intentionally excluded — proxy reads it via server-only getToken().
+      // Exposing the Flask JWT in session would allow client-side XSS exfiltration.
       session.expiresAt = token.expiresAt;
-      // Propagate refresh errors so client can handle forced re-login gracefully.
       if (token.error) session.error = token.error;
       return session;
     },

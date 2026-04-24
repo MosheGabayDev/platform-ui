@@ -68,3 +68,15 @@ export function updateOrg(id: number, input: EditOrgInput): Promise<OrgDetailRes
     body: JSON.stringify(input),
   });
 }
+
+/** Activate or deactivate an organization. System admin only. */
+export function setOrgActive(
+  id: number,
+  isActive: boolean,
+  reason?: string | null,
+): Promise<OrgDetailResponse> {
+  return apiFetch<OrgDetailResponse>(`/${id}/active`, {
+    method: "PATCH",
+    body: JSON.stringify({ is_active: isActive, reason: reason ?? null }),
+  });
+}

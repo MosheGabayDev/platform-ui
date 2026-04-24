@@ -34,8 +34,7 @@ declare module "next-auth" {
    */
   interface Session {
     user: NormalizedAuthUser;
-    /** Short-lived Flask JWT access token. Proxy adds this as Authorization: Bearer. */
-    accessToken: string;
+    // accessToken intentionally absent — server-only via getToken() in proxy.
     /** Unix timestamp (seconds) when accessToken expires. */
     expiresAt: number;
     /** Set when token refresh fails. Middleware treats this as unauthenticated. */

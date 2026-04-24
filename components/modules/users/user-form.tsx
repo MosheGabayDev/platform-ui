@@ -92,7 +92,7 @@ function RoleSelect({
   disabled?: boolean;
 }) {
   const { data } = useQuery({
-    queryKey: ["users", "roles"],
+    queryKey: queryKeys.roles.list(),
     queryFn: fetchRoles,
     staleTime: 5 * 60_000,
   });

@@ -1,18 +1,19 @@
 "use client";
 /**
  * @module app/(dashboard)/users/[id]/page
- * User detail page — displays full user profile with edit capability.
+ * User detail page — displays full user profile with edit, deactivate, and reactivate actions.
  *
  * Auth: protected by middleware.ts.
  * Data: via useQuery → fetchUser(id) → /api/proxy/users/<id> → Flask /api/users/<id>.
- * Mutations: PATCH /api/users/<id> via UserEditSheet (admin or own profile).
+ * Mutations: PATCH /api/users/<id> via UserEditSheet, PATCH /api/users/<id>/active via danger actions.
  */
 
 import { use, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
+import { toast } from "sonner";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
-import { User, Mail, Building2, Shield, Clock, CheckCircle, Key, Pencil } from "lucide-react";
+import { User, Mail, Building2, Shield, Clock, CheckCircle, Key, Pencil, UserX, UserCheck } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { UserStatusBadge } from "@/components/modules/users/user-status-badge";
@@ -23,9 +24,12 @@ import {
   DetailBackButton, DetailLoadingSkeleton,
 } from "@/components/shared/detail-view";
 import { ErrorState } from "@/components/shared/error-state";
-import { fetchUser } from "@/lib/api/users";
+import { ConfirmActionDialog } from "@/components/shared/confirm-action-dialog";
+import { fetchUser, setUserActive } from "@/lib/api/users";
 import { queryKeys } from "@/lib/api/query-keys";
 import { hasRole } from "@/lib/auth/rbac";
+import { useDangerousAction } from "@/lib/hooks/use-dangerous-action";
+import { USER_ACTIONS } from "@/lib/platform/actions";
 import { PAGE_EASE } from "@/lib/ui/motion";
 
 export default function UserDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -46,18 +50,61 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
   const isSelf = session?.user?.id === user?.id;
   const canEdit = isAdmin || isSelf;
 
+  const deactivate = useDangerousAction({
+    action: USER_ACTIONS.deactivate,
+    mutationFn: (payload) => setUserActive(userId, false, payload.reason),
+    invalidateKeys: [queryKeys.users.detail(userId), queryKeys.users.all()],
+    onSuccess: () => { toast.success("המשתמש הושבת בהצלחה"); refetch(); },
+  });
+
+  const reactivate = useDangerousAction({
+    action: USER_ACTIONS.reactivate,
+    mutationFn: (payload) => setUserActive(userId, true, payload.reason),
+    invalidateKeys: [queryKeys.users.detail(userId), queryKeys.users.all()],
+    onSuccess: () => { toast.success("המשתמש הופעל מחדש"); refetch(); },
+  });
+
+  if (isNaN(userId)) return <ErrorState error={new Error("404")} messages={{ 404: "מזהה משתמש לא חוקי" }} />;
+
   return (
     <LazyMotion features={domAnimation}>
       <div className="space-y-6 pb-20 md:pb-0 max-w-2xl">
 
         <div className="flex items-center justify-between gap-3">
           <DetailBackButton href="/users" />
-          {canEdit && user && (
-            <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
-              <Pencil className="size-3.5 me-1.5" />
-              ערוך
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {isAdmin && user && (
+              user.is_active ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={deactivate.trigger}
+                  disabled={deactivate.isPending}
+                  className="text-amber-600 border-amber-300 hover:bg-amber-50 dark:text-amber-400 dark:border-amber-700 dark:hover:bg-amber-950"
+                >
+                  <UserX className="size-3.5 me-1.5" />
+                  השבת
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={reactivate.trigger}
+                  disabled={reactivate.isPending}
+                  className="text-blue-600 border-blue-300 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-700 dark:hover:bg-blue-950"
+                >
+                  <UserCheck className="size-3.5 me-1.5" />
+                  הפעל מחדש
+                </Button>
+              )
+            )}
+            {canEdit && user && (
+              <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
+                <Pencil className="size-3.5 me-1.5" />
+                ערוך
+              </Button>
+            )}
+          </div>
         </div>
 
         {isLoading && <DetailLoadingSkeleton />}
@@ -155,6 +202,9 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
             onSuccess={() => { setEditOpen(false); refetch(); }}
           />
         )}
+
+        <ConfirmActionDialog {...deactivate.dialogProps} />
+        <ConfirmActionDialog {...reactivate.dialogProps} />
       </div>
     </LazyMotion>
   );

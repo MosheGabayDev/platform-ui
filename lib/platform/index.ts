@@ -53,6 +53,18 @@ export { escapeCsvCell, rowsToCsv } from "./export/csv";
 // Request context + audit headers
 export { generateRequestId, buildAuditHeaders } from "./request/context";
 
+// Dangerous Action Standard (ADR-021)
+export type { DangerLevel, PlatformAction, ActionConfirmPayload } from "./actions";
+export {
+  DANGER_LEVEL_CONFIG,
+  isDestructiveLevel,
+  requiresTypedConfirmation,
+  requiresReason,
+  normalizeDangerLevel,
+  USER_ACTIONS,
+  ORG_ACTIONS,
+} from "./actions";
+
 // Data grid type contracts
 export type {
   SortDirection,

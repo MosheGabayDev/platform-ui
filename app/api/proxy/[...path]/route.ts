@@ -104,9 +104,8 @@ async function proxy(req: NextRequest, params: { path: string[] }) {
     const data = await upstream.json().catch(() => ({}));
 
     return NextResponse.json(data, { status: upstream.status });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "upstream error";
-    // Never expose upstream stack traces — return generic error
-    return NextResponse.json({ error: "Gateway error", detail: message }, { status: 502 });
+  } catch {
+    // Never expose upstream URLs, hostnames, or error details — they leak cluster topology.
+    return NextResponse.json({ error: "Gateway error" }, { status: 502 });
   }
 }

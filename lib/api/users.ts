@@ -87,3 +87,15 @@ export function updateUser(id: number, input: EditUserInput): Promise<UserMutati
     body: JSON.stringify(input),
   });
 }
+
+/** Activate or deactivate a user. Admin only. */
+export function setUserActive(
+  id: number,
+  isActive: boolean,
+  reason?: string | null,
+): Promise<UserMutationResponse> {
+  return apiFetch<UserMutationResponse>(`/${id}/active`, {
+    method: "PATCH",
+    body: JSON.stringify({ is_active: isActive, reason: reason ?? null }),
+  });
+}

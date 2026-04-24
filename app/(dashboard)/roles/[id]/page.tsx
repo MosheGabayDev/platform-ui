@@ -49,6 +49,8 @@ export default function RoleDetailPage({ params }: { params: Promise<{ id: strin
   const role = data?.data?.role;
   const grouped = role ? groupPermissions(role.permissions) : new Map();
 
+  if (isNaN(roleId)) return <ErrorState error={new Error("404")} messages={{ 404: "מזהה תפקיד לא חוקי" }} />;
+
   return (
     <LazyMotion features={domAnimation}>
       <div className="space-y-6 pb-20 md:pb-0 max-w-2xl">
