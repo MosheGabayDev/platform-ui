@@ -205,16 +205,16 @@ _Current readiness: 55/100. Block mobile work until CP-0 complete._
 
 | Task | File(s) | Priority | Status |
 |------|---------|----------|--------|
-| **Extract `NormalizedAuthUser` + `FlaskUserPayload`** | New `lib/platform/auth/user-types.ts` — re-export shim at `lib/auth/types.ts` | P1 | `[ ]` |
-| **Create `lib/platform/` directory** | Move rbac.ts, query-keys.ts, format.ts, motion.ts, module types | P1 | `[ ]` |
-| **Extract `rowsToCsv()` from csv.ts** | New `lib/platform/utils/csv-core.ts` — no Blob/DOM deps | P2 | `[ ]` |
+| **Extract `NormalizedAuthUser` + `FlaskUserPayload`** | `lib/platform/auth/types.ts` — re-export shim at `lib/auth/types.ts` | P1 | `[x]` R016 |
+| **Create `lib/platform/` directory** | 7 subdirs: auth, permissions, formatting, export, request, data-grid, modules | P1 | `[x]` R016 |
+| **Extract `rowsToCsv()` from csv.ts** | `lib/platform/export/csv.ts` — no Blob/DOM deps | P2 | `[x]` R016 |
 
 ### CP-1 — API Transport (prerequisite for non-browser consumers, ~4 hours)
 
 | Task | File(s) | Priority | Status |
 |------|---------|----------|--------|
-| **Parameterize API base URL** | `lib/api/client.ts` — `const BASE = process.env.NEXT_PUBLIC_API_BASE ?? "/api/proxy"` | P1 | `[ ]` |
-| **Add `@platform: web` / `@platform: cross` comments** | All `lib/` files — make classification explicit | P2 | `[ ]` |
+| **Parameterize API base URL** | `lib/api/client.ts` — `NEXT_PUBLIC_API_BASE_URL ?? "/api/proxy"` | P1 | `[x]` R016 |
+| **Add `@platform: web` / `@platform: cross` comments** | All `lib/platform/*` files — classification explicit | P2 | `[x]` R016 |
 
 ### CP-2 — Component Splitting (when mobile prototype begins)
 

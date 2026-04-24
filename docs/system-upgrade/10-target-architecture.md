@@ -267,13 +267,19 @@ Storybook as living documentation of every component with RTL stories for each.
 | Desktop | Electron or Tauri wrapping platform-ui — deferred until web is stable |
 | PWA | platform-ui already has PWA scaffold; complete service worker |
 
-**Cross-platform readiness audit:** See `docs/system-upgrade/28-cross-platform-structure-audit.md` (Round 016-prep).
-Current score: **55/100** overall. Logic layer: 85/100. Blocking issue: `lib/auth/types.ts` mixes `NormalizedAuthUser` (cross-platform) with next-auth module augmentation (web-only).
+**Cross-platform readiness audit:** See `docs/system-upgrade/28-cross-platform-structure-audit.md`.
+Current score: **68/100** (updated Round 016 — was 55/100).
 
-**Required before mobile/desktop work begins (Phase CP-0):**
-1. Extract `NormalizedAuthUser` + `FlaskUserPayload` to `lib/platform/auth/user-types.ts`
-2. Parameterize API base URL in `lib/api/client.ts`
-3. Extract `rowsToCsv()` from `lib/utils/csv.ts`
-4. Create `lib/platform/` directory as the canonical cross-platform code boundary
+**CP-0 complete (Round 016):** `lib/platform/` boundary established.
+- `lib/platform/auth/types.ts` — `NormalizedAuthUser`, `FlaskUserPayload` (no next-auth import)
+- `lib/platform/permissions/rbac.ts` — pure RBAC functions
+- `lib/platform/formatting/format.ts` — pure Intl.* formatting
+- `lib/platform/export/csv.ts` — pure CSV serialization (no Blob/DOM)
+- `lib/platform/request/context.ts` — pure audit header builder
+- `lib/platform/data-grid/types.ts` — SortDirection, TableFilter, PaginationParams, etc.
+- `lib/platform/modules/` — re-exports of module type contracts
+- `lib/api/client.ts` — base URL now `NEXT_PUBLIC_API_BASE_URL ?? "/api/proxy"`
 
-**Already cross-platform:** `lib/auth/rbac.ts`, `lib/utils/format.ts`, `lib/api/query-keys.ts`, all `lib/modules/*/types.ts`, `lib/ui/motion.ts`
+**Remaining (CP-2, before mobile work):** `use-permission.ts` next-auth coupling, `detail-back-button.tsx` useRouter dep, `theme-store.ts` DOM side effect.
+
+**Platform boundary rule:** `lib/platform/*` = cross-platform only. `lib/` (non-platform) = web/Next.js OK.

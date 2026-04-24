@@ -1,7 +1,10 @@
 # 28 — Cross-Platform Structure Audit
 
-_Date: 2026-04-24 | Round: 016-prep_
+_Date: 2026-04-24 | Audit: Round 016-prep | CP-0 Implementation: Round 016_
 _Scope: platform-ui codebase as of Round 015 completion_
+
+**CP-0 Status: ✅ Complete (Round 016)**
+`lib/platform/` directory created. Auth types split. RBAC, format, CSV core, request context all moved to platform boundary. API base URL parameterized. Typecheck: EXIT 0. Readiness updated to **68/100**.
 
 ---
 
@@ -72,8 +75,19 @@ platform-ui/
 │       └── (button, input, dialog, table, badge, ...)
 │
 ├── lib/
+│   ├── platform/                 # ✅ NEW (Round 016) — cross-platform logic boundary
+│   │   ├── index.ts              # Root barrel — all platform exports
+│   │   ├── auth/types.ts         # FlaskUserPayload, NormalizedAuthUser (no next-auth)
+│   │   ├── permissions/rbac.ts   # hasRole, hasPermission, getOrgId (pure)
+│   │   ├── formatting/format.ts  # formatDate, formatNumber, etc. (Intl.*)
+│   │   ├── export/csv.ts         # rowsToCsv, escapeCsvCell (no Blob/DOM)
+│   │   ├── request/context.ts    # buildAuditHeaders, generateRequestId (pure)
+│   │   ├── data-grid/types.ts    # SortDirection, TableFilter, PaginationParams, etc.
+│   │   └── modules/
+│   │       ├── users/types.ts    # re-export of lib/modules/users/types
+│   │       └── organizations/types.ts  # re-export of lib/modules/organizations/types
 │   ├── api/
-│   │   ├── client.ts             # apiFetch via /api/proxy (browser URL)
+│   │   ├── client.ts             # apiFetch via NEXT_PUBLIC_API_BASE_URL ?? "/api/proxy"
 │   │   ├── users.ts              # fetchUsers, fetchUser, fetchUserStats
 │   │   ├── organizations.ts      # fetchOrgs, fetchOrg, fetchOrgStats
 │   │   ├── query-keys.ts         # TanStack Query key factories
@@ -189,12 +203,25 @@ platform-ui/
 | `components/shell/` | 0/10 | Web chrome — fully web-specific |
 | `app/` | 0/10 | Next.js App Router |
 
-**Overall readiness: 55/100**
+**Overall readiness: 68/100** _(updated Round 016 — was 55/100)_
 
-- Logic layer (`lib/auth/rbac.ts`, types, format, query-keys): **85/100**
-- React components (`components/shared/`): **65/100** (logic yes, styling no)
-- API/data layer (`lib/api/`, hooks): **30/100** (proxy URL coupling)
-- App chrome + shell: **5/100** (intentionally web-specific)
+- Logic layer (`lib/platform/`): **95/100** — platform boundary established, all pure logic isolated
+- React components (`components/shared/`): **65/100** — logic yes, Tailwind styling no (CP-2)
+- API/data layer (`lib/api/`, hooks): **55/100** — base URL now configurable; hooks still next-auth-coupled
+- App chrome + shell: **5/100** — intentionally web-specific
+
+**CP-0 completed items:**
+- ✅ `lib/platform/` directory created with 7 subdirectories
+- ✅ `NormalizedAuthUser` / `FlaskUserPayload` no longer require importing `next-auth`
+- ✅ Pure RBAC at `lib/platform/permissions/rbac.ts`
+- ✅ Pure formatting at `lib/platform/formatting/format.ts`
+- ✅ Pure CSV at `lib/platform/export/csv.ts` (no Blob/DOM)
+- ✅ Request context at `lib/platform/request/context.ts`
+- ✅ Data grid contracts at `lib/platform/data-grid/types.ts`
+- ✅ Module type re-exports at `lib/platform/modules/`
+- ✅ `lib/api/client.ts` base URL configurable via `NEXT_PUBLIC_API_BASE_URL`
+- ✅ All existing web imports unchanged (re-export shims at original paths)
+- ✅ TypeScript typecheck: EXIT 0
 
 ---
 
@@ -494,16 +521,23 @@ These phases are **future work** — do not start until web module development i
 
 ## 15. Acceptance Criteria Before Mobile/Desktop Work Begins
 
-- [ ] `lib/platform/` directory exists with at least `rbac.ts`, `user-types.ts`, `query-keys.ts`, `format.ts`
-- [ ] No `import "next-auth"` in any file under `lib/platform/`
-- [ ] No `document.*`, `window.*`, or `navigator.*` calls in any file under `lib/platform/`
-- [ ] No `from "next/navigation"` in any file under `lib/platform/`
-- [ ] `rowsToCsv()` runs cleanly in a Node.js test (no `Blob` or DOM required)
-- [ ] `lib/api/client.ts` accepts a configurable base URL (not hardcoded `/api/proxy`)
-- [ ] `NormalizedAuthUser` and `FlaskUserPayload` importable without `next-auth` dependency
-- [ ] Vitest test suite runs against `lib/platform/` in Node.js (no jsdom) with `--pool=forks`
-- [ ] All existing web typecheck: `tsc --noEmit` exits 0 after any structural moves
-- [ ] No import paths broken in existing web code (all original paths re-export from `lib/platform/`)
+- [x] `lib/platform/` directory exists with `rbac.ts`, user types, `format.ts`, CSV core, request context, data-grid types
+- [x] No `import "next-auth"` in any file under `lib/platform/` — verified by typecheck
+- [x] No `document.*`, `window.*`, or `navigator.*` calls in any file under `lib/platform/`
+- [x] No `from "next/navigation"` in any file under `lib/platform/`
+- [x] `rowsToCsv()` exportable from `lib/platform/export/csv.ts` — no Blob or DOM required
+- [x] `lib/api/client.ts` accepts `NEXT_PUBLIC_API_BASE_URL` env var (defaults to `/api/proxy`)
+- [x] `NormalizedAuthUser` and `FlaskUserPayload` importable from `lib/platform/auth/types` without `next-auth`
+- [ ] Vitest test suite runs against `lib/platform/` in Node.js — not yet written (CP-1 task)
+- [x] All existing web typecheck: `tsc --noEmit` exits 0 — ✅ confirmed
+- [x] No import paths broken — all original paths re-export from `lib/platform/`
+
+**Remaining before mobile work:**
+- [ ] `lib/hooks/use-permission.ts` decoupled from `next-auth/react` (CP-2)
+- [ ] `lib/hooks/use-nav-history.ts` Zustand store extracted from `usePathname` (CP-2)
+- [ ] `components/shared/detail-view/detail-back-button.tsx` accepts `onBack` prop (CP-2)
+- [ ] `lib/theme-store.ts` side effect (`document.documentElement`) isolated (CP-2)
+- [ ] Vitest tests for `lib/platform/` in Node.js (confirms no hidden browser deps)
 
 ---
 

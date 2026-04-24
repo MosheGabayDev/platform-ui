@@ -1,6 +1,13 @@
 import type { DashboardStats, TimeSeriesData, HealthData } from "./types";
 
-const BASE = "/api/proxy";
+/**
+ * API base URL.
+ * Web default: "/api/proxy" (relative to Next.js app origin).
+ * Override via NEXT_PUBLIC_API_BASE_URL for Electron, test runners, or mobile direct-connect.
+ *
+ * @platform web-default — behavior unchanged for existing web deployments
+ */
+const BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api/proxy";
 
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {

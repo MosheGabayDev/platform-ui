@@ -353,4 +353,40 @@ Error case:
 
 ---
 
+---
+
+## ADR-018 — `lib/platform/` Cross-Platform Boundary
+
+**Date:** 2026-04-24
+**Round:** 016
+
+**Context:** As platform-ui prepares for React Native and Electron expansion, there is no structural separation between web-specific logic (DOM, next-auth, Next.js router) and portable logic (pure functions, TypeScript interfaces). Any file that accidentally imports `next-auth` or `document` becomes a hard blocker for mobile builds.
+
+**Decision:** Create and enforce `lib/platform/` as the explicit cross-platform code boundary.
+
+**Rules:**
+- `lib/platform/*` — **cross-platform only**: pure TypeScript, pure functions, `Intl.*`, standard JS. Zero React, zero Next.js, zero DOM.
+- `lib/` (non-platform) — web/Next.js OK but should be a thin adapter/shim when possible
+- `components/*` — web React only (shadcn, Tailwind, DOM)
+- `app/*` — Next.js App Router only
+
+**Enforcement:** Every new file under `lib/platform/` must include a `@platform cross` JSDoc comment. TypeScript `tsc --noEmit` is the guard — any accidental `next-auth` import will break if the platform file is later consumed in a non-web environment.
+
+**Migration strategy:** Existing web files become re-export shims pointing to `lib/platform/`. No import changes needed in web code. Mobile/desktop imports directly from `lib/platform/`.
+
+**Alternatives:**
+- Monorepo with shared package (rejected — premature; adds tooling complexity before a second consumer exists)
+- Barrel re-exports only with no structural separation (rejected — invisible boundary causes accidental coupling to re-emerge)
+
+**Consequences:**
+- `lib/platform/auth/types.ts` — NormalizedAuthUser importable without next-auth (unblocks RN)
+- `lib/platform/permissions/rbac.ts` — RBAC testable in Node.js without jsdom
+- `lib/platform/formatting/format.ts` — formatting testable in Node.js
+- `lib/api/client.ts` — base URL configurable for Electron/direct-connect scenarios
+- All existing web imports unchanged via re-export shims
+
+**Affected modules**: All (policy), 01-Users + 02-Organizations (first consumers)
+
+---
+
 _Add new ADRs here as decisions are made during implementation._

@@ -17,7 +17,41 @@ _Newest entry at the top._
 
 ---
 
-## 2026-04-24 — Round 016: Cross-Platform Structure Audit
+## 2026-04-24 — Round 016: CP-0 Boundary Extraction
+
+### Files Changed
+- `lib/platform/index.ts` — **created** (root barrel, all platform exports)
+- `lib/platform/auth/types.ts` + `index.ts` — **created** (NormalizedAuthUser, FlaskUserPayload — no next-auth)
+- `lib/platform/permissions/rbac.ts` + `index.ts` — **created** (pure RBAC functions)
+- `lib/platform/formatting/format.ts` + `index.ts` — **created** (pure Intl.* formatters)
+- `lib/platform/export/csv.ts` + `index.ts` — **created** (rowsToCsv, escapeCsvCell — no Blob)
+- `lib/platform/request/context.ts` + `index.ts` — **created** (buildAuditHeaders, generateRequestId)
+- `lib/platform/data-grid/types.ts` + `index.ts` — **created** (SortDirection, TableFilter, PaginationParams, etc.)
+- `lib/platform/modules/users/types.ts` — **created** (re-export of lib/modules/users/types)
+- `lib/platform/modules/organizations/types.ts` — **created** (re-export)
+- `lib/auth/types.ts` — **updated** (re-export platform types + next-auth augmentation only)
+- `lib/auth/rbac.ts` — **updated** (re-export shim from lib/platform/permissions/rbac)
+- `lib/utils/format.ts` — **updated** (re-export shim from lib/platform/formatting)
+- `lib/utils/csv.ts` — **updated** (imports pure CSV from platform; keeps browser download layer)
+- `lib/api/request-context.ts` — **updated** (re-export shim from lib/platform/request)
+- `lib/api/client.ts` — **updated** (configurable base URL: NEXT_PUBLIC_API_BASE_URL ?? "/api/proxy")
+- `docs/system-upgrade/14-decision-log.md` — **updated** (ADR-018: platform boundary)
+- `docs/system-upgrade/28-cross-platform-structure-audit.md` — **updated** (CP-0 status, readiness 55→68/100)
+
+### New Findings
+- `lib/platform/` creates a clean, checkable boundary — any accidental DOM/next-auth import fails at typecheck time
+- Re-export shim pattern is zero-risk: existing web imports continue to work unchanged
+- `NEXT_PUBLIC_API_BASE_URL` env var enables future Electron or direct-connect mobile without code changes
+
+### Decision Changes
+- ADR-018: `lib/platform/*` = cross-platform only. `lib/` (non-platform) = web OK. All new cross-platform logic goes to platform/ first.
+
+### Backlog Changes
+- Marked done: CP-0 type extraction, lib/platform/ creation, rowsToCsv extraction, API base URL parameterization
+
+---
+
+## 2026-04-24 — Round 016 (prep): Cross-Platform Structure Audit
 
 ### Files Changed
 - `docs/system-upgrade/28-cross-platform-structure-audit.md` — **created** (16 sections)

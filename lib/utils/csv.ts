@@ -1,43 +1,23 @@
 /**
  * @module lib/utils/csv
- * Browser-side CSV export utilities for small, already-authorized data sets.
+ * Browser-side CSV export utilities.
  *
- * Owns: CSV string generation, BOM prefix, browser download trigger.
- * Does NOT own: data authorization (backend responsibility), PII decisions,
- *   large/async exports (those are backend Celery jobs, see ADR-014).
- * Used by: module list pages with "Export CSV" buttons (helpdesk, users, billing).
+ * @platform web — uses Blob, URL.createObjectURL, document.createElement
  *
- * Limitations:
- * - In-memory only. Do not use for exports > ~5000 rows.
- * - Exports only the rows already loaded in the UI (backend-authorized).
- * - BOM (\uFEFF) is prepended for Excel Hebrew UTF-8 compatibility.
+ * Pure CSV serialization (rowsToCsv, escapeCsvCell) lives in:
+ *   lib/platform/export/csv.ts  ← safe for React Native, Node.js, Electron
+ *
+ * This file adds the browser download layer on top.
  *
  * Security note: only pass rows that the backend already authorized.
  * This utility does not filter by org_id or role.
+ * In-memory only: do not use for exports > ~5000 rows.
  */
 
-/** Escape a CSV cell value (wrap in quotes if it contains comma, quote, or newline). */
-function escapeCsvCell(value: unknown): string {
-  const str = value == null ? "" : String(value);
-  if (str.includes(",") || str.includes('"') || str.includes("\n")) {
-    return `"${str.replace(/"/g, '""')}"`;
-  }
-  return str;
-}
+// Re-export pure serialization from platform layer (also usable in non-browser contexts)
+export { escapeCsvCell, rowsToCsv } from "@/lib/platform/export/csv";
 
-/** Convert an array of objects to a CSV string with BOM. */
-export function rowsToCsv<T extends Record<string, unknown>>(
-  rows: T[],
-  /** Column headers in order. Keys must match row object keys. */
-  columns: { key: keyof T; label: string }[]
-): string {
-  const header = columns.map((c) => escapeCsvCell(c.label)).join(",");
-  const body = rows
-    .map((row) => columns.map((c) => escapeCsvCell(row[c.key])).join(","))
-    .join("\n");
-  // BOM required for Excel on Windows to correctly read Hebrew UTF-8
-  return "\uFEFF" + header + "\n" + body;
-}
+import { rowsToCsv } from "@/lib/platform/export/csv";
 
 /** Trigger a browser download of CSV content. */
 export function downloadCsv(csvContent: string, filename: string): void {

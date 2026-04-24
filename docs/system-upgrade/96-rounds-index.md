@@ -224,18 +224,18 @@ _Updated after each round — append, never overwrite entries._
 
 ---
 
-## Round 016 — Cross-Platform Structure Audit
+## Round 016 — Cross-Platform Structure Audit + CP-0 Boundary Extraction
 
 | Field | Value |
 |-------|-------|
 | **Date** | 2026-04-24 |
-| **Topic** | Audit platform-ui structure for Web, PWA, Desktop, and Mobile readiness |
-| **Objective** | Classify every file in `app/`, `components/`, and `lib/` into one of 6 categories. Identify what is already cross-platform, what is accidentally web-specific, and what must be done before mobile/desktop work begins. |
-| **Key Findings** | • Overall readiness: **55/100** (logic layer: 85/100, API layer: 30/100, shell: 5/100) <br>• Biggest blocker: `lib/auth/types.ts` mixes `NormalizedAuthUser` (cross-platform) with next-auth module augmentation — React Native would import next-auth, causing a crash <br>• `lib/auth/rbac.ts`, `lib/utils/format.ts`, `lib/api/query-keys.ts`, all module types — already cross-platform, zero changes needed <br>• `lib/api/client.ts` hardcodes `"/api/proxy"` — single biggest API portability blocker <br>• `lib/utils/csv.ts` mixes portable `rowsToCsv()` with browser-only `downloadCsv()` — easy split <br>• PWA: ready today. Desktop: needs base URL + theme-store fix. Mobile: needs CP-0 first. |
-| **Files Created (platform-ui)** | `docs/system-upgrade/28-cross-platform-structure-audit.md` (16 sections, classification table, readiness scores, target structure, 4 refactor phases, acceptance criteria) |
-| **Files Updated (platform-ui)** | `docs/system-upgrade/10-target-architecture.md` (CP readiness summary + blockers), `docs/system-upgrade/12-migration-roadmap.md` (Principle #10: platform boundary), `docs/system-upgrade/15-action-backlog.md` (CP-0/CP-1/CP-2 task sections), `docs/system-upgrade/96-rounds-index.md`, `docs/system-upgrade/98-change-log.md` |
-| **Decisions Proposed** | None yet — audit only. ADR-018 (platform boundary policy) recommended when CP-0 begins. |
-| **Next Recommended Round** | Round 017: Users Phase B (create user form) OR Module 04 Helpdesk Phase A. CP-0 can run in parallel as a 2-hour task. |
+| **Topic** | Audit platform-ui + implement CP-0: extract pure logic to `lib/platform/` boundary |
+| **Objective** | Score cross-platform readiness, split `lib/auth/types.ts`, extract RBAC/format/CSV/request to `lib/platform/`, parameterize API base URL. No behavior change — re-export shims keep all web imports intact. |
+| **Key Findings** | • Score raised from **55/100 → 68/100** <br>• `lib/platform/` created with 7 subdirs + root barrel index <br>• `NormalizedAuthUser` / `FlaskUserPayload` now importable without `next-auth` <br>• `lib/api/client.ts` base URL now `NEXT_PUBLIC_API_BASE_URL ?? "/api/proxy"` <br>• All existing web imports unchanged — shims at original paths <br>• TypeScript typecheck: EXIT 0 |
+| **Files Created (platform-ui)** | `lib/platform/index.ts`, `lib/platform/auth/types.ts+index`, `lib/platform/permissions/rbac.ts+index`, `lib/platform/formatting/format.ts+index`, `lib/platform/export/csv.ts+index`, `lib/platform/request/context.ts+index`, `lib/platform/data-grid/types.ts+index`, `lib/platform/modules/users/types.ts`, `lib/platform/modules/organizations/types.ts` (18 new files total) |
+| **Files Updated (platform-ui)** | `lib/auth/types.ts` (re-export + next-auth augmentation), `lib/auth/rbac.ts` (re-export shim), `lib/utils/format.ts` (re-export shim), `lib/utils/csv.ts` (platform import + browser layer), `lib/api/request-context.ts` (re-export shim), `lib/api/client.ts` (configurable base URL), `docs/system-upgrade/28-cross-platform-structure-audit.md` (CP-0 status updated), docs 10, 12, 15, 96, 98 |
+| **Decisions Proposed** | ADR-018 (platform boundary enforcement — see 14-decision-log.md) |
+| **Next Recommended Round** | Round 017: Users Phase B (create/edit form + zod) OR Module 04 Helpdesk Phase A |
 
 ---
 
@@ -270,6 +270,6 @@ _Updated after each round — append, never overwrite entries._
 | **013** | Module 02: Organizations | ✅ Complete — Flask JWT org API + platform-ui list/detail pages |
 | **014** | Platform Capabilities Catalog | ✅ Complete — 30 capabilities documented, capability-first rule added |
 | **015** | Capability Hardening | ✅ Complete — 6 shared capability folders, all 4 module pages refactored |
-| **016** | Cross-Platform Structure Audit | ✅ Complete — audit doc created, CP-0 backlog added, readiness score 55/100 |
+| **016** | Cross-Platform Structure Audit + CP-0 | ✅ Complete — `lib/platform/` created, auth types split, readiness 55→68/100 |
 | **017** | Users Phase B OR Helpdesk Phase A | Users create/edit form (PlatformForm + zod) OR Helpdesk list+detail |
 | **016** | CI/CD pipeline for platform-ui | Required before shipping to production |
