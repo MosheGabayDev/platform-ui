@@ -22,6 +22,7 @@ import { PageShell } from "@/components/shared/page-shell";
 import { StatCard } from "@/components/shared/stats";
 import { ErrorState } from "@/components/shared/error-state";
 import { UsersTable } from "@/components/modules/users/users-table";
+import { UserCreateSheet } from "@/components/modules/users/user-form";
 import { fetchUsers, fetchUserStats } from "@/lib/api/users";
 import { queryKeys } from "@/lib/api/query-keys";
 import { hasRole } from "@/lib/auth/rbac";
@@ -35,6 +36,7 @@ export default function UsersPage() {
 
   const [params, setParams] = useState<UsersListParams>({ page: 1, per_page: 25 });
   const [search, setSearch] = useState("");
+  const [createOpen, setCreateOpen] = useState(false);
 
   const handleSearchChange = useCallback((value: string) => {
     setSearch(value);
@@ -65,6 +67,14 @@ export default function UsersPage() {
       icon={Users}
       title="ניהול משתמשים"
       subtitle="משתמשי הארגון, תפקידים וסטטוס אישור"
+      actions={
+        isAdmin ? (
+          <Button size="sm" onClick={() => setCreateOpen(true)}>
+            <UserPlus className="size-4 me-1.5" />
+            הוסף משתמש
+          </Button>
+        ) : undefined
+      }
       stats={
         <>
           <StatCard icon={Users} value={stats?.total} label='סה"כ' />
@@ -143,6 +153,13 @@ export default function UsersPage() {
           />
         )}
       </motion.div>
+      {isAdmin && (
+        <UserCreateSheet
+          open={createOpen}
+          onOpenChange={setCreateOpen}
+          onSuccess={() => setCreateOpen(false)}
+        />
+      )}
     </PageShell>
   );
 }

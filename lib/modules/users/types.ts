@@ -25,6 +25,7 @@ export interface UserSummary {
   /** Computed from first_name + last_name, falls back to username. */
   name: string;
   role: string | null;
+  role_id: number | null;
   is_active: boolean;
   is_admin: boolean;
   is_ai_agent: boolean;
@@ -98,4 +99,27 @@ export interface UsersListParams {
   search?: string;
   role?: string;
   is_active?: boolean;
+}
+
+// ---------------------------------------------------------------------------
+// Roles (for create/edit dropdown)
+// ---------------------------------------------------------------------------
+
+export interface RoleSummary {
+  id: number;
+  name: string;
+}
+
+export interface RolesListResponse {
+  success: boolean;
+  data: { roles: RoleSummary[] };
+}
+
+// ---------------------------------------------------------------------------
+// Mutation response types
+// ---------------------------------------------------------------------------
+
+export interface UserMutationResponse {
+  success: boolean;
+  data: { user: UserDetail };
 }

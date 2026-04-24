@@ -13,7 +13,10 @@ import type {
   UserDetailResponse,
   UserStatsResponse,
   PendingUsersResponse,
+  RolesListResponse,
+  UserMutationResponse,
 } from "@/lib/modules/users/types";
+import type { CreateUserInput, EditUserInput } from "@/lib/modules/users/schemas";
 
 const BASE = "/api/proxy/users";
 
@@ -62,4 +65,25 @@ export function fetchUser(id: number): Promise<UserDetailResponse> {
 /** Approve a pending user. Admin only. */
 export async function approveUser(id: number): Promise<{ success: boolean; message: string }> {
   return apiFetch(`/${id}/approve`, { method: "POST" });
+}
+
+/** List available roles for create/edit dropdown. Admin only. */
+export function fetchRoles(): Promise<RolesListResponse> {
+  return apiFetch<RolesListResponse>("/roles");
+}
+
+/** Create a new user in the current org. Admin only. */
+export function createUser(input: CreateUserInput): Promise<UserMutationResponse> {
+  return apiFetch<UserMutationResponse>("", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+/** Update user fields. Admin or own profile. */
+export function updateUser(id: number, input: EditUserInput): Promise<UserMutationResponse> {
+  return apiFetch<UserMutationResponse>(`/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(input),
+  });
 }

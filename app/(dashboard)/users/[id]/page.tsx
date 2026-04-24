@@ -1,23 +1,23 @@
 "use client";
 /**
  * @module app/(dashboard)/users/[id]/page
- * User detail page — displays full user profile.
- * Non-admins can only view their own profile (enforced by Flask and by this page).
+ * User detail page — displays full user profile with edit capability.
  *
  * Auth: protected by middleware.ts.
  * Data: via useQuery → fetchUser(id) → /api/proxy/users/<id> → Flask /api/users/<id>.
- *
- * No edit form here — that is a separate Phase B task (see PLAN.md).
- * Do NOT add mutation logic here without first verifying backend endpoint exists.
+ * Mutations: PATCH /api/users/<id> via UserEditSheet (admin or own profile).
  */
 
-import { use } from "react";
+import { use, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
-import { User, Mail, Building2, Shield, Clock, CheckCircle, Key } from "lucide-react";
+import { User, Mail, Building2, Shield, Clock, CheckCircle, Key, Pencil } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 import { UserStatusBadge } from "@/components/modules/users/user-status-badge";
 import { UserRoleBadge } from "@/components/modules/users/user-role-badge";
+import { UserEditSheet } from "@/components/modules/users/user-form";
 import {
   InfoRow, BoolBadge, DetailSection, DetailHeaderCard,
   DetailBackButton, DetailLoadingSkeleton,
@@ -25,11 +25,15 @@ import {
 import { ErrorState } from "@/components/shared/error-state";
 import { fetchUser } from "@/lib/api/users";
 import { queryKeys } from "@/lib/api/query-keys";
+import { hasRole } from "@/lib/auth/rbac";
 import { PAGE_EASE } from "@/lib/ui/motion";
 
 export default function UserDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const userId = parseInt(id, 10);
+  const { data: session } = useSession();
+  const isAdmin = hasRole(session, "admin", "system_admin");
+  const [editOpen, setEditOpen] = useState(false);
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: queryKeys.users.detail(userId),
@@ -39,12 +43,22 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
   });
 
   const user = data?.data?.user;
+  const isSelf = session?.user?.id === user?.id;
+  const canEdit = isAdmin || isSelf;
 
   return (
     <LazyMotion features={domAnimation}>
       <div className="space-y-6 pb-20 md:pb-0 max-w-2xl">
 
-        <DetailBackButton href="/users" />
+        <div className="flex items-center justify-between gap-3">
+          <DetailBackButton href="/users" />
+          {canEdit && user && (
+            <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
+              <Pencil className="size-3.5 me-1.5" />
+              ערוך
+            </Button>
+          )}
+        </div>
 
         {isLoading && <DetailLoadingSkeleton />}
 
@@ -129,6 +143,17 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
               </DetailSection>
             )}
           </motion.div>
+        )}
+
+        {user && (
+          <UserEditSheet
+            user={user}
+            open={editOpen}
+            onOpenChange={setEditOpen}
+            isAdmin={isAdmin}
+            isSelf={isSelf}
+            onSuccess={() => { setEditOpen(false); refetch(); }}
+          />
         )}
       </div>
     </LazyMotion>

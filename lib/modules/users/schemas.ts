@@ -1,0 +1,44 @@
+/**
+ * @module lib/modules/users/schemas
+ * Zod validation schemas for user create/edit forms.
+ * Rules mirror Flask user_api_routes.py server-side validation so errors are
+ * caught client-side before the request is sent.
+ *
+ * Do NOT import React or UI libraries here.
+ */
+
+import { z } from "zod";
+
+export const createUserSchema = z.object({
+  username: z
+    .string()
+    .min(3, "שם משתמש חייב להיות לפחות 3 תווים")
+    .max(50, "שם משתמש ארוך מדי"),
+  email: z.string().email("כתובת אימייל לא תקינה"),
+  password: z
+    .string()
+    .min(8, "סיסמה חייבת להיות לפחות 8 תווים")
+    .max(128, "סיסמה ארוכה מדי"),
+  first_name: z.string().max(100, "שם פרטי ארוך מדי").optional(),
+  last_name: z.string().max(100, "שם משפחה ארוך מדי").optional(),
+  role_id: z.number().int().positive().nullable().optional(),
+  is_admin: z.boolean(),
+  is_manager: z.boolean(),
+});
+
+export const editUserSchema = z.object({
+  username: z
+    .string()
+    .min(3, "שם משתמש חייב להיות לפחות 3 תווים")
+    .max(50, "שם משתמש ארוך מדי"),
+  email: z.string().email("כתובת אימייל לא תקינה"),
+  first_name: z.string().max(100, "שם פרטי ארוך מדי").optional(),
+  last_name: z.string().max(100, "שם משפחה ארוך מדי").optional(),
+  role_id: z.number().int().positive().nullable().optional(),
+  is_admin: z.boolean(),
+  is_manager: z.boolean(),
+  is_active: z.boolean(),
+});
+
+export type CreateUserInput = z.infer<typeof createUserSchema>;
+export type EditUserInput = z.infer<typeof editUserSchema>;
