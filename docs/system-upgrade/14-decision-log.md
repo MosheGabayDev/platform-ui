@@ -565,4 +565,35 @@ Error case:
 
 ---
 
+## ADR-026 — AI Architecture Consistency Pass: Canonical Terms, Schemas, and Security Rules (2026-04-24)
+
+**Context:** Four architecture rounds (024–027) built the AI Action Platform design in sequence. Each round added new definitions that partially conflicted with earlier drafts in the same document: `risk_tier` vs `capability_level`, `voiceInvocable` vs `voice_eligible`, 14-field vs 25-field `AIActionDescriptor`, old permission check using `risk_tier`, no delegation token design, no tool injection safety rules.
+
+**Decision:** Round 028 produces a single canonical reference document (`docs/system-upgrade/39-ai-architecture-consistency-pass.md`) that resolves all ambiguities. All implementation must follow doc 39, not earlier drafts. Conflicting sections in doc 36 are marked deprecated with forward pointers.
+
+**Canonical terms established:**
+- `capability_level` (10 values) replaces `risk_tier` (4 values) everywhere
+- `voice_eligible` (Python) / `voiceEligible` (TypeScript) replaces `voiceInvocable` / `voice_invocable`
+- `module_id`, `label`, `executor_type`, `executor_ref`, `executor_allowlist_policy` are canonical v1 field names
+- `AIActionDescriptor v1` (30 fields, doc 39 §05) supersedes both old schemas in doc 36 §05 and §35
+
+**Implementation blockers declared:**
+- B1: Delegation token design (algorithm, signing key, nonce storage) must be resolved before write-tier ships
+- B4: `check_execution_viability()` must replace `risk_tier` checks with `capability_level` checks
+- B5/B6: `ModuleAIAction` and `AIActionSummary` must use canonical field names before any integration
+
+**New policies added:**
+- Prompt-is-guidance-only boxed warning (doc 39 §10)
+- Tool definition / prompt injection safety rules (doc 39 §09)
+- Rollback and partial failure policy (doc 39 §11)
+- Delegation token design placeholder (doc 39 §08)
+
+**Spec:** `docs/system-upgrade/39-ai-architecture-consistency-pass.md`
+
+**Affected ADRs:** ADR-022 (AI Action Platform), ADR-023 (Capability Context), ADR-024 (Capability Levels) — all remain valid; this ADR adds the consistency layer, does not replace them.
+
+**Affected modules:** Same as ADR-022 + ADR-023 + ADR-024.
+
+---
+
 _Add new ADRs here as decisions are made during implementation._

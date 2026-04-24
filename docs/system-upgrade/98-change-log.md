@@ -17,6 +17,34 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-24 — Round 028 (Architecture): AI Architecture Consistency Pass
+
+### Files Changed
+- `docs/system-upgrade/39-ai-architecture-consistency-pass.md` — **created** (13 sections: executive summary, ambiguities found/fixed, canonical terms, canonical AIActionDescriptor v1, canonical voice policy, delegated human vs service account, delegation token design placeholder, tool injection safety, prompt guidance vs enforcement, rollback/partial failure policy, implementation blockers B1–B10, acceptance criteria)
+- `docs/system-upgrade/36-ai-action-platform.md` — **updated** (deprecated markers on §05/§06/§09/§11/§23/§35; `voiceInvocable`→`voice_eligible` in all locations; §35 header marks intermediate draft; global header consistency note)
+- `docs/system-upgrade/14-decision-log.md` — **updated** (ADR-026: AI Architecture Consistency Pass)
+- `docs/system-upgrade/35-platform-capabilities-build-order.md` — **updated** (consistency-pass gate table added before R027 implementation track)
+- `docs/system-upgrade/15-action-backlog.md` — **updated** (B1–B10 pre-R027 blocker tasks: 12 items)
+- `docs/system-upgrade/96-rounds-index.md` — **updated** (Round 028 entry)
+- `docs/system-upgrade/98-change-log.md` — **updated** (this entry)
+
+### New Findings
+- `risk_tier` ("READ"|"WRITE_LOW"|"WRITE_HIGH"|"DESTRUCTIVE") was live code in doc 36 §05/§06/§11 while `capability_level` (10-level) was the intended design — these were genuinely contradictory, not just cosmetic
+- The permission check function `check_delegated_permission()` in §06 would be broken at runtime because it checks `action.risk_tier == "DESTRUCTIVE"` — a field that no longer exists in the canonical descriptor
+- Three different names for the same voice-eligibility boolean across 4 sections — `voiceInvocable`, `voice_invocable`, `voice_eligible`
+- Old voice rule "only READ + WRITE_LOW ≤ low danger" was more restrictive than the §34 formula; the §34 formula allows CREATE/UPDATE/APPROVE/EXECUTE at ≤medium danger — the formula is correct
+- No delegation token design means write-tier AI actions cannot safely ship: there is no cryptographic binding between "human said yes" and "action was executed"
+- Prompt-is-guidance-only warning was in §23 motivation text but not in a visible callout that engineers would read before implementing context injection
+
+### Decision Changes
+- ADR-026: AI Architecture Consistency Pass (new)
+
+### Backlog Changes
+- B1–B10 pre-R027 blocker tasks added to `15-action-backlog.md`
+- Consistency gate table added before R027 track in `35-platform-capabilities-build-order.md`
+
+---
+
 ## 2026-04-24 — Round 027 (Architecture): Global Floating AI Assistant
 
 ### Files Changed

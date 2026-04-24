@@ -1,7 +1,9 @@
 # 36 — AI Action Platform Architecture
 
-_Round 024 — 2026-04-24 | Updated Round 026 (§33–§40: capability levels, full registry schema, viability checks, readiness checklist, voice write/delete, delete policy)_
+_Round 024 — 2026-04-24 | Updated Round 026 (§33–§40) | Updated Round 027 (§41) | Updated Round 028 (consistency pass — deprecated sections marked)_
 _Status: Design complete. Implementation not started._
+
+> **Consistency note (Round 028):** Sections §05 (old AIActionDescriptor), §06 (old permission check), §09 (old voice rules), and §11/§23 (`voiceInvocable`) contain pre-v1 drafts that conflict with the canonical definitions in `docs/system-upgrade/39-ai-architecture-consistency-pass.md`. The deprecated sections are marked below. Implementers must follow doc 39, not the deprecated sections.
 
 > **The AI is not read-only.** The AI may execute CREATE, UPDATE, DELETE_SOFT, CONFIGURE, APPROVE, EXECUTE, BULK, and SYSTEM operations — wherever the authenticated human user is authorized to do the same. The constraint is the user's permission set, not the channel. See §33.
 
@@ -148,6 +150,12 @@ authenticated user → initiates session with AI agent
 
 ## §05 — AI Action Registry
 
+> **⚠ DEPRECATED — PRE-V1 DRAFT.** The `AIActionDescriptor` dataclass below (14 fields, using `risk_tier`, `name`, `module`, `handler_type`, `handler_config`) is a pre-v1 draft superseded by:
+> - `AIActionDescriptor v1` in `docs/system-upgrade/39-ai-architecture-consistency-pass.md §05` (canonical, 30 fields)
+> - `AIActionDescriptor` in §35 of this document (25-field intermediate draft, also superseded)
+>
+> **Do not implement the §05 schema.** Use doc 39 §05 exclusively.
+
 The registry is the single source of truth for what actions an AI agent may invoke.
 
 ### Two-layer registry
@@ -199,8 +207,8 @@ export interface ModuleAIAction {
   dangerLevel: DangerLevel;
   /** Whether human confirmation is required before execution. */
   requiresConfirmation: boolean;
-  /** Whether this action can be invoked via voice session. */
-  voiceInvocable: boolean;
+  /** Whether this action can be invoked via voice session. See doc 39 §05 for canonical v1 field name: voiceEligible. */
+  voiceEligible: boolean;  // was: voiceInvocable (retired)
   /** Roles that may invoke this action via AI delegation. */
   requiredRoles: string[];
   /** JSON schema ID for input parameter validation. */
@@ -216,6 +224,10 @@ export interface ModuleManifest {
 ---
 
 ## §06 — Delegated Permission Runtime
+
+> **⚠ DEPRECATED — PRE-V1 DRAFT.** The `check_delegated_permission()` function below uses `risk_tier` which is retired. The canonical permission check is `check_execution_viability()` in §37 of this document (22 checks, uses `capability_level`). The role rank table below remains valid but the function body must not be implemented as written.
+>
+> See also: `docs/system-upgrade/39-ai-architecture-consistency-pass.md §07` for delegated human vs service account rules.
 
 The delegated permission model is deliberately simple: the AI agent inherits **exactly the permissions of the human who initiated the session**. There is no privilege escalation.
 
@@ -376,6 +388,12 @@ For `danger_level >= "high"`, confirmation tokens are not used. Instead:
 
 ## §09 — Voice-Specific Confirmation Flow
 
+> **⚠ PARTIALLY SUPERSEDED.** The `voiceInvocable` flag name and the rule "only READ and WRITE_LOW with dangerLevel <= 'low' may be voiceInvocable" in this section are retired. Canonical voice policy is in `docs/system-upgrade/39-ai-architecture-consistency-pass.md §06`. Key corrections:
+> - Flag name: `voiceInvocable` → `voice_eligible` (everywhere)
+> - Eligible levels: READ, CREATE, UPDATE, APPROVE, EXECUTE (not just READ + WRITE_LOW)
+> - Danger ceiling: "medium" (not just "low")
+> - Voice token TTL: use `voice_confirmation_ttl_seconds` field (separate from `confirmation_ttl_seconds`)
+
 Voice sessions (ALA / Gemini Live) cannot render a modal dialog. Confirmation must happen via:
 
 1. **Verbal confirmation** — AI agent says the action aloud and asks user to say "confirm" or "cancel"
@@ -402,20 +420,24 @@ User: "כן, אשר"
 
 ### Voice-specific rules
 
-1. `voiceInvocable: false` actions are never proposed during voice sessions
+1. `voice_eligible: false` actions are never proposed during voice sessions
 2. `danger_level >= "high"` is never executed via verbal confirm — always requires tap or dashboard approval
 3. The AI must read back the action and affected resource name before requesting confirmation
 4. Confirmation window is 60s for voice (shorter than 120s for chat)
 5. If user says "cancel" or is silent for 10s, token is marked `denied` and session continues
 
-### `voiceInvocable` flag
+### `voiceEligible` flag
+
+> **Canonical name is `voiceEligible` (TypeScript) / `voice_eligible` (Python). `voiceInvocable` is retired.**
 
 ```typescript
-// In ModuleAIAction:
-voiceInvocable: boolean;
+// In ModuleAIAction (canonical v1 — see doc 39 §05):
+voiceEligible: boolean;
 // true: AI may propose this action in a voice session
 // false: action is text/web only (too complex to confirm verbally)
-// Rule: only READ and WRITE_LOW with dangerLevel <= "low" may be voiceInvocable
+// Rule: see doc 39 §06 for canonical formula — capability_level ∈ {READ,CREATE,UPDATE,APPROVE,EXECUTE}
+//       AND danger_level ≤ "medium" AND bulk_allowed=false AND hard_delete_allowed=false
+// RETIRED rule: "only READ and WRITE_LOW with dangerLevel <= 'low'" — do not use
 ```
 
 ---
@@ -498,7 +520,7 @@ export const USERS_MODULE_MANIFEST = {
       description: "מונע מהמשתמש להתחבר למערכת.",
       dangerLevel: "medium" as const,
       requiresConfirmation: true,
-      voiceInvocable: false,        // too consequential for voice-only confirm
+      voiceEligible: false,          // too consequential for voice-only confirm
       requiredRoles: ["admin", "system_admin"],
       inputSchemaId: "users.deactivate.v1",
     },
@@ -508,7 +530,7 @@ export const USERS_MODULE_MANIFEST = {
       description: "מחזיר פרטי משתמש לפי מזהה או אימייל.",
       dangerLevel: "none" as const,
       requiresConfirmation: false,
-      voiceInvocable: true,
+      voiceEligible: true,
       requiredRoles: ["technician", "manager", "admin", "system_admin"],
       inputSchemaId: "users.lookup.v1",
     },
@@ -1012,9 +1034,9 @@ class AIActionSummary:
     danger_level: str       # "none" | "low" | "medium" | "high" | "critical"
     requires_confirmation: bool
     requires_approval: bool  # True for danger_level >= "high"
-    voice_invocable: bool
-    input_schema: dict       # JSON Schema — AI uses this to build parameters
-    # NOTE: handler_config, auth_secret_env are NOT included
+    voice_eligible: bool     # canonical name (was: voice_invocable — retired)
+    input_schema_id: str     # reference to JSON Schema file (was: input_schema dict — retired in v1)
+    # NOTE: executor_ref, executor_type, handler_config, auth_secret_env are NOT included
 ```
 
 ### Context generation
@@ -1719,7 +1741,9 @@ _"Own scope" = records in their assigned department/queue. Exact scoping is modu
 
 ## §35 — Complete AI Action Registry Schema
 
-### Updated `AIActionDescriptor`
+> **NOTE (Round 028):** The schema below is a 25-field intermediate draft (Round 026). The canonical `AIActionDescriptor v1` with 30 fields and corrected field names is in `docs/system-upgrade/39-ai-architecture-consistency-pass.md §05`. Key differences: `module` → `module_id`, `name` → `label`, `handler_type` → `executor_type`, `handler_config` → `executor_ref`, `executor_allowlisted + allowed_hosts` → `executor_allowlist_policy`, plus 5 new fields. The §35 schema is a valid reference for field semantics; use doc 39 §05 for canonical names.
+
+### Updated `AIActionDescriptor` (intermediate — see doc 39 §05 for canonical v1)
 
 ```python
 @dataclass

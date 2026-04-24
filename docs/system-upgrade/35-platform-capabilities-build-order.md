@@ -573,6 +573,24 @@ R027–R031 (parallel track) ─── AI Action Platform
 
 ---
 
+## AI Architecture Consistency Gate (Pre-R027)
+
+Before any R027 implementation task starts, the following consistency-pass blockers (doc 39 §12) must be resolved:
+
+| Blocker | Task | Gate |
+|---------|------|------|
+| B1 | Delegation token design: algorithm, signing key, nonce storage | Blocks write-tier |
+| B2 | `AIActionDescriptor v1` Python dataclass — canonical v1 field names | Blocks all registry work |
+| B3 | `AIActionConfirmationToken` add `voice_confirmation_ttl_seconds` | Blocks voice |
+| B4 | `check_execution_viability()` use `capability_level` not `risk_tier` | Blocks permission check |
+| B5 | `ModuleAIAction` TypeScript: `voiceEligible`, `capabilityLevel`, `rollbackSupported` | Blocks frontend |
+| B6 | `AIActionSummary`: `voice_eligible`, `capability_level` | Blocks context API |
+| B7 | `platform_actions.py` examples use v1 field names | Blocks registry tests |
+
+Full spec: `docs/system-upgrade/39-ai-architecture-consistency-pass.md §12`
+
+---
+
 ## AI Action Platform Build Track (R027–R031)
 
 Runs in parallel with the capabilities track. Each phase depends on the corresponding round's other work being stable.

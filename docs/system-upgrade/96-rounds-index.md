@@ -395,6 +395,21 @@ _Updated after each round — append, never overwrite entries._
 
 ---
 
+## Round 028 — AI Architecture Consistency Pass
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-24 |
+| **Topic** | AI architecture consistency pass — remove all ambiguity across Rounds 024–027 before implementation begins |
+| **Objective** | Audit docs 36, 38, 14, 26, 35, 15 for conflicting definitions. Produce canonical terms, canonical AIActionDescriptor v1, canonical voice policy, delegation token design placeholder, tool injection safety rules, and rollback policy. Doc-only. No code. |
+| **Key Findings** | • `risk_tier` (4 values) and `capability_level` (10 values) were both active in doc 36 — `risk_tier` is retired <br>• `voiceInvocable` / `voice_invocable` and `voice_eligible` were 3 different names for same boolean — `voice_eligible` is canonical <br>• Old voice rule "only READ + WRITE_LOW" contradicts §34 formula allowing CREATE/UPDATE/APPROVE/EXECUTE at ≤medium — formula wins <br>• Two `AIActionDescriptor` schemas in same doc (14-field §05, 25-field §35) — canonical v1 is 30 fields in doc 39 §05 <br>• `check_delegated_permission()` in §06 references `risk_tier` → must not be implemented as written <br>• No delegation token design → B1 blocker before write-tier ships <br>• No tool injection safety rules → added in doc 39 §09 <br>• No prompt-is-guidance-only boxed warning → added in doc 39 §10 <br>• No rollback / partial failure policy → added in doc 39 §11 |
+| **Files Created (platform-ui)** | `docs/system-upgrade/39-ai-architecture-consistency-pass.md` |
+| **Files Updated (platform-ui)** | `docs/system-upgrade/36-ai-action-platform.md` (deprecated sections marked §05/§06/§09/§11/§23/§35; voice_eligible fixes; header update), `docs/system-upgrade/14-decision-log.md` (ADR-026), `docs/system-upgrade/35-platform-capabilities-build-order.md` (consistency gate pre-R027), `docs/system-upgrade/15-action-backlog.md` (B1–B10 blocker tasks), `docs/system-upgrade/96-rounds-index.md`, `docs/system-upgrade/98-change-log.md` |
+| **Decisions Proposed** | ADR-026: AI Architecture Consistency Pass |
+| **Next Recommended Round** | Round 023 implementation: ActionButton + DetailView + PlatformFeatureFlags (unblocks Helpdesk Phase A). OR: B1 delegation token design if write-tier AI actions are prioritized. |
+
+---
+
 ## Round 027 — Floating AI Assistant Architecture
 
 | Field | Value |

@@ -509,6 +509,27 @@ _Spec: `docs/system-upgrade/36-ai-action-platform.md` | ADR-022_
 
 ---
 
+## Consistency-Pass Blockers (B1–B10, pre-R027)
+
+_Must complete before any write-tier AI action implementation. Spec: `docs/system-upgrade/39-ai-architecture-consistency-pass.md §12`_
+
+| Task | File/Location | Effort | Status |
+|------|--------------|--------|--------|
+| **B1** — Decide delegation token algorithm (HS256 vs RS256) + signing key location | ADR + `scripts/secrets/ssm-secrets.sh push` | 2 hr (design) | `[ ]` pre-R027 |
+| **B2** — `AIActionDescriptor v1` Python dataclass — canonical field names from doc 39 §05 | `apps/ai_action_platform/registry.py` | 1 hr | `[ ]` pre-R027 |
+| **B3** — Add `voice_confirmation_ttl_seconds` to `AIActionConfirmationToken` model | `apps/ai_action_platform/models.py` | 30 min | `[ ]` pre-R027 |
+| **B4** — `check_execution_viability()` replaces `risk_tier` checks with `capability_level` | `apps/ai_action_platform/executor.py` | 1 hr | `[ ]` pre-R027 |
+| **B5** — `ModuleAIAction` TypeScript: `voiceEligible`, `capabilityLevel`, `rollbackSupported`, `outputSchemaId` | `lib/platform/modules/manifest.ts` | 30 min | `[ ]` pre-R027 |
+| **B6** — `AIActionSummary`: `voice_eligible`, `capability_level` field updates | `apps/ai_action_platform/context.py` | 30 min | `[ ]` pre-R027 |
+| **B7** — Update all 10 `platform_actions.py` examples to use v1 field names | `apps/ai_action_platform/platform_actions.py` | 1 hr | `[ ]` pre-R027 |
+| **B8** — Prompt injection test: structured output parsing verified | `apps/ai_action_platform/tests/test_injection.py` | 1 hr | `[ ]` pre-R027 |
+| **B9** — `rollback_supported` declared for all EXECUTE + http_api actions | `apps/ai_action_platform/platform_actions.py` | 30 min | `[ ]` pre-R027 |
+| **B10** — Partial failure format in `execute_bulk_action()` returns `{total, succeeded, failed, failed_items}` | `apps/ai_action_platform/executor.py` | 1 hr | `[ ]` pre-R027 |
+| Delegation token nonce storage: Redis key `delegated_token_nonce:{nonce}` TTL = token TTL | `apps/ai_action_platform/token_service.py` | 1 hr | `[ ]` B1 unblocked |
+| Delegation token replay protection test (8 tests from doc 39 §08) | `apps/ai_action_platform/tests/test_delegation_token.py` | 2 hr | `[ ]` B1 unblocked |
+
+---
+
 ## R032 — Floating AI Assistant: Shell Infra + Context Registry
 
 | Task | File/Location | Effort | Status |
