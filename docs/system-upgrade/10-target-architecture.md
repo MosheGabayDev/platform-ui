@@ -1,6 +1,6 @@
 # 10 — Target Architecture
 
-_Last updated: 2026-04-23_
+_Last updated: 2026-04-24_
 
 ---
 
@@ -266,3 +266,14 @@ Storybook as living documentation of every component with RTL stories for each.
 | Mobile (iOS) | React Native + EAS Build; add Apple provisioning |
 | Desktop | Electron or Tauri wrapping platform-ui — deferred until web is stable |
 | PWA | platform-ui already has PWA scaffold; complete service worker |
+
+**Cross-platform readiness audit:** See `docs/system-upgrade/28-cross-platform-structure-audit.md` (Round 016-prep).
+Current score: **55/100** overall. Logic layer: 85/100. Blocking issue: `lib/auth/types.ts` mixes `NormalizedAuthUser` (cross-platform) with next-auth module augmentation (web-only).
+
+**Required before mobile/desktop work begins (Phase CP-0):**
+1. Extract `NormalizedAuthUser` + `FlaskUserPayload` to `lib/platform/auth/user-types.ts`
+2. Parameterize API base URL in `lib/api/client.ts`
+3. Extract `rowsToCsv()` from `lib/utils/csv.ts`
+4. Create `lib/platform/` directory as the canonical cross-platform code boundary
+
+**Already cross-platform:** `lib/auth/rbac.ts`, `lib/utils/format.ts`, `lib/api/query-keys.ts`, all `lib/modules/*/types.ts`, `lib/ui/motion.ts`

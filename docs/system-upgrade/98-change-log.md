@@ -17,6 +17,30 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-24 — Round 016: Cross-Platform Structure Audit
+
+### Files Changed
+- `docs/system-upgrade/28-cross-platform-structure-audit.md` — **created** (16 sections)
+- `docs/system-upgrade/10-target-architecture.md` — **updated** (CP readiness block + blockers table)
+- `docs/system-upgrade/12-migration-roadmap.md` — **updated** (Migration Principle #10: platform boundary)
+- `docs/system-upgrade/15-action-backlog.md` — **updated** (CP-0, CP-1, CP-2 task sections)
+
+### New Findings
+- `lib/auth/rbac.ts` is already cross-platform — zero changes needed
+- `lib/utils/format.ts` uses only `Intl.*` — compatible with React Native 0.70+
+- `lib/auth/types.ts` is the single biggest mobile blocker — next-auth augmentation mixed with user types
+- `lib/api/client.ts` hardcodes `/api/proxy` — one-line fix unblocks Electron + native HTTP use
+- `lib/utils/csv.ts` `rowsToCsv()` is portable; only `downloadCsv()` uses browser APIs — easy split
+- Overall readiness 55/100: logic excellent, API transport problematic, shell intentionally web-only
+
+### Decision Changes
+- Migration Principle #10 added: new `lib/` files must be classified `lib/platform/` or `lib/web/`
+
+### Backlog Changes
+- Added CP-0 (type extraction), CP-1 (transport), CP-2 (component splitting) task sections
+
+---
+
 ## 2026-04-24 — Round 015: Capability Hardening
 
 ### Files Changed

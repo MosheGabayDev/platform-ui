@@ -196,6 +196,36 @@ _Reference: `docs/system-upgrade/26-platform-capabilities-catalog.md`_
 
 ---
 
+## Cross-Platform Readiness (Phase CP — prerequisite for mobile/desktop)
+
+_Reference: `docs/system-upgrade/28-cross-platform-structure-audit.md`_
+_Current readiness: 55/100. Block mobile work until CP-0 complete._
+
+### CP-0 — Type Extraction (no runtime impact, ~2 hours)
+
+| Task | File(s) | Priority | Status |
+|------|---------|----------|--------|
+| **Extract `NormalizedAuthUser` + `FlaskUserPayload`** | New `lib/platform/auth/user-types.ts` — re-export shim at `lib/auth/types.ts` | P1 | `[ ]` |
+| **Create `lib/platform/` directory** | Move rbac.ts, query-keys.ts, format.ts, motion.ts, module types | P1 | `[ ]` |
+| **Extract `rowsToCsv()` from csv.ts** | New `lib/platform/utils/csv-core.ts` — no Blob/DOM deps | P2 | `[ ]` |
+
+### CP-1 — API Transport (prerequisite for non-browser consumers, ~4 hours)
+
+| Task | File(s) | Priority | Status |
+|------|---------|----------|--------|
+| **Parameterize API base URL** | `lib/api/client.ts` — `const BASE = process.env.NEXT_PUBLIC_API_BASE ?? "/api/proxy"` | P1 | `[ ]` |
+| **Add `@platform: web` / `@platform: cross` comments** | All `lib/` files — make classification explicit | P2 | `[ ]` |
+
+### CP-2 — Component Splitting (when mobile prototype begins)
+
+| Task | File(s) | Priority | Status |
+|------|---------|----------|--------|
+| **Create `components/platform/` directory** | Move InfoRow, BoolBadge, ErrorBoundary, ErrorState | P1 | `[ ]` |
+| **Remove `useRouter` from `DetailBackButton`** | `components/shared/detail-view/detail-back-button.tsx` — accept `onBack` prop | P1 | `[ ]` |
+| **Fix `theme-store.ts` side effect** | Wrap `document.documentElement` call in platform check | P2 | `[ ]` |
+
+---
+
 ## Open-Source Capability Layer (Phase 1 — install + shared components)
 
 _Reference: `docs/system-upgrade/25-open-source-capability-layer.md` | ADR-016_

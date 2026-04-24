@@ -224,6 +224,21 @@ _Updated after each round — append, never overwrite entries._
 
 ---
 
+## Round 016 — Cross-Platform Structure Audit
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-24 |
+| **Topic** | Audit platform-ui structure for Web, PWA, Desktop, and Mobile readiness |
+| **Objective** | Classify every file in `app/`, `components/`, and `lib/` into one of 6 categories. Identify what is already cross-platform, what is accidentally web-specific, and what must be done before mobile/desktop work begins. |
+| **Key Findings** | • Overall readiness: **55/100** (logic layer: 85/100, API layer: 30/100, shell: 5/100) <br>• Biggest blocker: `lib/auth/types.ts` mixes `NormalizedAuthUser` (cross-platform) with next-auth module augmentation — React Native would import next-auth, causing a crash <br>• `lib/auth/rbac.ts`, `lib/utils/format.ts`, `lib/api/query-keys.ts`, all module types — already cross-platform, zero changes needed <br>• `lib/api/client.ts` hardcodes `"/api/proxy"` — single biggest API portability blocker <br>• `lib/utils/csv.ts` mixes portable `rowsToCsv()` with browser-only `downloadCsv()` — easy split <br>• PWA: ready today. Desktop: needs base URL + theme-store fix. Mobile: needs CP-0 first. |
+| **Files Created (platform-ui)** | `docs/system-upgrade/28-cross-platform-structure-audit.md` (16 sections, classification table, readiness scores, target structure, 4 refactor phases, acceptance criteria) |
+| **Files Updated (platform-ui)** | `docs/system-upgrade/10-target-architecture.md` (CP readiness summary + blockers), `docs/system-upgrade/12-migration-roadmap.md` (Principle #10: platform boundary), `docs/system-upgrade/15-action-backlog.md` (CP-0/CP-1/CP-2 task sections), `docs/system-upgrade/96-rounds-index.md`, `docs/system-upgrade/98-change-log.md` |
+| **Decisions Proposed** | None yet — audit only. ADR-018 (platform boundary policy) recommended when CP-0 begins. |
+| **Next Recommended Round** | Round 017: Users Phase B (create user form) OR Module 04 Helpdesk Phase A. CP-0 can run in parallel as a 2-hour task. |
+
+---
+
 ## Round 015 — Capability Hardening from Users + Organizations
 
 | Field | Value |
@@ -255,5 +270,6 @@ _Updated after each round — append, never overwrite entries._
 | **013** | Module 02: Organizations | ✅ Complete — Flask JWT org API + platform-ui list/detail pages |
 | **014** | Platform Capabilities Catalog | ✅ Complete — 30 capabilities documented, capability-first rule added |
 | **015** | Capability Hardening | ✅ Complete — 6 shared capability folders, all 4 module pages refactored |
-| **016** | Users Phase B OR Helpdesk Phase A | Users create/edit form (PlatformForm + zod) OR Helpdesk list+detail |
+| **016** | Cross-Platform Structure Audit | ✅ Complete — audit doc created, CP-0 backlog added, readiness score 55/100 |
+| **017** | Users Phase B OR Helpdesk Phase A | Users create/edit form (PlatformForm + zod) OR Helpdesk list+detail |
 | **016** | CI/CD pipeline for platform-ui | Required before shipping to production |

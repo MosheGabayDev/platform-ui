@@ -171,6 +171,7 @@ _Last updated: 2026-04-23_
 7. **Delete Jinja2 on parity** — the day a domain reaches feature parity in platform-ui, delete the Jinja2 template in the same PR (not a follow-up); document deleted routes in the PR description
 8. **File size gate** — no new file may exceed 300 lines (Python) or 200 lines (TypeScript) without a documented reason; split before merging
 9. **Capability-first** — before building any UI feature in a module, check `26-platform-capabilities-catalog.md`. If the feature is a known capability (table, form, detail view, approval flow, etc.), use or extend the shared capability rather than building module-local. A module-local implementation that is duplicated across 2+ modules is a catalog promotion candidate — do not merge the duplication, extract it first.
+10. **Platform boundary** — new files under `lib/` must be explicitly classified as `lib/platform/` (cross-platform) or `lib/web/` (Next.js/browser). When in doubt, write the code to be cross-platform first and add the web adapter separately. See `28-cross-platform-structure-audit.md` for rules.
 
 ---
 
