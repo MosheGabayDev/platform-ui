@@ -13,13 +13,15 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Building2 } from "lucide-react";
+import { Building2, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PermissionGate } from "@/components/shared/permission-gate";
 import { PageShell } from "@/components/shared/page-shell";
 import { StatCard } from "@/components/shared/stats";
 import { ErrorState } from "@/components/shared/error-state";
 import { OrgsTable } from "@/components/modules/organizations/orgs-table";
+import { OrgCreateSheet } from "@/components/modules/organizations/organization-form";
 import { fetchOrgs, fetchOrgStats } from "@/lib/api/organizations";
 import { queryKeys } from "@/lib/api/query-keys";
 import { PAGE_EASE } from "@/lib/ui/motion";
@@ -30,6 +32,7 @@ export default function OrganizationsPage() {
 
   const [params, setParams] = useState<OrgsListParams>({ page: 1, per_page: 25 });
   const [search, setSearch] = useState("");
+  const [createOpen, setCreateOpen] = useState(false);
 
   const handleSearchChange = useCallback((value: string) => {
     setSearch(value);
@@ -65,6 +68,12 @@ export default function OrganizationsPage() {
         icon={Building2}
         title="ניהול ארגונים"
         subtitle="כל הארגונים בפלטפורמה — גישת מנהל מערכת בלבד"
+        actions={
+          <Button size="sm" onClick={() => setCreateOpen(true)}>
+            <Plus className="size-4 me-1.5" />
+            ארגון חדש
+          </Button>
+        }
         stats={
           <>
             <StatCard value={stats?.total} label='סה"כ' />
@@ -118,6 +127,11 @@ export default function OrganizationsPage() {
             />
           )}
         </motion.div>
+
+        <OrgCreateSheet
+          open={createOpen}
+          onOpenChange={setCreateOpen}
+        />
       </PageShell>
     </PermissionGate>
   );

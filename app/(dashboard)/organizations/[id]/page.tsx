@@ -6,15 +6,17 @@
  * Auth: protected by middleware.ts.
  * Tenant: system admin sees any org; non-admin only own org (enforced by Flask).
  * Data: via useQuery → fetchOrg(id) → /api/proxy/organizations/<id> → Flask.
- *
- * No edit form here — PATCH support is Phase B.
+ * Write: edit form (OrgEditSheet) shown to system_admin only.
  */
 
-import { use } from "react";
+import { use, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
-import { Building2, Hash, FileText, Users, Clock, CheckCircle } from "lucide-react";
+import { Building2, Hash, FileText, Users, Clock, CheckCircle, Pencil } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { OrgStatusBadge } from "@/components/modules/organizations/org-status-badge";
+import { OrgEditSheet } from "@/components/modules/organizations/organization-form";
 import {
   InfoRow, BoolBadge, DetailSection, DetailHeaderCard,
   DetailBackButton, DetailLoadingSkeleton,
@@ -22,12 +24,16 @@ import {
 import { ErrorState } from "@/components/shared/error-state";
 import { fetchOrg } from "@/lib/api/organizations";
 import { queryKeys } from "@/lib/api/query-keys";
+import { hasRole } from "@/lib/auth/rbac";
 import { formatDate } from "@/lib/utils/format";
 import { PAGE_EASE } from "@/lib/ui/motion";
 
 export default function OrgDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const orgId = parseInt(id, 10);
+  const { data: session } = useSession();
+  const isSystemAdmin = hasRole(session, "system_admin");
+  const [editOpen, setEditOpen] = useState(false);
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: queryKeys.orgs.detail(orgId),
@@ -42,7 +48,15 @@ export default function OrgDetailPage({ params }: { params: Promise<{ id: string
     <LazyMotion features={domAnimation}>
       <div className="space-y-6 pb-20 md:pb-0 max-w-2xl">
 
-        <DetailBackButton href="/organizations" />
+        <div className="flex items-center justify-between gap-3">
+          <DetailBackButton href="/organizations" />
+          {isSystemAdmin && org && (
+            <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
+              <Pencil className="size-3.5 me-1.5" />
+              ערוך ארגון
+            </Button>
+          )}
+        </div>
 
         {isLoading && <DetailLoadingSkeleton />}
 
@@ -93,6 +107,15 @@ export default function OrgDetailPage({ params }: { params: Promise<{ id: string
               <InfoRow icon={Clock} label="נוצר" value={formatDate(org.created_at)} />
             </DetailSection>
           </motion.div>
+        )}
+
+        {org && (
+          <OrgEditSheet
+            org={org}
+            open={editOpen}
+            onOpenChange={setEditOpen}
+            onSuccess={() => { setEditOpen(false); refetch(); }}
+          />
         )}
       </div>
     </LazyMotion>

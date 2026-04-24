@@ -11,10 +11,9 @@ import type {
   OrgsListResponse,
   OrgDetailResponse,
   OrgStatsResponse,
-  CreateOrgPayload,
   CreateOrgResponse,
-  UpdateOrgPayload,
 } from "@/lib/modules/organizations/types";
+import type { CreateOrgInput, EditOrgInput } from "@/lib/modules/organizations/schemas";
 
 const BASE = "/api/proxy/organizations";
 
@@ -55,17 +54,17 @@ export function fetchOrg(id: number): Promise<OrgDetailResponse> {
 }
 
 /** Create a new organization. System admin only. */
-export function createOrg(payload: CreateOrgPayload): Promise<CreateOrgResponse> {
+export function createOrg(input: CreateOrgInput): Promise<CreateOrgResponse> {
   return apiFetch<CreateOrgResponse>("", {
     method: "POST",
-    body: JSON.stringify(payload),
+    body: JSON.stringify(input),
   });
 }
 
 /** Partially update an organization. System admin only. */
-export function updateOrg(id: number, payload: UpdateOrgPayload): Promise<OrgDetailResponse> {
+export function updateOrg(id: number, input: EditOrgInput): Promise<OrgDetailResponse> {
   return apiFetch<OrgDetailResponse>(`/${id}`, {
     method: "PATCH",
-    body: JSON.stringify(payload),
+    body: JSON.stringify(input),
   });
 }
