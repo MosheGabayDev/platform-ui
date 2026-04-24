@@ -17,6 +17,33 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-24 — Round 026 (Architecture): AI Action Platform Hardening
+
+### Files Changed
+- `docs/system-upgrade/36-ai-action-platform.md` — **updated** (header note "AI is not read-only"; §33–§40 added: capability levels, full registry schema, delegated human vs service account, 22-point viability checks, implementation readiness checklist, voice write/delete constraints, delete policy)
+- `docs/system-upgrade/14-decision-log.md` — **updated** (ADR-023 updated with capability level + delete policy clarifications; ADR-024: AI Action Capability Levels + Write/Delete Policy added)
+- `docs/system-upgrade/26-platform-capabilities-catalog.md` — **updated** (Round 026 hardening section)
+- `docs/system-upgrade/35-platform-capabilities-build-order.md` — **updated** (updated header timestamp)
+- `docs/system-upgrade/15-action-backlog.md` — **updated** (R027 tasks expanded to 32 items: 10 infra + 22 tests)
+- `docs/system-upgrade/96-rounds-index.md` — **updated** (Round 026 entry)
+- `docs/system-upgrade/98-change-log.md` — **updated** (this entry)
+
+### New Findings
+- The design was ambiguous about whether the AI could execute writes — explicit clarification needed for implementers
+- Service account delegation was underspecified: `is_ai_agent=True` alone authorizing writes would be a security flaw
+- 22 viability checks derived from security threat model: org-switch attack, stale permission, bulk-destructive, audit-skip, arbitrary executor
+- Hard delete requires a retention policy that doesn't exist yet — correct to block it at registry level (not just runtime) until the policy is written
+- Voice confirmation ceiling (danger_level ≥ high) extends to ALL high-risk action types, not just user deactivation
+
+### Decision Changes
+- ADR-023: Updated with capability level clarification, service account rule, delete policy reference
+- ADR-024: AI Action Capability Levels + Write/Delete Policy (new)
+
+### Backlog Changes
+- R027 expanded: 32 tasks (was 10) — added all 22 positive + negative tests from §38 readiness checklist, idempotency, hard delete gate, §35 JSON schema files
+
+---
+
 ## 2026-04-24 — Round 025 (Architecture): AI User Capability Context
 
 ### Files Changed

@@ -1,6 +1,6 @@
 # 35 — Platform Capabilities Build Order
 
-_Created: 2026-04-24 | Round 023 planning | Updated Round 024 (AI Action Platform) | Updated Round 025 (AI Capability Context)_
+_Created: 2026-04-24 | R023 | Updated R024 (AI Action Platform) | R025 (AI Capability Context) | R026 (capability levels, viability checks, delete policy)_
 _Owner: platform-ui build sequencing_
 
 ---

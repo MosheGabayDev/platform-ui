@@ -391,6 +391,20 @@ _Updated after each round — append, never overwrite entries._
 | **Files Updated (platform-ui)** | `docs/system-upgrade/36-ai-action-platform.md` (§23–§32 added: 10 new sections), `docs/system-upgrade/14-decision-log.md` (ADR-023), `docs/system-upgrade/10-target-architecture.md`, `docs/system-upgrade/24-core-platform-and-module-system.md`, `docs/system-upgrade/26-platform-capabilities-catalog.md`, `docs/system-upgrade/35-platform-capabilities-build-order.md`, `docs/system-upgrade/15-action-backlog.md` (16 context-layer tasks), `docs/system-upgrade/96-rounds-index.md`, `docs/system-upgrade/98-change-log.md` |
 | **Commits** | No code changes — architecture/planning round |
 | **Decisions Proposed** | ADR-023: Personalized AI Capability Context |
+| **Next Recommended Round** | Round 026: AI Action Platform hardening — capability levels, viability checks, delete policy |
+
+---
+
+## Round 026 — AI Action Platform Hardening
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-24 |
+| **Topic** | AI Action Platform documentation hardening — remove read-only ambiguity, add capability levels, full registry schema, viability checks, readiness checklist, delete policy |
+| **Objective** | Ensure the AI Action Platform design is unambiguous about write/delete capability, has an actionable implementation gate, and fully defines service-account delegation rules. Doc-only. No code. |
+| **Key Findings** | • AI is not read-only — full CREATE/UPDATE/DELETE_SOFT/CONFIGURE/APPROVE/EXECUTE/BULK/SYSTEM surface wherever user is authorized <br>• 10 capability levels with explicit role matrix, voice eligibility, rollback, audit requirements (§34) <br>• 25-field `AIActionDescriptor` + 10 registry examples (§35) <br>• Service account alone = READ only; all writes require signed delegated-human context (§36) <br>• 22-point execution viability check; fails closed on uncertainty (§37) <br>• Implementation readiness gate: 22 infra items + 22 tests (§38) <br>• Voice write/delete: DELETE_SOFT/CONFIGURE/BULK/SYSTEM never voice; read-back required; one action per turn (§39) <br>• Hard delete: disabled by default; requires system_admin + critical + retention policy + pre-delete export (§40) |
+| **Files Updated (platform-ui)** | `docs/system-upgrade/36-ai-action-platform.md` (§33–§40 + header update), `docs/system-upgrade/14-decision-log.md` (ADR-023 updated + ADR-024 added), `docs/system-upgrade/26-platform-capabilities-catalog.md`, `docs/system-upgrade/35-platform-capabilities-build-order.md`, `docs/system-upgrade/15-action-backlog.md` (R027 expanded: 32 tasks), `docs/system-upgrade/96-rounds-index.md`, `docs/system-upgrade/98-change-log.md` |
+| **Decisions Proposed** | ADR-024: AI Action Capability Levels + Write/Delete Policy |
 | **Next Recommended Round** | Round 023 implementation: ActionButton + DetailView + PlatformFeatureFlags (unblocks Helpdesk Phase A) |
 
 ---

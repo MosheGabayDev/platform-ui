@@ -419,15 +419,42 @@ _Spec: `docs/system-upgrade/36-ai-action-platform.md` | ADR-022_
 | Task | File/Location | Effort | Status |
 |------|--------------|--------|--------|
 | Create `apps/ai_action_platform/` module + INDEX.md | `apps/ai_action_platform/` | 30 min | `[ ]` R027 |
-| `AIActionInvocation` + `AIActionConfirmationToken` models + migration | `apps/ai_action_platform/models.py` | 1 hr | `[ ]` R027 |
-| `AIActionRegistry` — loads static platform actions | `apps/ai_action_platform/registry.py` | 1 hr | `[ ]` R027 |
-| `platform_actions.py` — static descriptor list (users, orgs, lookup) | `apps/ai_action_platform/platform_actions.py` | 1 hr | `[ ]` R027 |
-| `check_delegated_permission()` — role rank matrix | `apps/ai_action_platform/permission_check.py` | 45 min | `[ ]` R027 |
-| `ActionExecutor` — `internal_function` handler only | `apps/ai_action_platform/executor.py` | 1 hr | `[ ]` R027 |
+| `AIActionInvocation` + `AIActionConfirmationToken` + `AIActionApprovalRequest` models + migration | `apps/ai_action_platform/models.py` | 1 hr | `[ ]` R027 |
+| `AIActionDescriptor` dataclass with all 25 fields (§35) | `apps/ai_action_platform/registry.py` | 1 hr | `[ ]` R027 |
+| `AIActionRegistry` — loads static platform actions + org DB rows | `apps/ai_action_platform/registry.py` | 1 hr | `[ ]` R027 |
+| `platform_actions.py` — 10 example descriptors from §35 (users, orgs, roles, modules, audit, helpdesk, ai.approval) | `apps/ai_action_platform/platform_actions.py` | 2 hr | `[ ]` R027 |
+| `check_execution_viability()` — all 22 checks from §37; fails closed | `apps/ai_action_platform/executor.py` | 2 hr | `[ ]` R027 |
+| `check_delegated_permission()` — role rank + capability_level matrix (§34) | `apps/ai_action_platform/permission_check.py` | 1 hr | `[ ]` R027 |
+| Idempotency key: Redis SETNX, 60s TTL for all write/delete | `apps/ai_action_platform/executor.py` | 30 min | `[ ]` R027 |
+| Hard delete gate: `hard_delete_allowed` check; `DELETE_HARD` blocked by default | `apps/ai_action_platform/executor.py` | 30 min | `[ ]` R027 |
+| `ActionExecutor` — `internal_function` handler only + audit write mandatory | `apps/ai_action_platform/executor.py` | 1 hr | `[ ]` R027 |
 | `POST /api/ai-actions/invoke` (READ tier only) + audit write | `apps/ai_action_platform/routes.py` | 1 hr | `[ ]` R027 |
-| `GET /api/ai-actions/registry` — role-filtered action list | `apps/ai_action_platform/routes.py` | 30 min | `[ ]` R027 |
+| `GET /api/ai-actions/registry` — role-filtered action list (capability_level × role) | `apps/ai_action_platform/routes.py` | 30 min | `[ ]` R027 |
 | `GET /api/ai-actions/history` — invocation history (org-scoped) | `apps/ai_action_platform/routes.py` | 30 min | `[ ]` R027 |
-| Unit tests: registry, permission_check, executor, routes | `apps/ai_action_platform/tests/` | 1 hr | `[ ]` R027 |
+| JSON Schema files for all 10 platform actions in `platform_actions.py` | `apps/ai_action_platform/schemas/` | 1 hr | `[ ]` R027 |
+| §38 readiness checklist: verify all infra items before R027 ships | `apps/ai_action_platform/tests/` | 30 min | `[ ]` R027 |
+| **§38 Positive path tests** | | | |
+| Test: READ action — list users → success + audit row | `tests/test_read_action.py` | 30 min | `[ ]` R027 |
+| Test: CREATE action — create user → success + audit + idempotency enforced | `tests/test_create_action.py` | 45 min | `[ ]` R027 |
+| Test: UPDATE action — update user field → success + audit | `tests/test_update_action.py` | 30 min | `[ ]` R027 |
+| Test: DELETE_SOFT — deactivate user → success + audit + reversal action present | `tests/test_delete_soft.py` | 30 min | `[ ]` R027 |
+| Test: APPROVE action — approve pending invocation → session resumes | `tests/test_approve.py` | 30 min | `[ ]` R027 |
+| Test: BULK action — bulk update ≤ max_batch_size → per-item audit rows | `tests/test_bulk.py` | 45 min | `[ ]` R027 |
+| **§38 Negative / security tests** | | | |
+| Test: viewer tries DELETE_SOFT → `capability_level_denied` | `tests/test_security.py` | 30 min | `[ ]` R027 |
+| Test: wrong org target → `target_scope_violation` | `tests/test_security.py` | 30 min | `[ ]` R027 |
+| Test: permission revoked mid-session → re-check blocks (context does not) | `tests/test_stale_context.py` | 30 min | `[ ]` R027 |
+| Test: expired confirmation token → `confirmation_invalid` | `tests/test_confirmation.py` | 20 min | `[ ]` R027 |
+| Test: duplicate idempotency key within 60s → `idempotency_duplicate` | `tests/test_idempotency.py` | 20 min | `[ ]` R027 |
+| Test: BULK > max_batch_size → `bulk_size_exceeded` | `tests/test_bulk.py` | 20 min | `[ ]` R027 |
+| Test: admin tries DELETE_HARD → `hard_delete_blocked` | `tests/test_delete_policy.py` | 20 min | `[ ]` R027 |
+| Test: service account alone tries CREATE → `permission_denied` | `tests/test_service_account.py` | 30 min | `[ ]` R027 |
+| Test: voice session requests DELETE_SOFT → `voice_ineligible` | `tests/test_voice_constraints.py` | 20 min | `[ ]` R027 |
+| Test: voice session requests SYSTEM action → `voice_ineligible` | `tests/test_voice_constraints.py` | 20 min | `[ ]` R027 |
+| Test: audit write fails → action execution rolled back | `tests/test_audit.py` | 30 min | `[ ]` R027 |
+| Test: cross-tenant action (non-system-admin) → `org_scope_mismatch` | `tests/test_security.py` | 30 min | `[ ]` R027 |
+| Test: prompt injection — LLM output attempts registry modification → rejected | `tests/test_prompt_injection.py` | 30 min | `[ ]` R028 |
+| Test: voice high-risk (danger_level=high) denial → `voice_ineligible` | `tests/test_voice_constraints.py` | 20 min | `[ ]` R027 |
 
 ### R028 — Confirmation Flow + WRITE Tier
 

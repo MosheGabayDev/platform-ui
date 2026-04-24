@@ -501,9 +501,41 @@ Error case:
 
 **What the context never returns:** Secrets, tokens, other users' data, internal function names, raw permission codenames list, full unauthorized action schemas.
 
-**Spec:** `docs/system-upgrade/36-ai-action-platform.md §23–§32`
+**Capability levels:** The AI may execute READ, CREATE, UPDATE, DELETE_SOFT, CONFIGURE, APPROVE, EXECUTE, BULK, and SYSTEM operations wherever the authenticated human is authorized. The AI is not read-only. Constraint is user's permission set, not channel. See §33–§34.
+
+**Service account rule:** `is_ai_agent=True` JWT alone cannot authorize business writes. Must carry signed delegated-human context. Service account alone = READ only.
+
+**Delete policy:** Hard delete is disabled by default for all AI actions. Requires `system_admin`, `critical` danger, typed confirmation, approval, retention policy, pre-delete export, and platform registry opt-in. See §40.
+
+**Implementation gate:** See §38 implementation readiness checklist — 22 viability checks, 7 positive tests, 15 negative/security tests required before R027 ships.
+
+**Spec:** `docs/system-upgrade/36-ai-action-platform.md §23–§40`
 
 **Affected modules**: `apps/ai_action_platform/` (new: `context.py`, `context_builder.py`, `prompt_builder.py`), `apps/ala/`, `apps/helpdesk/engine/`, `apps/agents/`.
+
+---
+
+## ADR-024 — AI Action Capability Levels + Write/Delete Policy (2026-04-24)
+
+**Context:** The AI Action Platform design initially implied the AI might be limited to READ or advisory roles. This created ambiguity in implementation: what write/delete operations are permitted? What are the exact gates for destructive actions? What distinguishes soft from hard delete?
+
+**Decision:** The AI may execute the full write surface (READ, CREATE, UPDATE, DELETE_SOFT, CONFIGURE, APPROVE, EXECUTE, BULK, SYSTEM) wherever the authenticated user is authorized. The following non-negotiable constraints apply:
+
+**Capability level taxonomy (§34):** 10 levels with explicit role matrix, confirmation requirements, voice eligibility, rollback expectations, and audit requirements.
+
+**`voiceEligible` formula:** `capabilityLevel` in (READ, CREATE, UPDATE, APPROVE, EXECUTE) AND `dangerLevel` ≤ "medium" AND `bulkAllowed = false` AND `hardDeleteAllowed = false`. DELETE_SOFT, DELETE_HARD, CONFIGURE, BULK, SYSTEM are never voice-eligible.
+
+**Hard delete policy (§40):** Disabled by default. Requires: system_admin + critical danger + typed confirm + approval + retention policy + pre-delete export. No AI hard delete until retention/export policy exists.
+
+**Delegated human rule (§36):** Service account (`is_ai_agent=True`) alone = READ only. All writes require delegated human context (signed token). The AI inherits the human's permissions, never holds its own write authorization.
+
+**Execution viability (§37):** 22 mandatory checks before any action runs. Fails closed on uncertainty.
+
+**Implementation gate (§38):** 22 + 22 test checklist must pass before R027 ships.
+
+**Spec:** `docs/system-upgrade/36-ai-action-platform.md §33–§40`
+
+**Affected modules**: Same as ADR-022 + ADR-023.
 
 ---
 

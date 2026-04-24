@@ -884,6 +884,17 @@ Cross-cutting system — not a `Platform*` UI component. Extends existing capabi
 - Voice constraints: 8-action cap, PII never spoken proactively, high-danger → UI redirect
 - Spec: `docs/system-upgrade/36-ai-action-platform.md §23–§32`, Decision: ADR-023
 
+**Round 026 hardening (ADR-024):**
+- AI is not read-only: full READ/CREATE/UPDATE/DELETE_SOFT/CONFIGURE/APPROVE/EXECUTE/BULK/SYSTEM surface
+- 10 capability levels with role matrix, voice eligibility, rollback, audit requirements (§34)
+- Complete `AIActionDescriptor` schema with 25 fields; 10 registry examples (§35)
+- Delegated human vs service account: `is_ai_agent` alone = READ; writes require signed delegation (§36)
+- 22-point execution viability check; fails closed (§37)
+- Implementation readiness checklist: 22 infra items + 22 tests before R027 ships (§38)
+- Voice write/delete constraints: DELETE_SOFT/CONFIGURE/BULK/SYSTEM never voice; read-back required (§39)
+- Delete policy: hard delete disabled by default; requires system_admin + retention policy + export (§40)
+- Decision: ADR-024
+
 ---
 
 ## How to Add a New Capability

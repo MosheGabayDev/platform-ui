@@ -1,7 +1,9 @@
 # 36 — AI Action Platform Architecture
 
-_Round 024 — 2026-04-24_
+_Round 024 — 2026-04-24 | Updated Round 026 (§33–§40: capability levels, full registry schema, viability checks, readiness checklist, voice write/delete, delete policy)_
 _Status: Design complete. Implementation not started._
+
+> **The AI is not read-only.** The AI may execute CREATE, UPDATE, DELETE_SOFT, CONFIGURE, APPROVE, EXECUTE, BULK, and SYSTEM operations — wherever the authenticated human user is authorized to do the same. The constraint is the user's permission set, not the channel. See §33.
 
 ---
 
@@ -1592,5 +1594,649 @@ This section updates §14 (Security Rules) with context-specific additions.
 
 ---
 
-_Document updated: 2026-04-24 (Round 025 — §23–§32 added)_
+---
+
+## §33 — The AI Is Not Read-Only
+
+_Added: Round 026_
+
+This section exists to remove all ambiguity from the design.
+
+### The AI may execute the full write surface
+
+The AI assistant may execute READ, CREATE, UPDATE, DELETE_SOFT, CONFIGURE, APPROVE, EXECUTE, BULK, and SYSTEM operations — wherever the authenticated human user is authorized to do the same.
+
+There is no architectural restriction that limits the AI to read-only. The AI is a **delegated actor**, not a viewer. The constraint is the **user's permission set**, not the channel.
+
+Examples of AI-executable non-read operations:
+- Create a helpdesk ticket
+- Update a user's department
+- Deactivate a user (soft-delete, with confirmation)
+- Replace a role's permission set
+- Approve a pending tool invocation
+- Close a helpdesk session
+- Disable a module for an org
+- Run an investigation automation
+- Configure an AI provider setting
+- Perform a bulk status update (with caps)
+- Create/update org-level policy rules (system admin)
+- Run an audit log search and return results
+
+### What constrains the AI's write surface
+
+| Constraint | Description |
+|-----------|-------------|
+| Authenticated user's role | The AI can only do what that user's role permits |
+| Authenticated user's permissions | Dot-notation codenames checked at execution |
+| Tenant scope | `org_id` from JWT — no cross-org writes for non-system-admin |
+| `capabilityLevel` of action | Certain levels require higher roles (see §34) |
+| `dangerLevel` | Controls confirmation/approval requirements |
+| Module enabled | Write action blocked if its module is disabled |
+| Feature flag | Write action blocked if its flag is off |
+| Org active | No writes to suspended orgs |
+| Delete policy | Hard delete blocked unless policy explicitly allows (see §38) |
+| Confirmation/approval | Required for medium+/high+/critical — cannot be skipped |
+| Audit | Write audit row is mandatory — execution fails if audit write fails |
+| Rate limit | Per-org, per-action sliding window |
+| Idempotency key | Required for all write/delete — prevents duplicate execution |
+
+### What the AI may NEVER do regardless of user role
+
+1. Execute actions not in the AI Action Registry
+2. Expand its own permissions (e.g., by crafting prompts)
+3. Bypass confirmation requirements because "the user said it was OK" in conversation
+4. Hard-delete unless delete policy explicitly permits it
+5. Execute bulk destructive operations without a per-item audit trail
+6. Read or return secrets, tokens, API keys
+7. Execute SYSTEM-tier actions via voice-only confirmation
+8. Perform cross-tenant actions without system-admin role + explicit confirmation
+9. Skip the audit write under any circumstances
+
+---
+
+## §34 — AI Action Capability Levels
+
+Every AI-executable action has a `capabilityLevel` that defines its risk, confirmation requirements, and eligibility rules.
+
+### Capability level taxonomy
+
+| Level | Description | Typical modules |
+|-------|-------------|----------------|
+| `READ` | Fetch/list/summarize data | All modules |
+| `CREATE` | Create records/resources | Users, Helpdesk, Billing, ALA |
+| `UPDATE` | Modify existing records or settings | Users, Orgs, Helpdesk, Settings |
+| `DELETE_SOFT` | Deactivate/archive/disable — reversible | Users, Orgs, Modules, Tickets |
+| `DELETE_HARD` | Permanent deletion — irreversible | Settings, Data Erasure (restricted) |
+| `CONFIGURE` | Change org/module/system settings | Settings, AI Providers, Modules |
+| `APPROVE` | Approve/reject pending actions | Helpdesk approvals, Workflow |
+| `EXECUTE` | Run operational tasks, automations, jobs | Agents, Helpdesk, ALA, Voice |
+| `BULK` | Same action on multiple records | Users, Tickets, Data operations |
+| `SYSTEM` | Cross-tenant or platform-wide admin | Orgs, Modules, Audit, System config |
+
+### Capability level × role matrix
+
+| Level | viewer | technician | manager | admin | system_admin |
+|-------|--------|-----------|---------|-------|-------------|
+| `READ` | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `CREATE` | ❌ | ✅ (own scope) | ✅ | ✅ | ✅ |
+| `UPDATE` | ❌ | ✅ (own scope) | ✅ | ✅ | ✅ |
+| `DELETE_SOFT` | ❌ | ❌ | ✅ (own scope) | ✅ | ✅ |
+| `DELETE_HARD` | ❌ | ❌ | ❌ | ❌ | ✅ (policy gated) |
+| `CONFIGURE` | ❌ | ❌ | ❌ | ✅ (org-scoped) | ✅ |
+| `APPROVE` | ❌ | ✅ (limited) | ✅ | ✅ | ✅ |
+| `EXECUTE` | ❌ | ✅ (assigned) | ✅ | ✅ | ✅ |
+| `BULK` | ❌ | ❌ | ✅ (capped) | ✅ (capped) | ✅ (capped) |
+| `SYSTEM` | ❌ | ❌ | ❌ | ❌ | ✅ |
+
+_"Own scope" = records in their assigned department/queue. Exact scoping is module-defined._
+
+### Capability level requirements
+
+| Level | Confirm | Reason | Approval queue | Voice eligible | Rollback expected | Audit required |
+|-------|---------|--------|---------------|---------------|------------------|----------------|
+| `READ` | ❌ | ❌ | ❌ | ✅ | N/A | Optional |
+| `CREATE` | ✅ (medium) | ❌ | ❌ | ✅ (low-risk only) | Soft-delete equivalent | ✅ |
+| `UPDATE` | ✅ (medium) | ❌ | ❌ | ✅ (low-risk only) | Revert via UPDATE | ✅ |
+| `DELETE_SOFT` | ✅ (medium/high) | ✅ if high | ❌ / ✅ if critical | ❌ | Reactivate | ✅ |
+| `DELETE_HARD` | ✅ (critical) | ✅ | ✅ always | ❌ always | Export before delete | ✅ |
+| `CONFIGURE` | ✅ (medium/high) | ✅ if high | ❌ / ✅ if critical | ❌ | Revert config | ✅ |
+| `APPROVE` | ✅ | ❌ | N/A | ✅ (low-risk) | N/A | ✅ |
+| `EXECUTE` | ✅ (high risk) | ✅ if high | ✅ if critical | ✅ (low-risk) | Job cancel if running | ✅ |
+| `BULK` | ✅ always | ✅ always | ✅ if DELETE_SOFT+ | ❌ always | Per-item rollback | ✅ per item |
+| `SYSTEM` | ✅ always | ✅ always | ✅ always | ❌ always | Varies | ✅ |
+
+### Voice eligibility rule
+
+`voiceEligible = true` requires ALL of:
+- `capabilityLevel` in (`READ`, `CREATE`, `UPDATE`, `APPROVE`, `EXECUTE`)
+- `dangerLevel` ≤ `"medium"`
+- `bulkAllowed = false` (or batch size = 1)
+- `hardDeleteAllowed = false`
+
+`DELETE_SOFT`, `DELETE_HARD`, `CONFIGURE`, `BULK`, and `SYSTEM` are never voice-eligible.
+
+---
+
+## §35 — Complete AI Action Registry Schema
+
+### Updated `AIActionDescriptor`
+
+```python
+@dataclass
+class AIActionDescriptor:
+    # ─── Identity ─────────────────────────────────────────────────────
+    action_id: str              # "module.verb" e.g. "users.deactivate"
+    module: str                 # "users" | "helpdesk" | "ala" | ...
+    name: str                   # Human-readable name (Hebrew/i18n)
+    description: str            # One-sentence description for AI context
+
+    # ─── Capability ───────────────────────────────────────────────────
+    capability_level: str       # READ | CREATE | UPDATE | DELETE_SOFT | DELETE_HARD |
+                                # CONFIGURE | APPROVE | EXECUTE | BULK | SYSTEM
+    danger_level: str           # "none" | "low" | "medium" | "high" | "critical"
+    min_role: str               # "viewer" | "technician" | "manager" | "admin" | "system_admin"
+
+    # ─── Authorization ────────────────────────────────────────────────
+    required_permissions: list[str]  # all must be present (AND logic)
+    required_roles: list[str]        # any one sufficient (OR logic)
+
+    # ─── Confirmation ─────────────────────────────────────────────────
+    requires_confirmation: bool
+    requires_reason: bool        # required for danger_level "high" | "critical"
+    requires_approval: bool      # goes to approval queue (danger_level "high" | "critical")
+    confirmation_ttl_seconds: int  # default 120; 60 for voice
+
+    # ─── Execution ────────────────────────────────────────────────────
+    handler_type: str           # "internal_function" | "http_api"
+    handler_config: dict        # function ref OR AIAction HTTP config
+    executor_allowlisted: bool  # must be True — no arbitrary endpoints
+    idempotency_key_strategy: str  # "user+action+target" | "confirmation_token" | "custom"
+
+    # ─── Bulk ─────────────────────────────────────────────────────────
+    bulk_allowed: bool          # whether batch execution is permitted
+    max_batch_size: int         # max items in a bulk operation (default 1)
+    bulk_requires_individual_audit: bool  # each item gets own audit row
+
+    # ─── Delete policy ────────────────────────────────────────────────
+    hard_delete_allowed: bool   # False by default — system policy override only
+    soft_delete_reversal: str | None  # action_id that reverses this (e.g. "users.reactivate")
+
+    # ─── Rollback ─────────────────────────────────────────────────────
+    rollback_supported: bool
+    rollback_action_id: str | None  # action_id to call for rollback
+
+    # ─── Voice ────────────────────────────────────────────────────────
+    voice_eligible: bool        # computed from capabilityLevel + dangerLevel rules
+
+    # ─── Audit ────────────────────────────────────────────────────────
+    audit_event: str            # "module.action_verb" — written on every execution
+    pii_redaction_policy: str   # "none" | "mask_email" | "redact_all" | "voice_safe"
+
+    # ─── Result ───────────────────────────────────────────────────────
+    input_schema: dict          # JSON Schema for parameter validation
+    output_schema: dict         # JSON Schema for result normalization
+    safe_result_summary: str | None  # template: "השבתת {user_name} בוצעה בהצלחה."
+
+    # ─── Feature gating ───────────────────────────────────────────────
+    feature_flag: str | None    # optional feature flag that must be enabled
+    org_id: int | None          # None = platform-wide; int = org-specific
+
+    # ─── Input validation ─────────────────────────────────────────────
+    input_schema_id: str        # e.g. "users.deactivate.v1" — file in schemas/
+    allowed_hosts: list[str]    # SSRF allowlist for http_api handlers
+```
+
+### Action registry examples
+
+```python
+PLATFORM_AI_ACTIONS = [
+
+    # ─── users.create ────────────────────────────────────────────────
+    AIActionDescriptor(
+        action_id="users.create",
+        module="users",
+        name="צור משתמש חדש",
+        description="יוצר חשבון משתמש חדש בארגון.",
+        capability_level="CREATE",
+        danger_level="low",
+        min_role="admin",
+        required_permissions=["users.write"],
+        required_roles=["admin", "system_admin"],
+        requires_confirmation=True,
+        requires_reason=False,
+        requires_approval=False,
+        confirmation_ttl_seconds=120,
+        handler_type="internal_function",
+        handler_config={"function": "apps.authentication.user_api_routes.create_user"},
+        executor_allowlisted=True,
+        idempotency_key_strategy="user+action+email",
+        bulk_allowed=False,
+        max_batch_size=1,
+        bulk_requires_individual_audit=False,
+        hard_delete_allowed=False,
+        soft_delete_reversal=None,
+        rollback_supported=True,
+        rollback_action_id="users.deactivate",
+        voice_eligible=False,  # admin-only, CREATE → medium risk in practice
+        audit_event="users.create",
+        pii_redaction_policy="mask_email",
+        input_schema={"type": "object", "required": ["email", "name", "role_id"]},
+        output_schema={"type": "object", "properties": {"user_id": {"type": "integer"}}},
+        safe_result_summary="המשתמש {user_name} נוצר בהצלחה.",
+        feature_flag=None,
+        org_id=None,
+        input_schema_id="users.create.v1",
+        allowed_hosts=[],
+    ),
+
+    # ─── users.update ────────────────────────────────────────────────
+    AIActionDescriptor(
+        action_id="users.update",
+        module="users",
+        name="עדכן פרטי משתמש",
+        description="מעדכן שדות פרופיל של משתמש קיים.",
+        capability_level="UPDATE",
+        danger_level="low",
+        min_role="admin",
+        required_permissions=["users.write"],
+        required_roles=["admin", "system_admin"],
+        requires_confirmation=True,
+        requires_reason=False,
+        requires_approval=False,
+        confirmation_ttl_seconds=120,
+        handler_type="internal_function",
+        handler_config={"function": "apps.authentication.user_api_routes.update_user"},
+        executor_allowlisted=True,
+        idempotency_key_strategy="confirmation_token",
+        bulk_allowed=False,
+        max_batch_size=1,
+        bulk_requires_individual_audit=False,
+        hard_delete_allowed=False,
+        soft_delete_reversal=None,
+        rollback_supported=True,
+        rollback_action_id=None,  # reversible via another UPDATE
+        voice_eligible=False,
+        audit_event="users.update",
+        pii_redaction_policy="mask_email",
+        input_schema={"type": "object", "required": ["user_id"], "additionalProperties": True},
+        output_schema={"type": "object", "properties": {"success": {"type": "boolean"}}},
+        safe_result_summary="פרטי המשתמש עודכנו בהצלחה.",
+        feature_flag=None,
+        org_id=None,
+        input_schema_id="users.update.v1",
+        allowed_hosts=[],
+    ),
+
+    # ─── users.deactivate ────────────────────────────────────────────
+    AIActionDescriptor(
+        action_id="users.deactivate",
+        module="users",
+        name="השבת משתמש",
+        description="מונע מהמשתמש להתחבר. ניתן לשחזור.",
+        capability_level="DELETE_SOFT",
+        danger_level="medium",
+        min_role="admin",
+        required_permissions=["users.write"],
+        required_roles=["admin", "system_admin"],
+        requires_confirmation=True,
+        requires_reason=False,
+        requires_approval=False,
+        confirmation_ttl_seconds=120,
+        handler_type="internal_function",
+        handler_config={"function": "apps.authentication.user_api_routes.deactivate_user"},
+        executor_allowlisted=True,
+        idempotency_key_strategy="confirmation_token",
+        bulk_allowed=False,
+        max_batch_size=1,
+        bulk_requires_individual_audit=False,
+        hard_delete_allowed=False,
+        soft_delete_reversal="users.reactivate",
+        rollback_supported=True,
+        rollback_action_id="users.reactivate",
+        voice_eligible=False,  # DELETE_SOFT → never voice
+        audit_event="users.deactivate",
+        pii_redaction_policy="mask_email",
+        input_schema={"type": "object", "required": ["user_id"]},
+        output_schema={"type": "object", "properties": {"success": {"type": "boolean"}}},
+        safe_result_summary="המשתמש {user_name} הושבת. ניתן לשחזר בכל עת.",
+        feature_flag=None,
+        org_id=None,
+        input_schema_id="users.deactivate.v1",
+        allowed_hosts=[],
+    ),
+
+    # ─── organizations.update ────────────────────────────────────────
+    AIActionDescriptor(
+        action_id="organizations.update",
+        capability_level="UPDATE",
+        danger_level="medium",
+        min_role="system_admin",
+        requires_confirmation=True,
+        requires_reason=False,
+        requires_approval=False,
+        bulk_allowed=False,
+        hard_delete_allowed=False,
+        voice_eligible=False,
+        audit_event="orgs.update",
+        # ... other fields omitted for brevity
+    ),
+
+    # ─── organizations.deactivate ─────────────────────────────────────
+    AIActionDescriptor(
+        action_id="organizations.deactivate",
+        capability_level="DELETE_SOFT",
+        danger_level="high",
+        min_role="system_admin",
+        requires_confirmation=True,
+        requires_reason=True,
+        requires_approval=True,    # high → approval queue
+        bulk_allowed=False,
+        hard_delete_allowed=False,
+        voice_eligible=False,
+        audit_event="orgs.deactivate",
+    ),
+
+    # ─── roles.permissions_replace ───────────────────────────────────
+    AIActionDescriptor(
+        action_id="roles.permissions_replace",
+        capability_level="CONFIGURE",
+        danger_level="high",
+        min_role="admin",
+        requires_confirmation=True,
+        requires_reason=True,
+        requires_approval=True,
+        bulk_allowed=False,
+        hard_delete_allowed=False,
+        voice_eligible=False,     # CONFIGURE → never voice
+        audit_event="roles.permissions_replace",
+    ),
+
+    # ─── modules.disable ─────────────────────────────────────────────
+    AIActionDescriptor(
+        action_id="modules.disable",
+        capability_level="SYSTEM",
+        danger_level="high",
+        min_role="system_admin",
+        requires_confirmation=True,
+        requires_reason=True,
+        requires_approval=True,
+        bulk_allowed=False,
+        hard_delete_allowed=False,
+        voice_eligible=False,     # SYSTEM → never voice
+        audit_event="modules.disable",
+    ),
+
+    # ─── audit.search ────────────────────────────────────────────────
+    AIActionDescriptor(
+        action_id="audit.search",
+        capability_level="READ",
+        danger_level="none",
+        min_role="admin",
+        required_permissions=["audit.read"],
+        requires_confirmation=False,
+        requires_reason=False,
+        requires_approval=False,
+        bulk_allowed=False,
+        hard_delete_allowed=False,
+        voice_eligible=False,     # result sets too large for voice
+        audit_event="audit.search",
+        pii_redaction_policy="voice_safe",
+    ),
+
+    # ─── helpdesk.ticket.close ───────────────────────────────────────
+    AIActionDescriptor(
+        action_id="helpdesk.ticket.close",
+        capability_level="UPDATE",
+        danger_level="low",
+        min_role="technician",
+        requires_confirmation=True,
+        requires_reason=False,
+        requires_approval=False,
+        bulk_allowed=False,
+        hard_delete_allowed=False,
+        voice_eligible=True,      # UPDATE + low → eligible
+        audit_event="helpdesk.ticket.close",
+    ),
+
+    # ─── ai.approval.approve ─────────────────────────────────────────
+    AIActionDescriptor(
+        action_id="ai.approval.approve",
+        capability_level="APPROVE",
+        danger_level="medium",
+        min_role="manager",
+        requires_confirmation=True,
+        requires_reason=False,
+        requires_approval=False,  # approval itself doesn't need another approval
+        bulk_allowed=False,
+        hard_delete_allowed=False,
+        voice_eligible=True,      # APPROVE + medium → eligible (manager+)
+        audit_event="ai.approval.approve",
+    ),
+]
+```
+
+---
+
+## §36 — Delegated Human vs Service Account
+
+### The critical distinction
+
+| | Delegated human actor | AI/service account (is_ai_agent) |
+|--|----------------------|----------------------------------|
+| **Identity** | Authenticated user (JWT) | Service token (JWT with is_ai_agent=True) |
+| **Business authorization** | User's own role + permissions | Always based on delegated human actor |
+| **Can determine write authorization** | ✅ | ❌ — never alone |
+| **Can authorize CREATE/UPDATE/DELETE** | ✅ (if role permits) | ❌ without human delegation |
+| **Available actions** | All role-appropriate actions | READ + pre-authorized WRITE_LOW only |
+| **Confirmation-required actions** | ✅ with human confirmation | ❌ never — no human to confirm |
+| **Used for** | AI sessions on behalf of a logged-in human | Background jobs, webhooks, integrations |
+
+### Service account restriction (non-negotiable)
+
+A service account JWT (`is_ai_agent=True`) **alone** cannot authorize any business write operation. It must carry delegated human context:
+
+```python
+# Service-to-service request with delegated actor
+{
+    "Authorization": "Bearer <service_token>",
+    "X-Delegated-User-Id": "42",          # JWT-signed by issuing service
+    "X-Delegated-Org-Id": "7",
+    "X-Delegation-Token": "<signed_token>"  # verified by backend before trusting
+}
+```
+
+The backend **validates the delegation token** before using the delegated user context. If delegation is missing or invalid, the request is treated as the service account acting alone — which is only authorized for READ.
+
+### Implications for the AI Action Platform
+
+- The ALA voice gateway (a service) carries the caller's user_id in the delegation context
+- The Helpdesk AI engine carries the session's technician_user_id
+- The Investigation Console carries the analyst's user_id
+- None of these services authorize writes using their own service token — they delegate to the human
+
+---
+
+## §37 — Execution Viability Checks
+
+Before any action executes, the backend runs a viability check. **Execution fails closed** — if any check is uncertain, the action does not run.
+
+```python
+@dataclass
+class ViabilityCheckResult:
+    allowed: bool
+    failure_reason: str | None
+    failure_code: str | None  # for structured error responses
+
+def check_execution_viability(
+    action: AIActionDescriptor,
+    actor_user_id: int,
+    org_id: int,
+    parameters: dict,
+    confirmation_token: AIActionConfirmationToken | None,
+    idempotency_key: str | None,
+) -> ViabilityCheckResult:
+```
+
+### Viability check sequence
+
+| # | Check | Failure code | Notes |
+|---|-------|-------------|-------|
+| 1 | Action exists in registry | `action_not_found` | |
+| 2 | Action is active/enabled | `action_disabled` | `AIAction.active = True` |
+| 3 | Module is enabled for org | `module_disabled` | |
+| 4 | Feature flag is on | `feature_flag_disabled` | Skip if `action.feature_flag is None` |
+| 5 | Authenticated user is active | `user_deactivated` | `User.is_active = True` |
+| 6 | Organization is active | `org_deactivated` | `Organization.is_active = True` |
+| 7 | User belongs to org (or is system_admin) | `org_scope_mismatch` | Anti org-switch attack |
+| 8 | User role ≥ `action.min_role` | `role_insufficient` | Role rank comparison |
+| 9 | User has required permissions | `permission_denied` | All `required_permissions` must be present |
+| 10 | `capabilityLevel` allowed for user role | `capability_level_denied` | See §34 matrix |
+| 11 | Target resource belongs to user's org | `target_scope_violation` | Checked per action |
+| 12 | Confirmation token valid (if required) | `confirmation_invalid` | Not expired, not used, hash matches |
+| 13 | Approval valid (if required) | `approval_not_found` | For approval_queue flow |
+| 14 | Reason present (if required) | `reason_required` | |
+| 15 | Idempotency key present for write/delete | `idempotency_key_missing` | All CREATE/UPDATE/DELETE* |
+| 16 | Idempotency key not already used | `idempotency_duplicate` | Redis check, TTL = 60s |
+| 17 | Rate limit allows execution | `rate_limit_exceeded` | Per-org, per-action |
+| 18 | Bulk size ≤ `action.max_batch_size` | `bulk_size_exceeded` | |
+| 19 | `hard_delete_allowed = True` for DELETE_HARD | `hard_delete_blocked` | Policy gate |
+| 20 | `DESTRUCTIVE` permission for DESTRUCTIVE tier | `destructive_permission_denied` | |
+| 21 | Executor is allowlisted | `executor_not_allowlisted` | `executor_allowlisted = True` |
+| 22 | Audit write will be possible | `audit_unavailable` | Pre-check DB connectivity |
+
+**Failure behavior:** Return structured error with `failure_code` and user-safe `message`. Never expose internal details (DB paths, function names, stack traces). Always log the full detail server-side.
+
+---
+
+## §38 — Implementation Readiness Checklist
+
+The AI Action Platform is **not implementation-ready** until all items below are checked. This checklist is the gate for starting R027 backend work.
+
+### Core infrastructure
+
+- [ ] `AIActionDescriptor` dataclass with all fields from §35 is defined
+- [ ] `AIActionRegistry` loads static platform actions + org-level `AIAction` DB rows
+- [ ] Registry produces only allowlisted executor references — no arbitrary endpoint execution
+- [ ] `AIActionRegistry.get_actions_for_user()` returns role-filtered summaries
+- [ ] `AIActionConfirmationToken` model with TTL, single-use, SHA-256 hash
+- [ ] `AIActionInvocation` audit model (monthly partitioned)
+- [ ] `AIUserCapabilityContext` dataclass + `build_user_capability_context()`
+- [ ] `build_ai_capability_prompt()` function
+- [ ] JSON Schema files for all platform actions under `apps/ai_action_platform/schemas/`
+- [ ] `check_execution_viability()` with all 22 checks from §37
+- [ ] Idempotency key Redis mechanism (SETNX, 60s TTL)
+- [ ] Audit write is mandatory — executor does not return until audit is committed
+
+### Tests (must pass before R027 ships)
+
+**Positive path tests:**
+
+- [ ] `READ` action: list users → success + audit row
+- [ ] `CREATE` action: create user → success + audit row + idempotency enforced
+- [ ] `UPDATE` action: update user field → success + audit + rollback available
+- [ ] `DELETE_SOFT` action: deactivate user → success + audit + reversal action present
+- [ ] `APPROVE` action: approve pending tool invocation → success + session resumes
+- [ ] `EXECUTE` action: run automation → success + job audit
+- [ ] `BULK` action: bulk status update (≤ max_batch_size) → per-item audit rows
+
+**Negative / security tests:**
+
+- [ ] Unauthorized action: viewer tries `users.deactivate` → `permission_denied`, no execution
+- [ ] Wrong org: user in org 7 tries to target resource in org 8 → `target_scope_violation`
+- [ ] Stale context: permission revoked mid-session → re-check blocks execution (not context)
+- [ ] Expired confirmation token: invoke after TTL → `confirmation_invalid`
+- [ ] Duplicate idempotency key within 60s → `idempotency_duplicate`
+- [ ] Bulk over max_batch_size → `bulk_size_exceeded`
+- [ ] Hard delete attempted by admin (not system_admin) → `hard_delete_blocked`
+- [ ] Hard delete with `hard_delete_allowed = False` → `hard_delete_blocked`
+- [ ] Prompt injection: LLM output attempts to add new action to registry → rejected (registry is static)
+- [ ] Service account alone (no delegated user) tries `users.create` → `permission_denied`
+- [ ] Voice session requests `DELETE_SOFT` → `voice_ineligible`
+- [ ] Voice session requests `SYSTEM` action → `voice_ineligible`
+- [ ] Voice session requests `BULK` action → `voice_ineligible`
+- [ ] Audit write fails: action execution rolled back
+- [ ] `audit.search` with `pii_redaction_policy="voice_safe"` → PII fields redacted in result
+
+---
+
+## §39 — Voice Write/Delete Constraints
+
+Voice sessions may initiate write actions. This section defines exactly which writes are permitted and which are not.
+
+### Permitted in voice
+
+| Action | Level | Max danger | Condition |
+|--------|-------|-----------|-----------|
+| Create ticket | CREATE | low | ticket form simple enough to confirm verbally |
+| Close ticket | UPDATE | low | `helpdesk.ticket.close` |
+| Approve pending action | APPROVE | medium | confirmation: read action name + target aloud |
+| Execute automation (simple) | EXECUTE | low | pre-configured job with no parameters |
+| Look up / search | READ | none | always |
+
+### Prohibited in voice (non-overridable)
+
+| Action | Why |
+|--------|-----|
+| Any `DELETE_SOFT` | Must use UI confirmation — too consequential for voice |
+| Any `DELETE_HARD` | Always prohibited in voice |
+| Any `CONFIGURE` | Settings changes require UI — too complex for verbal accuracy |
+| Any `BULK` | Multiple targets cannot be safely confirmed verbally |
+| Any `SYSTEM` | Cross-tenant/platform-wide — always requires UI + approval |
+| `danger_level >= "high"` | Hard ceiling — no exceptions |
+| Actions with `voice_eligible = false` | Registry-declared |
+
+### Voice write behavior rules
+
+1. **Read-back required:** Before requesting confirmation for any write, the AI reads aloud the action name, the target resource name/identifier, and the change summary. Example: "אני עומד להשעות את ג'וב ראנר 12. האם לאשר?"
+2. **One action at a time:** If the user requests multiple writes in one turn, the AI handles them sequentially — one confirmation at a time. Never batches confirmations.
+3. **Ambiguous commands require clarification:** If the target is not clear (e.g. "close that ticket" when multiple are open), the AI asks before requesting a confirmation token. No speculative token creation.
+4. **10-second silence = cancel:** If the AI is waiting for verbal confirm and hears silence for 10 seconds, the confirmation token is marked `denied` and the AI says "ביטלתי".
+5. **AI never reads PII aloud proactively:** Before reading back a target resource, the AI checks `pii_redaction_policy`. If `voice_safe`, it uses a safe identifier (display name or masked ID) — never full email, phone, or ID number.
+6. **No chaining:** Voice confirmation flows are never chained. One write per conversational turn.
+
+---
+
+## §40 — Delete Policy
+
+### Default: prefer soft delete
+
+All AI-executable delete-type operations default to soft delete (deactivate/archive/disable). Hard delete is **disabled by default** for all AI actions.
+
+### Hard delete requirements
+
+Hard delete may only be enabled when ALL of the following are true:
+
+| Requirement | Enforced by |
+|-------------|------------|
+| `capability_level = "DELETE_HARD"` | Registry field |
+| `hard_delete_allowed = true` | Registry field (default false) |
+| `danger_level = "critical"` | Registry field |
+| `min_role = "system_admin"` | Registry field |
+| `requires_confirmation = true` with typed phrase | ConfirmActionDialog |
+| `requires_reason = true` | Enforced at execution |
+| `requires_approval = true` | Goes to approval queue |
+| Retention policy documented | Before hard delete action can be added to registry |
+| Restore/export policy: data exported before deletion | Executor runs export before delete |
+| Audit row committed before delete executes | Transaction order enforced |
+| `ai_actions.destructive` permission granted | User permission check |
+
+### Current registry state
+
+No action in the initial platform registry has `hard_delete_allowed = true`. Hard delete actions are blocked from registry addition until:
+
+1. The platform has a data retention policy document
+2. A pre-delete export mechanism exists
+3. The legal/compliance team has reviewed the action
+
+### AI behavior on hard delete request
+
+If a user asks the AI to permanently delete something:
+
+1. AI checks registry — no hard delete action available
+2. AI responds: "מחיקה סופית אינה זמינה דרך הסוכן. להסרת נתונים באופן סופי, פנה למנהל המערכת לביצוע ידני עם מדיניות שמירת נתונים."
+3. AI may offer the soft-delete equivalent if available: "האם להשבית במקום למחוק?"
+
+---
+
+_Document updated: 2026-04-24 (Round 026 — §33–§40 added)_
 _Next implementation round: R027 — AI Action Platform Foundation_
