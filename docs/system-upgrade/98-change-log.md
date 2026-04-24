@@ -17,6 +17,34 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-24 — Round 027 (Architecture): Global Floating AI Assistant
+
+### Files Changed
+- `docs/system-upgrade/38-floating-ai-assistant.md` — **created** (13 sections: lazy loading, persistent conversation, context diffing, session state model, LLM cost-control rules, UX state machine, UX component structure, PageAIContext schema, security/privacy, AI Action Platform integration, implementation phases R032–R035, open questions)
+- `docs/system-upgrade/36-ai-action-platform.md` — **updated** (§41 added: frontend surface reference to doc 38, integration points table)
+- `docs/system-upgrade/14-decision-log.md` — **updated** (ADR-025: Global Floating AI Assistant and Page Context Registry)
+- `docs/system-upgrade/26-platform-capabilities-catalog.md` — **updated** (Global Floating AI Assistant capability entry)
+- `docs/system-upgrade/35-platform-capabilities-build-order.md` — **updated** (R032–R035 Floating AI Assistant track + 4 new gate rows in summary table)
+- `docs/system-upgrade/15-action-backlog.md` — **updated** (R032–R035 tasks: 39 items across infra, LLM wiring, action proposals, voice mode)
+- `docs/system-upgrade/96-rounds-index.md` — **updated** (Round 027 entry)
+- `docs/system-upgrade/98-change-log.md` — **updated** (this entry)
+
+### New Findings
+- Lazy loading is the key constraint: LLM must never fire on page load, route change, or component mount — only on explicit user interaction
+- `lastLLMContextHash` comparison is the mechanism for skipping unchanged context; without it, every message would re-send the full capability context
+- In-memory Zustand (never localStorage) prevents session state from leaking across user switches on shared devices
+- `PageContextDiff.relevantToObjective` check prevents irrelevant page changes from polluting the LLM context mid-conversation
+- Session reset on org switch is a security requirement, not a UX choice — same device may have multiple org admins
+
+### Decision Changes
+- ADR-025: Global Floating AI Assistant and Page Context Registry (new)
+
+### Backlog Changes
+- Added R032–R035 floating assistant tasks (39 items) to `15-action-backlog.md`
+- Added R032–R035 build track to `35-platform-capabilities-build-order.md`
+
+---
+
 ## 2026-04-24 — Round 026 (Architecture): AI Action Platform Hardening
 
 ### Files Changed

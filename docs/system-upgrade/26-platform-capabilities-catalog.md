@@ -897,6 +897,48 @@ Cross-cutting system — not a `Platform*` UI component. Extends existing capabi
 
 ---
 
+---
+
+## Global Floating AI Assistant
+
+**Round 027 — 2026-04-24 | ADR-025**
+
+**Purpose:** A globally visible AI assistant icon rendered in the shell layout on every page. Opens a drawer with a persistent chat interface that can propose and execute AI actions on behalf of the authenticated user. Zero LLM calls while idle — full lazy loading.
+
+**Modules:** Shell layout, every page (via `useRegisterPageContext()`), `apps/ai_action_platform/` (action execution backend)
+
+**Libraries:** Zustand (session state), shadcn/ui Sheet (drawer), React (component tree) — no new dependencies
+
+**Files:**
+- `components/shell/floating-ai-assistant/` — button, drawer, chat, action card
+- `lib/stores/ai-assistant-session.ts` — `AIAssistantSessionState` Zustand store
+- `lib/hooks/use-register-page-context.ts` — `useRegisterPageContext()` hook
+- `app/(dashboard)/layout.tsx` — mount point
+
+**Key constraints (hard rules — must not be violated):**
+- No LLM call on page load, route change, hover, or while icon is idle
+- No LLM call on route change — only `currentPageId` and hashes update locally
+- `conversationId`, `activeObjective`, `pendingActionId` survive route changes
+- On org switch → full session reset
+- `PageAIContext` permission-filtered before LLM exposure
+- Never send full table data, secrets, or raw permission codenames to LLM
+
+**Session state model:** `AIAssistantSessionState` (Zustand, in-memory only — never localStorage). Tracks: `conversationId`, `status`, `activeObjective`, `pendingActionId`, `pendingConfirmationTokenId`, `contextVersion`, `currentPageId`, `lastPageContextHash`, `lastLLMContextHash`, `drawerOpen`, `unreadCount`.
+
+**Page context registry:** Each page calls `useRegisterPageContext(PageAIContext)` — no API call. `PageAIContext` has: `pageId`, `pageName`, `staticDescription`, `module`, `availableActionIds`, `selectedResource`. Used for "What is this page?" without LLM.
+
+**Context diffing:** `PageContextDiff` computed on route change. Stored locally. Sent to LLM only on user's next message or active workflow continuation. Irrelevant diffs (when `relevantToObjective: false`) suppressed.
+
+**First scope:** Shell layout `FloatingAIButton` renders with idle state, `useRegisterPageContext()` hook wired in Helpdesk session detail page. No LLM wiring in R032 — context infra only.
+
+**Security:** Page context filtered by user's `availableActionIds`. Conversation reset on org switch. Auth expiry clears session. No PII in `staticDescription`.
+
+**AI-maintainability:** All assistant behavior in `floating-ai-assistant/` — zero coupling to individual page components except the `useRegisterPageContext()` hook. New pages add one `useRegisterPageContext()` call; no other wiring.
+
+**Spec:** `docs/system-upgrade/38-floating-ai-assistant.md` | **Decision:** ADR-025
+
+---
+
 ## How to Add a New Capability
 
 1. Add a row to the Summary Table above

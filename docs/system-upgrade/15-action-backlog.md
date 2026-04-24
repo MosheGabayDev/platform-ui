@@ -507,6 +507,67 @@ _Spec: `docs/system-upgrade/36-ai-action-platform.md` | ADR-022_
 
 ---
 
+---
+
+## R032 — Floating AI Assistant: Shell Infra + Context Registry
+
+| Task | File/Location | Effort | Status |
+|------|--------------|--------|--------|
+| `AIAssistantSessionState` Zustand store | `lib/stores/ai-assistant-session.ts` | 1 hr | `[ ]` R032 |
+| `FloatingAIButton` component (idle state only, no LLM) | `components/shell/floating-ai-assistant/FloatingAIButton.tsx` | 30 min | `[ ]` R032 |
+| `useRegisterPageContext()` hook | `lib/hooks/use-register-page-context.ts` | 30 min | `[ ]` R032 |
+| `PageAIContext` TypeScript interface + validation | `lib/types/ai-assistant.ts` | 30 min | `[ ]` R032 |
+| Mount `FloatingAIButton` in shell layout | `app/(dashboard)/layout.tsx` | 15 min | `[ ]` R032 |
+| Wire `useRegisterPageContext()` in helpdesk session detail page | `app/(dashboard)/helpdesk/sessions/[id]/page.tsx` | 30 min | `[ ]` R032 |
+| Wire `useRegisterPageContext()` in ticket list page | `app/(dashboard)/helpdesk/tickets/page.tsx` | 15 min | `[ ]` R032 |
+| Route-change handler: update `currentPageId` + `lastPageContextHash` (no LLM call) | `components/shell/floating-ai-assistant/useRouteContextSync.ts` | 45 min | `[ ]` R032 |
+| `PageContextDiff` computation utility | `lib/utils/ai-context-diff.ts` | 45 min | `[ ]` R032 |
+| Unit test: route change updates state, does NOT trigger LLM | `lib/stores/ai-assistant-session.test.ts` | 30 min | `[ ]` R032 |
+| Unit test: `useRegisterPageContext()` stores context, no API call | `lib/hooks/use-register-page-context.test.ts` | 30 min | `[ ]` R032 |
+
+## R033 — Floating AI Assistant: Drawer + Chat + LLM Wiring
+
+| Task | File/Location | Effort | Status |
+|------|--------------|--------|--------|
+| `AIAssistantDrawer` (shadcn Sheet) | `components/shell/floating-ai-assistant/AIAssistantDrawer.tsx` | 1 hr | `[ ]` R033 |
+| `AIAssistantChat` message list + input | `components/shell/floating-ai-assistant/AIAssistantChat.tsx` | 1.5 hr | `[ ]` R033 |
+| `GET /api/ai/context` integration (capability context load on first open) | `lib/api/ai-context.ts` | 45 min | `[ ]` R033 |
+| First LLM message send — attach capability context + current `PageAIContext` | `lib/stores/ai-assistant-session.ts` | 1 hr | `[ ]` R033 |
+| `lastLLMContextHash` check — skip context re-send if unchanged | `lib/stores/ai-assistant-session.ts` | 30 min | `[ ]` R033 |
+| `PageContextDiff` send policy — attach diff on next user message if `relevantToObjective: true` | `lib/stores/ai-assistant-session.ts` | 30 min | `[ ]` R033 |
+| `context_version` stale detection — HTTP 409 → re-fetch context | `lib/api/ai-context.ts` | 30 min | `[ ]` R033 |
+| Wire `useRegisterPageContext()` in user management + org settings pages | `app/(dashboard)/users/`, `app/(dashboard)/settings/` | 45 min | `[ ]` R033 |
+| E2E test: open assistant → LLM called once; navigate → no LLM call; send message → LLM called with diff | `e2e/floating-ai-assistant.spec.ts` | 1 hr | `[ ]` R033 |
+| Security test: `PageAIContext.availableActionIds` filtered to user's permissions before LLM send | `lib/stores/ai-assistant-session.test.ts` | 30 min | `[ ]` R033 |
+
+## R034 — Floating AI Assistant: Action Proposals + Confirmation Flow
+
+| Task | File/Location | Effort | Status |
+|------|--------------|--------|--------|
+| `AIActionPreviewCard` component (action name, description, params, danger badge) | `components/shell/floating-ai-assistant/AIActionPreviewCard.tsx` | 1 hr | `[ ]` R034 |
+| Confirmation flow: `pendingConfirmationTokenId` tracked in session state | `lib/stores/ai-assistant-session.ts` | 30 min | `[ ]` R034 |
+| `POST /api/ai/action/confirm` integration + token expiry handling | `lib/api/ai-actions.ts` | 45 min | `[ ]` R034 |
+| Result display: success / failure / denied feedback in chat | `components/shell/floating-ai-assistant/AIAssistantChat.tsx` | 30 min | `[ ]` R034 |
+| Action proposal rendering in chat message list | `components/shell/floating-ai-assistant/AIAssistantChat.tsx` | 30 min | `[ ]` R034 |
+| Test: token expires during confirmation → user sees expiry message, not error | `e2e/floating-ai-assistant.spec.ts` | 30 min | `[ ]` R034 |
+| Test: navigate away mid-confirmation → `pendingActionId` survives → returned-to page resumes | `e2e/floating-ai-assistant.spec.ts` | 30 min | `[ ]` R034 |
+
+## R035 — Floating AI Assistant: Voice Mode + Objective Persistence
+
+| Task | File/Location | Effort | Status |
+|------|--------------|--------|--------|
+| Voice mode UI toggle in drawer | `components/shell/floating-ai-assistant/AIAssistantDrawer.tsx` | 30 min | `[ ]` R035 |
+| Voice-eligible action filtering in assistant (use `voice_eligible` from capability context) | `lib/stores/ai-assistant-session.ts` | 30 min | `[ ]` R035 |
+| Voice action read-back before confirm (display + TTS) | `components/shell/floating-ai-assistant/AIAssistantChat.tsx` | 1 hr | `[ ]` R035 |
+| `activeObjective` persistence: workflow resumption on re-open | `lib/stores/ai-assistant-session.ts` | 30 min | `[ ]` R035 |
+| Workflow resumption prompt: navigate away mid-objective → re-open drawer → assistant resumes | `lib/stores/ai-assistant-session.ts` | 45 min | `[ ]` R035 |
+| Org switch → full session reset | `lib/stores/ai-assistant-session.ts` | 15 min | `[ ]` R035 |
+| Auth expiry → session clear | `lib/stores/ai-assistant-session.ts` | 15 min | `[ ]` R035 |
+| Test: voice mode only shows `voice_eligible: true` actions | `lib/stores/ai-assistant-session.test.ts` | 30 min | `[ ]` R035 |
+| Test: org switch resets `conversationId`, `activeObjective`, `pendingActionId` | `lib/stores/ai-assistant-session.test.ts` | 30 min | `[ ]` R035 |
+
+---
+
 ## Blocked
 
 | Task | Why Blocked | Unblocked By |

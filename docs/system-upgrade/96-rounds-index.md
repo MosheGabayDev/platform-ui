@@ -395,6 +395,21 @@ _Updated after each round — append, never overwrite entries._
 
 ---
 
+## Round 027 — Floating AI Assistant Architecture
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-24 |
+| **Topic** | Global Floating AI Assistant — lazy AI context loading and persistent conversation continuity |
+| **Objective** | Design the Floating AI Assistant component: globally visible, zero LLM calls while idle, conversation survives route changes, context diffs computed on navigation but sent only on explicit interaction. Doc-only. No code. |
+| **Key Findings** | • Lazy loading is mandatory — LLM calls only on explicit user interaction (click, open, send, confirm, resume) <br>• Route change updates `currentPageId` + `lastPageContextHash` locally only — no LLM, no API <br>• `conversationId`, `activeObjective`, `pendingActionId` survive route changes; only page metadata updates <br>• `PageContextDiff` computed on navigation; sent to LLM only on next user message or workflow continuation; irrelevant diffs suppressed <br>• `AIAssistantSessionState` Zustand in-memory store — never localStorage (prevents auth-boundary leakage on shared devices) <br>• `PageAIContext` static per-page metadata via `useRegisterPageContext()` hook — no API call, permission-filtered before LLM <br>• `lastLLMContextHash` prevents re-sending unchanged context to LLM <br>• Org switch → full session reset; auth expiry → session clear <br>• 4 implementation phases: R032 (infra), R033 (LLM wiring), R034 (actions), R035 (voice) |
+| **Files Created (platform-ui)** | `docs/system-upgrade/38-floating-ai-assistant.md` |
+| **Files Updated (platform-ui)** | `docs/system-upgrade/36-ai-action-platform.md` (§41: frontend surface reference), `docs/system-upgrade/14-decision-log.md` (ADR-025), `docs/system-upgrade/26-platform-capabilities-catalog.md` (Global Floating AI Assistant capability entry), `docs/system-upgrade/35-platform-capabilities-build-order.md` (R032–R035 track + gate table), `docs/system-upgrade/15-action-backlog.md` (R032–R035 tasks: 39 items), `docs/system-upgrade/96-rounds-index.md`, `docs/system-upgrade/98-change-log.md` |
+| **Decisions Proposed** | ADR-025: Global Floating AI Assistant and Page Context Registry |
+| **Next Recommended Round** | Round 023 implementation: ActionButton + DetailView + PlatformFeatureFlags (unblocks Helpdesk Phase A) |
+
+---
+
 ## Round 026 — AI Action Platform Hardening
 
 | Field | Value |

@@ -602,6 +602,32 @@ The AI Capability Context system (§23–§32 in doc 36) builds alongside the ac
 
 ---
 
+## Floating AI Assistant Build Track (R032–R035)
+
+Runs in parallel with module implementation rounds. Depends on AI Action Platform R027 (registry) being stable.
+
+| Round | Floating Assistant Phase | Gate |
+|-------|--------------------------|------|
+| R032 | Shell layout mount + `FloatingAIButton` idle state + `useRegisterPageContext()` hook + `AIAssistantSessionState` Zustand store | No LLM wiring — context infra only |
+| R033 | Drawer + chat UI + `GET /api/ai/context` wiring + first LLM message send + `PageContextDiff` computation | After: AI Capability Context endpoint (R027) |
+| R034 | Action proposals in chat + `AIActionPreviewCard` + confirmation flow + `pendingConfirmationTokenId` tracking | After: AI Action Platform WRITE tier (R028) |
+| R035 | Voice mode integration + active objective persistence + workflow resumption across navigation | After: Voice confirm flow (R029) + SSE (R030) |
+
+Full spec: `docs/system-upgrade/38-floating-ai-assistant.md`
+
+### Page Context Registry rollout (parallel to R032+)
+
+Each page registers `PageAIContext` via `useRegisterPageContext()`. Priority order:
+
+| Round | Pages to wire |
+|-------|--------------|
+| R032 | Helpdesk session detail, ticket list |
+| R033 | User management, org settings, AI agents console |
+| R034 | All remaining dashboard pages |
+| R035 | Settings pages, admin tools |
+
+---
+
 ## Quick Reference: Gate Summary
 
 | Gate | Required Capabilities | Ready After |
@@ -615,5 +641,9 @@ The AI Capability Context system (§23–§32 in doc 36) builds alongside the ac
 | **AI Action Platform WRITE** | + ConfirmationToken + useAIAction hook | R028 |
 | **AI Action Platform Voice** | + voice confirm flow + ALA wiring | R029 |
 | **AI Action Platform Full** | + ApprovalQueue + module manifests | R031 |
+| **Floating AI Assistant (infra)** | `FloatingAIButton` + `AIAssistantSessionState` + `useRegisterPageContext()` | R032 |
+| **Floating AI Assistant (LLM)** | Drawer + chat + AI context wiring + `PageContextDiff` | R033 |
+| **Floating AI Assistant (actions)** | `AIActionPreviewCard` + confirmation flow | R034 |
+| **Floating AI Assistant (voice)** | Voice mode + objective persistence + workflow resumption | R035 |
 | **Module Import/Export** | JobRunner + ImportExport full + Wizard + AuditLog | R032+ |
 | **Production** | FeatureFlags, AuditLog, Notifications, CSP headers, Flask cookie security | R026 |

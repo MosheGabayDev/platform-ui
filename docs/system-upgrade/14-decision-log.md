@@ -539,4 +539,30 @@ Error case:
 
 ---
 
+## ADR-025 — Global Floating AI Assistant and Page Context Registry (2026-04-24)
+
+**Context:** The platform needs a persistent AI assistant surface visible from every page. Naive implementations trigger LLM calls on page load, route change, or component mount — causing unacceptable cost and latency. A globally visible component also risks leaking page context, PII, or action surfaces across auth boundaries.
+
+**Decision:** The Global Floating AI Assistant uses strict lazy loading. The assistant icon is rendered on every page but makes **zero LLM or API calls** until the user explicitly interacts (click icon, open drawer, send message, confirm action, resume workflow). Page navigation updates local context metadata (`currentPageId`, `lastPageContextHash`) but never triggers an LLM call by itself.
+
+**Persistent conversation:** `conversationId`, `activeObjective`, `pendingActionId`, and `pendingConfirmationTokenId` survive route changes. Only `currentPageId`, `previousPageId`, and `lastPageContextHash` update on navigation. The conversation state lives in a Zustand in-memory store (`AIAssistantSessionState`) — never persisted to localStorage (no auth-boundary leakage on shared devices).
+
+**Context diffing:** `PageContextDiff` is computed on route change and stored locally. It is sent to the LLM only on the user's next message or on active workflow continuation. Diffs irrelevant to `activeObjective` are suppressed entirely.
+
+**Page context registry:** Each page registers static metadata via `useRegisterPageContext()` → `PageAIContext` (pageId, pageName, staticDescription, availableActionIds, selectedResource). No API call. Used for "What is this page?" without LLM. Permission-filtered before exposure to the assistant.
+
+**LLM cost-control hard rules:**
+- Never call LLM on page load, route change, hover, or while icon is idle
+- Never send full table data, secrets, or raw permission codenames to LLM
+- `lastLLMContextHash` checked before re-sending context; skip if unchanged
+- Capability context loaded only once per session (re-fetched only on `context_version` change)
+
+**Security:** On org switch → full session reset. On auth expiry → session cleared. `PageAIContext` filtered to only actions the current user can access before sending to LLM.
+
+**Spec:** `docs/system-upgrade/38-floating-ai-assistant.md`
+
+**Affected modules**: `components/shell/floating-ai-assistant/`, `lib/stores/ai-assistant-session.ts`, `lib/hooks/use-register-page-context.ts`, `app/(dashboard)/layout.tsx` (mount point).
+
+---
+
 _Add new ADRs here as decisions are made during implementation._

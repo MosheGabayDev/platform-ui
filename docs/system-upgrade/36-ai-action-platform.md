@@ -2238,5 +2238,26 @@ If a user asks the AI to permanently delete something:
 
 ---
 
-_Document updated: 2026-04-24 (Round 026 — §33–§40 added)_
+---
+
+## §41 — Frontend Surface: Global Floating AI Assistant
+
+The primary frontend delivery mechanism for the AI Action Platform is the Global Floating AI Assistant, designed in `docs/system-upgrade/38-floating-ai-assistant.md`.
+
+Key integration points between this platform and the assistant:
+
+| This document | Floating Assistant |
+|--------------|-------------------|
+| `AIUserCapabilityContext` (§23) | Loaded once on first interaction; `availableActionIds` drives action proposals |
+| `AIActionConfirmationToken` (§06) | `pendingConfirmationTokenId` tracked in `AIAssistantSessionState` |
+| `context_version` (§28) | Checked before each request; `contextVersion` field in session state |
+| `check_execution_viability()` (§37) | Called server-side before every execution regardless of client state |
+| `AIActionInvocation` audit (§07) | Writes before returning; session resumption reads last audit row |
+| Voice eligibility formula (§39) | Controls which actions appear in voice-mode assistant action list |
+
+The assistant makes **zero LLM calls** until explicit user interaction. Page navigation never triggers an API call. See doc 38 for lazy loading rules, session state model, and cost-control hard rules.
+
+---
+
+_Document updated: 2026-04-24 (Round 026 — §33–§40 added; Round 027 — §41 added)_
 _Next implementation round: R027 — AI Action Platform Foundation_
