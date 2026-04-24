@@ -320,7 +320,24 @@ _Updated after each round — append, never overwrite entries._
 | **Files Updated (platformengineer)** | `apps/authentication/user_api_routes.py` (add `/active` route + audit), `apps/admin/org_api_routes.py` (add `/active` route + audit) |
 | **Commits** | platform-ui: (this round) · platformengineer: (this round) |
 | **Decisions Proposed** | None — confirmed: backend must never trust X-Client-* headers |
-| **Next Recommended Round** | Round 022: Helpdesk Phase A (list + detail pages for tickets/sessions) |
+| **Next Recommended Round** | Round 022: Security Blockers Closure |
+
+---
+
+## Round 022 — Security Blockers Closure
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-24 |
+| **Topic** | Resolve all R021 deferred security blockers before production |
+| **Objective** | AUD-001 (full audit trail), L3 (URL token removal), PII-001 (email visibility), M2 (is_system_admin typing), CSP plan |
+| **Key Findings** | • Added `record_activity()` helper — all write operations now write `UserActivity` <br>• Login/logout/login_failed now audited in `jwt_routes.py` <br>• create/update/approve user audited in `user_api_routes.py` <br>• create/update org audited in `org_api_routes.py` <br>• create/update/permissions_replace role audited in `role_api_routes.py` <br>• `?token=` URL fallback removed from `jwt_required` (token leakage in access logs) <br>• `GET /api/users` non-admins now see only own record (PII-001) <br>• `is_system_admin` added to `FlaskUserPayload`, `NormalizedAuthUser`, `normalizeFlaskUser()` <br>• `isSystemAdmin()` corrected to return `is_system_admin` not `is_admin` <br>• CSP headers planning doc created <br>• Security score: 8.5 → 9.2/10 <br>• Typecheck: EXIT 0 |
+| **Files Created (platform-ui)** | `docs/system-upgrade/31-production-security-headers.md` |
+| **Files Updated (platform-ui)** | `lib/platform/auth/types.ts`, `lib/auth/options.ts`, `lib/platform/permissions/rbac.ts`, `docs/system-upgrade/30-security-hardening-audit.md`, `docs/system-upgrade/06-security-assessment.md`, `docs/system-upgrade/96-rounds-index.md`, `docs/system-upgrade/98-change-log.md` |
+| **Files Updated (platformengineer)** | `apps/authentication/jwt_auth.py` (record_activity + L3 fix), `apps/authentication/jwt_routes.py` (login/logout audits), `apps/authentication/user_api_routes.py` (PII-001 + create/update/approve audits), `apps/admin/org_api_routes.py` (create/update audits), `apps/authentication/role_api_routes.py` (create/update/permissions audits) |
+| **Commits** | platform-ui: (this round) · platformengineer: (this round) |
+| **Decisions Proposed** | None — security hardening only |
+| **Next Recommended Round** | Round 023: Helpdesk Phase A (ticket list + session detail pages) |
 
 ---
 

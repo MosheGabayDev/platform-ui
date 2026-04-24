@@ -55,6 +55,7 @@ function normalizeFlaskUser(user: FlaskUserPayload): NormalizedAuthUser {
     org_id: user.org_id,
     // is_admin is now a real boolean from Flask User.is_admin column (Round 009).
     is_admin: user.is_admin ?? false,
+    is_system_admin: user.is_system_admin ?? false,
   };
 }
 

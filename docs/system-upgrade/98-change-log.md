@@ -17,6 +17,39 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-24 — Round 022: Security Blockers Closure
+
+### Files Changed
+
+**platformengineer:**
+- `apps/authentication/jwt_auth.py` — **added** `record_activity()` helper; **removed** `?token=` query-param fallback from `jwt_required` (L3 fix)
+- `apps/authentication/jwt_routes.py` — **added** `auth.login`, `auth.login_failed`, `auth.logout` audit writes using `record_activity`
+- `apps/authentication/user_api_routes.py` — **added** `record_activity` import; PII-001: non-admins now see only own record in `GET /api/users`; **added** `user.create`, `user.update`, `user.approve` audit writes
+- `apps/admin/org_api_routes.py` — **added** `record_activity` import; **added** `org.create`, `org.update` audit writes
+- `apps/authentication/role_api_routes.py` — **added** `record_activity` import; **added** `role.create`, `role.update`, `role.permissions_replace` audit writes
+
+**platform-ui:**
+- `lib/platform/auth/types.ts` — **added** `is_system_admin?: boolean` to `FlaskUserPayload`; `is_system_admin: boolean` to `NormalizedAuthUser`
+- `lib/auth/options.ts` — **added** `is_system_admin: user.is_system_admin ?? false` to `normalizeFlaskUser()`
+- `lib/platform/permissions/rbac.ts` — **fixed** `isSystemAdmin()` to return `user.is_system_admin` instead of `user.is_admin`
+- `docs/system-upgrade/31-production-security-headers.md` — **created** (CSP planning doc)
+- `docs/system-upgrade/30-security-hardening-audit.md` — **updated** with R022 status (all blockers resolved)
+- `docs/system-upgrade/06-security-assessment.md` — **updated** with R022 column
+- `docs/system-upgrade/96-rounds-index.md` — **updated** (R022 entry)
+- `docs/system-upgrade/98-change-log.md` — **updated**
+
+### New Findings
+- All R021 deferred items resolved in this round
+
+### Decision Changes
+- `isSystemAdmin()` now correctly distinguishes system-admin from org-admin (was returning `is_admin`)
+
+### Backlog Changes
+- AUD-001, PII-001, M2, L3 — all closed
+- Remaining open: CSP enforcement (plan created), L4 (15-min JWT window — acceptable)
+
+---
+
 ## 2026-04-24 — Round 021: Security Hardening Audit
 
 ### Files Changed

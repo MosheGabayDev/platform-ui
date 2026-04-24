@@ -41,6 +41,9 @@ export interface FlaskUserPayload {
   roles: string[];
   name?: string;
   is_admin?: boolean;
+  /** True only for the platform-wide super-admin — distinct from org-level is_admin. */
+  is_system_admin?: boolean;
+  is_manager?: boolean;
   permissions?: string[];
 }
 
@@ -68,4 +71,6 @@ export interface NormalizedAuthUser {
   org_id: number;
   /** True if user has admin bypass (matches Flask User.is_admin). */
   is_admin: boolean;
+  /** True only for the platform-wide super-admin (matches Flask User.is_system_admin). */
+  is_system_admin: boolean;
 }

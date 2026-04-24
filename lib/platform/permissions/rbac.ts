@@ -50,11 +50,14 @@ export function hasPermission(
   return session.user.permissions.includes(permission);
 }
 
-/** Returns true if the user is a system admin (is_admin flag). */
+/**
+ * Returns true if the user is a platform-wide system admin.
+ * Distinct from is_admin (org admin) — is_system_admin is the global super-admin.
+ */
 export function isSystemAdmin(
   session: SessionLike | null | undefined
 ): boolean {
-  return session?.user?.is_admin ?? false;
+  return session?.user?.is_system_admin ?? false;
 }
 
 /**

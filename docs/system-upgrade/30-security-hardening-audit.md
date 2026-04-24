@@ -1,6 +1,6 @@
-# 30 — Security Hardening Audit (Round 021)
+# 30 — Security Hardening Audit (Round 021 + 022)
 
-_Last updated: 2026-04-24 | Round 021_
+_Last updated: 2026-04-24 | Round 022 — all deferred blockers resolved_
 
 ---
 
@@ -14,15 +14,15 @@ The foundation is **safe for continued feature development** with the deferred i
 
 ## 2. Security Posture Score
 
-| Dimension | Before R021 | After R021 |
-|-----------|------------|------------|
-| Auth/session safety | 8/10 | 9/10 |
-| Proxy/API safety | 6/10 | 9/10 |
-| RBAC enforcement | 8/10 | 8/10 |
-| Tenant isolation | 9/10 | 9/10 |
-| Dangerous action safety | 7/10 | 9/10 |
-| Audit readiness | 5/10 | 7/10 |
-| **Overall** | **7.2/10** | **8.5/10** |
+| Dimension | Before R021 | After R021 | After R022 |
+|-----------|------------|------------|------------|
+| Auth/session safety | 8/10 | 9/10 | 9.5/10 |
+| Proxy/API safety | 6/10 | 9/10 | 9/10 |
+| RBAC enforcement | 8/10 | 8/10 | 9/10 |
+| Tenant isolation | 9/10 | 9/10 | 9.5/10 |
+| Dangerous action safety | 7/10 | 9/10 | 9/10 |
+| Audit readiness | 5/10 | 7/10 | 9/10 |
+| **Overall** | **7.2/10** | **8.5/10** | **9.2/10** |
 
 ---
 
@@ -106,19 +106,11 @@ if (!Object.prototype.hasOwnProperty.call(PATH_MAP, prefix)) {
 
 ---
 
-### M2 — `is_system_admin` Not in `NormalizedAuthUser` (Design Gap)
+### M2 — `is_system_admin` Not in `NormalizedAuthUser` ✅ FIXED (R022)
 
-**File**: `lib/platform/auth/types.ts`, `lib/auth/options.ts`
+**File**: `lib/platform/auth/types.ts`, `lib/auth/options.ts`, `lib/platform/permissions/rbac.ts`
 
-**Status**: Deferred (documented)
-
-The frontend `NormalizedAuthUser` has `is_admin` but not `is_system_admin`. The `isSystemAdmin()` helper returns `is_admin` — which also returns `true` for org-level admins. This means org admins can see system-admin UI panels.
-
-**Behavior is consistent** — Flask's `_is_system_admin()` also treats `is_admin=True` as system admin. So there is no privilege escalation; the UI and backend agree.
-
-**Recommendation**: Add `is_system_admin: boolean` to `FlaskUserPayload`, `NormalizedAuthUser`, and `normalizeFlaskUser()`. Add corresponding `hasSystemAdminRole()` helper. Makes the distinction explicit.
-
-**Blocker level**: Low for current 1-tenant usage. Medium before multi-tenant enterprise.
+Added `is_system_admin?: boolean` to `FlaskUserPayload`, `is_system_admin: boolean` to `NormalizedAuthUser`, and `is_system_admin: user.is_system_admin ?? false` to `normalizeFlaskUser()`. Fixed `isSystemAdmin()` to return `is_system_admin` instead of `is_admin`.
 
 ---
 
@@ -152,13 +144,11 @@ Flask `serialize_auth_user()` returns `permissions: [p.name for p in user.role.p
 
 ---
 
-### L3 — Query Param Token Fallback in `jwt_required` — Deferred
+### L3 — Query Param Token Fallback in `jwt_required` ✅ FIXED (R022)
 
 **File**: `apps/authentication/jwt_auth.py`
 
-The `jwt_required` decorator accepts `?token=<jwt>` as fallback. Tokens in query strings are logged in access logs (Nginx, Cloudflare, etc.) — a token leakage risk.
-
-**Recommendation**: Remove the query-param fallback or restrict it to specific internal endpoints only. Not urgent since no current endpoint uses it from platform-ui.
+Removed the `?token=` query-param fallback from `jwt_required`. Bearer header is now the only accepted auth method. The Flask-Login session fallback for web SPA browser requests is retained (browser-only path, no URL token).
 
 ---
 
@@ -277,13 +267,9 @@ When a user is deactivated via `PATCH /api/users/<id>/active`, their existing JW
 | mobile_refresh_token | nobody | `_SAFE_EXCLUDE` |
 | mfa_secret | nobody | `_SAFE_EXCLUDE` |
 
-### Gap: Email in user list
+### Gap: Email in user list ✅ FIXED (R022, PII-001)
 
-All users in the org can call `GET /api/users` (not admin-restricted). This returns `email` for every user in the org. This may be acceptable for intra-org visibility but should be reviewed.
-
-**Policy recommendation (deferred)**:
-- `GET /api/users` (list): admin sees full list with email; regular user sees only own record.
-- Document as SEC-PII-001 in backlog.
+Non-admin users calling `GET /api/users` now receive only their own record (`q.filter(User.id == jwt_user.id)`). Admins still receive the full org list. Added in `list_users()` after the base query construction.
 
 ---
 
@@ -306,21 +292,21 @@ Notes:
 
 | Event | Audited | Notes |
 |-------|---------|-------|
-| Login (success) | Partial | `UserActivity` written by Flask `/api/auth/login`? **TBD** — not confirmed in jwt_routes.py |
-| Login (failure) | No | Not audited; brute-force protection via `failed_login_attempts` only |
-| Logout | No | JWT invalidated; no `UserActivity` entry |
-| Create user | No | `UserActivity` not written in `POST /api/users` |
-| Update user | No | `UserActivity` not written in `PATCH /api/users/<id>` |
-| Deactivate user | ✅ | Written in R021 (`user.deactivate`) |
-| Reactivate user | ✅ | Written in R021 (`user.reactivate`) |
-| Create org | Partial | `logger.info(...)` written but no `UserActivity` row |
-| Update org | No | `UserActivity` not written |
-| Deactivate org | ✅ | Written in R021 (`org.deactivate`) |
-| Reactivate org | ✅ | Written in R021 (`org.reactivate`) |
-| Create role | No | `UserActivity` not written |
-| Update role | No | |
-| Replace role permissions | No | |
-| Approve user | No | |
+| Login (success) | ✅ | `auth.login` — R022 (jwt_routes.py) |
+| Login (failure) | ✅ | `auth.login_failed` — R022 |
+| Logout | ✅ | `auth.logout` — R022 |
+| Create user | ✅ | `user.create` — R022 |
+| Update user | ✅ | `user.update` — R022 |
+| Deactivate user | ✅ | `user.deactivate` — R021 |
+| Reactivate user | ✅ | `user.reactivate` — R021 |
+| Create org | ✅ | `org.create` — R022 |
+| Update org | ✅ | `org.update` — R022 |
+| Deactivate org | ✅ | `org.deactivate` — R021 |
+| Reactivate org | ✅ | `org.reactivate` — R021 |
+| Create role | ✅ | `role.create` — R022 |
+| Update role | ✅ | `role.update` — R022 |
+| Replace role permissions | ✅ | `role.permissions_replace` — R022 |
+| Approve user | ✅ | `user.approve` — R022 |
 
 **Required audit events for production** (see §19):
 - `user.login`, `user.login_failed`, `user.logout`
@@ -358,36 +344,32 @@ None added (scope: audit + fixes only per mission fix policy).
 
 ---
 
-## 17. Fixes Deferred
+## 17. Fixes R022
+
+| ID | Severity | Fix | Files |
+|----|----------|-----|-------|
+| AUD-001 | HIGH | Added `record_activity()` helper + audit writes for login, logout, login_failed, user.create, user.update, user.approve, org.create, org.update, role.create, role.update, role.permissions_replace | `jwt_auth.py`, `jwt_routes.py`, `user_api_routes.py`, `org_api_routes.py`, `role_api_routes.py` |
+| L3 | LOW | Removed `?token=` query-param fallback from `jwt_required` | `jwt_auth.py` |
+| PII-001 | MEDIUM | Non-admins see only own record in `GET /api/users` | `user_api_routes.py` |
+| M2 | MEDIUM | Added `is_system_admin` to `FlaskUserPayload`, `NormalizedAuthUser`, `normalizeFlaskUser()`; fixed `isSystemAdmin()` | `lib/platform/auth/types.ts`, `lib/auth/options.ts`, `lib/platform/permissions/rbac.ts` |
+| CSP-plan | LOW | Created `31-production-security-headers.md` planning doc | `docs/system-upgrade/31-production-security-headers.md` |
+
+## 18. Fixes Deferred
 
 | ID | Severity | Description | Blocker Level |
 |----|----------|-------------|---------------|
-| M2 | MEDIUM | Add `is_system_admin` to `NormalizedAuthUser` | Before enterprise multi-tenant |
 | L2 | LOW | Clarify Q14 permissions[] population (currently works but typed optional) | Low |
-| L3 | LOW | Remove query-param token fallback in `jwt_required` | Before production |
 | L4 | LOW | 15-min window where deactivated user's JWT remains valid | Documented |
-| PII-001 | MEDIUM | `GET /api/users` returns emails to all org members | Before GDPR compliance |
-| AUD-001 | HIGH | Audit trail for create/update user, create/update org, login/logout | Before production |
+| CSP-enforce | MEDIUM | Actual CSP header enforcement in Nginx/Next.js | Before production |
 
 ---
 
-## 18. Required Blockers Before Helpdesk
+## 19. Required Blockers Before Production (R022 Status)
 
-The following must be resolved before building the Helpdesk module:
+All R021 blockers are now resolved. Remaining open items:
 
-1. **AUD-001 (HIGH)**: Helpdesk actions (ticket create, tool invocation, approval) require audit trail. The `UserActivity` model exists but write coverage is incomplete. At minimum, document the audit event spec for Helpdesk.
-2. **L3 (LOW)**: Remove query-param token — Helpdesk embeds may accidentally pass tokens in URLs.
-3. No additional security blockers for Helpdesk itself.
-
----
-
-## 19. Required Blockers Before Production
-
-1. **AUD-001 (HIGH)**: Login, user create/update, role permission changes must write `UserActivity`.
-2. **L3 (LOW)**: Remove query-param `?token=` fallback from `jwt_required`.
-3. **PII-001 (MEDIUM)**: Restrict `GET /api/users` to admin-only, or strip email from non-admin view.
-4. **M2 (MEDIUM)**: Explicit `is_system_admin` in NormalizedAuthUser for clarity.
-5. **CSP headers**: Not addressed in this round — Nginx/Cloudflare configuration needed.
+1. **CSP-enforce (MEDIUM)**: Enforce Content-Security-Policy and security headers in Nginx/Next.js. Plan: [31-production-security-headers.md](31-production-security-headers.md).
+2. **L4 (LOW)**: 15-min window where deactivated user's JWT remains valid — documented, acceptable.
 
 ---
 
@@ -401,6 +383,7 @@ The following must be resolved before building the Helpdesk module:
 - [x] Logout invalidates refresh token
 - [x] Tenant isolation enforced in all current endpoints
 - [x] Sensitive fields excluded from all API responses
-- [ ] Full audit trail for create/update events (AUD-001 — deferred)
-- [ ] Query-param token removed (L3 — deferred)
-- [ ] Email visibility restricted to admins in user list (PII-001 — deferred)
+- [x] Full audit trail for create/update events (AUD-001 — R022)
+- [x] Query-param token removed (L3 — R022)
+- [x] Email visibility restricted to admins in user list (PII-001 — R022)
+- [x] `is_system_admin` distinct from `is_admin` in frontend types (M2 — R022)

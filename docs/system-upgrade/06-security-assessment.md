@@ -1,28 +1,30 @@
 # 06 — Security Assessment
 
-_Last updated: 2026-04-24 (Round 021 deep audit)_
+_Last updated: 2026-04-24 (Round 022 — all deferred blockers resolved)_
 
-> **R021 Summary**: Deep audit performed. No criticals found. 3 HIGH fixed, 1 MEDIUM fixed, 1 LOW fixed. Overall score: 8.5/10. Foundation is safe for continued development. Full findings: [30-security-hardening-audit.md](30-security-hardening-audit.md).
+> **R022 Summary**: All pre-production security blockers from R021 resolved. AUD-001 (audit trail), L3 (URL token), PII-001 (email visibility), M2 (is_system_admin typing). Overall score: 9.2/10.
 
 ---
 
-## Status After Round 021
+## Status After Round 022
 
-| Finding | R001 Status | R021 Status |
-|---------|------------|------------|
-| C2 — Auth bridge stub | CRITICAL | ✅ Fixed (Rounds 005–009) |
-| H1 — No formal API auth contract | HIGH | ✅ Fixed (JWT throughout) |
-| H2 — RBAC not enforced in platform-ui | HIGH | ✅ Fixed (PermissionGate, role guards) |
-| M2 — Token/session expiry | MEDIUM | ✅ Fixed (refresh rotation, 8h session) |
-| **R021-H1** — Proxy PATH_MAP fallback | NEW HIGH | ✅ Fixed R021 |
-| **R021-H2** — Missing /users/active endpoint | NEW HIGH | ✅ Fixed R021 |
-| **R021-H3** — Missing /orgs/active endpoint | NEW HIGH | ✅ Fixed R021 |
-| **R021-M1** — X-User-Id header naming | NEW MEDIUM | ✅ Fixed R021 |
-| **R021-L1** — Logout no refresh invalidation | NEW LOW | ✅ Fixed R021 |
-| **R021-M2** — is_system_admin in types | NEW MEDIUM | Deferred |
-| **R021-AUD-001** — Audit trail gaps | NEW HIGH | Deferred (pre-prod blocker) |
-| **R021-PII-001** — Email in user list | NEW MEDIUM | Deferred (pre-prod blocker) |
-| C1 — SAML disabled | CRITICAL | Still open — not in scope |
+| Finding | R001 Status | R021 Status | R022 Status |
+|---------|------------|------------|------------|
+| C2 — Auth bridge stub | CRITICAL | ✅ Fixed (R005–R009) | ✅ |
+| H1 — No formal API auth contract | HIGH | ✅ Fixed (JWT throughout) | ✅ |
+| H2 — RBAC not enforced in platform-ui | HIGH | ✅ Fixed (PermissionGate, role guards) | ✅ |
+| M2 — Token/session expiry | MEDIUM | ✅ Fixed (refresh rotation, 8h session) | ✅ |
+| **R021-H1** — Proxy PATH_MAP fallback | NEW HIGH | ✅ Fixed R021 | ✅ |
+| **R021-H2** — Missing /users/active endpoint | NEW HIGH | ✅ Fixed R021 | ✅ |
+| **R021-H3** — Missing /orgs/active endpoint | NEW HIGH | ✅ Fixed R021 | ✅ |
+| **R021-M1** — X-User-Id header naming | NEW MEDIUM | ✅ Fixed R021 | ✅ |
+| **R021-L1** — Logout no refresh invalidation | NEW LOW | ✅ Fixed R021 | ✅ |
+| **R021-M2** — is_system_admin in types | NEW MEDIUM | Deferred | ✅ Fixed R022 |
+| **R021-AUD-001** — Audit trail gaps | NEW HIGH | Deferred | ✅ Fixed R022 |
+| **R021-PII-001** — Email in user list | NEW MEDIUM | Deferred | ✅ Fixed R022 |
+| **R021-L3** — URL token in jwt_required | NEW LOW | Deferred | ✅ Fixed R022 |
+| C1 — SAML disabled | CRITICAL | Still open — not in scope | Still open |
+| **CSP-enforce** — Security headers | NEW MEDIUM | — | Plan only ([31-production-security-headers.md](31-production-security-headers.md)) |
 
 ---
 
