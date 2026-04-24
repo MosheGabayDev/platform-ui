@@ -1,8 +1,8 @@
 # 26 — Platform Capabilities Catalog
 
 _Format: Reusable platform capability specifications_
-_Last updated: 2026-04-24_
-_Round: 014 (created)_
+_Last updated: 2026-04-24 (R023 planning — build order in 35-platform-capabilities-build-order.md)_
+_Round: 014 (created), 023 (reviewed)_
 
 ---
 
@@ -29,38 +29,38 @@ This rule is enforced by code review. Reviewers must reject PRs that duplicate e
 
 ## Capability Summary Table
 
-| # | Capability | Priority | Status | Round |
-|---|-----------|----------|--------|-------|
-| 01 | [PlatformDataGrid](#01-platformdatagrid) | **now** | ✅ Implemented | 012 |
-| 02 | [PlatformDashboard](#02-platformdashboard) | **now** | 🔵 Partial | 015 |
-| 03 | [PlatformForm](#03-platformform) | **now** | ✅ Implemented | 017 |
-| 04 | [PlatformAction](#04-platformaction) | **now** | 🔵 Partial | 017 |
-| 05 | [PermissionGate / Access Control UI](#05-permissiongate--access-control-ui) | **now** | ✅ Implemented | 012 |
-| 06 | [PlatformImportExport](#06-platformimportexport) | **next** | 🔵 Partial | 012 |
-| 07 | [PlatformPageShell](#07-platformpageshell) | **now** | ✅ Implemented | 015 |
-| 08 | [PlatformDetailView](#08-platformdetailview) | **now** | ✅ Implemented | 015 |
-| 09 | [PlatformTimeline](#09-platformtimeline) | **next** | ⬜ Pending | — |
-| 10 | [PlatformAuditLog](#10-platformauditlog) | **next** | ⬜ Pending | — |
-| 11 | [PlatformSearch / Command Palette](#11-platformsearch--command-palette) | **next** | ⬜ Pending | — |
-| 12 | [PlatformNotifications](#12-platformnotifications) | **now** | ⬜ Pending | — |
-| 13 | [PlatformApprovalFlow](#13-platformapprovalflow) | **next** | ⬜ Pending | — |
-| 14 | [PlatformJobRunner](#14-platformjobrunner) | **next** | ⬜ Pending | — |
-| 15 | [PlatformWizard](#15-platformwizard) | **next** | ⬜ Pending | — |
-| 16 | [PlatformSettings Engine](#16-platformsettings-engine) | **next** | ⬜ Pending | — |
-| 17 | [PlatformFeatureFlags](#17-platformfeatureflags) | **now** | ⬜ Pending | — |
-| 18 | [PlatformModuleRegistry](#18-platformmoduleregistry) | **next** | 🔵 Partial | 013 |
-| 19 | [PlatformTenantContext](#19-platformtenantcontext) | **now** | ✅ Implemented | 007 |
-| 20 | [PlatformPrivacy / PII Masking](#20-platformprivacy--pii-masking) | **later** | ⬜ Pending | — |
-| 21 | [PlatformErrorBoundary / ErrorState](#21-platformerrorboundary--errorstate) | **now** | ✅ Implemented | 015 |
-| 22 | [PlatformAPI Client](#22-platformapi-client) | **now** | ✅ Implemented | 008 |
-| 23 | [PlatformRealtime](#23-platformrealtime) | **next** | ⬜ Pending | — |
-| 24 | [PlatformFileManager](#24-platformfilemanager) | **later** | ⬜ Pending | — |
-| 25 | [PlatformIntegration Framework](#25-platformintegration-framework) | **later** | ⬜ Pending | — |
-| 26 | [PlatformBilling / Usage Meter](#26-platformbilling--usage-meter) | **next** | ⬜ Pending | — |
-| 27 | [PlatformPolicy Engine](#27-platformpolicy-engine) | **next** | ⬜ Pending | — |
-| 28 | [PlatformHelp / Onboarding](#28-platformhelp--onboarding) | **later** | ⬜ Pending | — |
-| 29 | [PlatformTest Harness](#29-platformtest-harness) | **later** | ⬜ Pending | — |
-| 30 | [PlatformDeveloper Docs / Agent Docs](#30-platformdeveloper-docs--agent-docs) | **later** | ⬜ Pending | — |
+| # | Capability | Priority | Status | Round | Build-Order Round |
+|---|-----------|----------|--------|-------|------------------|
+| 01 | [PlatformDataGrid](#01-platformdatagrid) | **now** | ✅ Implemented | 012 | — |
+| 02 | [PlatformDashboard](#02-platformdashboard) | **now** | 🔵 Partial | 015 | R024 (StatCard) |
+| 03 | [PlatformForm](#03-platformform) | **now** | ✅ Implemented | 017 | — |
+| 04 | [PlatformAction](#04-platformaction) | **now** | 🔵 Partial | 017 | R023 (ActionButton) |
+| 05 | [PermissionGate / Access Control UI](#05-permissiongate--access-control-ui) | **now** | ✅ Implemented | 012 | — |
+| 06 | [PlatformImportExport](#06-platformimportexport) | **next** | 🔵 Partial | 012 | R031 (full) |
+| 07 | [PlatformPageShell](#07-platformpageshell) | **now** | ✅ Implemented | 015 | — |
+| 08 | [PlatformDetailView](#08-platformdetailview) | **now** | 🔵 Partial | 015 | R023 (extract) |
+| 09 | [PlatformTimeline](#09-platformtimeline) | **now** | ⬜ Pending | — | R024 |
+| 10 | [PlatformAuditLog](#10-platformauditlog) | **next** | ⬜ Pending | — | R026 |
+| 11 | [PlatformSearch / Command Palette](#11-platformsearch--command-palette) | **next** | ⬜ Pending | — | R032 |
+| 12 | [PlatformNotifications](#12-platformnotifications) | **now** | ⬜ Pending | — | R024 |
+| 13 | [PlatformApprovalFlow](#13-platformapprovalflow) | **now** | ⬜ Pending | — | R028 |
+| 14 | [PlatformJobRunner](#14-platformjobrunner) | **next** | ⬜ Pending | — | R031 |
+| 15 | [PlatformWizard](#15-platformwizard) | **later** | ⬜ Pending | — | Phase 3 |
+| 16 | [PlatformSettings Engine](#16-platformsettings-engine) | **next** | ⬜ Pending | — | R029 |
+| 17 | [PlatformFeatureFlags](#17-platformfeatureflags) | **now** | ⬜ Pending | — | R023 |
+| 18 | [PlatformModuleRegistry](#18-platformmoduleregistry) | **later** | 🔵 Partial | 013 | Phase 3 |
+| 19 | [PlatformTenantContext](#19-platformtenantcontext) | **now** | ✅ Implemented | 007 | — |
+| 20 | [PlatformPrivacy / PII Masking](#20-platformprivacy--pii-masking) | **later** | ⬜ Pending | — | GDPR sprint |
+| 21 | [PlatformErrorBoundary / ErrorState](#21-platformerrorboundary--errorstate) | **now** | ✅ Implemented | 015 | — |
+| 22 | [PlatformAPI Client](#22-platformapi-client) | **now** | ✅ Implemented | 008 | — |
+| 23 | [PlatformRealtime](#23-platformrealtime) | **next** | ⬜ Pending | — | R030 |
+| 24 | [PlatformFileManager](#24-platformfilemanager) | **later** | ⬜ Pending | — | R07 Knowledge |
+| 25 | [PlatformIntegration Framework](#25-platformintegration-framework) | **later** | ⬜ Pending | — | R18 Integrations |
+| 26 | [PlatformBilling / Usage Meter](#26-platformbilling--usage-meter) | **next** | ⬜ Pending | — | R08 Billing |
+| 27 | [PlatformPolicy Engine](#27-platformpolicy-engine) | **now** | ⬜ Pending | — | R028 |
+| 28 | [PlatformHelp / Onboarding](#28-platformhelp--onboarding) | **later** | ⬜ Pending | — | Post-launch |
+| 29 | [PlatformTest Harness](#29-platformtest-harness) | **later** | ⬜ Pending | — | R06 ALA |
+| 30 | [PlatformDeveloper Docs / Agent Docs](#30-platformdeveloper-docs--agent-docs) | **later** | ⬜ Pending | — | Phase 3 |
 
 ---
 

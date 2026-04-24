@@ -1,6 +1,6 @@
 # 12 — Migration Roadmap
 
-_Last updated: 2026-04-23_
+_Last updated: 2026-04-24 (R023 planning — capability build order in 35-platform-capabilities-build-order.md)_
 
 ---
 
@@ -8,20 +8,25 @@ _Last updated: 2026-04-23_
 
 ---
 
-## Phase 0 — Stabilization (Current → 2 weeks)
+## Phase 0 — Stabilization (✅ Complete — R005–R022)
 
 **Goal**: Make platform-ui usable with real data before migrating any features.
 
 ### Deliverables
 
-- [ ] Real authentication: `next-auth` credentials provider → Flask login API
-- [ ] Session-based role loading: expose `user.role`, `user.org_id`, `user.permissions` in next-auth session
-- [ ] Next.js middleware: role-based route guards for `/` and all `(dashboard)` routes
-- [ ] API proxy complete: `/api/proxy/[...path]` route handler that forwards requests with JWT/session
-- [ ] Dashboard stats: connect real data (already partially done) — verify end-to-end
-- [ ] Error boundary: wrap dashboard in error boundary component
-- [ ] Delete 3 dead files: `api_auth_OLD_BACKUP.py`, etc.
-- [ ] Playwright: 3 smoke tests (login, dashboard load, logout)
+- [x] Real authentication: `next-auth` credentials provider → Flask login API (R005–R009)
+- [x] Session-based role loading: `user.role`, `user.org_id`, `user.permissions` in session (R009)
+- [x] Next.js middleware: role-based route guards (R006)
+- [x] API proxy complete: `/api/proxy/[...path]` with JWT/session (R007–R008)
+- [x] Dashboard stats: connected to real data (R008)
+- [x] Error boundary: `PlatformErrorBoundary` in dashboard layout (R015)
+- [x] Users module: list + detail + create/edit (R010, R017)
+- [x] Organizations module: list + detail + create/edit (R013, R019)
+- [x] Roles module: list + detail + create/edit (R018)
+- [x] Dangerous actions: `useDangerousAction` + `ConfirmActionDialog` (R020)
+- [x] Security hardening: JWT, RBAC, audit trail, PII restriction (R021–R022)
+- [ ] Delete dead code: `api_auth_OLD_BACKUP.py` + other `*_OLD_*` files — still pending
+- [ ] Playwright: 3 smoke tests — still pending
 
 **Dependencies**: None — platform-ui + Flask both available
 

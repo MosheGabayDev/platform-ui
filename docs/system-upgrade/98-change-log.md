@@ -17,6 +17,32 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-24 — Round 023 (Planning): Platform Capabilities Build Order
+
+### Files Changed
+
+**platform-ui:**
+- `docs/system-upgrade/35-platform-capabilities-build-order.md` — **created** (dependency graph, next 10 rounds, anti-overengineering rules, acceptance criteria per round)
+- `docs/system-upgrade/26-platform-capabilities-catalog.md` — **updated** summary table with build-order round column
+- `docs/system-upgrade/12-migration-roadmap.md` — **updated** Phase 0 marked complete (R005–R022)
+- `docs/system-upgrade/15-action-backlog.md` — **updated** capability tasks reorganized by round (R023–R032)
+- `docs/system-upgrade/96-rounds-index.md` — **updated** R022 next-round pointer + R023 planning entry
+- `docs/system-upgrade/98-change-log.md` — **updated**
+
+### New Findings
+- Helpdesk gate requires 6 capability items — 3 can be done in R023 (< 3 hours total)
+- Production gate adds 4 more items — all achievable by R026
+- 10 capabilities safely deferred to Phase 3+ without blocking any critical module
+- `DetailView` extraction is the most visible pending debt — 3rd duplicate will be created if not extracted before Helpdesk
+
+### Decision Changes
+- None — planning only; no code changed
+
+### Backlog Changes
+- All capability backlog tasks reorganized into R023–R032 rounds with confirmed consumers
+
+---
+
 ## 2026-04-24 — Round 022: Security Blockers Closure
 
 ### Files Changed

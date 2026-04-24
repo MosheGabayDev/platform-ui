@@ -1,6 +1,6 @@
 # 15 — Action Backlog
 
-_Last updated: 2026-04-24_
+_Last updated: 2026-04-24 (R023 planning — build order in 35-platform-capabilities-build-order.md)_
 
 ---
 
@@ -150,21 +150,80 @@ _Reference: `docs/system-upgrade/26-platform-capabilities-catalog.md`_
 
 > **Rule:** Before building any new module feature, check whether it belongs in the catalog. If yes — build/extend the shared capability first.
 
-### Now (needed before Round 014+ module builds)
+### Round 023 — Complete Partials + FeatureFlags + Security Hygiene
 
 | Task | Capability | File(s) | Priority | Status |
 |------|-----------|---------|----------|--------|
 | **Add `PlatformErrorBoundary`** | §21 | `components/shared/error-boundary.tsx` + wire into `app/(dashboard)/layout.tsx` | P1 | `[x]` R015 |
-| **Extract `ErrorState` component** | §21 | `components/shared/error-state.tsx` — unify inline error patterns from users/orgs pages | P1 | `[x]` R015 |
-| **Extract `PageShell` component** | §07 | `components/shared/page-shell/` — extract header+motion from users/orgs pages | P1 | `[x]` R015 |
-| **Extract `DetailView` components** | §08 | `components/shared/detail-view/` — extract `InfoRow`, `BoolBadge`, `DetailSection` from users/orgs detail pages | P1 | `[x]` R015 |
-| **Extract `StatCard` component** | §02 | `components/shared/stats/` — extract `StatChip` from users/orgs pages; promote to shared | P1 | `[x]` R015 |
-| **Build `PlatformForm` wrapper** | §03 | `components/shared/form/` — `PlatformForm`, `FormActions`, `FormError` | P1 | `[x]` R015 |
-| **Build `usePlatformMutation` hook** | §03/04 | `lib/hooks/use-platform-mutation.ts` — wraps useMutation + audit headers + toast | P1 | `[x]` R017 |
-| **Build `ConfirmDialog` component** | §04 | `components/shared/confirm-action-dialog.tsx` — destructive action confirmation | P1 | `[x]` R015 |
-| **Build `ActionButton` component** | §04 | `components/shared/action-button.tsx` — loading state + disabled during mutation | P2 | `[ ]` |
-| **Build `PlatformFeatureFlags` hook** | §17 | `lib/hooks/use-feature-flag.ts` + `components/shared/feature-flag.tsx` + `lib/api/feature-config.ts` | P1 | `[ ]` |
-| **Build `NotificationBell` (polling)** | §12 | `components/shell/notification-bell.tsx` + `lib/hooks/use-notifications.ts` | P2 | `[ ]` |
+| **Extract `ErrorState` component** | §21 | `components/shared/error-state.tsx` | P1 | `[x]` R015 |
+| **Extract `PageShell` component** | §07 | `components/shared/page-shell/` | P1 | `[x]` R015 |
+| **Extract `DetailView` components** | §08 | `components/shared/detail-view/` — extraction from users/orgs | P1 | `[ ]` R023 |
+| **Extract `StatCard` component** | §02 | `components/shared/stats/stat-card.tsx` | P1 | `[x]` R015 |
+| **Build `PlatformForm` wrapper** | §03 | `components/shared/form/` | P1 | `[x]` R015 |
+| **Build `usePlatformMutation` hook** | §03/04 | `lib/hooks/use-platform-mutation.ts` | P1 | `[x]` R017 |
+| **Build `ConfirmDialog` component** | §04 | `components/shared/confirm-action-dialog.tsx` | P1 | `[x]` R020 |
+| **Build `ActionButton` component** | §04 | `components/shared/action-button.tsx` — loading state + disabled during mutation | P1 | `[ ]` R023 |
+| **Build `PlatformFeatureFlags` hook** | §17 | `lib/hooks/use-feature-flag.ts` + `components/shared/feature-flag.tsx` + `lib/api/feature-config.ts` | P1 | `[ ]` R023 |
+| **Role-aware nav filtering** | — | `components/shell/app-sidebar.tsx` — hide admin items from non-admins | P1 | `[ ]` R023 |
+| **Flask security headers** | — | `apps/__init__.py` after_request: `X-Frame-Options`, `X-Content-Type-Options` | P1 | `[ ]` R023 |
+| **NEXTAUTH_SECRET in SSM** | — | `scripts/secrets/ssm-secrets.sh` push + doc update | P1 | `[ ]` R023 |
+
+### Round 024 — PlatformTimeline + PlatformNotifications + StatCard
+
+| Task | Capability | File(s) | Priority | Status |
+|------|-----------|---------|----------|--------|
+| **Build `PlatformTimeline`** | §09 | `components/shared/timeline/` — Timeline, TimelineEvent, TimelineSkeleton, types | P1 | `[ ]` R024 |
+| **Build `NotificationBell` (polling)** | §12 | `components/shell/notification-bell.tsx` + `lib/hooks/use-notifications.ts` (30s poll) | P1 | `[ ]` R024 |
+| **Build `NotificationDrawer`** | §12 | `components/shell/notification-drawer.tsx` + `lib/api/notifications.ts` | P1 | `[ ]` R024 |
+| **Build `ChartCard` wrapper** | §02 | `components/shared/chart-card.tsx` — title + subtitle + recharts children | P2 | `[ ]` R024 |
+
+### Round 028 — PlatformApprovalFlow + PlatformPolicy Engine
+
+| Task | Capability | File(s) | Priority | Status |
+|------|-----------|---------|----------|--------|
+| **Build `ApprovalQueue` UI** | §13 | `components/shared/approval/` — approval table + modal + status badge | P1 | `[ ]` R028 |
+| **Build `PolicyRuleTable` + form** | §27 | `components/modules/settings/policy-rule-*.tsx` — BLOCK/ALLOW rules | P1 | `[ ]` R028 |
+
+### Round 029 — PlatformSettings Engine
+
+| Task | Capability | File(s) | Priority | Status |
+|------|-----------|---------|----------|--------|
+| **Build `SettingsLayout`** | §16 | `components/shared/settings/settings-layout.tsx` — sidebar nav + content area | P2 | `[ ]` R029 |
+
+### Round 030 — PlatformRealtime
+
+| Task | Capability | File(s) | Priority | Status |
+|------|-----------|---------|----------|--------|
+| **Build `useEventSource` SSE hook** | §23 | `lib/hooks/use-event-source.ts` — auto-reconnect, org-scoped | P1 | `[ ]` R030 |
+
+### Round 031 — PlatformJobRunner + PlatformImportExport full
+
+| Task | Capability | File(s) | Priority | Status |
+|------|-----------|---------|----------|--------|
+| **Build `JobProgress` + polling hook** | §14 | `components/shared/job-runner/` + `lib/hooks/use-job-polling.ts` | P2 | `[ ]` R031 |
+| **Build `ExportButton` component** | §06 | `components/shared/export-button.tsx` — wraps existing csv.ts | P2 | `[ ]` R031 |
+
+### Round 032 — PlatformSearch + nuqs
+
+| Task | Capability | File(s) | Priority | Status |
+|------|-----------|---------|----------|--------|
+| **Build `CommandPalette` (nav only)** | §11 | `components/shell/command-palette.tsx` — ⌘K, nav shortcuts only | P2 | `[ ]` R032 |
+| **Install `nuqs`** | — | `package.json` — URL filter state for all list pages | P1 | `[ ]` R032 |
+| **Migrate list pages to `nuqs` filters** | — | Users, Orgs, Tickets list pages | P2 | `[ ]` R032 |
+
+### Later (Phase 3+)
+
+| Task | Capability | Priority | Status |
+|------|-----------|----------|--------|
+| **Build `FileUploadZone`** | §24 | P2 | `[ ]` |
+| **Build `IntegrationCard` framework** | §25 | P2 | `[ ]` |
+| **Build `PiiField` masking** | §20 | P2 | `[ ]` |
+| **Build `PlatformWizard`** | §15 | P2 | `[ ]` |
+| **Build `ModuleRegistry` loader** | §18 | P2 | `[ ]` |
+| **Build `UsageMeter`** | §26 | P2 | `[ ]` |
+| **Build `FeatureTour`** | §28 | P3 | `[ ]` |
+| **Build `TestRunner` UI** | §29 | P3 | `[ ]` |
+| **Build Developer Docs portal** | §30 | P3 | `[ ]` |
 
 ### Next (Phase 1-2 — Weeks 3-20)
 

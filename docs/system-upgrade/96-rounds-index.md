@@ -337,7 +337,7 @@ _Updated after each round — append, never overwrite entries._
 | **Files Updated (platformengineer)** | `apps/authentication/jwt_auth.py` (record_activity + L3 fix), `apps/authentication/jwt_routes.py` (login/logout audits), `apps/authentication/user_api_routes.py` (PII-001 + create/update/approve audits), `apps/admin/org_api_routes.py` (create/update audits), `apps/authentication/role_api_routes.py` (create/update/permissions audits) |
 | **Commits** | platform-ui: (this round) · platformengineer: (this round) |
 | **Decisions Proposed** | None — security hardening only |
-| **Next Recommended Round** | Round 023: Helpdesk Phase A (ticket list + session detail pages) |
+| **Next Recommended Round** | Round 023: Capabilities Build Order planning (this round) |
 
 ---
 
@@ -361,3 +361,18 @@ _Updated after each round — append, never overwrite entries._
 | **018** | Roles & Permissions Core Module | ✅ Complete — Flask role API (6 endpoints), full frontend module with form + table + detail |
 | **019** | Organizations Phase B | ✅ Complete — create/edit forms, backend hardening (IntegrityError, slug validation), immutable slug |
 | **016** | CI/CD pipeline for platform-ui | Required before shipping to production |
+
+---
+
+## Round 023 — Capabilities Build Order (Planning Round)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-24 |
+| **Topic** | Dependency-aware capability build order for all remaining platform capabilities |
+| **Objective** | Create a strict, dependency-aware build order for remaining Platform Capabilities before broad module development. Analyze all 30 capabilities, map dependencies, define next 10 rounds, anti-overengineering rules, and acceptance criteria. |
+| **Key Findings** | • 8 capabilities fully implemented, 5 partial, 17 pending <br>• Helpdesk gate requires 6 capabilities — 3 pending (FeatureFlags, Timeline, Notifications) + 3 partial completions <br>• ActionButton (§04) and DetailView extraction (§08) are the smallest blockers — ~75 min each <br>• PlatformFeatureFlags (§17) is 1 hour and unblocks all plan-gated features <br>• PlatformTimeline (§09) is the most critical pending capability — no Helpdesk ticket detail without it <br>• PlatformRealtime (§23) deferred to R030 — polling is sufficient for Helpdesk Phase A/B/C <br>• Production gate: FeatureFlags + AuditLog + Notifications + CSP headers (R023–R026) <br>• 10 capability deferred (Wizard, Registry, Privacy, FileManager, Integration, etc.) — safe to skip for Helpdesk and AI Agents |
+| **Files Created (platform-ui)** | `docs/system-upgrade/35-platform-capabilities-build-order.md` |
+| **Files Updated (platform-ui)** | `docs/system-upgrade/26-platform-capabilities-catalog.md` (build-order column), `docs/system-upgrade/12-migration-roadmap.md` (Phase 0 marked complete), `docs/system-upgrade/15-action-backlog.md` (R023–R032 tasks), `docs/system-upgrade/96-rounds-index.md`, `docs/system-upgrade/98-change-log.md` |
+| **Decisions Proposed** | None — planning only. No code changes in this round. |
+| **Next Recommended Round** | Round 023 (implementation): Complete ActionButton + DetailView extraction + PlatformFeatureFlags + security hygiene items |
