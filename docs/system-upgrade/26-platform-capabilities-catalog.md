@@ -33,8 +33,8 @@ This rule is enforced by code review. Reviewers must reject PRs that duplicate e
 |---|-----------|----------|--------|-------|
 | 01 | [PlatformDataGrid](#01-platformdatagrid) | **now** | ✅ Implemented | 012 |
 | 02 | [PlatformDashboard](#02-platformdashboard) | **now** | 🔵 Partial | 015 |
-| 03 | [PlatformForm](#03-platformform) | **now** | ✅ Implemented | 015 |
-| 04 | [PlatformAction](#04-platformaction) | **now** | 🔵 Partial | 015 |
+| 03 | [PlatformForm](#03-platformform) | **now** | ✅ Implemented | 017 |
+| 04 | [PlatformAction](#04-platformaction) | **now** | 🔵 Partial | 017 |
 | 05 | [PermissionGate / Access Control UI](#05-permissiongate--access-control-ui) | **now** | ✅ Implemented | 012 |
 | 06 | [PlatformImportExport](#06-platformimportexport) | **next** | 🔵 Partial | 012 |
 | 07 | [PlatformPageShell](#07-platformpageshell) | **now** | ✅ Implemented | 015 |
@@ -116,7 +116,7 @@ This rule is enforced by code review. Reviewers must reject PRs that duplicate e
 
 ## 03 — PlatformForm
 
-**Status:** ⬜ Pending | **Priority:** now (required for Users Phase B, Roles, Helpdesk)
+**Status:** ✅ Implemented (Round 017) | **Priority:** now (required for Users Phase B, Roles, Helpdesk)
 
 **Purpose:** Standard form shell wrapping `react-hook-form` + `zod` with platform-consistent layout: label-above RTL inputs, inline field errors, disabled-during-submit state, success/error toast feedback, audit header attachment on submit.
 
@@ -144,7 +144,7 @@ This rule is enforced by code review. Reviewers must reject PRs that duplicate e
 
 ## 04 — PlatformAction
 
-**Status:** ⬜ Pending | **Priority:** now
+**Status:** 🔵 Partial (Round 017) | **Priority:** now
 
 **Purpose:** Standard pattern for all UI-initiated write operations: button → confirm dialog (optional) → mutation → toast → cache invalidation. Eliminates the repeated pattern of `useState(loading)` + `catch(e)` + `toast.error` in every page component.
 

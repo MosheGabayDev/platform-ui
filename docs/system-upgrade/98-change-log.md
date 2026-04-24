@@ -17,6 +17,45 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-24 — Round 017: Users Phase B — Mutations + Form Standard
+
+### Files Changed (platform-ui — commit 2592dde)
+- `lib/hooks/use-platform-mutation.ts` — **created** (shared TanStack mutation hook, error normalization, cache invalidation)
+- `lib/modules/users/schemas.ts` — **created** (createUserSchema, editUserSchema, Zod v4)
+- `lib/modules/users/types.ts` — **updated** (RoleSummary, RolesListResponse, UserMutationResponse, role_id added)
+- `lib/api/users.ts` — **updated** (createUser, updateUser, fetchRoles)
+- `components/modules/users/user-form.tsx` — **created** (UserCreateSheet, UserEditSheet)
+- `app/api/proxy/[...path]/route.ts` — **updated** (PATCH handler added)
+- `app/(dashboard)/users/page.tsx` — **updated** ("הוסף משתמש" button + UserCreateSheet)
+- `app/(dashboard)/users/[id]/page.tsx` — **updated** ("ערוך" button + UserEditSheet)
+
+### Files Changed (platformengineer — commit a1780f1c)
+- `apps/authentication/user_api_routes.py` — **updated**
+  - `GET  /api/users/roles` — role dropdown (admin only)
+  - `POST /api/users` — create user (admin; org_id from JWT)
+  - `PATCH /api/users/<id>` — update user fields (admin or own name)
+  - `role_id` added to `_serialize_user_summary` for edit form pre-population
+
+### Mutation Standard Established
+| Component | Role |
+|-----------|------|
+| `usePlatformMutation` | Wraps `useMutation`, normalizes errors, invalidates query cache |
+| `PlatformForm` | `<form>` shell with aria-busy + isSubmitting |
+| `FormError` | Displays serverError string below form header |
+| `FormActions` | Submit + Cancel buttons with loading state |
+| `lib/modules/<m>/schemas.ts` | Zod schema + inferred input types |
+| `lib/api/<m>.ts` | Mutation API functions (`createX`, `updateX`) |
+
+### Decision Changes
+- ADR-019 established (see 14-decision-log.md): usePlatformMutation as the org-wide mutation standard
+
+### Backlog Changes
+- Users Phase B ✅ complete
+- PlatformForm capability ✅ complete (§03 in catalog)
+- PlatformAction 🔵 partial (§04 — usePlatformMutation done; ConfirmDialog pending)
+
+---
+
 ## 2026-04-24 — Round 016: CP-0 Boundary Extraction
 
 ### Files Changed

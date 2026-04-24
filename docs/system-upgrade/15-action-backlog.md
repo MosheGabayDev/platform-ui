@@ -160,7 +160,7 @@ _Reference: `docs/system-upgrade/26-platform-capabilities-catalog.md`_
 | **Extract `DetailView` components** | §08 | `components/shared/detail-view/` — extract `InfoRow`, `BoolBadge`, `DetailSection` from users/orgs detail pages | P1 | `[x]` R015 |
 | **Extract `StatCard` component** | §02 | `components/shared/stats/` — extract `StatChip` from users/orgs pages; promote to shared | P1 | `[x]` R015 |
 | **Build `PlatformForm` wrapper** | §03 | `components/shared/form/` — `PlatformForm`, `FormActions`, `FormError` | P1 | `[x]` R015 |
-| **Build `usePlatformMutation` hook** | §03/04 | `lib/hooks/use-platform-mutation.ts` — wraps useMutation + audit headers + toast | P1 | `[ ]` |
+| **Build `usePlatformMutation` hook** | §03/04 | `lib/hooks/use-platform-mutation.ts` — wraps useMutation + audit headers + toast | P1 | `[x]` R017 |
 | **Build `ConfirmDialog` component** | §04 | `components/shared/confirm-action-dialog.tsx` — destructive action confirmation | P1 | `[x]` R015 |
 | **Build `ActionButton` component** | §04 | `components/shared/action-button.tsx` — loading state + disabled during mutation | P2 | `[ ]` |
 | **Build `PlatformFeatureFlags` hook** | §17 | `lib/hooks/use-feature-flag.ts` + `components/shared/feature-flag.tsx` + `lib/api/feature-config.ts` | P1 | `[ ]` |

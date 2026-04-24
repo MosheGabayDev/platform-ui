@@ -389,4 +389,30 @@ Error case:
 
 ---
 
+---
+
+## ADR-019 — usePlatformMutation as the Platform Mutation Standard (2026-04-24)
+
+**Context:** Every module needs write operations (create, update, toggle). Without a standard pattern, each page component reinvents: `useState(loading)`, error catch, cache invalidation, toast notifications, and audit header injection. Helpdesk alone has 12+ write flows; inconsistency compounds at scale.
+
+**Decision:** All write operations in platform-ui must use `usePlatformMutation` from `lib/hooks/use-platform-mutation.ts`.
+
+**Rules:**
+- Mutation API functions live in `lib/api/<module>.ts` (e.g. `createUser`, `updateUser`)
+- Zod schemas live in `lib/modules/<module>/schemas.ts` — never inline in page components
+- `org_id` MUST be injected server-side from the JWT — never passed as a form field or prop
+- `invalidateKeys` array is required; must include at minimum the module's `all()` key
+- Toast is called from `onSuccess` callback — not inside `mutationFn`
+- `serverError` string from the hook feeds into `<FormError>` at the top of the form
+
+**Standard form stack:** PlatformForm + FormError + FormActions + useForm (zodResolver) + usePlatformMutation
+
+**Alternatives:** Direct `useMutation` in components (rejected — repeated boilerplate); Server Actions (rejected — Flask proxy doesn't benefit).
+
+**Consequences:** First consumers: Users Phase B (UserCreateSheet, UserEditSheet). All future modules (Organizations, Helpdesk, Billing) follow this pattern.
+
+**Affected modules**: All write-capable modules (01-Users first; next: 02-Organizations, 04-Helpdesk)
+
+---
+
 _Add new ADRs here as decisions are made during implementation._

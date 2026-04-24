@@ -271,5 +271,5 @@ _Updated after each round — append, never overwrite entries._
 | **014** | Platform Capabilities Catalog | ✅ Complete — 30 capabilities documented, capability-first rule added |
 | **015** | Capability Hardening | ✅ Complete — 6 shared capability folders, all 4 module pages refactored |
 | **016** | Cross-Platform Structure Audit + CP-0 | ✅ Complete — `lib/platform/` created, auth types split, readiness 55→68/100 |
-| **017** | Users Phase B OR Helpdesk Phase A | Users create/edit form (PlatformForm + zod) OR Helpdesk list+detail |
+| **017** | Users Phase B — Mutations + Form Standard | ✅ Complete — create/edit user forms, usePlatformMutation, Zod schemas, PATCH proxy, backend endpoints |
 | **016** | CI/CD pipeline for platform-ui | Required before shipping to production |
