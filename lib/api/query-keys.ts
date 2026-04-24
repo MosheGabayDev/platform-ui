@@ -20,4 +20,12 @@ export const queryKeys = {
     list:   (params?: object) => ["orgs", "list", params]      as const,
     detail: (id: number) => ["orgs", "detail", id]            as const,
   },
+
+  // Module 03: Roles & Permissions
+  roles: {
+    all:         () => ["roles"]                                    as const,
+    list:        (params?: object) => ["roles", "list", params]    as const,
+    detail:      (id: number) => ["roles", "detail", id]          as const,
+    permissions: () => ["roles", "permissions"]                    as const,
+  },
 } as const;

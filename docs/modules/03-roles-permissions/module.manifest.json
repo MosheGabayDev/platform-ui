@@ -1,0 +1,66 @@
+{
+  "id": "roles",
+  "name": "Roles & Permissions",
+  "version": "1.0.0",
+  "category": "core",
+  "description": "Global role management with fine-grained permission assignment. Roles are not org-scoped.",
+  "status": "active",
+
+  "routes": [
+    { "path": "/roles",     "title": "תפקידים",       "protected": true, "minRole": "admin" },
+    { "path": "/roles/[id]","title": "פרטי תפקיד",    "protected": true, "minRole": "admin" }
+  ],
+
+  "permissions": {
+    "view": "admin | system_admin",
+    "create": "system_admin only",
+    "edit": "system_admin only",
+    "delete": "system_admin only (not yet implemented)"
+  },
+
+  "flaskEndpoints": [
+    { "method": "GET",   "path": "/api/roles",                  "auth": "jwt+admin",        "orgScoped": false },
+    { "method": "GET",   "path": "/api/roles/permissions",      "auth": "jwt+admin",        "orgScoped": false },
+    { "method": "GET",   "path": "/api/roles/<id>",             "auth": "jwt+admin",        "orgScoped": false },
+    { "method": "POST",  "path": "/api/roles",                  "auth": "jwt+system_admin", "orgScoped": false },
+    { "method": "PATCH", "path": "/api/roles/<id>",             "auth": "jwt+system_admin", "orgScoped": false },
+    { "method": "PATCH", "path": "/api/roles/<id>/permissions", "auth": "jwt+system_admin", "orgScoped": false }
+  ],
+
+  "navigation": {
+    "group": "ניהול",
+    "icon": "ShieldCheck",
+    "order": 3,
+    "shortcut": "g r"
+  },
+
+  "dataOwnership": {
+    "ownedTables": ["roles", "permissions", "role_permissions"],
+    "referencedTables": ["users"],
+    "coreTables": [],
+    "notes": "Roles are global — not org-scoped. Permissions are defined at deploy time (codenames match Flask decorators). Role-permission assignments are many-to-many.",
+    "importExportStatus": "not-implemented",
+    "secretColumns": [],
+    "piiColumns": []
+  },
+
+  "dependencies": ["auth"],
+
+  "implementedFeatures": [
+    "roles-list-with-counts",
+    "role-detail-with-permissions",
+    "create-role-form",
+    "edit-role-name-description",
+    "replace-role-permissions",
+    "permission-checklist-grouped-by-namespace",
+    "permission-badge-color-coded"
+  ],
+
+  "backlogFeatures": [
+    "delete-role",
+    "role-users-list-tab",
+    "permission-create-ui",
+    "bulk-role-assign",
+    "e2e-tests"
+  ]
+}

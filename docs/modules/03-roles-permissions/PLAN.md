@@ -1,72 +1,64 @@
 # Module 03 — Roles & Permissions
 
-**Priority:** 🔴 Critical | **Est:** 2 days | **Depends on:** Users (01), Organizations (02)
+**Priority:** 🔴 Critical | **Implemented:** R018 | **Depends on:** Users (01), Organizations (02)
 
-## Flask Endpoints
+## Authority Model
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/admin/roles` | List roles |
-| POST | `/admin/roles/create` | Create role |
-| GET/POST | `/admin/roles/<id>/edit` | Edit role |
-| GET | `/admin/permissions` | List permissions |
-| POST | `/admin/permissions/create` | Create permission |
-| GET/POST | `/admin/permissions/<id>/edit` | Edit permission |
+- Roles are **global** (no `org_id`) — shared across all organizations.
+- **Read:** any admin (`is_admin` OR `is_system_admin`).
+- **Write:** `system_admin` only.
+
+## Flask Endpoints (implemented)
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/api/roles` | jwt+admin | List all roles with counts |
+| GET | `/api/roles/<id>` | jwt+admin | Role detail with full permissions |
+| POST | `/api/roles` | jwt+system_admin | Create role |
+| PATCH | `/api/roles/<id>` | jwt+system_admin | Update name/description |
+| PATCH | `/api/roles/<id>/permissions` | jwt+system_admin | Replace permission set |
+| GET | `/api/roles/permissions` | jwt+admin | List all available permissions |
 
 ## Proxy Mapping
 
-Uses existing `"users": "/admin"` prefix (GET `/api/proxy/users/roles` → `/admin/roles`).
+`"roles": "/api/roles"` in `app/api/proxy/[...path]/route.ts`
 
-## TypeScript Types (`lib/api/types.ts`)
+## TypeScript Types
 
-```ts
-export interface Role {
-  id: number;
-  name: string;
-  description?: string;
-  permissions: string[];
-  user_count: number;
-}
+- `lib/modules/roles/types.ts` — `RolePermission`, `RoleSummary`, `RoleDetail`, response envelopes, `groupPermissions()`
+- `lib/modules/roles/schemas.ts` — `createRoleSchema`, `editRoleSchema`, inferred types
 
-export interface Permission {
-  id: number;
-  name: string;
-  codename: string;
-  module: string;
-  description?: string;
-}
-```
-
-## Query Keys (`lib/api/query-keys.ts`)
+## Query Keys
 
 ```ts
-roles: {
-  list: ["roles", "list"] as const,
-  detail: (id: number) => ["roles", "detail", id] as const,
-},
-permissions: {
-  list: ["permissions", "list"] as const,
-},
+roles.all()           → ["roles"]
+roles.list(params)    → ["roles", "list", params]
+roles.detail(id)      → ["roles", "detail", id]
+roles.permissions()   → ["roles", "permissions"]
 ```
 
 ## Pages / Routes
 
 | File | Route | Description |
 |------|-------|-------------|
-| `app/(dashboard)/roles/page.tsx` | `/roles` | Roles list + permission matrix |
-| `app/(dashboard)/roles/[id]/page.tsx` | `/roles/:id` | Role detail + assigned users |
-| `app/(dashboard)/roles/new/page.tsx` | `/roles/new` | Create role |
+| `app/(dashboard)/roles/page.tsx` | `/roles` | Roles list + stats |
+| `app/(dashboard)/roles/[id]/page.tsx` | `/roles/:id` | Role detail + permission tag cloud |
 
 ## Components
 
-- `RoleCard` — role name, permission count, user count
-- `PermissionMatrix` — checkbox grid: role × permission
-- `RoleForm` — name, description, multi-select permissions
+| File | Description |
+|------|-------------|
+| `components/modules/roles/role-permission-badge.tsx` | Single permission codename badge (color by namespace) |
+| `components/modules/roles/roles-table.tsx` | DataTable: name, description, counts, edit action |
+| `components/modules/roles/role-form.tsx` | `RoleCreateSheet`, `RoleEditSheet` with permission checklist |
 
 ## Definition of Done
 
-- [ ] Roles list with permission count
-- [ ] Permission matrix grid view
-- [ ] Assign permissions to role
-- [ ] Show users per role
-- [ ] Skeleton + EmptyState
+- [x] Roles list with permission/user counts
+- [x] Role detail with grouped permission tag cloud
+- [x] Create role (system_admin only)
+- [x] Edit name/description + replace permission set (system_admin only)
+- [x] Permission checklist grouped by dot-notation namespace
+- [x] Skeleton + EmptyState + ErrorState
+- [x] usePlatformMutation + cache invalidation
+- [x] Module manifest + IMPLEMENTATION.md
