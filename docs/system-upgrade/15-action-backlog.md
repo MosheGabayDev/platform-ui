@@ -509,6 +509,56 @@ _Spec: `docs/system-upgrade/36-ai-action-platform.md` | ADR-022_
 
 ---
 
+## AI Provider Gateway — Phase 1 (pre-R027, BLOCKER)
+
+_Must complete before any module ships LLM-calling features. Spec: `docs/system-upgrade/40-ai-provider-gateway-billing.md`_
+
+| Task | File/Location | Effort | Status |
+|------|--------------|--------|--------|
+| `GatewayRequest` + `GatewayResponse` + `GatewayError` dataclasses | `apps/ai_providers/schemas.py` (new) | 1 hr | `[ ]` pre-R027 |
+| `AIProviderGateway.call()` + `call_stream()` — wraps registry + adapters + cost_tracker | `apps/ai_providers/gateway.py` (new) | 3 hr | `[ ]` pre-R027 |
+| `AIProviderPolicy.check()` — quota pre-check (Redis-first, DB-fallback) | `apps/ai_providers/policy.py` (new) | 2 hr | `[ ]` pre-R027 |
+| `AIProviderBillingAdapter.emit()` — bridges to `emit_billing_event()` | `apps/ai_providers/billing_adapter.py` (new) | 1 hr | `[ ]` pre-R027 |
+| `AIUsageLog` migration: 12 new fields | `scripts/migrations/` | 1 hr | `[ ]` pre-R027 |
+| `chat_stream_with_usage()` method on `AIProviderAdapter` base | `apps/ai_providers/adapters/base.py` | 1 hr | `[ ]` pre-R027 |
+| Streaming finalization: `gateway.finalize_stream(usage_log_id, is_partial)` | `apps/ai_providers/gateway.py` | 1 hr | `[ ]` pre-R027 |
+| Quota Redis keys + TTL (monthly_tokens, daily_calls, voice_minutes, concurrent_streams) | `apps/ai_providers/policy.py` | 1 hr | `[ ]` pre-R027 |
+| Non-billable mode gate: `non_billable=True` only allowed in test env | `apps/ai_providers/gateway.py` | 30 min | `[ ]` pre-R027 |
+| CI lint rule: direct LLM provider imports blocked outside `apps/ai_providers/` | `.github/workflows/lint.yml` | 30 min | `[ ]` pre-R027 |
+| Gateway unit tests: §16 core 8 tests | `apps/ai_providers/tests/test_gateway.py` | 2 hr | `[ ]` pre-R027 |
+| Billing tests: §16 billing 5 tests | `apps/ai_providers/tests/test_gateway_billing.py` | 1 hr | `[ ]` pre-R027 |
+
+## AI Provider Gateway — Phase 2 (P1 module migration, pre-production)
+
+| Task | File(s) to migrate | Effort | Status |
+|------|-------------------|--------|--------|
+| Migrate `apps/helpdesk/services/incident_memory_service.py` | Direct openai/anthropic → gateway | 1 hr | `[ ]` R027 |
+| Migrate `apps/helpdesk/services/screen_analyzer.py` | Direct openai → gateway | 1 hr | `[ ]` R027 |
+| Migrate `apps/helpdesk/services/vision_service.py` | Direct anthropic → gateway | 1 hr | `[ ]` R027 |
+| Migrate `apps/mobile_voice/conversation_engine.py` | Direct gemini → gateway | 2 hr | `[ ]` R027 |
+| Migrate `apps/mobile_voice/title_generator.py` | Direct openai → gateway | 30 min | `[ ]` R027 |
+| Migrate `apps/ai_agents/engine/agent_runner.py` | Direct openai → gateway | 2 hr | `[ ]` R027 |
+| Migrate `apps/ala/tasks/commitment_task.py` | Direct openai → gateway | 1 hr | `[ ]` R027 |
+| Test: P1 migrated modules — usage log created, billing emitted | `apps/ai_providers/tests/test_p1_migration.py` | 2 hr | `[ ]` R027 |
+
+## AI Provider Gateway — Phase 3 (P2/P3 migration, production cleanup)
+
+| Task | Modules | Effort | Status |
+|------|---------|--------|--------|
+| Migrate `apps/ops_intelligence/` (5 files) | ops_query_service, rag_indexer, summarizer, trend_analyzer, bootstrap_catalog | 4 hr | `[ ]` R030 |
+| Migrate `apps/personal_info/` (8 files) | gemini_provider, openai_provider, secretary_service, rag_answer_service, etc. | 5 hr | `[ ]` R030 |
+| Migrate `apps/life_assistant/` (12 files) | all analyzers, gemini_client (delete), openai_fallback (delete) | 6 hr | `[ ]` R031 |
+| Migrate remaining 37 files | see scan results in doc 40 §03 | 10 hr | `[ ]` R031 |
+| Delete `apps/life_assistant/services/gemini_client.py` | after migration verified | 15 min | `[ ]` R031 |
+| Delete `apps/life_assistant/services/openai_fallback.py` | after migration verified | 15 min | `[ ]` R031 |
+| Delete `apps/personal_info/ai_chat/providers/` wrapper layer | after migration verified | 30 min | `[ ]` R031 |
+| Quota tests: monthly limit blocks, resets on new month | `apps/ai_providers/tests/test_quota.py` | 1 hr | `[ ]` R031 |
+| Voice usage tests: session linkage, quota_bucket | `apps/ai_providers/tests/test_voice_usage.py` | 1 hr | `[ ]` R030 |
+| Floating assistant billing tests: §16 floating 4 tests | `apps/ai_providers/tests/test_floating_billing.py` | 1 hr | `[ ]` R033 |
+| AI action billing linkage tests: §16 AI action 2 tests | `apps/ai_providers/tests/test_action_billing.py` | 1 hr | `[ ]` R028 |
+
+---
+
 ## Consistency-Pass Blockers (B1–B10, pre-R027)
 
 _Must complete before any write-tier AI action implementation. Spec: `docs/system-upgrade/39-ai-architecture-consistency-pass.md §12`_

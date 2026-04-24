@@ -2264,6 +2264,31 @@ If a user asks the AI to permanently delete something:
 
 ---
 
+## §42 — AI Provider Gateway Integration
+
+> **All LLM calls in AI Action Platform must go through the AI Provider Gateway. No direct provider SDK usage.**
+> Full spec: `docs/system-upgrade/40-ai-provider-gateway-billing.md`
+
+Every LLM call in the AI Action Platform (planning, parameter extraction, confirmation message generation, result summarization) must use `AIProviderGateway.call()` with attribution fields:
+
+```python
+GatewayRequest(
+    org_id=org_id,
+    user_id=actor_user_id,
+    module_id=action_descriptor.module_id,       # "helpdesk" | "users" | ...
+    feature_id=f"action_planning.{action_id}",
+    capability="chat",
+    session_id=ai_session_id,
+    conversation_id=conversation_id,
+    action_id=action_id,
+    ai_action_invocation_id=invocation.id,
+)
+```
+
+Static confirmation templates (no LLM) are never billed. LLM-generated messages always are.
+
+---
+
 ## §41 — Frontend Surface: Global Floating AI Assistant
 
 The primary frontend delivery mechanism for the AI Action Platform is the Global Floating AI Assistant, designed in `docs/system-upgrade/38-floating-ai-assistant.md`.

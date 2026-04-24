@@ -528,6 +528,45 @@ The Floating AI Assistant is the primary **frontend surface** for the AI Action 
 
 ---
 
-_Document created: 2026-04-24 (Round 027)_
+---
+
+## §14 — AI Provider Gateway Integration
+
+> **All LLM calls from the Floating AI Assistant must go through the AI Provider Gateway. No direct provider SDK usage.**
+> Full spec: `docs/system-upgrade/40-ai-provider-gateway-billing.md`
+
+### When LLM is called (billed) vs not called (free)
+
+| Trigger | LLM call? | Gateway attribution |
+|---------|----------|---------------------|
+| User sends first free-text message | ✅ Yes | `module_id="floating_assistant"`, `feature_id="chat_message"` |
+| User sends follow-up | ✅ Yes | Same |
+| Long conversation summarization | ✅ Yes | `feature_id="conversation_summary"` |
+| Active workflow continuation (route change) | ✅ Yes (on next user message) | `feature_id="workflow_continuation"` |
+| Page load, route change, hover, icon click | ❌ No | — |
+| Static page description (PageAIContext) | ❌ No | — |
+| Capability context fetch (GET /api/ai/context) | ❌ No (REST, no LLM) | — |
+| Confirmation UI rendered | ❌ No | — |
+
+### GatewayRequest fields for floating assistant
+
+```typescript
+// Frontend passes these to Flask proxy endpoint
+// Flask calls AIProviderGateway.call(GatewayRequest(...))
+{
+  org_id: user.orgId,
+  user_id: user.id,
+  module_id: "floating_assistant",
+  feature_id: "chat_message",         // or "conversation_summary" | "workflow_continuation"
+  capability: "chat",
+  conversation_id: session.conversationId,
+  session_id: undefined,              // no voice session
+}
+```
+
+---
+
+_Document created: 2026-04-24 (Round 027) | Updated Round 029 (§14: gateway integration)_
 _Spec builds on: `docs/system-upgrade/36-ai-action-platform.md` (AI Action Platform)_
+_Billing spec: `docs/system-upgrade/40-ai-provider-gateway-billing.md`_
 _Next implementation round: R032 — Floating AI Assistant Phase 1 (static shell + context registry)_

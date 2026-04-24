@@ -395,6 +395,22 @@ _Updated after each round — append, never overwrite entries._
 
 ---
 
+## Round 029 — AI Provider Gateway + Billing Metering Architecture
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-24 |
+| **Topic** | AI Provider Gateway and mandatory billing metering — close the direct LLM provider call bypass gap |
+| **Objective** | Define the canonical architecture for all LLM/STT/TTS/embedding calls: unified gateway, billing attribution, quota enforcement, streaming finalization, voice metering, and migration plan. Doc-only. No code. |
+| **Key Findings** | • 55+ files across 20+ modules directly import LLM provider SDKs bypassing `apps/ai_providers/` entirely <br>• The platform already has a complete provider layer (registry, adapters, AIUsageLog, cost_tracker, fallback chain, circuit breaker) — it's just not being used <br>• `AIUsageLog` exists but is missing 12 fields needed for full attribution: `conversation_id`, `feature_id`, `action_id`, `ai_action_invocation_id`, `status`, `started_at`, `completed_at`, `error_code`, `correlation_id`, `cached_tokens`, `is_estimated`, `billable_cost`, `quota_bucket` <br>• No quota pre-check exists — orgs can exceed plan limits with no enforcement <br>• No streaming finalization — partial stream aborts produce unbilled usage <br>• Gemini Live voice path (mobile_voice/conversation_engine.py) bypasses all usage tracking <br>• Dedicated bypass wrapper files: `life_assistant/services/gemini_client.py`, `openai_fallback.py`, `personal_info/ai_chat/providers/` |
+| **Files Created (platform-ui)** | `docs/system-upgrade/40-ai-provider-gateway-billing.md` |
+| **Files Updated (platform-ui)** | `docs/system-upgrade/36-ai-action-platform.md` (§42 gateway integration note), `docs/system-upgrade/38-floating-ai-assistant.md` (§14 gateway attribution), `docs/system-upgrade/39-ai-architecture-consistency-pass.md` (§14 gateway as enforcement layer), `docs/system-upgrade/14-decision-log.md` (ADR-027), `docs/system-upgrade/26-platform-capabilities-catalog.md` (skipped — to update in round follow-up), `docs/system-upgrade/35-platform-capabilities-build-order.md` (gateway migration track pre-R027), `docs/system-upgrade/15-action-backlog.md` (gateway Phase 1/2/3 tasks: 30 items), `docs/system-upgrade/96-rounds-index.md`, `docs/system-upgrade/98-change-log.md` |
+| **Files Inspected (platformengineer)** | `apps/ai_providers/` (models.py, cost_tracker.py, key_resolver.py, registry.py, adapters/base.py), `apps/billing/` (rate_config.py, service_billing.py) |
+| **Decisions Proposed** | ADR-027: AI Provider Gateway and Mandatory Billing Metering |
+| **Next Recommended Round** | B1 delegation token design OR gateway.py implementation (Phase 1 tasks) before any R027 feature work |
+
+---
+
 ## Round 028 — AI Architecture Consistency Pass
 
 | Field | Value |

@@ -573,6 +573,24 @@ R027–R031 (parallel track) ─── AI Action Platform
 
 ---
 
+## AI Provider Gateway Migration Track (Pre-R027, Parallel to Implementation)
+
+Must start before any AI feature module merges to production.
+
+| Phase | Task | Gate |
+|-------|------|------|
+| Phase 1 | `gateway.py` + `policy.py` + `billing_adapter.py` + `schemas.py` written | Blocks all migrations |
+| Phase 1 | `AIUsageLog` 12-field extension migration (`20260424_extend_ai_usage_log`) | Blocks usage tracking |
+| Phase 1 | CI lint rule: direct LLM imports blocked | Blocks Phase 2 enforcement |
+| Phase 2 | Helpdesk, mobile_voice, ai_agents, ala migrated to gateway (P1 modules) | Before R027 ships |
+| Phase 3 | ops_intelligence, personal_info migrated (P2) | Before R030 |
+| Phase 3 | life_assistant, remaining 37 files migrated (P3) | Before Production Ready gate |
+| Phase 3 | `life_assistant/services/gemini_client.py` and `openai_fallback.py` deleted | After P3 complete |
+
+Full spec: `docs/system-upgrade/40-ai-provider-gateway-billing.md §17`
+
+---
+
 ## AI Architecture Consistency Gate (Pre-R027)
 
 Before any R027 implementation task starts, the following consistency-pass blockers (doc 39 §12) must be resolved:

@@ -596,4 +596,24 @@ Error case:
 
 ---
 
+## ADR-027 — AI Provider Gateway and Mandatory Billing Metering (2026-04-24)
+
+**Context:** 55+ files across 20+ modules directly import LLM provider SDKs (openai, anthropic, google.generativeai) outside of `apps/ai_providers/`. These calls produce no billing records, cannot be quota-enforced, and generate no attribution. The platform already has a working provider abstraction layer (registry, adapters, `AIUsageLog`, cost_tracker) — the gap is that most modules bypass it entirely.
+
+**Decision:** All LLM / STT / TTS / embedding / model API calls must go through the AI Provider Gateway (`apps/ai_providers/gateway.py`). Every call must emit a usage event linked to org / user / module / session before returning. No exceptions except calls explicitly marked `non_billable=True` in test environments.
+
+**Architecture:** New `gateway.py` wraps existing registry + adapters + cost_tracker + billing_adapter into a single entry point. `GatewayRequest` carries attribution (org_id, user_id, module_id, feature_id, session_id, conversation_id, action_id). `AIUsageLog` extended with 12 new fields. `policy.py` enforces quota pre-check before every provider call.
+
+**Enforcement:** CI lint rule blocks merges that add direct LLM provider imports outside `apps/ai_providers/`. `get_api_key()` remains the only allowed API key access function.
+
+**Migration:** Priority order — helpdesk (P1), mobile_voice (P1), ai_agents (P1), ala (P1), ops_intelligence (P2), personal_info (P2), life_assistant (P3), remaining 37 files (P3).
+
+**AIUsageLog extension:** 12 new fields: `feature_id`, `conversation_id`, `action_id`, `ai_action_invocation_id`, `status`, `started_at`, `completed_at`, `error_code`, `correlation_id`, `cached_tokens`, `is_estimated`, `billable_cost`, `quota_bucket`. Migration: `20260424_extend_ai_usage_log`.
+
+**Spec:** `docs/system-upgrade/40-ai-provider-gateway-billing.md`
+
+**Affected modules:** `apps/ai_providers/` (gateway.py, policy.py, billing_adapter.py, schemas.py added), `apps/billing/` (reused), all 55+ bypass modules (migration required).
+
+---
+
 _Add new ADRs here as decisions are made during implementation._

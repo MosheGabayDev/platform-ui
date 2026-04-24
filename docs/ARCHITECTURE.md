@@ -831,3 +831,52 @@ Zustand         → local UI state (selected filters, widget visibility)
 - Apply `org_id` filter server-side — never send cross-tenant data
 - Cloudflare Tunnel supports SSE (HTTP/2 streaming) — no changes needed to tunnel config
 - For Celery events: publish to Redis pub/sub → Flask SSE endpoint subscribes to Redis channel
+
+---
+
+## 21. AI Provider Gateway
+
+> **Mandatory rule:** All LLM / STT / TTS / embedding calls must go through `AIProviderGateway.call()`. No module may import openai, anthropic, or google.generativeai directly.
+
+Full spec: `docs/system-upgrade/40-ai-provider-gateway-billing.md`
+
+### 21.1 Flow
+
+```
+AI Consumer (any module)
+  → AIProviderGateway.call(GatewayRequest)
+  → AIProviderPolicy.check() — quota + rate limit
+  → registry.resolve_provider() — 4-level hierarchy
+  → adapter.chat() / embed() / transcribe()
+  → calculate_cost() → log_usage() → emit_billing_event()
+  → GatewayResponse
+```
+
+### 21.2 Attribution (all calls must include)
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `org_id` | ✅ | Always derived from auth |
+| `user_id` | ✅ | May be None for system calls |
+| `module_id` | ✅ | Which module is calling |
+| `feature_id` | ✅ | Which feature within the module |
+| `capability` | ✅ | chat / embedding / tts / transcription |
+| `session_id` | For voice | Voice session identifier |
+| `conversation_id` | For chat | Floating assistant conversation |
+
+### 21.3 Existing infrastructure (reuse, do not rebuild)
+
+- `apps/ai_providers/registry.py` — provider resolution (4-level hierarchy)
+- `apps/ai_providers/adapters/` — OpenAI, Gemini, Anthropic, Ollama adapters
+- `apps/ai_providers/key_resolver.py` — `get_api_key()` (only allowed key access)
+- `apps/ai_providers/cost_tracker.py` — `calculate_cost()`, `log_usage()`
+- `apps/billing/service_billing.py` — `emit_billing_event()` (billing outbox)
+
+### 21.4 New files needed
+
+| File | Purpose |
+|------|---------|
+| `apps/ai_providers/gateway.py` | Unified entry point |
+| `apps/ai_providers/policy.py` | Quota pre-check |
+| `apps/ai_providers/billing_adapter.py` | Bridge to billing outbox |
+| `apps/ai_providers/schemas.py` | GatewayRequest, GatewayResponse, GatewayError |

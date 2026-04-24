@@ -17,6 +17,35 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-24 — Round 029 (Architecture): AI Provider Gateway + Billing Metering
+
+### Files Changed
+- `docs/system-upgrade/40-ai-provider-gateway-billing.md` — **created** (19 sections: executive summary, core rule, current assessment, target architecture, gateway responsibilities, provider registry, extended AIUsageLog model, billing flow, quota enforcement, streaming billing, voice metering, AI Action Platform integration, floating assistant cost policy, provider secrets policy, enforcement rules, testing strategy, migration plan, open questions, acceptance criteria)
+- `docs/system-upgrade/36-ai-action-platform.md` — **updated** (§42 added: gateway integration note + GatewayRequest example)
+- `docs/system-upgrade/38-floating-ai-assistant.md` — **updated** (§14 added: gateway attribution table + GatewayRequest fields)
+- `docs/system-upgrade/39-ai-architecture-consistency-pass.md` — **updated** (§14 added: gateway as enforcement mechanism for §09 tool injection rules)
+- `docs/system-upgrade/14-decision-log.md` — **updated** (ADR-027: AI Provider Gateway and Mandatory Billing Metering)
+- `docs/system-upgrade/35-platform-capabilities-build-order.md` — **updated** (gateway migration track Phase 1/2/3 before R027)
+- `docs/system-upgrade/15-action-backlog.md` — **updated** (Phase 1/2/3 gateway tasks: 30 items)
+- `docs/system-upgrade/96-rounds-index.md` — **updated** (Round 029 entry)
+- `docs/system-upgrade/98-change-log.md` — **updated** (this entry)
+
+### New Findings
+- 55+ files bypass the existing `apps/ai_providers/` layer entirely — this is the largest single billing risk in the platform
+- Three dedicated bypass wrapper files exist that will need explicit deletion: `life_assistant/services/gemini_client.py`, `life_assistant/services/openai_fallback.py`, `personal_info/ai_chat/providers/gemini_provider.py` + `openai_provider.py`
+- `AIUsageLog` is partitioned monthly and already has audio token fields — the 12 new fields are additions, not redesign
+- `apps/billing/service_billing.py` `emit_billing_event()` already exists and is reusable — the billing adapter is a thin bridge, not a new system
+- No quota pre-check exists anywhere in the current codebase — this is a gap that allows unlimited spend
+
+### Decision Changes
+- ADR-027: AI Provider Gateway and Mandatory Billing Metering (new)
+
+### Backlog Changes
+- 30 gateway migration tasks added across 3 phases
+- Gateway Phase 1 marked as pre-R027 blocker (same priority as consistency-pass B1–B10)
+
+---
+
 ## 2026-04-24 — Round 028 (Architecture): AI Architecture Consistency Pass
 
 ### Files Changed

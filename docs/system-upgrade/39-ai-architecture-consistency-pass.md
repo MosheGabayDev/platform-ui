@@ -473,5 +473,21 @@ Round 028 (this doc) is complete when:
 
 ---
 
-_Document created: 2026-04-24 (Round 028 — consistency pass)_
+---
+
+## §14 — AI Provider Gateway: Enforcement Mechanism for Tool Injection Safety
+
+Doc 39 §09 establishes that tool definitions are server-side only and LLM output is candidate intent only. The AI Provider Gateway (doc 40) is the enforcement layer that makes §09 rules runtime-enforceable:
+
+| §09 rule | Gateway enforcement |
+|----------|-------------------|
+| Tool definitions come only from server registry | Gateway never accepts tool schemas from LLM output; only from `AIActionDescriptor` registry |
+| LLM output is untrusted input | Gateway validates `GatewayRequest.messages` against prompt injection patterns before calling provider |
+| Unauthorized schemas never exposed | `AIActionSummary` (filtered by user role) is injected server-side by `build_ai_capability_prompt()`; not passed through LLM |
+| No direct SDK usage | CI lint rule blocks direct provider imports; gateway is the only allowed path |
+
+---
+
+_Document created: 2026-04-24 (Round 028 — consistency pass) | Updated Round 029 (§14: gateway linkage)_
 _Implementation gate: B1 (delegation token) must be resolved before write-tier AI actions ship._
+_Billing gate: AI Provider Gateway (doc 40) must exist before any LLM-calling feature ships to production._
