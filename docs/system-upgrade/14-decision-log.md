@@ -432,4 +432,79 @@ Error case:
 
 ---
 
+## ADR-021 — Dangerous Action Standard (2026-04-24)
+
+**Context:** Platform-ui needs to trigger destructive or high-risk operations (deactivate user, disable org, delete data). Without a standard, each page would have its own confirmation dialog, danger styling, reason collection, and audit event naming — inconsistent and untestable.
+
+**Decision:** All human-initiated dangerous actions in platform-ui use the `PlatformAction` + `DangerLevel` system (`lib/platform/actions/`) with `useDangerousAction()` hook and `ConfirmActionDialog` component (ADR-021 — Dangerous Action Standard).
+
+**Rules:**
+- `PlatformAction.dangerLevel` controls UX tier only. Backend enforces authorization independently.
+- `danger_level >= "high"` requires reason textarea. `danger_level = "critical"` requires typed confirmation phrase.
+- Every `PlatformAction` must have `auditEvent` (format: `module.verb`). Backend writes audit on execution.
+- UX-only gates: `<PermissionGate>` wraps trigger buttons — backend still enforces RBAC.
+- `USER_ACTIONS` and `ORG_ACTIONS` are the reference implementations.
+
+**Consequences:** `ConfirmActionDialog` is the only confirmation dialog; `useDangerousAction` is the only dangerous mutation hook. No ad-hoc confirm UI in module pages.
+
+**Affected modules**: 01-Users, 02-Organizations, 04-Helpdesk, and all write-capable modules.
+
+---
+
+## ADR-022 — AI Delegated Action Platform (2026-04-24)
+
+**Context:** Voice and chat AI agents (ALA, Helpdesk AI, Investigation Console) can describe what should happen but cannot safely execute actions. Every write operation requires the user to navigate separately. This breaks conversational UX and limits AI automation potential.
+
+**Decision:** Build an AI Delegated Action Platform (`apps/ai_action_platform/`) that lets AI agents execute platform actions on behalf of authenticated users, with delegated permission checks, confirmation tokens, voice-specific confirmation flow, and mandatory audit trail.
+
+**Core invariants:**
+1. AI agent never holds its own permissions — acts as proxy for the authenticated human.
+2. `org_id` always from JWT — never from AI output.
+3. Every execution (success or failure) writes `AIActionInvocation` before returning results.
+4. `danger_level >= "high"` never executable via verbal confirm — requires dashboard approval.
+5. AI output (parameters) is treated as untrusted input — validated against JSON Schema before execution.
+6. Confirmation token is single-use with 120s TTL (60s for voice).
+
+**Architecture:** Two-layer registry (static platform manifest + dynamic org `AIAction` rows), `ActionExecutor` (internal_function + http_api handlers), `AIActionConfirmationToken` for WRITE tier, helpdesk `ApprovalService` reused for DESTRUCTIVE tier. Frontend: `useAIAction` hook + `AIActionPreviewCard` component.
+
+**Implementation phases:** R027 (registry + READ), R028 (confirmation flow + WRITE), R029 (voice), R030 (approval queue + DESTRUCTIVE), R031 (module manifests + org config).
+
+**Spec:** `docs/system-upgrade/36-ai-action-platform.md`
+
+**Affected modules**: `apps/ai_action_platform/` (new), `apps/ala/`, `apps/helpdesk/`, `apps/agents/`, `lib/platform/ai-actions/` (new).
+
+---
+
+## ADR-023 — Personalized AI Capability Context (2026-04-24)
+
+**Context:** AI agents serve both regular users and system administrators, but without knowing what a specific user can do, the agent either over-offers (security risk) or under-offers (friction). A generic agent with no user context cannot personalize safely.
+
+**Decision:** Each AI session receives a **server-generated AI User Capability Context** (`AIUserCapabilityContext`) derived from the authenticated user's JWT, RBAC state, enabled modules, feature flags, org policies, and profile. This context is used to:
+1. Build a personalized AI system prompt section (`build_ai_capability_prompt()`)
+2. Filter the AI Action Registry to actions the user may invoke
+3. Summarize denied action categories safely (no action IDs exposed for unauthorized actions)
+
+**Critical invariant:** The context is guidance only, not authorization. Backend re-checks all permissions at execution time (§27). A stale or forged context cannot authorize any action.
+
+**Endpoint:** `GET /api/ai/context` — JWT Bearer, server-side only, returns `AIUserCapabilityContext` JSON.
+
+**Invalidation:** `context_version` Redis counter incremented on any permission-relevant change (role, module, feature flag, deactivation, policy). Version checked at execution; stale context → HTTP 409.
+
+**Role-specific policies:**
+- `viewer` / `technician`: READ + WRITE_LOW; denied categories explained with admin referral
+- `manager`: READ + WRITE_LOW + WRITE_HIGH; approval queue for high-risk
+- `admin`: all org-scoped; cross-org blocked; billing if `can_see_billing_data`
+- `system_admin`: all actions; critical always requires typed/voice+UI confirmation; no bulk destructive without explicit confirm
+- `ai_agent` (service account): READ + pre-authorized WRITE_LOW only; no confirmation-required actions
+
+**Voice-specific:** Action list capped at 8; only `voice_invocable: true` actions; `danger_level >= "high"` redirected to UI; PII never spoken proactively.
+
+**What the context never returns:** Secrets, tokens, other users' data, internal function names, raw permission codenames list, full unauthorized action schemas.
+
+**Spec:** `docs/system-upgrade/36-ai-action-platform.md §23–§32`
+
+**Affected modules**: `apps/ai_action_platform/` (new: `context.py`, `context_builder.py`, `prompt_builder.py`), `apps/ala/`, `apps/helpdesk/engine/`, `apps/agents/`.
+
+---
+
 _Add new ADRs here as decisions are made during implementation._

@@ -283,3 +283,26 @@ Current score: **68/100** (updated Round 016 — was 55/100).
 **Remaining (CP-2, before mobile work):** `use-permission.ts` next-auth coupling, `detail-back-button.tsx` useRouter dep, `theme-store.ts` DOM side effect.
 
 **Platform boundary rule:** `lib/platform/*` = cross-platform only. `lib/` (non-platform) = web/Next.js OK.
+
+---
+
+## AI Delegated Action Platform (Round 024)
+
+AI agents (ALA voice, Helpdesk AI, Investigation Console) execute platform actions on behalf of authenticated users via the AI Delegated Action Platform. Full specification: `docs/system-upgrade/36-ai-action-platform.md`.
+
+**Key architecture points:**
+- New backend module: `apps/ai_action_platform/` — registry, executor, confirmation tokens, audit
+- New frontend: `lib/platform/ai-actions/` — `useAIAction` hook, `AIActionPreviewCard`
+- Permission model: AI agent inherits exactly the authenticated user's permissions (no elevation)
+- Confirmation: `AIActionConfirmationToken` (single-use, 120s TTL); voice uses 60s + verbal confirm ceiling
+- Audit: `AIActionInvocation` table (monthly partitioned) + `UserActivity` row on every execution
+- Integrates with: `ApprovalService` (high/critical tier), `ToolInvocation` (helpdesk sessions), `AIAction` (org-defined HTTP actions)
+- Decision: ADR-022 in `14-decision-log.md`
+
+**AI User Capability Context (ADR-023):**
+- `GET /api/ai/context` returns server-generated `AIUserCapabilityContext` — JWT-derived, never client-supplied
+- `build_ai_capability_prompt()` converts context to compact Hebrew system prompt section (≤400 tokens)
+- Context is guidance only — backend re-checks permissions at every action execution
+- `context_version` Redis counter invalidated on role/module/flag/deactivation changes
+- Voice sessions: 8-action cap, `voice_invocable: true` only, `danger_level >= "high"` → UI redirect
+- Full spec: `docs/system-upgrade/36-ai-action-platform.md §23–§32`, Decision: ADR-023

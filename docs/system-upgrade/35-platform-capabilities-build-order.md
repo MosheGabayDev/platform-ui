@@ -1,6 +1,6 @@
 # 35 — Platform Capabilities Build Order
 
-_Created: 2026-04-24 | Round 023 planning_
+_Created: 2026-04-24 | Round 023 planning | Updated Round 024 (AI Action Platform) | Updated Round 025 (AI Capability Context)_
 _Owner: platform-ui build sequencing_
 
 ---
@@ -562,7 +562,43 @@ R030 PlatformRealtime (SSE) ─── Helpdesk Phase D (live)
 R031 JobRunner ─── AI Agents Phase A
   │
 R032 CommandPalette (nav) + nuqs URL state
+  │
+R027–R031 (parallel track) ─── AI Action Platform
+  R027 Registry + READ tier
+  R028 Confirmation flow + WRITE tier
+  R029 Voice confirmation (ALA integration)
+  R030 Approval queue + DESTRUCTIVE tier
+  R031 Module manifests + org config
 ```
+
+---
+
+## AI Action Platform Build Track (R027–R031)
+
+Runs in parallel with the capabilities track. Each phase depends on the corresponding round's other work being stable.
+
+| Round | AI Action Phase | Gate |
+|-------|----------------|------|
+| R027 | Registry + audit foundation + READ tier | After: `AIActionInvocation` + `AIActionConfirmationToken` migrations |
+| R028 | Confirmation flow + WRITE_LOW + WRITE_HIGH | After: `useAIAction` hook + `AIActionPreviewCard` |
+| R029 | Voice confirmation + ALA integration | After: ALA refactor complete; requires R028 |
+| R030 | Approval queue + DESTRUCTIVE tier | After: `ApprovalService` extended; SSE available (same round) |
+| R031 | Module manifests + org-level action config UI | After: all tiers working; Settings module available (R029) |
+
+Full spec: `docs/system-upgrade/36-ai-action-platform.md`
+
+### AI Capability Context (parallel to R027)
+
+The AI Capability Context system (§23–§32 in doc 36) builds alongside the action registry. Key additions per round:
+
+| Round | Context deliverable |
+|-------|-------------------|
+| R027 | `AIUserCapabilityContext` + `build_user_capability_context()` + `GET /api/ai/context` + `context_version` invalidation |
+| R027 | Action filtering: `registry.get_actions_for_user()` + unavailable category summaries |
+| R027 | Role-specific prompt policies: viewer/technician/manager/admin/system_admin/ai_agent |
+| R028 | Stale context detection (HTTP 409) + client re-fetch flow |
+| R029 | Voice prompt constraints: 8-action cap + `VOICE_PROMPT_ADDENDUM` |
+| R031 | Org discovery profile personalization + onboarding mode |
 
 ---
 
@@ -575,5 +611,9 @@ R032 CommandPalette (nav) + nuqs URL state
 | **Helpdesk Phase C** | + ApprovalFlow, PolicyEngine | R028 |
 | **Helpdesk Phase D** | + PlatformRealtime | R030 |
 | **AI Agents** | All Helpdesk + JobRunner | R031 |
+| **AI Action Platform READ** | AIActionRegistry + InvocationAudit | R027 |
+| **AI Action Platform WRITE** | + ConfirmationToken + useAIAction hook | R028 |
+| **AI Action Platform Voice** | + voice confirm flow + ALA wiring | R029 |
+| **AI Action Platform Full** | + ApprovalQueue + module manifests | R031 |
 | **Module Import/Export** | JobRunner + ImportExport full + Wizard + AuditLog | R032+ |
 | **Production** | FeatureFlags, AuditLog, Notifications, CSP headers, Flask cookie security | R026 |

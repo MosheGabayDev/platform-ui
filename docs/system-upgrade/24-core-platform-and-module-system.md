@@ -1,6 +1,6 @@
 # 24 — Core Platform and Module System
 
-_Last updated: 2026-04-24 (Round 008)_
+_Last updated: 2026-04-24 (Round 025 — AI Capability Context)_
 _Source of truth for: module lifecycle, data ownership, export/import, data contracts_
 
 ---
@@ -593,3 +593,38 @@ These rules prevent AI coding assistants from making unsafe changes to the expor
 - [ ] Download link expires per policy (24h for tenant data)
 - [ ] PII columns are replaced in anonymized exports, verified by test fixture
 - [ ] Rollback completes cleanly if import fails mid-way (transaction boundary test)
+
+---
+
+## 15. Module Manifest: aiActions Extension (Round 024)
+
+Module manifests gain an optional `aiActions` section listing which platform actions AI agents may invoke for that module. Full specification: `docs/system-upgrade/36-ai-action-platform.md §11`.
+
+```typescript
+// Addition to ModuleManifest (lib/platform/modules/manifest.ts)
+aiActions?: ModuleAIAction[];
+
+interface ModuleAIAction {
+  actionId: string;       // "module.verb" — matches AIActionDescriptor.action_id
+  label: string;          // Hebrew/i18n display name
+  description: string;
+  dangerLevel: DangerLevel;
+  requiresConfirmation: boolean;
+  voiceInvocable: boolean; // only READ + WRITE_LOW with dangerLevel <= "low"
+  requiredRoles: string[];
+  inputSchemaId: string;  // JSON Schema ID in apps/ai_action_platform/schemas/
+}
+```
+
+**Rules:**
+- `voiceInvocable: true` requires `dangerLevel <= "low"` and `risk_tier = "READ" | "WRITE_LOW"`
+- Module's `aiActions` must be declared before the module is onboarded to ALA or Helpdesk AI
+- Backend `platform_actions.py` must have a matching `AIActionDescriptor` for every manifest entry
+
+### AI User Capability Context (Round 025)
+
+At session start, `GET /api/ai/context` returns an `AIUserCapabilityContext` object for the authenticated user. This is a server-generated snapshot of what the user can do — personalized by role, org, modules, feature flags, and profile. The context drives the AI system prompt and action filtering. It is never client-supplied.
+
+Key fields: `available_actions` (filtered to user's role), `unavailable_action_categories` (safe category names — no unauthorized action IDs), `enabled_modules`, `feature_flags`, `can_see_pii`, `onboarding_mode`, `context_version` (Redis counter, invalidated on any permission change).
+
+Full spec: `docs/system-upgrade/36-ai-action-platform.md §23–§32`

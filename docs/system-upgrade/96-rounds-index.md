@@ -375,4 +375,36 @@ _Updated after each round — append, never overwrite entries._
 | **Files Created (platform-ui)** | `docs/system-upgrade/35-platform-capabilities-build-order.md` |
 | **Files Updated (platform-ui)** | `docs/system-upgrade/26-platform-capabilities-catalog.md` (build-order column), `docs/system-upgrade/12-migration-roadmap.md` (Phase 0 marked complete), `docs/system-upgrade/15-action-backlog.md` (R023–R032 tasks), `docs/system-upgrade/96-rounds-index.md`, `docs/system-upgrade/98-change-log.md` |
 | **Decisions Proposed** | None — planning only. No code changes in this round. |
-| **Next Recommended Round** | Round 023 (implementation): Complete ActionButton + DetailView extraction + PlatformFeatureFlags + security hygiene items |
+| **Next Recommended Round** | Round 025: AI Capability Context Architecture (design only) |
+
+---
+
+## Round 025 — AI User Capability Context Architecture
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-24 |
+| **Topic** | Personalized AI Capability Context — server-generated per-user prompt context |
+| **Objective** | Extend the AI Action Platform with a complete AI User Capability Context system. Agents must serve both regular users and system admins under a dynamically generated, user-specific context. Context is guidance only — backend re-authorization is mandatory at every execution. |
+| **Key Findings** | • Context is guidance, not authorization — backend re-check (§27) is the real gate <br>• `GET /api/ai/context` generates `AIUserCapabilityContext` from JWT+RBAC+modules+flags+profile — client never supplies context <br>• `build_ai_capability_prompt()` produces ≤400-token Hebrew prompt section — deterministic, cacheable by `context_version` <br>• `context_version` Redis counter incremented on role/module/flag/deactivation/policy changes <br>• Action filtering: user sees only role-appropriate actions; denied categories as safe strings only (no unauthorized action IDs exposed) <br>• 6 role-specific prompt policies: viewer/technician/manager/admin/system_admin/ai_agent <br>• Voice: 8-action cap, `voice_invocable: true` only, `danger_level >= "high"` → UI redirect, PII never spoken proactively <br>• Personalization (org discovery profile, onboarding mode) influences suggestions only — never expands permissions <br>• 7 context-specific security rules added (S11–S17) |
+| **Files Created (platform-ui)** | None — doc-only round |
+| **Files Updated (platform-ui)** | `docs/system-upgrade/36-ai-action-platform.md` (§23–§32 added: 10 new sections), `docs/system-upgrade/14-decision-log.md` (ADR-023), `docs/system-upgrade/10-target-architecture.md`, `docs/system-upgrade/24-core-platform-and-module-system.md`, `docs/system-upgrade/26-platform-capabilities-catalog.md`, `docs/system-upgrade/35-platform-capabilities-build-order.md`, `docs/system-upgrade/15-action-backlog.md` (16 context-layer tasks), `docs/system-upgrade/96-rounds-index.md`, `docs/system-upgrade/98-change-log.md` |
+| **Commits** | No code changes — architecture/planning round |
+| **Decisions Proposed** | ADR-023: Personalized AI Capability Context |
+| **Next Recommended Round** | Round 023 implementation: ActionButton + DetailView + PlatformFeatureFlags (unblocks Helpdesk Phase A) |
+
+---
+
+## Round 024 — AI Action Platform Architecture
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-24 |
+| **Topic** | AI Delegated Action Platform — architecture, contracts, and security model |
+| **Objective** | Design a generic AI Action Platform that lets conversational and voice agents (ALA, Helpdesk AI, Investigation Console) safely execute platform actions on behalf of authenticated users. Full spec + ADR. No runtime implementation. |
+| **Key Findings** | • Existing system has two separate action planes that need bridging: `PlatformAction` (UI confirmation) + `AIAction` HTTP-callable model (org-defined) <br>• `ToolInvocation` + `ApprovalService` (helpdesk) can be reused for DESTRUCTIVE tier — no new approval queue needed <br>• Core invariant: AI agent always acts as proxy for authenticated human — never holds own permissions <br>• `AIActionConfirmationToken` single-use 120s token prevents replay attacks and parameter substitution <br>• Voice ceiling: `danger_level >= "high"` never executable via verbal confirm — requires dashboard approval <br>• Two-layer registry: static platform manifest (code) + dynamic org-level `AIAction` rows (DB) <br>• 5 implementation phases: R027 (registry+READ), R028 (confirmation+WRITE), R029 (voice), R030 (approval+DESTRUCTIVE), R031 (manifests+org config) <br>• 10 open questions documented (Q1–Q10) for follow-up |
+| **Files Created (platform-ui)** | `docs/system-upgrade/36-ai-action-platform.md` |
+| **Files Updated (platform-ui)** | `docs/system-upgrade/14-decision-log.md` (ADR-021 + ADR-022), `docs/system-upgrade/10-target-architecture.md` (AI Action Platform section), `docs/system-upgrade/24-core-platform-and-module-system.md` (§15 aiActions extension), `docs/system-upgrade/26-platform-capabilities-catalog.md` (AI Action Platform section), `docs/system-upgrade/35-platform-capabilities-build-order.md` (R027–R031 parallel track + gate table), `docs/system-upgrade/15-action-backlog.md` (16 backlog items across R027–R031), `docs/system-upgrade/96-rounds-index.md`, `docs/system-upgrade/98-change-log.md` |
+| **Commits** | No code changes — architecture/planning round only |
+| **Decisions Proposed** | ADR-021: Dangerous Action Standard (formalized) · ADR-022: AI Delegated Action Platform |
+| **Next Recommended Round** | Round 023 implementation: ActionButton + DetailView extraction + PlatformFeatureFlags (unblocks Helpdesk Phase A) |

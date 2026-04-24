@@ -1,6 +1,6 @@
 # 15 — Action Backlog
 
-_Last updated: 2026-04-24 (R023 planning — build order in 35-platform-capabilities-build-order.md)_
+_Last updated: 2026-04-24 (R024 — AI Action Platform backlog added)_
 
 ---
 
@@ -383,6 +383,100 @@ _Reference: `docs/system-upgrade/25-open-source-capability-layer.md` | ADR-016_
 | Complete PWA service worker in platform-ui | Offline-capable web app | Dashboard migration complete | `[ ]` TODO |
 | Stripe self-service billing portal UI | Revenue-critical for self-service sales | Billing module mapped | `[ ]` TODO |
 | Setup Grafana + Loki on EKS | Observability — currently flying blind | Fluent Bit DaemonSet | `[ ]` TODO |
+
+---
+
+---
+
+## AI Action Platform (R027–R031)
+
+_Spec: `docs/system-upgrade/36-ai-action-platform.md` | ADR-022_
+
+### R026.5 — AI Capability Context (can start alongside R027)
+
+| Task | File/Location | Effort | Status |
+|------|--------------|--------|--------|
+| `AIUserCapabilityContext` dataclass + `AIActionSummary` | `apps/ai_action_platform/context.py` | 1 hr | `[ ]` R027 |
+| `build_user_capability_context()` — full builder from JWT+DB | `apps/ai_action_platform/context_builder.py` | 2 hr | `[ ]` R027 |
+| `build_ai_capability_prompt()` — context → compact Hebrew prompt | `apps/ai_action_platform/prompt_builder.py` | 1 hr | `[ ]` R027 |
+| `GET /api/ai/context` endpoint (JWT-only, rate-limited, cached) | `apps/ai_action_platform/routes.py` | 1 hr | `[ ]` R027 |
+| `context_version` Redis counter + `increment_context_version()` | `apps/ai_action_platform/context_builder.py` | 30 min | `[ ]` R027 |
+| Invalidation hooks: role/module/flag/deactivation writes increment version | `apps/authentication/`, `apps/admin/` | 1 hr | `[ ]` R027 |
+| Action filtering: `registry.get_actions_for_user()` — role-filtered summaries | `apps/ai_action_platform/registry.py` | 1 hr | `[ ]` R027 |
+| `unavailable_action_categories` builder — safe category strings, not action IDs | `apps/ai_action_platform/context_builder.py` | 30 min | `[ ]` R027 |
+| Role-specific prompt policies: viewer/technician/manager/admin/system_admin/ai_agent | `apps/ai_action_platform/prompt_builder.py` | 1 hr | `[ ]` R027 |
+| Voice session prompt: `VOICE_PROMPT_ADDENDUM` + 8-action cap | `apps/ai_action_platform/prompt_builder.py` | 30 min | `[ ]` R029 |
+| Stale context detection: HTTP 409 on context_version mismatch | `apps/ai_action_platform/routes.py` | 30 min | `[ ]` R027 |
+| **Security tests: context layer** | | | |
+| Test: context never returns secrets, tokens, or unauthorized action IDs | `apps/ai_action_platform/tests/test_context.py` | 1 hr | `[ ]` R027 |
+| Test: stale permission — deactivate user mid-session, verify re-check blocks | `apps/ai_action_platform/tests/test_runtime_check.py` | 1 hr | `[ ]` R027 |
+| Test: prompt injection — LLM output cannot override system capability section | `apps/ai_action_platform/tests/test_prompt_security.py` | 1 hr | `[ ]` R028 |
+| Test: context_version invalidation triggers on role/module/flag changes | `apps/ai_action_platform/tests/test_invalidation.py` | 1 hr | `[ ]` R027 |
+| Test: action registry filtering — viewer sees only READ, system_admin sees all | `apps/ai_action_platform/tests/test_registry.py` | 45 min | `[ ]` R027 |
+
+### R027 — Registry + Audit Foundation + READ Tier
+
+| Task | File/Location | Effort | Status |
+|------|--------------|--------|--------|
+| Create `apps/ai_action_platform/` module + INDEX.md | `apps/ai_action_platform/` | 30 min | `[ ]` R027 |
+| `AIActionInvocation` + `AIActionConfirmationToken` models + migration | `apps/ai_action_platform/models.py` | 1 hr | `[ ]` R027 |
+| `AIActionRegistry` — loads static platform actions | `apps/ai_action_platform/registry.py` | 1 hr | `[ ]` R027 |
+| `platform_actions.py` — static descriptor list (users, orgs, lookup) | `apps/ai_action_platform/platform_actions.py` | 1 hr | `[ ]` R027 |
+| `check_delegated_permission()` — role rank matrix | `apps/ai_action_platform/permission_check.py` | 45 min | `[ ]` R027 |
+| `ActionExecutor` — `internal_function` handler only | `apps/ai_action_platform/executor.py` | 1 hr | `[ ]` R027 |
+| `POST /api/ai-actions/invoke` (READ tier only) + audit write | `apps/ai_action_platform/routes.py` | 1 hr | `[ ]` R027 |
+| `GET /api/ai-actions/registry` — role-filtered action list | `apps/ai_action_platform/routes.py` | 30 min | `[ ]` R027 |
+| `GET /api/ai-actions/history` — invocation history (org-scoped) | `apps/ai_action_platform/routes.py` | 30 min | `[ ]` R027 |
+| Unit tests: registry, permission_check, executor, routes | `apps/ai_action_platform/tests/` | 1 hr | `[ ]` R027 |
+
+### R028 — Confirmation Flow + WRITE Tier
+
+| Task | File/Location | Effort | Status |
+|------|--------------|--------|--------|
+| `POST /api/ai-actions/request-confirmation` — creates token | `apps/ai_action_platform/routes.py` | 45 min | `[ ]` R028 |
+| `POST /api/ai-actions/confirm` — verifies token, executes, audits | `apps/ai_action_platform/routes.py` | 1 hr | `[ ]` R028 |
+| Confirmation token TTL + single-use enforcement | `apps/ai_action_platform/models.py` | 30 min | `[ ]` R028 |
+| `AIActionDescriptor` JSON Schema validation on parameters | `apps/ai_action_platform/executor.py` | 45 min | `[ ]` R028 |
+| `lib/platform/ai-actions/types.ts` — `AIActionRequest`, `AIActionResult`, `ConfirmationToken` | `lib/platform/ai-actions/types.ts` | 30 min | `[ ]` R028 |
+| `useAIAction()` hook — request→confirm state machine | `lib/platform/ai-actions/hooks/use-ai-action.ts` | 2 hr | `[ ]` R028 |
+| `AIActionPreviewCard` component — inline confirm card | `components/shared/ai-action-preview-card.tsx` | 1 hr | `[ ]` R028 |
+| `AIActionHistory` table component — session action log | `components/shared/ai-action-history.tsx` | 1 hr | `[ ]` R028 |
+| Rate limiting: Redis sliding window per org/action | `apps/ai_action_platform/routes.py` | 1 hr | `[ ]` R028 |
+| Bulk action constraint: >5 DESTRUCTIVE resources/60s block | `apps/ai_action_platform/executor.py` | 30 min | `[ ]` R028 |
+
+### R029 — Voice Confirmation + ALA Integration
+
+| Task | File/Location | Effort | Status |
+|------|--------------|--------|--------|
+| `voiceInvocable` flag in `AIActionDescriptor` + registry filter | `apps/ai_action_platform/registry.py` | 30 min | `[ ]` R029 |
+| Voice confirmation: 60s TTL + `confirmed_via: "voice"` | `apps/ai_action_platform/routes.py` | 45 min | `[ ]` R029 |
+| ALA scenario aiActions section declaration | `apps/ala/scenarios/` | 1 hr | `[ ]` R029 |
+| ALA handler: Gemini tool call → request-confirmation → confirm | `apps/ala/` | 2 hr | `[ ]` R029 |
+| PII redaction pipeline for voice transcripts | `apps/ai_action_platform/pii_redactor.py` | 1 hr | `[ ]` R029 |
+| Safe result summarization with `summary_template` | `apps/ai_action_platform/executor.py` | 45 min | `[ ]` R029 |
+
+### R030 — Approval Queue + DESTRUCTIVE Tier
+
+| Task | File/Location | Effort | Status |
+|------|--------------|--------|--------|
+| `AIActionApprovalRequest` — extends `ApprovalService` for AI actions | `apps/ai_action_platform/models.py` | 1 hr | `[ ]` R030 |
+| `execute_approved_ai_action` Celery task | `apps/ai_action_platform/tasks.py` | 1 hr | `[ ]` R030 |
+| SSE notification back to session on approval | `apps/ai_action_platform/routes.py` | 1 hr | `[ ]` R030 |
+| DESTRUCTIVE tier: `ai_actions.destructive` permission check | `apps/ai_action_platform/permission_check.py` | 30 min | `[ ]` R030 |
+| `http_api` handler in ActionExecutor (SSRF allowlist enforced) | `apps/ai_action_platform/executor.py` | 2 hr | `[ ]` R030 |
+| Helpdesk approval queue UI: surface AI action approvals | `components/shared/approval/` | 1 hr | `[ ]` R030 |
+
+### R031 — Module Manifests + Org Config UI
+
+| Task | File/Location | Effort | Status |
+|------|--------------|--------|--------|
+| `ModuleAIAction` type extension in `lib/platform/modules/manifest.ts` | `lib/platform/modules/manifest.ts` | 30 min | `[ ]` R031 |
+| `aiActions[]` section in Users + Orgs module manifests | `lib/modules/users/manifest.ts`, `lib/modules/organizations/manifest.ts` | 1 hr | `[ ]` R031 |
+| JSON Schema files: `users.deactivate.v1.json`, `users.lookup.v1.json` | `apps/ai_action_platform/schemas/` | 45 min | `[ ]` R031 |
+| Settings UI: org-level action enable/disable | `app/(dashboard)/settings/ai-actions/page.tsx` | 2 hr | `[ ]` R031 |
+| Admin UI: `AIActionHistory` table in per-session detail view | `app/(dashboard)/helpdesk/sessions/[id]/page.tsx` | 1 hr | `[ ]` R031 |
+| Command palette integration: AI action proposals searchable | `components/shell/command-palette.tsx` | 1 hr | `[ ]` R031 |
+| AI action test harness: ALA text-chat scenario for `users.lookup` | `apps/ai_action_platform/tests/` | 1 hr | `[ ]` R031 |
 
 ---
 

@@ -17,6 +17,66 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-24 — Round 025 (Architecture): AI User Capability Context
+
+### Files Changed
+- `docs/system-upgrade/36-ai-action-platform.md` — **updated** (§23–§32 added: AIUserCapabilityContext, prompt builder, context endpoint, action filtering, runtime re-check, prompt invalidation, role-specific policies, voice constraints, personalization, security rules S11–S17)
+- `docs/system-upgrade/14-decision-log.md` — **updated** (ADR-023: Personalized AI Capability Context)
+- `docs/system-upgrade/10-target-architecture.md` — **updated** (AI Capability Context section)
+- `docs/system-upgrade/24-core-platform-and-module-system.md` — **updated** (AI Capability Context reference)
+- `docs/system-upgrade/26-platform-capabilities-catalog.md` — **updated** (AI Capability Context section)
+- `docs/system-upgrade/35-platform-capabilities-build-order.md` — **updated** (capability context deliverables per round)
+- `docs/system-upgrade/15-action-backlog.md` — **updated** (16 context-layer tasks: context endpoint, prompt builder, action filtering, invalidation, security tests)
+- `docs/system-upgrade/96-rounds-index.md` — **updated** (Round 025 entry)
+- `docs/system-upgrade/98-change-log.md` — **updated** (this entry)
+
+### New Findings
+- Context must be guidance-only — a forged context injected via network interception cannot authorize actions because the backend re-check (`runtime_permission_check`) is independent
+- `context_version` Redis pattern is the correct invalidation mechanism — atomic INCR, checked at execution time (HTTP 409 if stale)
+- Denied categories must be human-readable strings (not action IDs) — exposing unauthorized action IDs informs attackers of the platform's action surface
+- Voice sessions need a hard ceiling of 8 actions and a `VOICE_PROMPT_ADDENDUM` to prevent verbose/ambiguous voice execution
+- AI service accounts (is_ai_agent=True) must never receive confirmation-required actions — no human to confirm
+- Personalization (org discovery profile, onboarding mode) must explicitly NOT expand permissions — phrased as "influences suggestions only"
+
+### Decision Changes
+- ADR-023: Personalized AI Capability Context
+
+### Backlog Changes
+- 16 tasks added across R027–R031: context dataclass, builder, endpoint, prompt builder, action filtering, unavailable category summaries, role-specific policies, voice addendum, stale detection, invalidation hooks, and 5 security tests
+
+---
+
+## 2026-04-24 — Round 024 (Architecture): AI Action Platform
+
+### Files Changed
+- `docs/system-upgrade/36-ai-action-platform.md` — **created** (22-section architecture spec)
+- `docs/system-upgrade/14-decision-log.md` — **updated** (ADR-021 Dangerous Action Standard formalized; ADR-022 AI Delegated Action Platform added)
+- `docs/system-upgrade/10-target-architecture.md` — **updated** (AI Delegated Action Platform section)
+- `docs/system-upgrade/24-core-platform-and-module-system.md` — **updated** (§15 module manifest `aiActions` extension)
+- `docs/system-upgrade/26-platform-capabilities-catalog.md` — **updated** (AI Delegated Action Platform section; updated timestamp)
+- `docs/system-upgrade/35-platform-capabilities-build-order.md` — **updated** (R027–R031 AI Action Platform parallel track; expanded gate summary table)
+- `docs/system-upgrade/15-action-backlog.md` — **updated** (16 AI Action Platform tasks across R027–R031)
+- `docs/system-upgrade/96-rounds-index.md` — **updated** (Round 024 entry)
+- `docs/system-upgrade/98-change-log.md` — **updated** (this entry)
+
+### New Findings
+- Existing system has two separate action planes that needed bridging: `PlatformAction` (UI/UX) + `AIAction` HTTP model (backend org-defined actions)
+- `ToolInvocation` + `ApprovalService` reusable for DESTRUCTIVE tier — no new approval queue required
+- `AIActionConfirmationToken` (single-use, 120s TTL, SHA-256 parameter hash) is the correct anti-replay mechanism
+- Voice ceiling confirmed: `danger_level >= "high"` cannot use verbal confirm — always requires dashboard approval queue
+- AI agents inherit exactly the authenticated user's permissions — no new permission model needed
+- `apps/ai_settings/models/action.py` already has org-defined HTTP-callable `AIAction` model — layer 2 of registry is already built
+- Platform-static actions (layer 1) need a new `platform_actions.py` registry mirroring TypeScript module manifests
+
+### Decision Changes
+- ADR-021: Dangerous Action Standard (formalized — was referenced in code as future ADR, now recorded)
+- ADR-022: AI Delegated Action Platform (new — 5-phase implementation, R027–R031)
+
+### Backlog Changes
+- 16 implementation tasks added (R027–R031): registry, executor, confirmation flow, voice flow, approval queue, DESTRUCTIVE tier, module manifests, org config UI, command palette integration, AI action test harness
+
+---
+
 ## 2026-04-24 — Round 023 (Planning): Platform Capabilities Build Order
 
 ### Files Changed

@@ -1,8 +1,8 @@
 # 26 — Platform Capabilities Catalog
 
 _Format: Reusable platform capability specifications_
-_Last updated: 2026-04-24 (R023 planning — build order in 35-platform-capabilities-build-order.md)_
-_Round: 014 (created), 023 (reviewed)_
+_Last updated: 2026-04-24 (R025 — AI Capability Context)_
+_Round: 014 (created), 023 (reviewed), 024 (AI Action Platform), 025 (AI Capability Context)_
 
 ---
 
@@ -864,6 +864,25 @@ Build after FastAPI gateway is stood up (Phase 3) — the value of auto-generate
 22. **PlatformHelp / Onboarding tours** (§28)
 23. **PlatformTest Harness** (§29)
 24. **PlatformDeveloper Docs** (§30)
+
+### AI Delegated Action Platform (R027–R031 — see §36)
+
+Cross-cutting system — not a `Platform*` UI component. Extends existing capabilities (`PlatformAction`, `ConfirmActionDialog`, `ApprovalFlow`) with AI-invocation support.
+
+- `lib/platform/ai-actions/` (new) — `useAIAction` hook, `AIActionPreviewCard`, types
+- `apps/ai_action_platform/` (new backend) — registry, executor, confirmation token, audit
+- Extends module manifests with `aiActions[]` section
+- Full spec: `docs/system-upgrade/36-ai-action-platform.md`
+- Decision: ADR-022
+
+**AI User Capability Context (ADR-023):**
+- `GET /api/ai/context` — server-generated `AIUserCapabilityContext` per authenticated user
+- `build_ai_capability_prompt()` — converts context to ≤400-token Hebrew system prompt section
+- Action filtering: only role-appropriate actions in context; denied categories as safe strings
+- Runtime re-check: full permission validation at execution regardless of context
+- Context invalidation: `context_version` Redis counter on role/module/flag/deactivation changes
+- Voice constraints: 8-action cap, PII never spoken proactively, high-danger → UI redirect
+- Spec: `docs/system-upgrade/36-ai-action-platform.md §23–§32`, Decision: ADR-023
 
 ---
 
