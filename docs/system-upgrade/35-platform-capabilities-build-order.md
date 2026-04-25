@@ -15,6 +15,8 @@ Platform has 30 named capabilities (doc 26). 8 are fully implemented, 5 are part
 
 **Current security posture:** 9.2/10 (R022). Foundation is ready for Helpdesk development. All pre-production security blockers are resolved.
 
+**Enforcement:** Before building any capability or module, check `docs/system-upgrade/43-shared-services-enforcement.md` for the mandatory frontend/backend contract rules (ADR-028). Using the wrong pattern when a shared capability exists is a violation, not a workaround.
+
 ---
 
 ## 2. Implemented Capabilities (8 complete)

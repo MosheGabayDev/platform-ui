@@ -582,13 +582,13 @@ _Spec: `docs/system-upgrade/43-shared-services-enforcement.md`_
 
 | Task | File/Location | Effort | Status |
 |------|--------------|--------|--------|
-| Wire `check_no_direct_llm_imports.py` to CI (warn-only) | `.github/workflows/lint.yml` | 30 min | `[ ]` R033 |
-| Add AI-agent guardrail checklist (§12) to `CLAUDE.md` (platformengineer) | `CLAUDE.md` | 30 min | `[ ]` R032 |
-| Add AI-agent guardrail checklist (§12) to `CLAUDE.md` (platform-ui) | `CLAUDE.md` | 30 min | `[ ]` R032 |
-| Write `scripts/check_no_org_id_from_body.py` + baseline scan | `scripts/check_no_org_id_from_body.py` | 1 hr | `[ ]` R033 |
-| Write `scripts/check_json_api_auth.py` + baseline scan | `scripts/check_json_api_auth.py` | 1 hr | `[ ]` R033 |
-| Migrate remaining P0 LLM files: ai_coach, voice_support, personal_info/ai_chat/providers/, jira_integration | `apps/*/` | 3 hr | `[ ]` R033 |
-| Add allowlist entries for known violations in `check_no_direct_llm_imports.py` with R0NN targets | `scripts/check_no_direct_llm_imports.py` | 30 min | `[ ]` R033 |
+| Wire `check_no_direct_llm_imports.py` to CI (warn-only) | `.github/workflows/lint.yml` | 30 min | `[ ]` R034 |
+| Add AI-agent guardrail checklist (§12) to `CLAUDE.md` (platformengineer) | `CLAUDE.md` | 30 min | `[x] R032` |
+| Add AI-agent guardrail checklist (§12) to `CLAUDE.md` (platform-ui) | `CLAUDE.md` | 30 min | `[x] R032` |
+| Write `scripts/check_no_org_id_from_body.py` + baseline scan | `scripts/check_no_org_id_from_body.py` | 1 hr | `[ ]` R034 |
+| Write `scripts/check_json_api_auth.py` + baseline scan | `scripts/check_json_api_auth.py` | 1 hr | `[ ]` R034 |
+| Migrate remaining P0 LLM files: ai_coach, voice_support, personal_info/ai_chat/providers/, jira_integration | `apps/*/` | 3 hr | `[ ]` R034 |
+| Add allowlist entries for known violations in `check_no_direct_llm_imports.py` with R0NN targets | `scripts/check_no_direct_llm_imports.py` | 30 min | `[ ]` R034 |
 | Create `ActionButton` component (loading spinner + disabled state during mutation) | `components/shared/action-button.tsx` | 1 hr | `[ ]` R033 |
 | Create module IMPLEMENTATION.md template from doc 43 §10 checklist | `docs/templates/IMPLEMENTATION_TEMPLATE.md` | 30 min | `[ ]` R033 |
 

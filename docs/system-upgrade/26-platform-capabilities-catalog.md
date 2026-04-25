@@ -224,7 +224,7 @@ This rule is enforced by code review and CI. Reviewers must reject PRs that dupl
 
 ## 07 — PlatformPageShell
 
-**Status:** ⬜ Pending | **Priority:** now
+**Status:** ✅ Implemented (Round 015) | **Priority:** now
 
 **Purpose:** Standard page layout wrapping every `(dashboard)` module page: sticky header area (icon + title + subtitle + action buttons), breadcrumb, stat chips strip, and content area. Eliminates the repeated header+motion boilerplate currently duplicated in Users, Organizations, and Dashboard pages.
 
@@ -232,12 +232,12 @@ This rule is enforced by code review and CI. Reviewers must reject PRs that dupl
 
 **Libraries:** `framer-motion` (already installed), `lucide-react`
 
-**Canonical files (to build):**
-- `components/shared/page-shell.tsx` — `PageShell` (props: `icon`, `title`, `subtitle`, `actions?: ReactNode`, `stats?: ReactNode`, `children`)
-- `components/shared/page-breadcrumb.tsx` — `PageBreadcrumb` (props: `items: {label, href?}[]`)
+**Canonical files:**
+- `components/shared/page-shell/page-shell.tsx` — `PageShell` (props: `icon`, `title`, `subtitle`, `actions?: ReactNode`, `stats?: ReactNode`, `children`)
+- `components/shared/page-shell/index.ts` — barrel export
 
 **First implementation scope:**
-Extract the header pattern (icon chip + h1 + subtitle + stat chips + motion fade-in) currently duplicated in `users/page.tsx` and `organizations/page.tsx` into `PageShell`. Use in both as the first consumers. Then enforce in all future module pages.
+Extracted from `users/page.tsx` and `organizations/page.tsx` in R015. Both pages use `PageShell` as consumers.
 
 **Security/multi-tenant:** No auth logic here — purely presentational. `PermissionGate` wraps content inside the shell, not the shell itself.
 
@@ -580,7 +580,7 @@ Build when Users Phase B adds contact fields, or when Helpdesk module shows call
 
 ## 21 — PlatformErrorBoundary / ErrorState
 
-**Status:** ⬜ Pending | **Priority:** now (Phase 0 backlog item)
+**Status:** ✅ Implemented (Round 015) | **Priority:** now
 
 **Purpose:** React error boundary wrapping every dashboard route, preventing a component crash from taking down the entire app. Also: a shared `ErrorState` component for displaying API errors, loading failures, and empty-after-filter results consistently.
 
@@ -588,14 +588,12 @@ Build when Users Phase B adds contact fields, or when Helpdesk module shows call
 
 **Libraries:** React `ErrorBoundary` class component, shadcn `Card`, `lucide-react`
 
-**Canonical files (to build):**
+**Canonical files:**
 - `components/shared/error-boundary.tsx` — `PlatformErrorBoundary` class component (catches render errors; shows error card + reload button)
 - `components/shared/error-state.tsx` — `ErrorState` (functional: icon + title + description + retry button; used inline in data-loading components)
-- `app/(dashboard)/layout.tsx` — wrap content area in `PlatformErrorBoundary`
 
 **First implementation scope:**
-1. `ErrorState` component — extracted from the inline error patterns currently in Users and Orgs pages
-2. `PlatformErrorBoundary` — added to `(dashboard)/layout.tsx`
+Extracted from Users and Orgs pages in R015. `PlatformErrorBoundary` added to `(dashboard)/layout.tsx`.
 
 **Security/multi-tenant:** Error boundaries must NEVER expose stack traces, internal IDs, or org data in the UI. Show a generic "something went wrong" message with a request ID for support reference. Log details server-side only.
 

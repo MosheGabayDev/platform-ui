@@ -245,6 +245,13 @@ if (error) return <ErrorBadge />;
 
 > **ADR-028** — All new module code must use the approved shared capabilities. No local workarounds. Full spec: `docs/system-upgrade/43-shared-services-enforcement.md`
 
+**Before writing or modifying any module code, read:**
+1. `docs/system-upgrade/43-shared-services-enforcement.md` — contract rules, canonical paths, blacklist, exception policy
+2. `docs/system-upgrade/26-platform-capabilities-catalog.md` — shared capability catalog (check before building anything new)
+3. `docs/system-upgrade/35-platform-capabilities-build-order.md` — build order and capability status
+
+Do not create local replacements for capabilities listed in the catalog.
+
 **AI-agent checklist — run before writing any component, hook, or page:**
 
 ```

@@ -17,6 +17,28 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-25 — Round 033 Follow-up: Shared Services Enforcement Clarity Pass
+
+### Files Changed (platform-ui)
+- `docs/system-upgrade/43-shared-services-enforcement.md` — **updated** (canonical paths table added §01; quick replacement table added §01; ActionButton transition rule added §FE-05; detection script registry table with owner/round/phase added §07; `DetailInfoRow` corrected to `InfoRow`; P0-02/03/04 marked done; acceptance criteria updated; revision history updated)
+- `docs/system-upgrade/26-platform-capabilities-catalog.md` — **updated** (§07 PlatformPageShell status corrected: ⬜ Pending → ✅ Implemented R015; §21 PlatformErrorBoundary status corrected: ⬜ Pending → ✅ Implemented R015; canonical file paths updated to actual paths)
+- `docs/system-upgrade/35-platform-capabilities-build-order.md` — **updated** (enforcement plan cross-reference added to §1 executive summary)
+- `docs/system-upgrade/15-action-backlog.md` — **updated** (P0-02, P0-03 CLAUDE.md tasks marked `[x] R032`; P0-01/05/06/07/08 rounds corrected R033→R034)
+- `CLAUDE.md` — **updated** (mandatory read pointer added: docs 43 + 26 + 35 before any module code)
+
+### Files Changed (platformengineer)
+- `CLAUDE.md` — **updated** (mandatory read pointer added: docs 43 + 26 + 35 before any module code)
+
+### New Findings
+- `components/shared/detail-view/info-row.tsx` exports `InfoRow` (not `DetailInfoRow` as doc 43 previously stated)
+- `components/shared/page-shell/` and `components/shared/error-boundary.tsx` / `error-state.tsx` are ✅ Implemented — doc 26 section headers were stale (summary table was already correct)
+- `ActionButton` is not yet built; R033 follow-up documents the approved interim pattern (Button + isPending)
+
+### Backlog Changes
+- P0 task rounds corrected to R034 (R033 was consumed by enforcement planning)
+
+---
+
 ## 2026-04-25 — Round 033 (Documentation): Shared Services and Platform Capabilities Enforcement Plan
 
 ### Files Created (platform-ui)

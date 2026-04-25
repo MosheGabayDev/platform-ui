@@ -20,6 +20,52 @@ The platform rewrite uses two categories of shared building blocks:
 
 **The rule:** Check the catalog first. If a shared capability exists, use it. If it doesn't exist yet, build it before the module that needs it (Capability-First Rule). If neither applies, document an exception.
 
+### Quick Reference: Canonical Replacement Table
+
+| Need | Forbidden old way | Required new way |
+|------|-------------------|-----------------|
+| Table | Custom HTML `<table>` / per-page table shell | `DataTable<T>` from `components/shared/data-table/` |
+| Form | Inline RHF/Zod in page component | `PlatformForm` + Zod in `lib/modules/<module>/schemas.ts` |
+| Mutation | `useState(loading)` + `catch` + `toast.error` | `usePlatformMutation` from `lib/hooks/use-platform-mutation.ts` |
+| Permission UI | `session.user.role ===` inline checks | `PermissionGate` / `usePermission()` |
+| Page layout | Custom per-page header + breadcrumb | `PageShell` from `components/shared/page-shell/` |
+| Detail rows | Local `InfoRow` / `BoolBadge` helpers | `components/shared/detail-view/` barrel |
+| API call | `fetch()` direct / Flask URL in component | `lib/api/<module>.ts` + `apiFetch` + proxy |
+| Destructive action | `window.confirm()` / `alert()` | `ConfirmActionDialog` |
+| Action button loading | Inline `isLoading` + `disabled` per page | `ActionButton` (after R034); until then: `Button + isPending` from `usePlatformMutation` |
+| Error display | `null` return / blank screen | `ErrorState` from `components/shared/error-state.tsx` |
+| Tenant scope (BE) | `org_id` from request body | `g.jwt_user.org_id` |
+| Auth (BE) | Flask-Login `@login_required` | `@jwt_required` + `g.jwt_user` |
+| RBAC (BE) | Manual `is_admin` checks | `@permission_required` / `@role_required` |
+| Audit (BE) | `print()` / log only | `record_activity()` |
+| LLM call | Direct provider SDK import | `AIProviderGateway.call(GatewayRequest(...))` |
+
+### Quick Reference: Canonical Paths
+
+| Capability | Canonical path | Legacy / forbidden path | Status |
+|-----------|---------------|------------------------|--------|
+| `DataTable<T>` | `components/shared/data-table/data-table.tsx` | Custom `<table>` shell in page | ✅ Implemented |
+| `PlatformForm` | `components/shared/form/platform-form.tsx` | Inline RHF form in page | ✅ Implemented |
+| `usePlatformMutation` | `lib/hooks/use-platform-mutation.ts` | `useState(loading)` + `toast` | ✅ Implemented |
+| `PermissionGate` | `components/shared/permission-gate.tsx` | `session.user.role ===` inline | ✅ Implemented |
+| `usePermission()` | `lib/hooks/use-permission.ts` | Direct session field checks | ✅ Implemented |
+| `PageShell` | `components/shared/page-shell/page-shell.tsx` | Per-page header component | ✅ Implemented |
+| `InfoRow` | `components/shared/detail-view/info-row.tsx` | Per-page `InfoRow` helper | ✅ Implemented |
+| `BoolBadge` | `components/shared/detail-view/bool-badge.tsx` | Per-page `BoolBadge` helper | ✅ Implemented |
+| `DetailHeaderCard` | `components/shared/detail-view/detail-header-card.tsx` | Per-page header card | ✅ Implemented |
+| `DetailSection` | `components/shared/detail-view/detail-section.tsx` | Per-page section wrapper | ✅ Implemented |
+| `DetailBackButton` | `components/shared/detail-view/detail-back-button.tsx` | Inline back button | ✅ Implemented |
+| `ConfirmActionDialog` | `components/shared/confirm-action-dialog.tsx` | `window.confirm()` | ✅ Implemented |
+| `ActionButton` | `components/shared/action-button.tsx` | Inline loading button | ⬜ Pending (R034) |
+| `ErrorState` | `components/shared/error-state.tsx` | `null` return / blank on error | ✅ Implemented |
+| `PlatformErrorBoundary` | `components/shared/error-boundary.tsx` | Unhandled render crash | ✅ Implemented |
+| `apiFetch` | `lib/api/client.ts` | `fetch()` in components | ✅ Implemented |
+| `queryKeys` | `lib/api/query-keys.ts` | Inline `["users"]` arrays | ✅ Implemented |
+| `AIProviderGateway` (BE) | `apps/ai_providers/gateway.py` | `import openai` / direct SDK | ✅ Implemented |
+| `record_activity` (BE) | `apps/authentication/jwt_auth.py` | `print()` / no audit | ✅ Implemented |
+| `@jwt_required` (BE) | `apps/authentication/jwt_auth.py` | `@login_required` on JSON routes | ✅ Implemented |
+| `@role_required` / `@permission_required` (BE) | `apps/authentication/rbac.py` | Manual `is_admin` checks | ✅ Implemented |
+
 ---
 
 ## §02 — Capability-First Rule
@@ -97,7 +143,7 @@ Before writing any new component, hook, or route:
 | Field | Rule |
 |-------|------|
 | **Must use** | `PageShell` (`components/shared/page-shell/`) for all module list pages |
-| **Must use** | `DetailBackButton`, `DetailHeaderCard`, `DetailSection`, `DetailInfoRow` from `components/shared/detail-view/` |
+| **Must use** | `DetailBackButton`, `DetailHeaderCard`, `DetailSection`, `InfoRow` from `components/shared/detail-view/` |
 | **Must use** | `ErrorState` (`components/shared/error-state.tsx`) for API error display |
 | **Must use** | `PlatformErrorBoundary` (`components/shared/error-boundary.tsx`) at dashboard layout level |
 | **Must use** | Motion constants from `lib/ui/motion.ts` — never inline `ease`/`duration` per page |
@@ -113,13 +159,28 @@ Before writing any new component, hook, or route:
 |-------|------|
 | **Must use** | `ConfirmActionDialog` (`components/shared/confirm-action-dialog.tsx`) for all destructive actions |
 | **Must use** | `usePlatformMutation` for the action execution (audit headers attached automatically) |
-| **Must use** | `ActionButton` (once built: R033) for all action buttons with loading state |
+| **Must use** | `ActionButton` (once built: R034) for all action buttons with loading state |
 | **Must use** | Resource name in dialog body — e.g., "Delete organization Acme Corp?" not "Delete this item?" |
 | **Forbidden** | `window.confirm()` — always |
 | **Forbidden** | `alert()` — always |
 | **Forbidden** | `toast` as the only confirmation for destructive actions |
 | **Forbidden** | Destructive action without backend audit log entry |
 | **Canonical files** | `components/shared/confirm-action-dialog.tsx`, `lib/hooks/use-platform-mutation.ts` |
+
+### ActionButton Transition Rule
+
+`ActionButton` (`components/shared/action-button.tsx`) is **not yet built** — target R034.
+
+**Before ActionButton is built:**
+- Use `Button` (shadcn) + `isPending` from `usePlatformMutation` + `ConfirmActionDialog` for destructive paths. This is the approved interim pattern.
+- Do NOT create a local `LoadingButton`, `ActionBtn`, or any inline loading-button wrapper.
+
+**After ActionButton is marked ✅ in `docs/system-upgrade/26-platform-capabilities-catalog.md`:**
+- All new action buttons must use `ActionButton` — no exceptions for new code.
+- Existing callers (`Button + isPending`) migrate opportunistically or in a scheduled cleanup round.
+- The `Button + isPending` inline pattern becomes forbidden for new code immediately after R034 ships `ActionButton`.
+
+**Never:** Create a new per-module loading-button component. Use the interim approved pattern above until `ActionButton` is available.
 
 ### FE-06 — API / Data Fetching
 
@@ -319,6 +380,23 @@ See §12 (AI-agent checklist). Added to `CLAUDE.md` in both repos.
 ---
 
 ## §07 — Static Detection Plan
+
+### Detection Script Registry
+
+| Script | Priority | Status | Owner | Target Round | Phase | Enforcement | Allowlist |
+|--------|----------|--------|-------|-------------|-------|-------------|-----------|
+| `check_no_direct_llm_imports.py` | P0 | **EXISTS** | platformengineer | R034 (wire CI) | 1→2 (R035) | Warn → hard-fail | Required; entries need R0NN targets |
+| `check_no_org_id_from_body.py` | P0 | **PENDING** | platformengineer | R034 (write + run) | 1→2 (R035) | Warn → hard-fail | Required for existing violations |
+| `check_json_api_auth.py` | P0 | **PENDING** | platformengineer | R034 (write + run) | 1→2 (R035) | Warn → hard-fail | Required for existing violations |
+| `check_no_window_confirm` (grep) | P1 | **PENDING** | platform-ui | R035 | 1 | Hard-fail immediately | None — new code only |
+| `check_no_direct_fetch_in_components.py` | P1 | **PENDING** | platform-ui | R035 | 1→2 | Warn → hard-fail | Required |
+| `check_no_inline_query_keys.ts` | P1 | **PENDING** | platform-ui | R035 | 1 | Warn | Required |
+| `check_no_inline_zod_schema.ts` | P2 | **PENDING** | platform-ui | R036 | 1 | Warn | Required |
+| `check_mutation_pattern.ts` | P2 | **PENDING** | platform-ui | R036 | 2 | Warn | Required |
+
+_Phase 1 = warn-only (non-blocking CI). Phase 2 = hard-fail on new violations (allowlisted legacy files still pass). Phase 1→2 = starts warn, promoted to hard-fail after allowlist stabilizes._
+
+---
 
 ### Scripts — Priority P0 (implement before R033)
 
@@ -619,14 +697,14 @@ Tasks that must be completed before R033 module work proceeds.
 
 | # | Task | Owner | Round | Status |
 |---|------|-------|-------|--------|
-| P0-01 | Wire `check_no_direct_llm_imports.py` to `.github/workflows/` (warn-only) | platformengineer | R033 | `[ ]` |
-| P0-02 | Add AI-agent checklist from §12 to `CLAUDE.md` (platformengineer) | platformengineer | R032 | `[ ]` |
-| P0-03 | Add AI-agent checklist from §12 to `CLAUDE.md` (platform-ui) | platform-ui | R032 | `[ ]` |
-| P0-04 | Add Capability-First Rule section to `docs/ARCHITECTURE.md` | platform-ui | R032 | `[ ]` |
-| P0-05 | Write `scripts/check_no_org_id_from_body.py` and run baseline scan | platformengineer | R033 | `[ ]` |
-| P0-06 | Write `scripts/check_json_api_auth.py` and run baseline scan | platformengineer | R033 | `[ ]` |
-| P0-07 | Migrate remaining P0 LLM files to gateway (ai_coach, voice_support, personal_info/ai_chat/providers/, jira_integration) | platformengineer | R033 | `[ ]` |
-| P0-08 | Add allowlist entries for all remaining violations in `check_no_direct_llm_imports.py` with migration round targets | platformengineer | R033 | `[ ]` |
+| P0-01 | Wire `check_no_direct_llm_imports.py` to `.github/workflows/` (warn-only) | platformengineer | R034 | `[ ]` |
+| P0-02 | Add AI-agent checklist from §12 to `CLAUDE.md` (platformengineer) | platformengineer | R032 | `[x] R032` |
+| P0-03 | Add AI-agent checklist from §12 to `CLAUDE.md` (platform-ui) | platform-ui | R032 | `[x] R032` |
+| P0-04 | Add Capability-First Rule section to `docs/ARCHITECTURE.md` | platform-ui | R032 | `[x] R032` |
+| P0-05 | Write `scripts/check_no_org_id_from_body.py` and run baseline scan | platformengineer | R034 | `[ ]` |
+| P0-06 | Write `scripts/check_json_api_auth.py` and run baseline scan | platformengineer | R034 | `[ ]` |
+| P0-07 | Migrate remaining P0 LLM files to gateway (ai_coach, voice_support, personal_info/ai_chat/providers/, jira_integration) | platformengineer | R034 | `[ ]` |
+| P0-08 | Add allowlist entries for all remaining violations in `check_no_direct_llm_imports.py` with migration round targets | platformengineer | R034 | `[ ]` |
 
 ---
 
@@ -640,9 +718,9 @@ Tasks that must be completed before R033 module work proceeds.
 | P1-04 | Move `check_no_direct_llm_imports.py` from warn-only to hard-fail (after allowlist stable) | platformengineer | R035 | `[ ]` |
 | P1-05 | Move `check_json_api_auth.py` from warn-only to hard-fail | platformengineer | R035 | `[ ]` |
 | P1-06 | Add `scripts/check_no_inline_zod_schema.ts` to platform-ui CI | platform-ui | R036 | `[ ]` |
-| P2-01 | Build `ActionButton` component and add to capability contract (FE-05) | platform-ui | R033 | `[ ]` |
+| P2-01 | Build `ActionButton` component and add to capability contract (FE-05) | platform-ui | R034 | `[ ]` |
 | P2-02 | Install `nuqs` and add to FE-06 enforcement (after first list page with filters) | platform-ui | R034 | `[ ]` |
-| P2-03 | Add module IMPLEMENTATION.md template with pre/during/post checklists from §10 | platform-ui | R033 | `[ ]` |
+| P2-03 | Add module IMPLEMENTATION.md template with pre/during/post checklists from §10 | platform-ui | R034 | `[ ]` |
 | P2-04 | Migrate all remaining P1 LLM bypasses to gateway (gemini_client, life_assistant, ala) | platformengineer | R034 | `[ ]` |
 
 ---
@@ -659,9 +737,13 @@ This round (R032) is complete only when all of the following are true:
 - [x] CI/static detection plan exists with P0/P1/P2 priority (§07, §08)
 - [x] Module development checklist exists (§10)
 - [x] PR/reviewer checklist exists (§11)
-- [ ] `CLAUDE.md` updated in both repos (§13 — P0-02, P0-03)
-- [ ] `docs/ARCHITECTURE.md` updated with Capability-First Rule (§13 — P0-04)
-- [ ] P0 tasks added to `15-action-backlog.md`
+- [x] `CLAUDE.md` updated in both repos (§13 — P0-02, P0-03) — done R032
+- [x] `docs/ARCHITECTURE.md` updated with Capability-First Rule (§13 — P0-04) — done R032
+- [x] P0 tasks added to `15-action-backlog.md` — done R032
+- [x] Canonical paths table added (§01) — done R033 follow-up
+- [x] Detection script registry with owner/round/phase added (§07) — done R033 follow-up
+- [x] ActionButton transition rule documented (§FE-05) — done R033 follow-up
+- [x] Quick replacement table added (§01) — done R033 follow-up
 
 ---
 
@@ -675,4 +757,5 @@ _No exceptions registered yet. All known legacy violations are tracked as P0/P1 
 
 | Date | Round | Change |
 |------|-------|--------|
+| 2026-04-25 | R033 follow-up | Canonical paths table added (§01); quick replacement table added (§01); ActionButton transition rule added (§FE-05); detection script registry table added (§07); P0-02/03/04 marked done; `DetailInfoRow` corrected to `InfoRow`; acceptance criteria updated |
 | 2026-04-25 | R032 | Document created — full enforcement plan |
