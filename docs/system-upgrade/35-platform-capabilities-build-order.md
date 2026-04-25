@@ -699,3 +699,5 @@ Each page registers `PageAIContext` via `useRegisterPageContext()`. Priority ord
 | **Module Manager (platform-ui read hub)** | TypeScript types + Zod + query keys + `/modules` list + `/modules/[key]` detail + `/modules/catalog` | R038E |
 | **Module Manager (enable/disable)** | Write APIs + precondition enforcement + ConfirmActionDialog + dependent warning + write tests | R038F |
 | **Module Manager (cleanup)** | Drop deprecated columns/tables + remove CompatLayer | R038G (30d after R038F) |
+| **Module Manager (versioning + upgrade)** | `ModuleVersion`, `ModuleUpgradeJob`, `ModulePackage` + 9-step upgrade workflow + rollback + checksum verification + version UI pages | R038H (≥2w after R038F) |
+| **Module Manager (marketplace + store)** | `ModuleStoreListing` + store UI + trial/purchase/license flow | R038I (after billing decision) |

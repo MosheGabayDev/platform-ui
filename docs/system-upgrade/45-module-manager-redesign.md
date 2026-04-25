@@ -1011,9 +1011,493 @@ Deliverables:
 
 ---
 
+---
+
+## §22 — Per-Org Module Versioning
+
+Each organization can run a different version of the same module. Version state is tracked
+in `OrgModule` (which version is installed) and `ModuleVersion` (what versions exist).
+
+### 22.1 — `ModuleVersion` (system-level version registry) — NEW
+
+One row per released version of a module. Created by system-admin when a version is published.
+
+```
+id                           Integer PK
+module_id                    Integer FK → modules.id NOT NULL
+module_key                   String(60) NOT NULL               ← denormalized
+version                      String(50) NOT NULL               ← semver
+release_channel              String(20) NOT NULL               ← 'stable','beta','alpha','internal'
+status                       String(20) NOT NULL DEFAULT 'draft'
+                             CHECK IN (draft, published, deprecated, yanked, archived)
+
+# Compatibility
+compatibility_min_platform   String(50)                        ← min platform version required
+compatibility_max_platform   String(50)                        ← max platform version (NULL = no ceiling)
+migration_required           Boolean DEFAULT False NOT NULL    ← DB migration must run during upgrade
+rollback_supported           Boolean DEFAULT False NOT NULL    ← safe to downgrade from this version
+
+# Package
+package_id                   Integer FK → module_packages.id NULLABLE
+
+# Changelog + snapshot
+changelog                    Text                              ← release notes (Markdown)
+manifest_snapshot            JSONB                             ← frozen manifest at publish time
+
+# Audit
+published_at                 DateTime
+published_by                 Integer FK → users.id NULLABLE
+yanked_at                    DateTime
+yanked_by                    Integer FK → users.id NULLABLE
+yank_reason                  String(200)
+created_at                   DateTime NOT NULL
+
+UNIQUE(module_id, version)
+```
+
+**Status transitions:**
+```
+  draft → published → deprecated → archived
+           │
+           └── yanked (emergency pull: stops new installs, does not uninstall existing)
+```
+
+- Only system-admin can publish, deprecate, yank, or archive
+- `yanked` blocks new upgrades to this version; existing orgs on this version get an alert
+- `archived` is final; version data kept for historical audit
+
+### 22.2 — `OrgModule` versioning additions
+
+Add these fields to `OrgModule` (§7.2):
+
+```
+installed_version_id         Integer FK → module_versions.id NULLABLE
+target_version_id            Integer FK → module_versions.id NULLABLE   ← pending upgrade target
+rollback_version_id          Integer FK → module_versions.id NULLABLE   ← last known-good version
+
+last_upgrade_status          String(30)                        ← see ModuleUpgradeJob.status values
+last_upgrade_at              DateTime
+last_upgrade_job_id          Integer FK → module_upgrade_jobs.id NULLABLE
+
+auto_update_policy           String(20) DEFAULT 'manual'
+                             CHECK IN (manual, patch_only, minor, disabled)
+release_channel_allowed      String(20) DEFAULT 'stable'
+                             CHECK IN (stable, beta, alpha, internal)
+```
+
+**Version resolution for an org:**
+- `installed_version_id` → the version currently running for this org
+- `target_version_id` → set when an upgrade is queued, cleared after success/failure
+- `rollback_version_id` → the version to roll back to if the current upgrade fails (set before each upgrade)
+
+---
+
+## §23 — Upgrade Workflow
+
+A safe, auditable upgrade process with dry-run validation.
+
+### 23.1 — `ModuleUpgradeJob` model — NEW
+
+```
+id                           Integer PK
+org_id                       Integer FK → orgs.id NOT NULL
+module_id                    Integer FK → modules.id NOT NULL
+module_key                   String(60) NOT NULL
+
+from_version_id              Integer FK → module_versions.id NOT NULL
+to_version_id                Integer FK → module_versions.id NOT NULL
+
+status                       String(30) NOT NULL DEFAULT 'pending'
+                             CHECK IN (pending, validating, validation_failed, ready,
+                                       running, succeeded, failed, rolled_back)
+
+# Validation + execution
+dry_run_result               JSONB                             ← result of dry-run validation
+migration_log                Text                              ← step-by-step migration output
+error_code                   String(60)
+error_message_safe           String(500)                       ← never raw exception; safe for display
+
+# Approval
+requires_approval            Boolean DEFAULT False NOT NULL
+approved_by                  Integer FK → users.id NULLABLE
+approved_at                  DateTime
+
+# Timing
+started_by                   Integer FK → users.id NOT NULL
+started_at                   DateTime
+completed_at                 DateTime
+
+created_at                   DateTime NOT NULL
+```
+
+### 23.2 — Upgrade process (9 steps)
+
+```
+1. INITIATE
+   - system-admin or org-admin triggers upgrade to target_version
+   - ModuleUpgradeJob created (status='pending')
+   - OrgModule.target_version_id set
+
+2. PRE-FLIGHT CHECK
+   - License valid for target version
+   - Dependencies at compatible versions for target
+   - Platform version within [compatibility_min, compatibility_max]
+   - Target version status = 'published' (not yanked/deprecated/archived)
+   - No active upgrade job for this (org, module) already running
+
+3. DRY-RUN VALIDATION (status='validating')
+   - Run migration scripts in dry-run mode (no DB writes)
+   - Check for schema conflicts
+   - Estimate data volume / time
+   - Write dry_run_result to ModuleUpgradeJob
+
+4. APPROVAL GATE (if required)
+   - Destructive migration → requires org-admin confirmation
+   - Permission changes → requires org-admin confirmation
+   - Set status='ready' after approval (or immediately if no approval required)
+
+5. UPGRADE EXECUTION (status='running')
+   - OrgModule.rollback_version_id ← current installed_version_id (save before touching)
+   - Run migrations
+   - Apply new config schema defaults
+   - Sync permissions from new manifest
+   - Write migration_log
+
+6. POST-UPGRADE VALIDATION
+   - Smoke check: key module routes respond
+   - Dependency integrity check
+   - Settings schema validation
+
+7. SUCCESS (status='succeeded')
+   - OrgModule.installed_version_id ← to_version_id
+   - OrgModule.target_version_id ← NULL
+   - ModuleLog(action='upgrade', details={from, to})
+
+8. FAILURE (status='failed')
+   - OrgModule.installed_version_id unchanged (still points to from_version)
+   - OrgModule.target_version_id ← NULL
+   - error_code + error_message_safe written
+   - Rollback triggered automatically if rollback_supported=True
+
+9. AUDIT
+   - ModuleLog written regardless of outcome
+   - ModuleUpgradeJob.completed_at set
+```
+
+### 23.3 — Approval requirement matrix
+
+| Migration type | Approval required |
+|---------------|-------------------|
+| Patch upgrade (no migration) | None |
+| Minor upgrade (no destructive migration) | None |
+| Major upgrade | org-admin confirmation |
+| Destructive migration (DROP/TRUNCATE) | org-admin confirmation |
+| Permission changes | org-admin confirmation |
+| Breaking manifest changes | org-admin confirmation |
+
+---
+
+## §24 — Rollback Policy
+
+| Rule | Detail |
+|------|--------|
+| Rollback allowed | Only if `ModuleVersion.rollback_supported=True` for the version being rolled back from |
+| Rollback blocked | If irreversible migrations ran (detected via `dry_run_result.has_irreversible=True`) |
+| Rollback audit | `ModuleLog(action='rollback')` written regardless of outcome |
+| Rollback approval | Same matrix as upgrade — destructive rollback requires org-admin confirmation |
+| Settings compatibility | Rollback must restore settings schema to prior version defaults; extra keys ignored |
+| Dependency constraints | Rollback cannot leave dependencies pointing at incompatible versions |
+| Rollback source | `OrgModule.rollback_version_id` is set before every upgrade; rollback targets this version |
+
+**Irreversible migration detection:** Any migration step that runs `DROP COLUMN`, `DROP TABLE`,
+`TRUNCATE`, or deletes rows without backup sets `dry_run_result.has_irreversible=True`.
+Rollback is blocked for that job.
+
+---
+
+## §25 — Module Package Management
+
+### 25.1 — `ModulePackage` model — NEW
+
+Stores metadata about a module's package artifact. The file itself lives in object storage (S3).
+
+```
+id                           Integer PK
+module_key                   String(60) NOT NULL
+version                      String(50) NOT NULL
+
+package_type                 String(30) NOT NULL
+                             CHECK IN (manifest_only, frontend_bundle, backend_plugin,
+                                       workflow_pack, template_pack, integration_pack)
+storage_backend              String(20) NOT NULL
+                             CHECK IN (s3, local, registry)
+storage_key                  String(500)                       ← S3 key or local path
+                             ← NEVER store file contents in DB
+
+checksum_sha256              String(64) NOT NULL               ← hex SHA-256 of package file
+signature                    Text                              ← GPG or RSA signature
+size_bytes                   BigInteger
+
+uploaded_by                  Integer FK → users.id NOT NULL
+created_at                   DateTime NOT NULL
+
+UNIQUE(module_key, version, package_type)
+```
+
+### 25.2 — Package security rules
+
+| Rule | Detail |
+|------|--------|
+| Checksum required | `checksum_sha256` must be set before a version can be `published` |
+| Signature optional now, required post-R038I | System-admin must sign packages before marketplace listing |
+| Upload access | system-admin only (`modules.system.manage` permission) |
+| File storage | Never in DB. Files go to S3 via presigned upload URL. Only metadata in DB. |
+| No arbitrary execution | `backend_plugin` packages are not dynamically loaded at runtime — they require a reviewed deployment via CI/CD |
+| Package deletion blocked | A package cannot be deleted if any org has an `OrgModule` installed at that version |
+| Download access | Org with valid license can download their own installed version's package |
+| Integrity check | On upgrade execution, the runner must verify `checksum_sha256` before applying |
+
+### 25.3 — Package type semantics
+
+| Type | Meaning | Runtime action |
+|------|---------|----------------|
+| `manifest_only` | Declares module metadata; no files | Manifest sync only |
+| `frontend_bundle` | JS/CSS assets | Deployed via CDN / static build |
+| `backend_plugin` | Python code extension | Requires CI/CD deploy — not hot-loaded |
+| `workflow_pack` | Workflow definitions, templates | Imported via workflow engine |
+| `template_pack` | Email/report/document templates | Imported into template store |
+| `integration_pack` | Connector config + credentials schema | Imported into integration registry |
+
+---
+
+## §26 — Module Marketplace / Store
+
+### 26.1 — `ModuleStoreListing` model — NEW
+
+System-level store entry for a module. One per module (not per version). Presentation layer
+for the marketplace.
+
+```
+id                           Integer PK
+module_id                    Integer FK → modules.id UNIQUE NOT NULL
+module_key                   String(60) UNIQUE NOT NULL
+
+display_name                 String(200) NOT NULL
+short_description            String(300)
+long_description             Text                              ← Markdown
+category                     String(100)
+tags                         JSONB                             ← String array of searchable tags
+screenshots                  JSONB                             ← Array of {url, caption}
+documentation_url            String(500)
+demo_url                     String(500)
+
+pricing_model                String(20) NOT NULL DEFAULT 'free'
+                             CHECK IN (free, included, paid, usage_based, enterprise)
+trial_available              Boolean DEFAULT False NOT NULL
+trial_duration_days          SmallInt
+required_plan                String(50)                        ← 'starter','pro','enterprise', NULL = any
+base_price_usd               Numeric(10,2)                    ← NULL for enterprise/custom pricing
+
+publisher                    String(200) DEFAULT 'Platform Engineering'
+support_contact              String(200)
+support_url                  String(500)
+
+listing_status               String(20) NOT NULL DEFAULT 'hidden'
+                             CHECK IN (visible, hidden, private, deprecated)
+is_featured                  Boolean DEFAULT False NOT NULL
+sort_order                   Integer DEFAULT 0
+
+latest_stable_version        String(50)                        ← denormalized from ModuleVersion
+latest_beta_version          String(50)                        ← denormalized from ModuleVersion
+
+created_at                   DateTime NOT NULL
+updated_at                   DateTime onupdate
+```
+
+**Visibility rules:**
+- `visible` — shown to all orgs meeting `required_plan` filter
+- `hidden` — only system-admin can see; not shown in marketplace
+- `private` — shown only to explicitly listed orgs (future: `listing_org_allowlist` table)
+- `deprecated` — visible but marked as end-of-life
+
+### 26.2 — Store flow
+
+```
+Browse store → Select module → View detail + pricing → Choose action:
+
+  Free/Included:
+    → Install → Enable → Done
+
+  Trial:
+    → Start Trial → ModuleLicense(license_type='trial') → Install → Enable
+
+  Paid (Subscription):
+    → Purchase → billing integration → ModuleLicense(license_type='subscription') → Install → Enable
+
+  Enterprise:
+    → Request quote → system-admin approval → ModuleLicense(license_type='enterprise') → Install → Enable
+```
+
+---
+
+## §27 — License / Purchase Flow (Extended)
+
+The `ModuleLicense` model from §7.5 is extended with a richer type system.
+
+### 27.1 — Updated `ModuleLicense` fields
+
+Add to the model defined in §7.5:
+
+```
+license_type                 String(20) NOT NULL DEFAULT 'perpetual'
+                             CHECK IN (trial, subscription, perpetual, usage_based, enterprise, included)
+                             ← replaces purchase_type
+
+seats_limit                  Integer NULLABLE                  ← NULL = unlimited
+usage_limit                  Integer NULLABLE                  ← NULL = unlimited (for usage_based)
+billing_subscription_id      String(255)                       ← external Stripe/billing ref
+
+purchased_by                 Integer FK → users.id NULLABLE    ← WAS: purchaser_email string
+approved_by                  Integer FK → users.id NULLABLE    ← for enterprise license grants
+```
+
+### 27.2 — License enforcement rules
+
+| Trigger | Action |
+|---------|--------|
+| License expired | Prevent new usage; existing enabled module: `suspended` state if grace period passed |
+| License suspended (billing failure) | Module moves to `suspended` immediately |
+| License cancelled | Module moves to `disabled`; org-admin notified |
+| Seats exceeded | Block new user onboarding to module; existing users unaffected |
+| Trial expired | License transitions to `expired`; org-admin notified; 7-day grace period |
+| Enterprise license granted | system-admin creates `ModuleLicense(license_type='enterprise', approved_by=admin)` |
+
+### 27.3 — License audit requirements
+
+Every license state transition writes:
+- `ModuleLog(action='license_*', org_id, user_id)`
+- Never logs `license_key` value
+
+---
+
+## §28 — Store + Versioning UI Routes
+
+Routes added to the platform-ui Module Hub (R038E + R038I).
+
+| Route | Description | Auth |
+|-------|-------------|------|
+| `/modules/store` | Browse marketplace | `modules.view` |
+| `/modules/store/[moduleKey]` | Module store detail + version history | `modules.view` |
+| `/modules/installed` | Org's installed + enabled modules | `modules.view` |
+| `/modules/installed/[moduleKey]` | Installed module detail + status | `modules.view` |
+| `/modules/installed/[moduleKey]/versions` | Version history + available upgrades | `modules.view` |
+| `/modules/installed/[moduleKey]/upgrade` | Start / review upgrade job | `modules.enable` |
+| `/modules/licenses` | Org licenses list | `modules.license.view` |
+| `/modules/upgrade-jobs` | Org upgrade job history | `modules.audit.view` |
+| `/modules/catalog` | System module catalog | system_admin |
+| `/modules/catalog/[moduleKey]/versions` | All versions for a module | system_admin |
+| `/modules/catalog/[moduleKey]/packages` | Package management | system_admin |
+| `/modules/store/manage` | Manage store listings | system_admin |
+
+**Shared capabilities used:**
+`PlatformPageShell`, `DataTable`, `DetailView`, `PlatformForm`, `PermissionGate`,
+`ConfirmActionDialog`, `ActionButton`, `PlatformTimeline`, `PlatformAuditLog`, `PlatformJobRunner`
+
+---
+
+## §29 — Security Requirements (Versioning + Marketplace + Packages)
+
+In addition to the general rules in §09:
+
+| Requirement | Detail |
+|-------------|--------|
+| Package upload: system-admin only | `modules.system.manage` permission; no org-admin upload path |
+| No hot-loading | `backend_plugin` packages require a CI/CD deploy; never `importlib.import_module()` on uploaded files |
+| Checksum verification | Upgrade executor verifies `checksum_sha256` before applying any package |
+| Cross-org isolation | An org can only see its own `OrgModule`, `ModuleUpgradeJob`, `ModuleLicense` rows |
+| Store visibility | Org-scoped: `listing_status='private'` modules only visible to allowlisted orgs |
+| Yanked version alert | Orgs running a yanked version receive a notification via platform outbox |
+| Upgrade audit completeness | `ModuleUpgradeJob` row must exist before any migration SQL runs |
+| Rollback authority | Only the org-admin who initiated the upgrade or a system-admin may trigger rollback |
+| License key never in logs | `license_key` encrypted in DB; never in `ModuleLog.details`, API responses, or upgrade logs |
+| Destructive migration gate | `dry_run_result.has_irreversible=True` requires explicit org-admin acknowledgement before `status` advances to `running` |
+
+---
+
+## §30 — AI Integration for Versioned Modules
+
+Module versioning data surfaces to AI subsystems:
+
+| AI Subsystem | Data exposed by Module Manager | Notes |
+|---|---|---|
+| AI Action Platform | `aiActions[]` from `manifest_snapshot` of installed version | Actions from non-installed or yanked versions excluded |
+| Floating AI Assistant | `aiPageContexts[]` from installed version manifest | Context changes after upgrade detected via `installed_version_id` |
+| AI Service Routing | `module_key` + `is_module_available()` | Routing matrix filters by enabled org modules |
+| AI Onboarding | `aiOnboarding{}` from installed version manifest | Re-runs onboarding if major version bump |
+| Cost Estimation | `manifest_snapshot.estimatedAiUsage` (future field) | Marketplace shows estimated AI spend per module |
+
+**Rules:**
+- AI actions from module version X are not available until `OrgModule.installed_version_id = X`
+- Yanked version AI actions are disabled immediately on yank (action registry refresh)
+- AI execution always routes through AI Action Platform + AI Provider Gateway — Module Manager provides metadata only
+
+---
+
+## §31 — Updated R038 Phase Split (including Versioning + Marketplace)
+
+The original R038A-G phases are preserved. Two new phases are added.
+
+| Phase | What | Notes |
+|-------|------|-------|
+| R038A | Contract doc ✅ | Done |
+| R038B | Additive schema foundation | No destructive changes |
+| R038C | Read model + availability helper + tests | |
+| R038D | JWT read-only APIs | |
+| R038E | platform-ui read-only Module Hub | `/modules/installed`, `/modules/catalog` |
+| R038F | Write APIs + enable/disable flow | |
+| R038G | Cleanup / deprecation | 30d after R038F |
+| **R038H** | **Versioning + Upgrade** | `ModuleVersion`, `ModuleUpgradeJob`, `ModulePackage` tables + upgrade workflow + package security + store UI scaffolding |
+| **R038I** | **Marketplace + Store** | `ModuleStoreListing` + store UI + purchase/trial/license flow |
+
+**Gate for R038H:** R038F deployed + stable for 2 weeks.
+**Gate for R038I:** Billing integration (Stripe) decision made (OQ-03 / product decision).
+
+---
+
+## §32 — ADR-032
+
+**ADR-032: Module Versioning, Upgrade Jobs, Package Management, and Marketplace**
+
+- **Context:** ADR-031 defined per-org module state but assumed all orgs run the same version.
+  ResolveAI requires independent per-org version progression: Org A on v1.2.0, Org B on v1.4.0.
+  Module upgrade is a high-risk operation requiring dry-run, approval gates, rollback, and full
+  audit. Physical package files must be stored in object storage with checksum integrity, not
+  code-executed from DB.
+- **Decision:** (1) Add `ModuleVersion` as a system-level version registry. (2) Extend `OrgModule`
+  with `installed_version_id`, `target_version_id`, `rollback_version_id`, `auto_update_policy`,
+  `release_channel_allowed`. (3) Add `ModuleUpgradeJob` with 9-step workflow and approval gates.
+  (4) Add `ModulePackage` for package metadata; files live in S3, never in DB. (5) Add
+  `ModuleStoreListing` as the marketplace presentation layer. (6) Extend `ModuleLicense` with
+  `license_type` and `seats_limit`. (7) No dynamic code loading from uploaded packages.
+- **Alternatives rejected:**
+  - All orgs always on latest version — rejected: too risky for production orgs, no rollback
+  - Store package files as DB BLOBs — rejected: S3 is the right store for binary artifacts
+  - Inline upgrade in the same transaction as enable — rejected: upgrade is a multi-step job, not an atomic operation
+- **Consequences:**
+  - `OrgModule` gains 7 new fields (all nullable, additive)
+  - Upgrade is now a Job (async, auditable) not a synchronous API call
+  - Package deletion is blocked if any org installed on that version
+  - Marketplace/store is fully data-driven via `ModuleStoreListing`
+- **Affected modules:** `apps/module_manager/` (models, services, api_routes), S3/storage layer,
+  `platform-ui/app/(dashboard)/modules/`, billing integration (Phase I)
+- **Spec:** `docs/system-upgrade/45-module-manager-redesign.md §22–§31`
+
+---
+
 ## Revision History
 
 | Date | Author | Change |
 |------|--------|--------|
 | 2026-04-25 | Platform Eng | v1.0 — initial design |
-| 2026-04-25 | Platform Eng | v2.0 — R038 Follow-up: added source of truth, lifecycle model, manifest integration, permission model, dependency enforcement, route/nav enforcement, audit requirements, testing strategy, backward compatibility, AI integration, split R038A-G |
+| 2026-04-25 | Platform Eng | v2.0 — R038 Follow-up: source of truth, lifecycle, manifest integration, permission model, enforcement, audit, testing, backward compat, AI integration, R038A-G split |
+| 2026-04-25 | Platform Eng | v3.0 — R038A2: per-org versioning (§22), upgrade workflow (§23), rollback policy (§24), package management (§25), marketplace (§26), license/purchase flow (§27), store UI routes (§28), security (§29), AI integration v2 (§30), R038H-I phases (§31), ADR-032 (§32) |

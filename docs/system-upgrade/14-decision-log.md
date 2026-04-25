@@ -705,4 +705,22 @@ Error case:
 
 ---
 
+---
+
+## ADR-032 — Module Versioning, Upgrade Jobs, Package Management, and Marketplace (2026-04-25)
+
+- **Context:** ADR-031 defined per-org module state but assumed all orgs run the same version. ResolveAI requires independent per-org version progression. Module upgrades are high-risk operations requiring dry-run validation, approval gates, and rollback. Package artifacts must be signed and stored in object storage (never in DB). A module marketplace is needed so orgs can discover, trial, and purchase modules.
+- **Decision:** (1) `ModuleVersion` — system-level registry of released versions with `release_channel`, `status`, `rollback_supported`, `migration_required`, `manifest_snapshot`. (2) `OrgModule` gains `installed_version_id`, `target_version_id`, `rollback_version_id`, `auto_update_policy`, `release_channel_allowed`. (3) `ModuleUpgradeJob` — 9-step async workflow with dry-run, approval gate, migration execution, and rollback. (4) `ModulePackage` — metadata in DB, files in S3, checksum required, no hot-loading of `backend_plugin` packages. (5) `ModuleStoreListing` — marketplace data layer; pricing model, trial support, visibility control. (6) `ModuleLicense` extended with `license_type`, `seats_limit`, `billing_subscription_id`.
+- **Key rules:**
+  - No dynamic code execution of uploaded packages — `backend_plugin` requires CI/CD deploy
+  - Checksum must be verified before any package is applied during upgrade
+  - Yanked version → immediate alert to all affected orgs; blocks new upgrades to that version
+  - Rollback blocked if `dry_run_result.has_irreversible=True`
+  - Marketplace store visibility respects `listing_status` + `required_plan` per org
+- **Phases:** R038H (versioning + upgrade + packages), R038I (marketplace + store + license flow). Gate for R038I: billing integration decision (OQ-03).
+- **Affected modules:** `apps/module_manager/` (models, services, tasks, api_routes), S3/storage, `platform-ui/app/(dashboard)/modules/`, billing integration.
+- **Spec:** `docs/system-upgrade/45-module-manager-redesign.md §22–§32`
+
+---
+
 _Add new ADRs here as decisions are made during implementation._

@@ -503,7 +503,22 @@ _Updated after each round — append, never overwrite entries._
 | **Files Updated (platform-ui)** | `docs/system-upgrade/45-module-manager-redesign.md` (v1.0 → v2.0: 21 sections — source of truth, identity terms, lifecycle model, manifest integration, permission model, dependency/license enforcement, route/nav enforcement, audit requirements, API contract, testing strategy, backward compatibility, AI integration, migration strategy, R038A-G phase split), `docs/system-upgrade/14-decision-log.md` (ADR-031 clarified — manifest-first rule added), `docs/system-upgrade/15-action-backlog.md` (R038 replaced by R038A-G: 43 tasks across 7 phases), `docs/system-upgrade/35-platform-capabilities-build-order.md` (Gate Summary: R038B-G rows added), `docs/system-upgrade/96-rounds-index.md`, `docs/system-upgrade/98-change-log.md` |
 | **Commits** | No code changes — documentation hardening round |
 | **Decisions Proposed** | ADR-031 clarification: manifest-first rule + `module_key` as primary identity |
-| **Next Recommended Round** | Answer OQ-01–OQ-07 (§18), then R038B: additive schema foundation |
+| **Next Recommended Round** | R038A2: module versioning, upgrade jobs, package management, marketplace — then answer OQ-01–OQ-07 and start R038B |
+
+---
+
+## Round 038A2 — Module Versioning, Upgrade Jobs, Package Management, and Marketplace
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-25 |
+| **Topic** | Documentation-only: extend Module Manager redesign with per-org versioning, upgrade workflow, rollback policy, package file management, module marketplace, and license/purchase flow |
+| **Objective** | Make the Module Manager design complete for a production SaaS: different orgs can run different module versions, upgrades are safe and auditable, package artifacts are checksum-verified, and a marketplace enables discovery and licensing. |
+| **Key Findings** | • `OrgModule` needs 6 new version fields: `installed_version_id`, `target_version_id`, `rollback_version_id`, `last_upgrade_job_id`, `auto_update_policy`, `release_channel_allowed` <br>• `ModuleVersion` model added: `status` (draft/published/deprecated/yanked/archived), `release_channel`, `rollback_supported`, `migration_required`, `manifest_snapshot` (frozen at publish time) <br>• Upgrade is a 9-step async Job (not a synchronous API call): initiate → pre-flight → dry-run → approval gate → execute → validate → success/failure → rollback → audit <br>• Rollback blocked if `dry_run_result.has_irreversible=True` (DROP/TRUNCATE detected in dry-run) <br>• `ModulePackage` metadata in DB, files in S3; checksum required before publish; no hot-loading of `backend_plugin` packages <br>• `ModuleStoreListing` is the marketplace data layer — `listing_status` + `required_plan` control visibility per org <br>• `ModuleLicense` extended with `license_type` (trial/subscription/perpetual/usage_based/enterprise/included), `seats_limit`, `billing_subscription_id` <br>• R038H and R038I phases added to the phase plan (9 phases total) |
+| **Files Updated (platform-ui)** | `docs/system-upgrade/45-module-manager-redesign.md` (v2.0 → v3.0: §22 versioning, §23 upgrade workflow, §24 rollback policy, §25 package management, §26 marketplace, §27 license flow, §28 store UI routes, §29 security, §30 AI integration v2, §31 updated phase split, §32 ADR-032), `docs/system-upgrade/14-decision-log.md` (ADR-032 added), `docs/system-upgrade/15-action-backlog.md` (R038H: 18 tasks; R038I: 14 tasks), `docs/system-upgrade/35-platform-capabilities-build-order.md` (R038H + R038I gate rows), `docs/system-upgrade/96-rounds-index.md`, `docs/system-upgrade/98-change-log.md` |
+| **Commits** | No code changes — documentation round |
+| **Decisions Proposed** | ADR-032: Module Versioning, Upgrade Jobs, Package Management, and Marketplace |
+| **Next Recommended Round** | Answer OQ-01–OQ-07 in doc 45 §18, then R038B: additive schema foundation |
 
 ---
 

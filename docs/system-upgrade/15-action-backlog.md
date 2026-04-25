@@ -833,6 +833,82 @@ Backend only. No UI.
 | Remove `ModuleCompatLayer` read-through helper | `apps/module_manager/services.py` | 30 min | `[ ]` R038G |
 | Update module docs: INDEX.md, IMPLEMENTATION.md | `apps/module_manager/` | 30 min | `[ ]` R038G |
 
+### R038H — Versioning + Upgrade Workflow (after R038F stable ≥2 weeks)
+
+**Spec:** `docs/system-upgrade/45-module-manager-redesign.md §22–§25` | **ADR:** ADR-032
+
+#### R038H-A — Schema (platformengineer)
+
+| Task | File | Est. | Status |
+|------|------|------|--------|
+| Migration: `module_versions` table (ModuleVersion) | `scripts/migrations/versions/...add_module_version.py` | 1 hr | `[ ]` R038H |
+| Migration: `module_upgrade_jobs` table (ModuleUpgradeJob) | `scripts/migrations/versions/...add_module_upgrade_job.py` | 1 hr | `[ ]` R038H |
+| Migration: `module_packages` table (ModulePackage) | `scripts/migrations/versions/...add_module_package.py` | 45 min | `[ ]` R038H |
+| Migration: `org_modules` — add `installed_version_id`, `target_version_id`, `rollback_version_id`, `last_upgrade_job_id`, `auto_update_policy`, `release_channel_allowed` | `scripts/migrations/versions/...extend_org_module_versioning.py` | 45 min | `[ ]` R038H |
+| Data seed: `ModuleVersion` rows from existing `Module.version` values | `scripts/seeds/module_versions.py` | 30 min | `[ ]` R038H |
+| Data seed: backfill `OrgModule.installed_version_id` | `scripts/seeds/org_module_versions.py` | 30 min | `[ ]` R038H |
+| Add versioning + upgrade permissions to DB | `scripts/migrations/versions/...add_upgrade_permissions.py` | 15 min | `[ ]` R038H |
+
+#### R038H-B — Upgrade Service (platformengineer)
+
+| Task | File | Est. | Status |
+|------|------|------|--------|
+| `ModuleVersionService.publish_version()` | `apps/module_manager/version_service.py` | 1 hr | `[ ]` R038H |
+| `ModuleUpgradeService.initiate_upgrade()` — 9-step workflow | `apps/module_manager/upgrade_service.py` | 2 hr | `[ ]` R038H |
+| `ModuleUpgradeService.run_dry_run()` — validation step | `apps/module_manager/upgrade_service.py` | 1 hr | `[ ]` R038H |
+| `ModuleUpgradeService.execute_upgrade()` — migration + rollback | `apps/module_manager/upgrade_service.py` | 2 hr | `[ ]` R038H |
+| `ModuleUpgradeService.rollback()` — with irreversibility check | `apps/module_manager/upgrade_service.py` | 1 hr | `[ ]` R038H |
+| Package checksum verifier | `apps/module_manager/package_service.py` | 30 min | `[ ]` R038H |
+| Celery task: `run_module_upgrade_job` | `apps/module_manager/tasks.py` | 1 hr | `[ ]` R038H |
+
+#### R038H-C — APIs + UI (platformengineer + platform-ui)
+
+| Task | File | Est. | Status |
+|------|------|------|--------|
+| `GET /api/org/modules/<key>/versions` | `apps/module_manager/api_routes.py` | 30 min | `[ ]` R038H |
+| `POST /api/org/modules/<key>/upgrade` | `apps/module_manager/api_routes.py` | 45 min | `[ ]` R038H |
+| `POST /api/org/modules/<key>/rollback` | `apps/module_manager/api_routes.py` | 30 min | `[ ]` R038H |
+| `GET /api/modules/upgrade-jobs` | `apps/module_manager/api_routes.py` | 20 min | `[ ]` R038H |
+| `GET /api/modules/versions/<module_key>` (system catalog, all versions) | `apps/module_manager/api_routes.py` | 20 min | `[ ]` R038H |
+| `POST /api/modules/versions` (publish, system-admin) | `apps/module_manager/api_routes.py` | 30 min | `[ ]` R038H |
+| `POST /api/modules/packages` (upload metadata, system-admin) | `apps/module_manager/api_routes.py` | 30 min | `[ ]` R038H |
+| `/modules/installed/[key]/versions` page | `app/(dashboard)/modules/[key]/versions/page.tsx` | 1.5 hr | `[ ]` R038H |
+| `/modules/installed/[key]/upgrade` page + `ConfirmActionDialog` | `app/(dashboard)/modules/[key]/upgrade/page.tsx` | 2 hr | `[ ]` R038H |
+| `/modules/upgrade-jobs` page (job history + status) | `app/(dashboard)/modules/upgrade-jobs/page.tsx` | 1.5 hr | `[ ]` R038H |
+
+### R038I — Marketplace + Store (after billing integration decision, gate: OQ-03)
+
+**Spec:** `docs/system-upgrade/45-module-manager-redesign.md §26–§28` | **ADR:** ADR-032
+
+#### R038I-A — Schema (platformengineer)
+
+| Task | File | Est. | Status |
+|------|------|------|--------|
+| Migration: `module_store_listings` table (ModuleStoreListing) | `scripts/migrations/versions/...add_module_store_listing.py` | 45 min | `[ ]` R038I |
+| Migration: extend `module_licenses` with `license_type`, `seats_limit`, `billing_subscription_id`, `purchased_by`, `approved_by` | `scripts/migrations/versions/...extend_module_license_v2.py` | 30 min | `[ ]` R038I |
+| Data seed: `ModuleStoreListing` rows from existing `Module` records | `scripts/seeds/module_store_listings.py` | 45 min | `[ ]` R038I |
+
+#### R038I-B — APIs (platformengineer)
+
+| Task | File | Est. | Status |
+|------|------|------|--------|
+| `GET /api/modules/store` — browse marketplace (filtered by org plan) | `apps/module_manager/api_routes.py` | 30 min | `[ ]` R038I |
+| `GET /api/modules/store/<key>` — store detail | `apps/module_manager/api_routes.py` | 20 min | `[ ]` R038I |
+| `POST /api/org/modules/<key>/trial` — start trial | `apps/module_manager/api_routes.py` | 30 min | `[ ]` R038I |
+| `POST /api/org/modules/<key>/purchase` — purchase / license request | `apps/module_manager/api_routes.py` | 45 min | `[ ]` R038I |
+| `GET /api/org/modules/licenses` — org license list | `apps/module_manager/api_routes.py` | 20 min | `[ ]` R038I |
+
+#### R038I-C — platform-ui
+
+| Task | File | Est. | Status |
+|------|------|------|--------|
+| TypeScript types: `ModuleVersion`, `ModuleUpgradeJob`, `ModulePackage`, `ModuleStoreListing`, `ModuleLicense` v2 | `lib/api/types.ts` | 30 min | `[ ]` R038I |
+| Zod schemas: upgrade + store forms | `lib/modules/modules/schemas.ts` | 30 min | `[ ]` R038I |
+| Query keys: `queryKeys.moduleVersions.*`, `queryKeys.moduleStore.*` | `lib/api/query-keys.ts` | 15 min | `[ ]` R038I |
+| `/modules/store` browse page | `app/(dashboard)/modules/store/page.tsx` | 2 hr | `[ ]` R038I |
+| `/modules/store/[key]` detail page + pricing | `app/(dashboard)/modules/store/[key]/page.tsx` | 2 hr | `[ ]` R038I |
+| `/modules/licenses` page | `app/(dashboard)/modules/licenses/page.tsx` | 1.5 hr | `[ ]` R038I |
+
 ---
 
 ## Blocked

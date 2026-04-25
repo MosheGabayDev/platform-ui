@@ -17,6 +17,33 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-25 — Round 038A2: Module Versioning, Upgrade Jobs, Package Management, and Marketplace
+
+### Files Changed (platform-ui)
+- `docs/system-upgrade/45-module-manager-redesign.md` — **updated** v2.0 → v3.0: added §22 (per-org versioning — `ModuleVersion` model, `OrgModule` 6 new version fields), §23 (upgrade workflow — `ModuleUpgradeJob` model, 9-step process, approval matrix), §24 (rollback policy — irreversibility detection, constraints), §25 (package management — `ModulePackage` model, S3 storage, security rules), §26 (marketplace — `ModuleStoreListing` model, store flow), §27 (license/purchase flow — extended `ModuleLicense`, enforcement rules), §28 (store + versioning UI routes — 12 routes), §29 (security requirements for versioning + marketplace), §30 (AI integration v2 — version-aware action registry), §31 (updated phase split R038A-I), §32 (ADR-032)
+- `docs/system-upgrade/14-decision-log.md` — **updated** (ADR-032 added)
+- `docs/system-upgrade/15-action-backlog.md` — **updated** (R038H: 18 tasks across schema/service/API/UI; R038I: 14 tasks)
+- `docs/system-upgrade/35-platform-capabilities-build-order.md` — **updated** (R038H + R038I gate rows added)
+- `docs/system-upgrade/96-rounds-index.md` — **updated** (R038A2 entry added)
+- `docs/system-upgrade/98-change-log.md` — this entry
+
+### New Findings
+- Per-org versioning requires 9-step async Job model — not safe as synchronous API call
+- Rollback must be blocked when irreversible migrations run (DROP/TRUNCATE in dry-run)
+- Package files must never be stored in DB — S3 with checksum before publish
+- No dynamic code loading from uploaded packages — `backend_plugin` requires CI/CD deploy
+- Marketplace store visibility must be gated on `required_plan` + `listing_status` per org
+
+### Decision Changes
+- ADR-032 added: Module Versioning, Upgrade Jobs, Package Management, and Marketplace
+- R038 phases expanded from A-G to A-I (9 total)
+
+### Backlog Changes
+- R038H: 18 tasks (schema + upgrade service + Celery task + APIs + 3 UI pages)
+- R038I: 14 tasks (schema + 5 APIs + 3 platform-ui pages + types + Zod + query keys)
+
+---
+
 ## 2026-04-25 — Round 038 Follow-up: Module Manager Contract Hardening
 
 ### Files Changed (platform-ui)
