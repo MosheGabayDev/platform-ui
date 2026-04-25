@@ -1060,3 +1060,90 @@ R041A (platformengineer CI) + R041B (platform-ui ActionButton) -- safe, differen
 **Worktree path:** N/A (governance round in main repo)
 **Tests:** N/A
 **Next:** Create worktrees for R041A + R041B using 52 section 4 commands.
+
+---
+
+## Round R041-Infra — Runtime Deployment Architecture
+
+**Date:** 2026-04-26
+**Status:** Complete
+
+| Field | Value |
+|-------|-------|
+| **Round** | R041-Infra — Runtime Deployment Architecture, Pod Separation, and Failure Isolation |
+| **Date** | 2026-04-26 |
+| **Scope** | Architecture/governance documentation only — no product features, no schema, no UI, no K8s manifest changes |
+| **Tests** | N/A — architecture round |
+| **Docs updated** | 53 (new), 99, 97, 00, 01, 15, 96, 98 |
+| **Next round** | R041A: CI enforcement (create worktree platformengineer-r041a-ci) |
+
+### Mission
+
+Define the official runtime deployment architecture for the platform. Ensure UI failure
+does not bring down the backend API; API failure does not corrupt background jobs; workers
+can scale independently; AI/voice/data ingestion workloads can be isolated; and every
+service has health/readiness checks.
+
+### Files Created
+
+- `docs/system-upgrade/53-runtime-deployment-architecture.md` — 9 logical services,
+  Phase 1 minimum split, Phase 2/3 target split, service dependency rules, health/readiness
+  check definitions, 7 failure isolation scenarios, K8s requirements, migration job rule,
+  db.create_all() production ban, scaling rules, security boundaries, observability requirements,
+  CI/CD implications, current-state-vs-target table, enforcement rules for future rounds
+
+### Files Updated
+
+- `99-risk-register.md`: R21 added — runtime service coupling risk
+- `97-source-of-truth.md`: 53 registered
+- `00-implementation-control-center.md`: 53 linked in Key Governance Documents
+- `15-action-backlog.md`: Runtime Deployment Architecture tasks added (Phase 1 + Phase 2)
+- `01-round-review-checklist.md §7`: pod separation checks added to migration safety section
+- `98-change-log.md`: entry prepended
+
+### ADR
+
+Runtime Pod Separation and Failure Isolation — documented inline in `53 §intro`.
+Decision: UI, API, workers, scheduler are separate deployments. db.create_all() banned
+from production startup. Migrations run as controlled Jobs. Heavy jobs queued.
+
+### Completed
+
+- [x] Runtime deployment architecture doc exists (`53`)
+- [x] Minimum Phase 1 pod split defined
+- [x] Target Phase 2/3 split defined
+- [x] UI/API/worker separation explicit
+- [x] Service dependencies explicit
+- [x] 7 failure isolation scenarios documented
+- [x] Health/readiness checks defined per service
+- [x] Kubernetes/Docker requirements documented
+- [x] Migration job rule documented
+- [x] db.create_all() production ban documented
+- [x] Scaling rules documented
+- [x] Security boundaries documented
+- [x] Observability requirements documented
+- [x] CI/CD deployment implications documented
+- [x] ADR embedded
+- [x] Control Center references runtime architecture doc
+
+### Not Completed (deferred — out of scope)
+
+- [ ] Actual `platform-ui` Dockerfile (tracked in backlog)
+- [ ] Kubernetes migration Job manifest (tracked in backlog)
+- [ ] Remove `db.create_all()` from `apps/__init__.py:1487` (tracked in backlog)
+- [ ] `/api/ready` readiness endpoint implementation (tracked in backlog)
+
+### Warnings for Next Agent
+
+- `apps/__init__.py:1487` still has `db.create_all()` — risk R15 + R21. Do not add new
+  calls to `db.create_all()` anywhere. Remove it from the production startup path before P2.
+- `platform-ui` Dockerfile does not exist. The Next.js app cannot be deployed as a
+  separate pod until this is created.
+- Current deployment already has API/worker separation (`web-api` + `celery-worker` pods)
+  — the main gaps are UI Dockerfile and migration Job automation.
+
+### Recommended Next Action
+
+Start R041A (CI enforcement — LLM import gate in GitHub Actions). Create worktree for R041A
+using the commands in `52-parallel-worktree-agent-workflow.md §4`. R041A is in the
+`platformengineer` repo with no blockers.

@@ -206,6 +206,7 @@ The following are explicitly out of scope until foundation gates are green:
 | [`50-module-e2e-coverage-matrix.md`](50-module-e2e-coverage-matrix.md) | Standard for per-module E2E coverage plans (`docs/modules/<key>/E2E_COVERAGE.md`) |
 | [`51-agent-handoff-protocol.md`](51-agent-handoff-protocol.md) | Protocol for parallel agents and context handoff between sessions |
 | [`52-parallel-worktree-agent-workflow.md`](52-parallel-worktree-agent-workflow.md) | Git worktree workflow — naming, creation, lock list, safe/unsafe parallel tracks, **shared docs reconciliation rule (§6.1)**, PR workflow, cleanup |
+| [`53-runtime-deployment-architecture.md`](53-runtime-deployment-architecture.md) | Runtime pod/service separation, Kubernetes topology, deployment boundaries, failure isolation, health checks, migration job rule |
 | [`26-platform-capabilities-catalog.md`](26-platform-capabilities-catalog.md) | Shared capability catalog |
 
 ---

@@ -104,6 +104,12 @@ A round may not be marked Done until all `[!]` items are resolved or explicitly 
 - [ ] FK `ondelete` rules in migration match the intended behavior (CASCADE vs NO ACTION documented)
 - [ ] Named indexes in migration (`idx_*`) do not duplicate model auto-indexes (`ix_*`) on the same column — or duplication is documented as acceptable
 
+**Runtime / deployment checks (skip if no new service or pod):**
+- [ ] If a new background task added: task runs in `platform-worker` pod, not inline in API request handler (see `53-runtime-deployment-architecture.md §14`)
+- [ ] `db.create_all()` was NOT added or left in production startup path
+- [ ] If a new service introduced: service documented in `53-runtime-deployment-architecture.md §1`
+- [ ] Health/readiness endpoints defined for any new pod/service
+
 ---
 
 ## 8. Tests

@@ -1070,6 +1070,41 @@ _Governance: `docs/system-upgrade/00-implementation-control-center.md` | Issue d
 
 ---
 
+---
+
+## Runtime Deployment Architecture (R041-Infra — doc complete, implementation tasks pending)
+
+_Reference: `docs/system-upgrade/53-runtime-deployment-architecture.md`_
+
+### Phase 1 — Required before P2 module work
+
+| Task | File(s) | Priority | Status |
+|------|---------|----------|--------|
+| **Remove `db.create_all()` from production startup** | `apps/__init__.py:1487` — move to dev-only guard or remove entirely | P1 (before P2) | `[ ]` |
+| **Create `platform-ui` Dockerfile** | `platform-ui/Dockerfile` — Next.js production build, minimal image | P1 | `[ ]` |
+| **Harden `/api/health` endpoint** | Return 200 with `{"status": "ok"}` on liveness, `{"status": "ok", "db": true, "redis": true}` on readiness | P1 | `[ ]` |
+| **Add `/api/ready` readiness endpoint** | `apps/authentication/` or `apps/__init__.py` — checks DB + Redis + migration head | P1 | `[ ]` |
+| **Add Kubernetes readiness probe** | `deployment/kubernetes/base/platform/` — point to `/api/ready`, 503 until DB ready | P2 | `[ ]` |
+
+### Phase 2 — Controlled migration pipeline
+
+| Task | File(s) | Priority | Status |
+|------|---------|----------|--------|
+| **Create Kubernetes migration Job manifest** | `deployment/kubernetes/base/platform/migration-job.yaml` — runs `alembic upgrade head`, exits 0 on success | P2 | `[ ]` |
+| **Wire migration Job into CI/CD pipeline** | `.github/workflows/cd-deploy-dual.yml` — run Job before Deployment rollout | P2 | `[ ]` |
+| **Document migration failure recovery procedure** | `deployment/CLAUDE.md` — what to do if migration Job fails mid-deploy | P2 | `[ ]` |
+| **Add PodDisruptionBudget for web-api** | `deployment/kubernetes/base/platform/pdb-web-api.yaml` — minAvailable: 1 | P2 | `[ ]` |
+
+### Phase 2 — Observability
+
+| Task | File(s) | Priority | Status |
+|------|---------|----------|--------|
+| **Add `app_info` metric with version + commit SHA** | `apps/observability/metrics.py` — gauge with version labels | P2 | `[ ]` |
+| **Add queue depth metric for Celery queues** | `apps/observability/metrics.py` — `celery_queue_length{queue}` | P2 | `[ ]` |
+| **Verify correlation ID flows from UI → API → workers** | `apps/middleware/trace_id.py` — confirm `X-Request-Id` propagated in task metadata | P2 | `[ ]` |
+
+---
+
 ## Backlog Conventions
 
 - **Now**: Will be worked on this week or is actively blocking other work

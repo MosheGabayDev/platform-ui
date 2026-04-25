@@ -3,6 +3,31 @@
 _Running log of what changed in each update round._
 _Newest entry at the top._
 
+## R041-Infra — 2026-04-26 — Runtime Deployment Architecture
+
+**Scope:** Architecture/governance documentation only — no product features, no schema, no UI, no K8s manifest changes
+**Tests:** N/A — architecture round
+
+### What changed
+- **New:** `53-runtime-deployment-architecture.md` — complete runtime topology: 9 logical services, Phase 1 minimum split, Phase 2/3 target split, service dependency rules, health/readiness check definitions, failure isolation scenarios (7 scenarios), Kubernetes Deployment/Ingress/ConfigMap requirements, resource requests, HPA targets, PDB requirements, migration job rule, `db.create_all()` production ban, scaling rules, security boundaries, observability requirements, CI/CD pipeline implications, current-state-vs-target table, enforcement rules for future rounds
+- **Updated:** `99-risk-register.md §R21` — runtime service coupling / monolithic deployment risk
+- **Updated:** `97-source-of-truth.md` — `53` registered as runtime topology source of truth
+- **Updated:** `00-implementation-control-center.md` — `53` linked in Key Governance Documents
+- **Updated:** `15-action-backlog.md` — Runtime Deployment Architecture tasks added (migration job, `db.create_all()` removal, platform-ui Dockerfile, health endpoint hardening)
+- **Updated:** `01-round-review-checklist.md §7` — pod separation check added to migration safety section
+
+### ADR recorded
+- ADR — Runtime Pod Separation and Failure Isolation (in `53-runtime-deployment-architecture.md §intro`)
+
+### Key decisions
+- Phase 1 minimum: `platform-ui-web` + `platform-api` + `platform-worker` + `platform-scheduler` must be separate deployments — UI and API must never share a pod
+- `platform-ai-gateway` stays inside `platform-api` in Phase 1 — separate pod only when AI load warrants it
+- `db.create_all()` banned from production startup path — violation tracked in R015, must be removed before P2
+- Migrations must run as Kubernetes Job (or equivalent controlled step), not inline on pod boot
+- Heavy jobs must be queued — API must not require workers to respond to read-only requests
+
+---
+
 ## R041-WT — 2026-04-26 — Parallel Worktree Agent Workflow
 
 **Scope:** Governance/process documentation only — no product features, no schema, no UI

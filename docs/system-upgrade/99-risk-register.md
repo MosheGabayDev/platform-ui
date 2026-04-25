@@ -348,3 +348,18 @@
 | **Owner/Area** | All module rounds |
 | **Next Review** | First module marked ready_for_review |
 | **Status** | 🟡 Active — tracking requirements defined; no modules have declarations yet |
+
+---
+
+## R21 — Runtime Service Coupling / Monolithic Deployment Risk
+
+| Field | Value |
+|-------|-------|
+| **Description** | UI, API, and workers are collocated in the same pod or started from the same process. A UI crash or memory spike kills API capacity. An AI workload degrades normal user requests. A migration bug prevents startup and takes down all services simultaneously. No independent scaling per service. |
+| **Impact** | H — correlated failures; single outage takes down all platform capabilities simultaneously; no ability to scale hot paths independently |
+| **Likelihood** | M — current EKS deployment already has API and workers separated; main risk is that `db.create_all()` still runs at app startup and `platform-ui` Dockerfile does not exist yet |
+| **Mitigation** | `53-runtime-deployment-architecture.md` — Phase 1 minimum split defined; Phase 2/3 target split documented; `db.create_all()` production ban documented; migration job rule defined; service dependency rules explicit |
+| **Blocking** | No — architecture is partially correct; gaps are tracked |
+| **Owner/Area** | Deployment, CI/CD, `apps/__init__.py` (db.create_all removal), platform-ui (Dockerfile) |
+| **Next Review** | Before P2 module work begins |
+| **Status** | 🟡 Active — standard defined; 3 gaps remain: `db.create_all()` in startup, platform-ui Dockerfile missing, migration Job resource not yet created |
