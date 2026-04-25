@@ -457,7 +457,38 @@ _Updated after each round — append, never overwrite entries._
 | **Files Updated (platform-ui)** | `docs/system-upgrade/14-decision-log.md` (ADR-029 added), `docs/system-upgrade/26-platform-capabilities-catalog.md` (§30 AIProviders Hub added to summary table + full section), `docs/system-upgrade/35-platform-capabilities-build-order.md` (Hub enforcement pointer added), `docs/system-upgrade/40-ai-provider-gateway-billing.md` (§20 Hub reference added), `docs/system-upgrade/41-direct-llm-call-audit-and-migration.md` (§21 migration status Hub page added), `docs/system-upgrade/43-shared-services-enforcement.md` (R034 revision history entry), `docs/system-upgrade/15-action-backlog.md` (R035/R036/R037 Hub tasks added), `docs/system-upgrade/96-rounds-index.md`, `docs/system-upgrade/98-change-log.md` |
 | **Commits** | No new code — documentation + architecture planning round |
 | **Decisions Proposed** | ADR-029: AI Providers Hub — side-by-side JWT routes |
-| **Next Recommended Round** | Round 035: Backend JWT routes (`apps/ai_providers/api_routes.py`) + permissions migration + proxy route registration |
+| **Next Recommended Round** | Round 034 Follow-up: Extend Hub plan with AI Service-to-Provider Routing Matrix |
+
+---
+
+## Round 034 Follow-up — AI Service-to-Provider Routing Matrix
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-25 |
+| **Topic** | Documentation-only: extend AI Providers Hub with feature-level service routing — `AIServiceDefinition` + `AIServiceProviderRoute` models, 9-step routing resolution, GatewayRequest API cleanup, 27-service seed data, ADR-030 |
+| **Objective** | Address the gap where `AIModuleOverride` cannot differentiate two features within the same module+capability. Design feature-level routing sitting above the module layer. Remove `provider_id`/`model` public API from `GatewayRequest`. Document 27 known AI-consuming services. |
+| **Key Findings** | • `AIModuleOverride` unique on `(org_id, module_name, capability)` — feature-level differentiation impossible <br>• New `AIServiceDefinition` (system-level registry, 27 services) + `AIServiceProviderRoute` (feature-level routing) solve the gap <br>• 9-step resolution hierarchy: user_override → org+service → org+module → org+capability → system+service → system+capability → fallback_chain → fail-closed <br>• Step 9 is mandatory fail-closed (`NoProviderConfiguredError`) — never silent fallback to hardcoded provider <br>• `GatewayRequest.provider_id` and `.model` removed from public API; admin-only escape via `X-Migration-Mode` header <br>• 5 new `AIUsageLog` routing columns: `service_id`, `route_id`, `resolution_source`, `fallback_used`, `routing_scope` <br>• 6 new `ai_routes.*` permissions; `RouteDebugInfo` admin-only response field <br>• 23 legacy bypass files mapped to canonical `service_id` values |
+| **Files Updated (platform-ui)** | `docs/system-upgrade/44-ai-providers-hub.md` (§16–§28 added: Routing Matrix sections, ADR-030), `docs/system-upgrade/14-decision-log.md` (ADR-030 added), `docs/system-upgrade/40-ai-provider-gateway-billing.md` (§20 addendum: gateway changes from ADR-030), `docs/system-upgrade/41-direct-llm-call-audit-and-migration.md` (§22 service_id mapping table), `docs/system-upgrade/35-platform-capabilities-build-order.md` (R035 + R037 rows updated), `docs/system-upgrade/15-action-backlog.md` (R035 backend + R037 UI matrix tasks expanded), `docs/system-upgrade/96-rounds-index.md`, `docs/system-upgrade/98-change-log.md` |
+| **Commits** | No new code — documentation round |
+| **Decisions Proposed** | ADR-030: AI Service-to-Provider Routing Matrix |
+| **Next Recommended Round** | Round 038: Module Manager multi-tenant model redesign |
+
+---
+
+## Round 038 — Module Manager Multi-Tenant Redesign
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-25 |
+| **Topic** | Documentation-only: redesign Module Manager DB model to support multi-tenant SaaS (per-org module state, per-org settings, proper license FKs, dependency graph, ADR-031) |
+| **Objective** | The current `Module` model has global `is_installed`/`is_enabled` flags and no `org_id` anywhere. In a multi-tenant SaaS, each org must independently enable/disable/configure modules and hold licenses. Design the split and migration strategy. |
+| **Key Findings** | • `Module.is_installed` + `Module.is_enabled` are system-wide — no per-org module state is structurally possible <br>• `ModulePurchase.organization` is `String(255)` with no FK — license ownership is unqueryable by org <br>• `ModuleLog.user` and `ScriptExecution.executed_by` are untyped strings — no audit FK integrity <br>• `Module.dependencies` is a JSON Text blob — no referential integrity, no version constraints, no cascade <br>• `ModuleSettings` overlaps with `Module.config_data` and has no org scoping <br>• Routes use `@login_required + current_user.is_admin` throughout — violates ADR-028 BE-01/BE-03 <br>• Solution: `Module` (system catalog) + new `OrgModule` (per-org state) + `OrgModuleSettings` + `ModuleDependency` table + `ModuleLicense` (org_id FK) |
+| **Files Created (platform-ui)** | `docs/system-upgrade/45-module-manager-redesign.md` (11 sections: problem diagnosis, design goals, 9 new model definitions, schema diagram, API redesign, permissions, migration strategy, open questions, acceptance criteria, ADR-031, backlog) |
+| **Files Updated (platform-ui)** | `docs/system-upgrade/14-decision-log.md` (ADR-031 added), `docs/system-upgrade/96-rounds-index.md`, `docs/system-upgrade/98-change-log.md` |
+| **Commits** | No new code — documentation + architecture planning round |
+| **Decisions Proposed** | ADR-031: Module Manager Multi-Tenant Model Split |
+| **Next Recommended Round** | Round 035: Backend JWT routes for AI Providers Hub OR Round 038-A: Module Manager schema migrations |
 
 ---
 

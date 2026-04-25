@@ -615,3 +615,42 @@ Once the AI Providers Hub is built (ADR-029), migration status from this documen
 - **Display:** Per-module table (module / violation count / priority / assigned round / status), P0/P1/P2 summary, progress bar toward zero
 
 **Full Hub spec:** `docs/system-upgrade/44-ai-providers-hub.md §10`
+
+---
+
+## §22 — Service ID Mapping: Legacy Files → AIServiceDefinition
+
+Per ADR-030, every legacy bypass file maps to a `service_id` in `AIServiceDefinition`. This table is the authoritative cross-reference between the audit in §09 and the operational Service Routing Matrix in the Hub.
+
+When a file is migrated to the gateway, update:
+1. `AIServiceDefinition.migration_status` → `'gateway-routed'` (via Hub UI or migration script)
+2. Create `AIServiceProviderRoute` (scope=`system`) for the service with the provider/model that was previously hardcoded
+3. Remove the hardcoded `provider_id`/`model` from the call site
+
+| legacy file | service_id | module_id | feature_id | capability | migration_status |
+|-------------|------------|-----------|------------|------------|-----------------|
+| `apps/helpdesk/services/screen_analyzer.py` | `helpdesk.screen_analysis` | helpdesk | screen_analysis | vision | legacy-bypass |
+| `apps/helpdesk/services/vision_service.py` | `helpdesk.vision_description` | helpdesk | vision_description | vision | legacy-bypass |
+| `apps/helpdesk/services/incident_memory_service.py` | `helpdesk.incident_memory_embed` | helpdesk | incident_memory_embed | embedding | legacy-bypass |
+| `apps/voice_support/call_manager.py` | `voice.reply_generation` | voice_support | reply_generation | chat | legacy-bypass |
+| `apps/ala/tasks/commitment_task.py` | `ala.commitment_extraction` | ala | commitment_extraction | chat | legacy-bypass |
+| `apps/ala/text_session.py` | `ala.text_session` | ala | text_session | chat | partially-migrated |
+| `apps/personal_info/ai_chat/providers/openai_provider.py` | `personal_info.chat` | personal_info | chat | chat | legacy-bypass |
+| `apps/personal_info/ai_chat/providers/gemini_provider.py` | `personal_info.chat` | personal_info | chat | chat | legacy-bypass |
+| `apps/personal_info/services/transcription_service.py` | `personal_info.transcription` | personal_info | transcription | transcription | legacy-bypass |
+| `apps/personal_info/document_recognition_service.py` | `personal_info.document_recognition` | personal_info | document_recognition | vision | legacy-bypass |
+| `apps/personal_info/task_ai_service.py` | `personal_info.task_ai` | personal_info | task_ai | chat | legacy-bypass |
+| `apps/personal_info/services/memory_indexing_service.py` | `personal_info.memory_embedding` | personal_info | memory_embedding | embedding | legacy-bypass |
+| `apps/personal_info/services/secretary_service.py` | `personal_info.secretary` | personal_info | secretary | chat | legacy-bypass |
+| `apps/personal_info/services/rag_answer_service.py` | `personal_info.rag_answer` | personal_info | rag_answer | chat | legacy-bypass |
+| `apps/personal_info/ai_chat/orchestrator.py` | `personal_info.chat` | personal_info | chat | embedding | legacy-bypass |
+| `apps/jira_integration/ai_service.py` | `jira.issue_summary` | jira_integration | issue_summary | chat | legacy-bypass |
+| `apps/jira_integration/troubleshooting_service.py` | `jira.troubleshooting` | jira_integration | troubleshooting | chat | legacy-bypass |
+| `apps/jira_integration/routes.py` | `jira.issue_summary` | jira_integration | issue_summary | chat | legacy-bypass |
+| `apps/jira_integration/devops_ai_service.py` | `jira.devops_analysis` | jira_integration | devops_analysis | chat | legacy-bypass |
+| `apps/ai_agents/engine/agent_runner.py` | `ai_action.safe_result_summary` | ai_agents | safe_result_summary | chat | legacy-bypass |
+| `apps/ops_intelligence/services/ops_rag_indexer.py` | `ops_intelligence.rag_indexing` | ops_intelligence | rag_indexing | embedding | legacy-bypass |
+| `apps/ops_intelligence/tools/bootstrap_catalog.py` | `ops_intelligence.catalog_bootstrap` | ops_intelligence | catalog_bootstrap | chat | legacy-bypass |
+| `apps/life_assistant/services/recording_transcriber.py` | `life_assistant.transcription` | life_assistant | transcription | transcription | legacy-bypass |
+
+**Full service registry:** `docs/system-upgrade/44-ai-providers-hub.md §24`

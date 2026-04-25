@@ -688,15 +688,23 @@ _Must complete before any write-tier AI action implementation. Spec: `docs/syste
 
 **Spec:** `docs/system-upgrade/44-ai-providers-hub.md` | **ADR:** ADR-029
 
-### R035 — Backend JWT Routes (platformengineer)
+### R035 — Backend JWT Routes + Service Routing Models (platformengineer)
+
+**Spec:** `docs/system-upgrade/44-ai-providers-hub.md §16–§28` | **ADR:** ADR-030
 
 | Task | File | Est. | Status |
 |------|------|------|--------|
-| Create `apps/ai_providers/api_routes.py` — all 29 endpoints with `@jwt_required + g.jwt_user` | `apps/ai_providers/api_routes.py` | 3 hr | `[ ]` R035 |
+| Create `apps/ai_providers/api_routes.py` — all 39 endpoints with `@jwt_required + g.jwt_user` | `apps/ai_providers/api_routes.py` | 4 hr | `[ ]` R035 |
 | Register `api_blueprint` in `apps/__init__.py` | `apps/__init__.py` | 15 min | `[ ]` R035 |
-| Migration: add `ai_providers.*` permissions to DB | `scripts/migrations/versions/YYYYMMDD_add_ai_providers_permissions.py` | 30 min | `[ ]` R035 |
+| Migration: add `ai_providers.*` + `ai_routes.*` permissions to DB | `scripts/migrations/versions/YYYYMMDD_add_ai_providers_permissions.py` | 30 min | `[ ]` R035 |
+| Migration: `AIServiceDefinition` + `AIServiceProviderRoute` tables | `scripts/migrations/versions/YYYYMMDD_add_ai_service_definitions.py` | 1 hr | `[ ]` R035 |
+| Migration: extend `AIUsageLog` with 5 routing columns | `scripts/migrations/versions/YYYYMMDD_extend_ai_usage_log_routing.py` | 30 min | `[ ]` R035 |
+| Seed data: 27 service definitions in migration or seed script | `scripts/seeds/ai_service_definitions.py` | 1 hr | `[ ]` R035 |
+| Update `registry.py` — `resolve_service_route()` with 9-step hierarchy | `apps/ai_providers/registry.py` | 2 hr | `[ ]` R035 |
+| Remove `provider_id`/`model` from public `GatewayRequest`; add `migration_mode` flag | `apps/ai_providers/gateway.py`, `apps/ai_providers/schemas.py` | 1 hr | `[ ]` R035 |
+| Add `route_debug: RouteDebugInfo` to `GatewayResponse` | `apps/ai_providers/schemas.py` | 30 min | `[ ]` R035 |
 | Add `/api/proxy/ai-providers/*` to proxy route | `app/api/proxy/[...path]/route.ts` | 15 min | `[ ]` R035 |
-| Integration tests for all new endpoints | `apps/ai_providers/tests/test_api_routes.py` | 2 hr | `[ ]` R035 |
+| Integration tests for all new endpoints + routing resolution | `apps/ai_providers/tests/test_api_routes.py` | 3 hr | `[ ]` R035 |
 
 ### R036 — Hub UI Core (platform-ui)
 
@@ -714,7 +722,7 @@ _Must complete before any write-tier AI action implementation. Spec: `docs/syste
 | Usage & billing page | `app/(dashboard)/ai-providers/usage/page.tsx` | 1.5 hr | `[ ]` R036 |
 | Sidebar nav + command palette + `g`+`i` shortcut | `components/shell/app-sidebar.tsx`, `components/shell/command-palette.tsx` | 30 min | `[ ]` R036 |
 
-### R037 — Hub UI Advanced (platform-ui)
+### R037 — Hub UI Advanced + Service Routing Matrix (platform-ui)
 
 | Task | File | Est. | Status |
 |------|------|------|--------|
@@ -722,6 +730,58 @@ _Must complete before any write-tier AI action implementation. Spec: `docs/syste
 | Quotas page | `app/(dashboard)/ai-providers/quotas/page.tsx` | 1 hr | `[ ]` R037 |
 | Health monitor + circuit breaker reset | `app/(dashboard)/ai-providers/health/page.tsx` | 1.5 hr | `[ ]` R037 |
 | Migration status (system-admin only) | `app/(dashboard)/ai-providers/migration/page.tsx` | 1 hr | `[ ]` R037 |
+| TypeScript: AIServiceDefinition, AIServiceProviderRoute, RouteDebugInfo | `lib/api/types.ts` | 30 min | `[ ]` R037 |
+| Zod: `serviceRouteFormSchema` | `lib/modules/ai-providers/schemas.ts` | 15 min | `[ ]` R037 |
+| Query keys: `queryKeys.aiRoutes.*` | `lib/api/query-keys.ts` | 15 min | `[ ]` R037 |
+| Service Routing Matrix list page | `app/(dashboard)/ai-providers/services/page.tsx` | 2 hr | `[ ]` R037 |
+| Service route detail page | `app/(dashboard)/ai-providers/services/[serviceId]/page.tsx` | 2 hr | `[ ]` R037 |
+| Edit service route page | `app/(dashboard)/ai-providers/services/[serviceId]/edit/page.tsx` | 1.5 hr | `[ ]` R037 |
+
+---
+
+## Module Manager Redesign — R038
+
+**Spec:** `docs/system-upgrade/45-module-manager-redesign.md` | **ADR:** ADR-031
+
+### R038-A — Schema Migrations (platformengineer)
+
+| Task | File | Est. | Status |
+|------|------|------|--------|
+| Migration: `OrgModule` table | `scripts/migrations/versions/20260425_add_org_module.py` | 1 hr | `[ ]` R038 |
+| Migration: `OrgModuleSettings` table | `scripts/migrations/versions/20260425_add_org_module_settings.py` | 30 min | `[ ]` R038 |
+| Migration: `ModuleDependency` table | `scripts/migrations/versions/20260425_add_module_dependency.py` | 30 min | `[ ]` R038 |
+| Migration: `ModuleLicense` table (copy + `org_id` FK) | `scripts/migrations/versions/20260425_add_module_license.py` | 1 hr | `[ ]` R038 |
+| Migration: `module_logs` — add `org_id`, `user_id`, `user_display` | `scripts/migrations/versions/20260425_extend_module_logs.py` | 30 min | `[ ]` R038 |
+| Migration: rename `modules.is_installed` → `is_system_installed` | `scripts/migrations/versions/20260425_rename_module_installed.py` | 15 min | `[ ]` R038 |
+| Migration: convert Text JSON → JSONB (config_schema, menu_items, details, result_data, arguments) | `scripts/migrations/versions/20260425_module_jsonb_columns.py` | 45 min | `[ ]` R038 |
+| Data seed: `ModuleDependency` rows from `Module.dependencies` JSON | `scripts/seeds/module_dependencies.py` | 30 min | `[ ]` R038 |
+| Data seed: `OrgModule` baseline rows for all orgs | `scripts/seeds/org_modules.py` | 1 hr | `[ ]` R038 |
+| Migration: add `modules.*` permissions | `scripts/migrations/versions/20260425_add_module_permissions.py` | 30 min | `[ ]` R038 |
+
+### R038-B — Model Updates (platformengineer)
+
+| Task | File | Est. | Status |
+|------|------|------|--------|
+| Rewrite `apps/module_manager/models.py` — all 9 new models | `apps/module_manager/models.py` | 2 hr | `[ ]` R038 |
+| Add `is_module_available(org_id, module_name)` helper | `apps/module_manager/services.py` | 30 min | `[ ]` R038 |
+
+### R038-C — JWT API Routes (platformengineer)
+
+| Task | File | Est. | Status |
+|------|------|------|--------|
+| Create `apps/module_manager/api_routes.py` — 20 JWT endpoints | `apps/module_manager/api_routes.py` | 3 hr | `[ ]` R038 |
+| Register `module_manager_api_bp` in `apps/__init__.py` | `apps/__init__.py` | 15 min | `[ ]` R038 |
+
+### R038-D — Platform-UI (platform-ui, after R038-C ships)
+
+| Task | File | Est. | Status |
+|------|------|------|--------|
+| TypeScript: `OrgModule`, `Module`, `ModuleLicense`, `ModuleLog` types | `lib/api/types.ts` | 30 min | `[ ]` R038 |
+| Zod schemas: module forms | `lib/modules/modules/schemas.ts` | 30 min | `[ ]` R038 |
+| Query keys: `queryKeys.modules.*` | `lib/api/query-keys.ts` | 15 min | `[ ]` R038 |
+| Modules list page (org view) | `app/(dashboard)/modules/page.tsx` | 1.5 hr | `[ ]` R038 |
+| Module detail page | `app/(dashboard)/modules/[name]/page.tsx` | 1.5 hr | `[ ]` R038 |
+| System catalog page (system_admin only) | `app/(dashboard)/modules/catalog/page.tsx` | 1.5 hr | `[ ]` R038 |
 
 ---
 

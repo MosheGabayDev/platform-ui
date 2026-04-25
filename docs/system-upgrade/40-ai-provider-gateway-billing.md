@@ -1021,8 +1021,20 @@ The backend gateway architecture described in §01–§19 will be exposed to pla
 
 **Important constraint:** Existing `apps/ai_providers/routes.py` uses Flask-Login — incompatible with platform-ui JWT auth. New `apps/ai_providers/api_routes.py` with `@jwt_required + g.jwt_user` will be created in R035. The two blueprints coexist; `routes.py` is not modified.
 
+### §20 Addendum — Service Routing Matrix changes to the Gateway (R035)
+
+Per ADR-030:
+
+1. `GatewayRequest.provider_id` and `GatewayRequest.model` are **removed** from the public API.
+2. `registry.py` gains a new `resolve_service_route(org_id, module_id, feature_id, capability)` function implementing the 9-step resolution hierarchy.
+3. `GatewayResponse` gains optional `route_debug: RouteDebugInfo` for admin/debug views.
+4. `AIUsageLog` gains 5 new columns: `service_id`, `route_id`, `resolution_source`, `fallback_used`, `routing_scope`.
+5. Two new models: `AIServiceDefinition` + `AIServiceProviderRoute`. See hub spec §17–§18.
+6. Fail-closed rule: step 9 raises `NoProviderConfiguredError` — never a silent fallback to a hardcoded provider.
+
 ---
 
 _Document created: 2026-04-24 (Round 029)_
 _Updated: 2026-04-25 (Round 034) — added §20 AI Providers Hub reference_
+_Updated: 2026-04-25 (Round 034 follow-up) — §20 addendum: Service Routing Matrix gateway changes (ADR-030)_
 _Implementation gate: gateway.py must exist before any module migration starts. CI lint rule must be in place before migration is declared complete._

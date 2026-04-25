@@ -14,12 +14,14 @@ The platform has a mature AI Provider layer in `apps/ai_providers/` with 6 DB mo
 1. **Existing backend routes use Flask-Login** (`@login_required` + `current_user`) — incompatible with platform-ui JWT auth. New routes at `/api/ai-providers/` with `@jwt_required + g.jwt_user` are required.
 2. **No platform-ui pages exist** for AI provider management — `app/(dashboard)/` has no `ai-providers/` route yet.
 3. **New APIs needed:** overview summary, provider health with circuit state, model registry, key rotation, migration status, quota management.
+4. **Service-level routing gap:** Existing `AIModuleOverride` resolves at `(module_name, capability)` — two features in the same module cannot have different providers. No registry of AI-consuming services exists. `GatewayRequest` currently accepts `provider_id`/`model` overrides, allowing service code to hardcode routing. Two new models required: `AIServiceDefinition` + `AIServiceProviderRoute`. See §16–§28.
 
 **Implementation sequence:**
 1. **Phase 1 (R034):** Architecture doc (this file) + ADR-029
 2. **Phase 2 (R035):** Backend JWT routes (`apps/ai_providers/api_routes.py`)
 3. **Phase 3 (R036):** platform-ui Hub UI (sections 1–5: overview, providers, defaults, module overrides, usage)
 4. **Phase 4 (R037):** Quotas, health monitor UI, fallback chain editor, migration status
+5. **Phase 5 (R037+):** Service Routing Matrix UI (Sections 11–13: service list, detail, edit route)
 
 ---
 
@@ -179,6 +181,7 @@ Everything in the Hub. No AI provider config, cost data, API key status, or heal
 4. Show migration status: how many legacy direct LLM calls remain, progress toward zero.
 5. Allow org-admins to set spend caps and receive notifications before billing surprises.
 6. Provide a BYOK self-service flow for enterprise orgs (Phase 4).
+7. **Eliminate all hardcoded provider/model routing in service code.** Every AI-consuming service must declare its `module_id`, `feature_id`, and `capability` — provider/model resolution is configuration, not code. The Service Routing Matrix (Sections 11–13) is the operational view of that configuration.
 
 ---
 
@@ -383,6 +386,16 @@ Register in `apps/__init__.py` alongside existing blueprint.
 | `/api/ai-providers/models` | GET | `ai_providers.view` | Model registry (known models per type) |
 | `/api/ai-providers/migration-status` | GET | `ai_providers.system.manage` | Legacy call violation counts |
 | `/api/ai-providers/available` | GET | `ai_providers.view` | Active providers for a capability (for dropdowns) |
+| `/api/ai-providers/services` | GET | `ai_routes.view` | List all service definitions + effective routes |
+| `/api/ai-providers/services/<service_id>` | GET | `ai_routes.view` | Service detail + current route |
+| `/api/ai-providers/services/<service_id>/usage` | GET | `ai_routes.usage.view` | Per-service usage/cost |
+| `/api/ai-providers/services/<service_id>/audit` | GET | `ai_routes.view` | Route change audit history |
+| `/api/ai-providers/services/<service_id>/route` | POST | `ai_routes.manage` | Create service route override |
+| `/api/ai-providers/services/<service_id>/route` | PUT | `ai_routes.manage` | Update service route |
+| `/api/ai-providers/services/<service_id>/route` | DELETE | `ai_routes.manage` | Delete route (revert to parent scope) |
+| `/api/ai-providers/services/<service_id>/test` | POST | `ai_routes.test` | Dry-run test for resolved route |
+| `/api/ai-providers/services/<service_id>/disable` | POST | `ai_routes.disable` | Disable route with reason |
+| `/api/ai-providers/services/<service_id>/migration-status` | PUT | `ai_routes.system.manage` | Update migration_status |
 
 ### Proxy route additions (`app/api/proxy/[...path]/route.ts`)
 
@@ -427,6 +440,12 @@ aiProviders: {
 ('ai_providers.health.view',   'AI Providers', 'View provider health and circuit breaker state'),
 ('ai_providers.quota.manage',  'AI Providers', 'Create and modify usage limits'),
 ('ai_providers.system.manage', 'AI Providers', 'System-admin: cross-org, migration status, circuit reset'),
+('ai_routes.view',          'AI Routing', 'View service routing matrix and effective routes'),
+('ai_routes.manage',        'AI Routing', 'Create and modify service route overrides'),
+('ai_routes.test',          'AI Routing', 'Test a service route with a dry-run request'),
+('ai_routes.disable',       'AI Routing', 'Disable a service route'),
+('ai_routes.usage.view',    'AI Routing', 'View per-service usage and cost data'),
+('ai_routes.system.manage', 'AI Routing', 'Manage system-scope routes and migration status'),
 ```
 
 ### Default role assignments
@@ -443,6 +462,17 @@ aiProviders: {
 | `ai_providers.system.manage` | ✅ | ❌ | ❌ | ❌ |
 
 _BYOK only: org-admin can manage only if `feature_flag.byok_enabled` for their org._
+
+**Service routing permissions (see §23 for full table):**
+
+| Permission | system-admin | org-admin |
+|------------|:---:|:---:|
+| `ai_routes.view` | ✅ | ✅ |
+| `ai_routes.manage` | ✅ | org scope only |
+| `ai_routes.test` | ✅ | ✅ |
+| `ai_routes.disable` | ✅ | org scope only |
+| `ai_routes.usage.view` | ✅ | ✅ |
+| `ai_routes.system.manage` | ✅ | ❌ |
 
 ### Frontend PermissionGate usage
 
@@ -505,13 +535,19 @@ Per `docs/system-upgrade/43-shared-services-enforcement.md`:
 - [x] ADR-029 in `docs/system-upgrade/14-decision-log.md`
 - [ ] Update docs 26, 35, 40, 41, 43, 15, 96, 98, ARCHITECTURE.md, CLAUDE.md
 
-### Phase 2 — Backend JWT Routes (R035)
+### Phase 2 — Backend JWT Routes + Service Routing Models (R035)
 - [ ] `apps/ai_providers/api_routes.py` — all endpoints with `@jwt_required + g.jwt_user`
 - [ ] Register `api_blueprint` in `apps/__init__.py`
 - [ ] Add proxy mapping to `app/api/proxy/[...path]/route.ts`
-- [ ] `scripts/migrations/versions/YYYYMMDD_add_ai_providers_permissions.py`
-- [ ] Postman/curl integration test for all new endpoints
-- [ ] `docs/system-upgrade/14-decision-log.md` — record auth migration decision
+- [ ] `scripts/migrations/versions/YYYYMMDD_add_ai_providers_permissions.py` — ai_providers.* + ai_routes.* permissions
+- [ ] `scripts/migrations/versions/YYYYMMDD_add_ai_service_definitions.py` — `AIServiceDefinition` + `AIServiceProviderRoute` tables + seed data (27 services)
+- [ ] `scripts/migrations/versions/YYYYMMDD_extend_ai_usage_log_routing.py` — `service_id`, `route_id`, `resolution_source`, `fallback_used`, `routing_scope` columns
+- [ ] Update `registry.py` — add `resolve_service_route(org_id, module_id, feature_id, capability)` function with 9-step hierarchy
+- [ ] Remove `provider_id`/`model` from public `GatewayRequest` fields; add `migration_mode` flag for admin use
+- [ ] `GatewayResponse` — add `route_debug: RouteDebugInfo | None` field
+- [ ] Service routing API endpoints in `api_routes.py` (10 new endpoints)
+- [ ] Integration tests for all new endpoints
+- [ ] `docs/system-upgrade/14-decision-log.md` — ADR-030 confirmed
 
 ### Phase 3 — Hub UI Core (R036)
 - [ ] `lib/api/ai-providers.ts` — typed fetch functions for all endpoints
@@ -530,6 +566,12 @@ Per `docs/system-upgrade/43-shared-services-enforcement.md`:
 - [ ] `app/(dashboard)/ai-providers/quotas/page.tsx` — Quotas (Section 8)
 - [ ] `app/(dashboard)/ai-providers/health/page.tsx` — Health monitor (Section 9)
 - [ ] `app/(dashboard)/ai-providers/migration/page.tsx` — Migration status (Section 10, system-admin)
+- [ ] `app/(dashboard)/ai-providers/services/page.tsx` — Service Routing Matrix list (Section 11)
+- [ ] `app/(dashboard)/ai-providers/services/[serviceId]/page.tsx` — Service route detail (Section 12)
+- [ ] `app/(dashboard)/ai-providers/services/[serviceId]/edit/page.tsx` — Edit route (Section 13)
+- [ ] TypeScript: `AIServiceDefinition`, `AIServiceProviderRoute`, `RouteDebugInfo`, `AIServiceUsage` in `lib/api/types.ts`
+- [ ] Zod: `serviceRouteFormSchema` in `lib/modules/ai-providers/schemas.ts`
+- [ ] Query keys: `queryKeys.aiRoutes.*` in `lib/api/query-keys.ts`
 - [ ] Sidebar entry in `components/shell/app-sidebar.tsx`
 - [ ] Command palette entries in `components/shell/command-palette.tsx`
 - [ ] Keyboard shortcut: `g` + `i` → AI Providers
@@ -620,6 +662,62 @@ export interface AIProviderHealth {
   cooldown_remaining_ms: number;
 }
 
+export interface AIServiceDefinition {
+  service_id: string;
+  module_id: string;
+  feature_id: string;
+  display_name: string;
+  description: string | null;
+  capability: string;
+  owner_module: string | null;
+  default_quota_bucket: string | null;
+  pii_policy: "none" | "low" | "medium" | "high" | "critical";
+  supports_streaming: boolean;
+  supports_fallback: boolean;
+  supports_user_override: boolean;
+  migration_status: "gateway-routed" | "legacy-bypass" | "partially-migrated" | "pending" | "blocked";
+  legacy_file: string | null;
+  // Resolved effective route (joined at query time):
+  effective_provider_id: number | null;
+  effective_model: string | null;
+  effective_scope: "system" | "org" | "module" | "feature" | "user" | null;
+  route_id: number | null;
+}
+
+export interface AIServiceProviderRoute {
+  id: number;
+  service_id: string;
+  scope: "system" | "org" | "module" | "feature" | "user";
+  org_id: number | null;
+  user_id: number | null;
+  provider_id: number;
+  model: string;
+  fallback_provider_id: number | null;
+  fallback_model: string | null;
+  priority: number;
+  is_enabled: boolean;
+  temperature: number | null;
+  max_tokens: number | null;
+  timeout_seconds: number | null;
+  retry_count: number;
+  quota_bucket: string | null;
+  billing_policy: "platform" | "byok" | "metered" | "free" | null;
+  pii_policy: string | null;
+  reason: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface RouteDebugInfo {
+  service_id: string;
+  route_id: number | null;
+  resolution_source: "user_override" | "org_service" | "org_module" | "org_default" | "system_service" | "system_default" | "fallback_chain";
+  provider_id: number;
+  model: string;
+  fallback_used: boolean;
+  fallback_reason: string | null;
+}
+
 export interface AIOverviewStats {
   total_providers: number;
   active_providers: number;
@@ -662,6 +760,23 @@ export const moduleOverrideFormSchema = z.object({
   provider_id: z.number().positive(),
   model_override: z.string().optional(),
   reason: z.string().optional(),
+});
+
+export const serviceRouteFormSchema = z.object({
+  provider_id: z.number().positive(),
+  model: z.string().min(1),
+  fallback_provider_id: z.number().positive().optional(),
+  fallback_model: z.string().optional(),
+  temperature: z.number().min(0).max(2).optional(),
+  max_tokens: z.number().positive().int().optional(),
+  timeout_seconds: z.number().positive().int().optional(),
+  retry_count: z.number().min(0).max(5).int().default(1),
+  quota_bucket: z.string().optional(),
+  billing_policy: z.enum(["platform", "byok", "metered", "free"]).optional(),
+  pii_policy: z.enum(["inherit", "none", "low", "medium", "high", "critical"]).default("inherit"),
+  scope: z.enum(["system", "org"]), // frontend only shows scopes user can set
+  is_enabled: z.boolean().default(true),
+  reason: z.string().min(1, "Reason is required for production service route changes"),
 });
 
 export const usageLimitFormSchema = z.object({
@@ -733,5 +848,521 @@ export const usageLimitFormSchema = z.object({
 
 ---
 
-_Document version: 1.0 — Round 034, 2026-04-25_
+---
+
+## §16 — Service Routing Matrix: Core Rule
+
+> **Rule R1:** No AI-consuming service may hardcode a provider, model, or API key in application code. Service code calls the gateway with `module_id`, `feature_id`, `capability`, and attribution fields only. Everything else is resolved from configuration.
+
+> **Rule R2:** The `provider` and `model` fields of `GatewayRequest` are disabled by default. Override is only allowed in the admin test endpoint or during an explicitly audited migration mode. Any call that sets these fields outside of those contexts is rejected and logged as a violation.
+
+This is the architectural principle that makes the Service Routing Matrix possible. Without it, the matrix is documentation only — with it, it is the enforced source of truth.
+
+---
+
+## §17 — Gap Analysis: Do Existing Models Support Service-Level Routing?
+
+### Current model coverage
+
+| Routing dimension | Current model | Key | Covers feature_id? |
+|-------------------|---------------|-----|--------------------|
+| Org-level capability default | `AIProviderDefault` | `(org_id, capability)` | ❌ |
+| Module-level override | `AIModuleOverride` | `(org_id, module_name, capability)` | ❌ |
+| User-level override | `AIUserOverride` | `(org_id, user_id, capability)` | ❌ |
+| Fallback chain | `AIFallbackChain` | `(org_id, capability, priority)` | ❌ |
+| Usage attribution | `AIUsageLog.feature_id` | free-form String(60) | no FK — not enforced |
+
+### What is missing
+
+1. **No service/feature registry.** `feature_id` in `AIUsageLog` is a free-form string — there is no table that declares what services exist, what capabilities they use, or what their default routing should be. No PII policy, migration status, or streaming flag exists anywhere per service.
+
+2. **`AIModuleOverride` resolves at `(module_name, capability)` — not `(module_name, feature_id, capability)`.** This means all features within the same module+capability share one provider. Example: `helpdesk.ticket_summarization` and `helpdesk.screen_analysis` both use `chat` capability — they cannot have different providers today.
+
+3. **No model parameters per service.** `config_override` JSONB on `AIModuleOverride` can hold temperature/max_tokens, but it is unvalidated free-form JSON, not a typed schema.
+
+4. **`AIFallbackChain` scoped to `(org_id, capability)` only.** Feature-level fallback chains do not exist.
+
+5. **Resolution in `registry.py` currently ignores `feature_id`.** The `resolve_provider(org_id, capability, module_name)` function has no `feature_id` parameter.
+
+### Verdict
+
+The existing models support **module-level** routing but not **feature/service-level** routing. Two new models are required.
+
+`AIModuleOverride` is NOT replaced — it remains as the coarser-grained fallback level. The new `AIServiceProviderRoute` adds a finer-grained resolution step above it in the hierarchy.
+
+---
+
+## §18 — New Backend Models
+
+### Model A: `AIServiceDefinition`
+
+Registry of every AI-consuming service/feature in the platform. Authoritative source for the Service Routing Matrix. Populated at deploy time from a seed file; editable by system-admin via Hub.
+
+**Table:** `ai_service_definitions`
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `id` | BigInteger PK | |
+| `service_id` | String(100) UNIQUE | e.g. `helpdesk.ticket_summarization`, `voice.reply_generation` |
+| `module_id` | String(60) NOT NULL | e.g. `helpdesk`, `voice_support` |
+| `feature_id` | String(60) NOT NULL | e.g. `ticket_summarization`, `reply_generation` |
+| `display_name` | String(120) NOT NULL | Human-readable e.g. "Helpdesk Ticket Summarization" |
+| `description` | Text | What this service does |
+| `capability` | String(40) NOT NULL | `chat`, `embedding`, `transcription`, `tts`, `vision`, `rerank` |
+| `owner_module` | String(60) | Module responsible for maintaining this service |
+| `default_quota_bucket` | String(60) | Default quota bucket for billing (e.g. `helpdesk_ai`, `voice_ai`) |
+| `pii_policy` | String(30) | `none`, `low`, `medium`, `high`, `critical` |
+| `supports_streaming` | Boolean DEFAULT false | Whether this service uses streaming responses |
+| `supports_fallback` | Boolean DEFAULT true | Whether fallback chain applies |
+| `supports_user_override` | Boolean DEFAULT false | Whether per-user routing is allowed |
+| `migration_status` | String(30) DEFAULT `pending` | `gateway-routed`, `legacy-bypass`, `partially-migrated`, `pending`, `blocked` |
+| `legacy_file` | String(200) | Path to legacy bypass file, if any (for migration tracking) |
+| `created_at` | DateTime | |
+| `updated_at` | DateTime | |
+
+Unique constraint: `(module_id, feature_id)`.
+
+**Notes:**
+- System-seeded — a `seeds/ai_service_definitions.py` file (or migration data fixture) populates all known services at deploy time.
+- `migration_status` is managed by system-admins via Hub; updated as P0/P1/P2 migrations are completed.
+- This table has no `org_id` — it is system-level. Org-specific routing is in `AIServiceProviderRoute`.
+
+---
+
+### Model B: `AIServiceProviderRoute`
+
+Maps a service/feature to provider+model+params for a specific scope. This is the feature-level equivalent of `AIModuleOverride` + model parameters.
+
+**Table:** `ai_service_routes`
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `id` | BigInteger PK | |
+| `service_id` | String(100) NOT NULL FK → `ai_service_definitions.service_id` | |
+| `scope` | String(20) NOT NULL | `system`, `org`, `module`, `feature`, `user` |
+| `org_id` | Integer NULLABLE | NULL = system scope |
+| `user_id` | Integer NULLABLE | Only for `user` scope |
+| `provider_id` | BigInteger NOT NULL FK → `ai_providers.id` | |
+| `model` | String(80) NOT NULL | |
+| `fallback_provider_id` | BigInteger NULLABLE FK → `ai_providers.id` | First fallback (direct 1:1 override) |
+| `fallback_model` | String(80) NULLABLE | |
+| `priority` | Integer DEFAULT 0 | Lower = higher priority for same scope+service |
+| `is_enabled` | Boolean DEFAULT true | |
+| `temperature` | Float NULLABLE | Overrides provider default |
+| `max_tokens` | Integer NULLABLE | Overrides provider default |
+| `timeout_seconds` | Integer NULLABLE | Overrides gateway default |
+| `retry_count` | Integer DEFAULT 1 | |
+| `quota_bucket` | String(60) NULLABLE | Overrides service default_quota_bucket |
+| `billing_policy` | String(30) NULLABLE | `platform`, `byok`, `metered`, `free` |
+| `pii_policy` | String(30) NULLABLE | Overrides service pii_policy |
+| `metadata` | JSON | Free-form extra config |
+| `reason` | Text | Why this override was created |
+| `created_at` | DateTime | |
+| `updated_at` | DateTime | |
+
+Unique constraint: `(service_id, scope, org_id, user_id)` — one active route per service+scope combination.
+
+**Notes:**
+- `scope = 'system'`: `org_id = NULL`, `user_id = NULL`. Managed by system-admin only.
+- `scope = 'org'`: `org_id` set, `user_id = NULL`. Org-admin can manage if BYOK enabled.
+- `scope = 'user'`: `org_id` + `user_id` set. Only allowed if `AIServiceDefinition.supports_user_override = true`.
+- When `scope = 'system'` and `org_id = NULL`, this is the system default for that service — equivalent to what is currently hardcoded or resolved via `AIModuleOverride`.
+
+### Relationship between new and existing models
+
+```
+AIServiceDefinition (service registry — system-level)
+  ↕
+AIServiceProviderRoute (feature-level routing — system or org scope)
+  ↕
+AIModuleOverride (module-level fallback — kept for backwards compat)
+  ↕
+AIProviderDefault (capability-level fallback)
+  ↕
+AIFallbackChain (multi-step fallback per capability)
+```
+
+`AIModuleOverride` is NOT deprecated. It remains the correct tool when an entire module (all its features) should use a different provider. `AIServiceProviderRoute` is used when a specific feature within a module needs distinct routing.
+
+---
+
+## §19 — Routing Resolution Order
+
+When the gateway receives `GatewayRequest(org_id, module_id, feature_id, capability)`, it resolves the provider in this exact order. First match wins.
+
+```
+1. user override
+   AIServiceProviderRoute WHERE scope='user' AND service_id={module_id}.{feature_id}
+                            AND org_id={org_id} AND user_id={user_id}
+   — Only if AIServiceDefinition.supports_user_override = true
+
+2. org + service/feature override
+   AIServiceProviderRoute WHERE scope='org' AND service_id={module_id}.{feature_id}
+                            AND org_id={org_id}
+
+3. org + module override
+   AIModuleOverride WHERE org_id={org_id} AND module_name={module_id}
+                      AND capability={capability}
+
+4. org capability default
+   AIProviderDefault WHERE org_id={org_id} AND capability={capability}
+
+5. system service/feature override
+   AIServiceProviderRoute WHERE scope='system' AND service_id={module_id}.{feature_id}
+
+6. system module default (if system-scoped AIModuleOverride exists — future use)
+
+7. system capability default
+   AIProviderDefault WHERE org_id=SYSTEM_ORG AND capability={capability}
+   — Uses system-level org_id (0 or special constant) for system defaults
+
+8. fallback chain (if primary fails)
+   AIFallbackChain WHERE org_id={org_id} AND capability={capability}
+   — sorted by priority, skipping OPEN circuit breakers
+
+9. fail closed
+   — GatewayResponse.status = 'no_provider_configured'
+   — Error logged; no silent fallback to hardcoded provider
+```
+
+**Important rules:**
+- Step 9 (fail-closed) is never skipped. If no provider is configured for a service, the gateway raises a `NoProviderConfiguredError`, not a silent fallback to a hardcoded model.
+- Steps 1–5 check `AIServiceProviderRoute.is_enabled = true` and circuit breaker CLOSED.
+- Steps 3–4 check `AIModuleOverride` / `AIProviderDefault` as before (existing registry behavior unchanged for these steps).
+- Routing decisions are logged in `AIUsageLog` (see §20 — new fields).
+- Redis cache: resolved route cached for 60s per `(org_id, module_id, feature_id, capability)` key. Cache invalidated on any write to `AIServiceProviderRoute`, `AIModuleOverride`, `AIProviderDefault` for the affected org.
+
+---
+
+## §20 — Gateway Integration Changes
+
+### GatewayRequest changes
+
+```python
+@dataclass
+class GatewayRequest:
+    org_id: int
+    user_id: int
+    module_id: str         # e.g. "helpdesk"
+    feature_id: str        # e.g. "ticket_summarization"
+    capability: str        # e.g. "chat"
+    messages: list[dict]
+    session_id: str | None = None
+    conversation_id: str | None = None
+    # Disabled by default — only allowed in admin test mode or migration mode:
+    # provider_id: int | None = None  ← REMOVED from public API
+    # model: str | None = None        ← REMOVED from public API
+    non_billable: bool = False         # test environments only
+```
+
+**Breaking change from current design:** `provider_id` and `model` fields are removed from the public `GatewayRequest`. Callers that currently pass these are hardcoding routing — they must be refactored to use `module_id + feature_id`. A migration mode flag will exist for temporary use during P0 migrations.
+
+### GatewayResponse additions
+
+```python
+@dataclass
+class GatewayResponse:
+    output_text: str
+    usage_log_id: int
+    # New fields:
+    route_debug: RouteDebugInfo | None = None  # Only included if caller has ai_routes.view permission + debug=true param
+```
+
+```python
+@dataclass
+class RouteDebugInfo:
+    service_id: str          # "helpdesk.ticket_summarization"
+    route_id: int | None     # AIServiceProviderRoute.id used, if any
+    resolution_source: str   # "user_override" | "org_service" | "org_module" | "org_default" | "system_service" | "system_default" | "fallback_chain"
+    provider_id: int
+    model: str
+    fallback_used: bool
+    fallback_reason: str | None
+```
+
+### AIUsageLog additions (migration required)
+
+New columns for service routing attribution:
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `service_id` | String(100) NULLABLE | FK → `ai_service_definitions.service_id` |
+| `route_id` | BigInteger NULLABLE | `AIServiceProviderRoute.id` used, if applicable |
+| `resolution_source` | String(30) NULLABLE | Which level of hierarchy was used |
+| `fallback_used` | Boolean DEFAULT false | Was a fallback provider used? |
+| `fallback_reason` | String(80) NULLABLE | Circuit open / timeout / error |
+| `routing_scope` | String(20) NULLABLE | `system`, `org`, `module`, `feature`, `user` |
+
+These columns are additive — existing rows keep `NULL` values for these fields.
+
+---
+
+## §21 — Service Routing: Hub Sections (UI Design)
+
+### Section 11 — Service Routing Matrix
+
+**Route:** `app/(dashboard)/ai-providers/services/page.tsx`
+
+**Data source:** `GET /api/ai-providers/services`
+
+DataTable columns:
+
+| Column | Notes |
+|--------|-------|
+| Service | `display_name` (service_id as subtitle) |
+| Module | `module_id` |
+| Feature | `feature_id` |
+| Capability | Badge: chat / embedding / transcription / tts / vision |
+| Provider / Model | Resolved effective route (primary) |
+| Fallback | Fallback provider/model if configured |
+| Scope | Badge: system / org / feature / user |
+| Enabled | Toggle (manage permission required) |
+| PII Policy | Badge: none / low / medium / high / critical |
+| Streaming | Boolean badge |
+| Monthly Usage | `total_calls` for current month |
+| Monthly Cost | `cost_usd` for current month |
+| Health | Provider circuit state dot |
+| Migration | Badge: gateway-routed / legacy-bypass / partially-migrated / pending / blocked |
+| Actions | View / Edit Route / Test Route / Disable / View Usage |
+
+**Filters:** Module, Capability, Migration Status, Scope, PII Policy, Health
+
+---
+
+### Section 12 — Service Route Detail
+
+**Route:** `app/(dashboard)/ai-providers/services/[serviceId]/page.tsx`
+
+Layout: `PageShell` + `DetailView`
+
+Panels:
+1. **Service metadata** — `InfoRow` grid: service_id, module, feature, capability, owner, PII policy, streaming, fallback enabled
+2. **Current effective route** — provider name, model, scope source (with resolution path trace)
+3. **Active route configuration** — temperature, max_tokens, timeout, retry_count, quota_bucket, billing_policy
+4. **Fallback chain** — direct fallback from route + capability-level fallback chain steps
+5. **Usage & cost** — StatCard: calls this month / cost this month / avg latency; sparkline chart
+6. **Recent errors** — last 10 error rows from `AIUsageLog WHERE service_id=...`
+7. **Fallback events** — last 10 rows where `fallback_used=true`
+8. **Audit history** — `record_activity()` entries for this service route
+9. **Migration status** — current status badge + legacy file path (if any) + link to doc 41 migration plan
+
+**API:** `GET /api/ai-providers/services/<service_id>`, `GET /api/ai-providers/services/<service_id>/usage`, `GET /api/ai-providers/services/<service_id>/audit`
+
+---
+
+### Section 13 — Edit Service Route
+
+**Route:** `app/(dashboard)/ai-providers/services/[serviceId]/edit/page.tsx`
+
+Layout: `PlatformForm` + Zod schema in `lib/modules/ai-providers/schemas.ts`
+
+Form fields:
+
+| Field | Input | Notes |
+|-------|-------|-------|
+| Provider | Select (from `/api/ai-providers/available?capability={cap}`) | Required |
+| Model | Text/Select | Required |
+| Fallback Provider | Select (optional) | |
+| Fallback Model | Text/Select (optional) | |
+| Temperature | Number 0.0–2.0 (optional) | |
+| Max Tokens | Number (optional) | |
+| Timeout (seconds) | Number (optional) | |
+| Retry Count | Number 0–5 (optional) | |
+| Quota Bucket | Text (optional) | |
+| Billing Policy | Select: platform / byok / metered / free | |
+| PII Policy Override | Select: inherit / none / low / medium / high / critical | |
+| Scope | Select: system / org (system-admin chooses; org-admin gets org only) | |
+| Enabled | Toggle | |
+| Reason | Text area | Required for production services |
+
+**Dangerous change rules:**
+- Changing provider/model for a `gateway-routed` service → `ConfirmActionDialog` with service display_name shown
+- Disabling a route → `ConfirmActionDialog`
+- Setting scope to `system` → requires `ai_routes.system.manage`
+- All mutations → `record_activity()` with before/after snapshot
+
+---
+
+## §22 — Service Routing API Additions
+
+Add to `apps/ai_providers/api_routes.py` (R035):
+
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/api/ai-providers/services` | GET | `ai_routes.view` | List all service definitions + effective routes |
+| `/api/ai-providers/services/<service_id>` | GET | `ai_routes.view` | Service detail + current route |
+| `/api/ai-providers/services/<service_id>/usage` | GET | `ai_routes.usage.view` | Usage/cost for this service |
+| `/api/ai-providers/services/<service_id>/audit` | GET | `ai_routes.view` | Audit history for route changes |
+| `/api/ai-providers/services/<service_id>/route` | POST | `ai_routes.manage` | Create service route override |
+| `/api/ai-providers/services/<service_id>/route` | PUT | `ai_routes.manage` | Update service route |
+| `/api/ai-providers/services/<service_id>/route` | DELETE | `ai_routes.manage` | Delete service route (revert to parent scope) |
+| `/api/ai-providers/services/<service_id>/test` | POST | `ai_routes.test` | Test route with dry-run request |
+| `/api/ai-providers/services/<service_id>/disable` | POST | `ai_routes.disable` | Disable route with reason |
+| `/api/ai-providers/services/<service_id>/migration-status` | PUT | `ai_routes.system.manage` | Update migration_status field |
+
+Add to query-keys:
+```ts
+aiRoutes: {
+  list: (orgId: string) => ["ai-routes", "list", orgId],
+  detail: (serviceId: string) => ["ai-routes", "detail", serviceId],
+  usage: (serviceId: string, period: string) => ["ai-routes", "usage", serviceId, period],
+  audit: (serviceId: string) => ["ai-routes", "audit", serviceId],
+}
+```
+
+---
+
+## §23 — Service Routing Permissions
+
+Add to `§07` permissions migration:
+
+```sql
+('ai_routes.view',          'AI Routing', 'View service routing matrix and effective routes'),
+('ai_routes.manage',        'AI Routing', 'Create and modify service route overrides'),
+('ai_routes.test',          'AI Routing', 'Test a service route with a dry-run request'),
+('ai_routes.disable',       'AI Routing', 'Disable a service route'),
+('ai_routes.usage.view',    'AI Routing', 'View per-service usage and cost data'),
+('ai_routes.system.manage', 'AI Routing', 'Manage system-scope routes and migration status'),
+```
+
+| Permission | system-admin | org-admin | operator | technician |
+|------------|:---:|:---:|:---:|:---:|
+| `ai_routes.view` | ✅ | ✅ | ❌ | ❌ |
+| `ai_routes.manage` | ✅ | org scope only | ❌ | ❌ |
+| `ai_routes.test` | ✅ | ✅ | ❌ | ❌ |
+| `ai_routes.disable` | ✅ | org scope only | ❌ | ❌ |
+| `ai_routes.usage.view` | ✅ | ✅ | ❌ | ❌ |
+| `ai_routes.system.manage` | ✅ | ❌ | ❌ | ❌ |
+
+Rules:
+- Org-admin can create `scope='org'` routes for their org only — cannot create `scope='system'` routes
+- `ai_routes.system.manage` required to update `migration_status` field
+- No one can set `provider_id` or `model` directly in `GatewayRequest` (it is removed from the public API)
+- `ai_routes.test` allows sending a dry-run request through the resolved route — response is returned but not logged as billable
+
+---
+
+## §24 — Service Routing: Known Services (Seed Data)
+
+Canonical list of all AI-consuming services in the platform. This is the seed file for `ai_service_definitions`. Migration status reflects the state as of doc 41 audit (2026-04-24).
+
+| service_id | module_id | feature_id | capability | pii_policy | streaming | migration_status | legacy_file |
+|------------|-----------|------------|------------|------------|-----------|-----------------|-------------|
+| `helpdesk.ticket_summarization` | helpdesk | ticket_summarization | chat | medium | false | pending | — |
+| `helpdesk.screen_analysis` | helpdesk | screen_analysis | vision | high | false | legacy-bypass | `apps/helpdesk/services/screen_analyzer.py` |
+| `helpdesk.vision_description` | helpdesk | vision_description | vision | high | false | legacy-bypass | `apps/helpdesk/services/vision_service.py` |
+| `helpdesk.incident_memory_embed` | helpdesk | incident_memory_embed | embedding | low | false | legacy-bypass | `apps/helpdesk/services/incident_memory_service.py` |
+| `voice.reply_generation` | voice_support | reply_generation | chat | medium | true | legacy-bypass | `apps/voice_support/call_manager.py` |
+| `voice.transcription` | voice_support | transcription | transcription | high | false | pending | — |
+| `floating_assistant.page_explanation` | floating_assistant | page_explanation | chat | low | true | pending | — |
+| `floating_assistant.action_planning` | floating_assistant | action_planning | chat | medium | false | pending | — |
+| `ai_action.parameter_extraction` | ai_agents | parameter_extraction | chat | medium | false | pending | — |
+| `ai_action.safe_result_summary` | ai_agents | safe_result_summary | chat | medium | false | legacy-bypass | `apps/ai_agents/engine/agent_runner.py` |
+| `knowledge.embedding` | knowledge | embedding | embedding | low | false | pending | — |
+| `knowledge.rag_answer` | knowledge | rag_answer | chat | medium | false | pending | — |
+| `jira.issue_summary` | jira_integration | issue_summary | chat | medium | false | legacy-bypass | `apps/jira_integration/ai_service.py` |
+| `jira.troubleshooting` | jira_integration | troubleshooting | chat | low | false | legacy-bypass | `apps/jira_integration/troubleshooting_service.py` |
+| `jira.devops_analysis` | jira_integration | devops_analysis | chat | low | false | legacy-bypass | `apps/jira_integration/devops_ai_service.py` |
+| `personal_info.chat` | personal_info | chat | chat | critical | true | legacy-bypass | `apps/personal_info/ai_chat/providers/openai_provider.py` |
+| `personal_info.transcription` | personal_info | transcription | transcription | high | false | legacy-bypass | `apps/personal_info/services/transcription_service.py` |
+| `personal_info.document_recognition` | personal_info | document_recognition | vision | critical | false | legacy-bypass | `apps/personal_info/document_recognition_service.py` |
+| `personal_info.task_ai` | personal_info | task_ai | chat | high | false | legacy-bypass | `apps/personal_info/task_ai_service.py` |
+| `personal_info.memory_embedding` | personal_info | memory_embedding | embedding | high | false | legacy-bypass | `apps/personal_info/services/memory_indexing_service.py` |
+| `personal_info.secretary` | personal_info | secretary | chat | high | false | legacy-bypass | `apps/personal_info/services/secretary_service.py` |
+| `personal_info.rag_answer` | personal_info | rag_answer | chat | high | false | legacy-bypass | `apps/personal_info/services/rag_answer_service.py` |
+| `ala.commitment_extraction` | ala | commitment_extraction | chat | medium | false | legacy-bypass | `apps/ala/tasks/commitment_task.py` |
+| `ala.text_session` | ala | text_session | chat | medium | false | partially-migrated | `apps/ala/text_session.py` |
+| `ops_intelligence.rag_indexing` | ops_intelligence | rag_indexing | embedding | low | false | legacy-bypass | `apps/ops_intelligence/services/ops_rag_indexer.py` |
+| `ops_intelligence.catalog_bootstrap` | ops_intelligence | catalog_bootstrap | chat | low | false | legacy-bypass | `apps/ops_intelligence/tools/bootstrap_catalog.py` |
+| `life_assistant.transcription` | life_assistant | transcription | transcription | high | false | legacy-bypass | `apps/life_assistant/services/recording_transcriber.py` |
+
+---
+
+## §25 — Migration Status Linkage (doc 41 bridge)
+
+The `migration_status` field in `AIServiceDefinition` is the canonical source of truth for migration tracking. It replaces the manual tracking table in doc 41 §09 as the system evolves.
+
+**Status values and their meaning:**
+
+| Status | Meaning |
+|--------|---------|
+| `gateway-routed` | Service calls `AIProviderGateway.call()` — fully migrated. Route managed from Hub. |
+| `partially-migrated` | Some call sites migrated, some still bypass. |
+| `legacy-bypass` | Service still calls provider SDK directly. Provider/model is hardcoded in code. |
+| `pending` | Service not yet implemented (new service), or scheduled for migration. |
+| `blocked` | Migration blocked by dependency (e.g., gateway doesn't support this capability yet). |
+
+**Hub migration status page (`/ai-providers/migration`)** now shows this per-service table directly from `AIServiceDefinition`, not from a static scan report. The `check_no_direct_llm_imports.py` CI scan remains for enforcement — it detects code-level violations. The Hub page shows the operational state.
+
+**Linkage rule:** When `check_no_direct_llm_imports.py` finds zero violations for a module's files, and the gateway is integrated, system-admin updates `migration_status → 'gateway-routed'` in the Hub. This closes the loop between CI enforcement and operational state.
+
+---
+
+## §26 — Updated Open Questions
+
+_(Extends §13)_
+
+| # | Question | Decision needed by | Owner |
+|---|----------|--------------------|-------|
+| OQ-08 | `AIServiceDefinition` seed file: where does it live? `scripts/seeds/ai_service_definitions.py` run at deploy, or as a migration data fixture? | R035 backend | Architecture |
+| OQ-09 | `resolve_provider()` in `registry.py`: add `feature_id` parameter to existing function, or create a new `resolve_service_route()` function that calls the old function as fallback? Prefer new function for clean separation. | R035 backend | Architecture |
+| OQ-10 | When a service is `legacy-bypass`, the gateway is not called at all — so `AIServiceDefinition` has no usage data. How does the Hub show usage for legacy-bypass services? Options: (a) show zero, (b) show `AIUsageLog` rows matched by `module_name + feature_id` string match (brittle), (c) require migration before showing usage. | R035 | Architecture |
+| OQ-11 | `AIServiceProviderRoute` cache invalidation: invalidate per `(org_id, module_id, feature_id, capability)`. Redis key pattern? Suggest `svc_route:{org_id}:{module_id}:{feature_id}:{capability}`. | R035 backend | Architecture |
+| OQ-12 | Admin test endpoint: what is the exact mechanism for allowing `provider_id`/`model` override during migration mode? Flag in request headers (`X-Migration-Mode: true`) + `ai_routes.system.manage` permission + full audit log. Confirm. | R035 | Security |
+
+---
+
+## §27 — Updated Acceptance Criteria for Service Routing
+
+_(Extends §14)_
+
+### R035 — Service routing backend complete when:
+- [ ] `AIServiceDefinition` and `AIServiceProviderRoute` tables exist (migration)
+- [ ] Seed data for all 27 known services is loaded at deploy
+- [ ] `resolve_provider()` / new `resolve_service_route()` checks `AIServiceProviderRoute` before `AIModuleOverride`
+- [ ] `GatewayRequest` no longer accepts `provider_id` or `model` fields (removed)
+- [ ] `AIUsageLog` has `service_id`, `route_id`, `resolution_source`, `fallback_used`, `routing_scope` columns (migration)
+- [ ] `GatewayResponse` includes `route_debug` for admin test endpoint only
+- [ ] 9-level routing resolution order implemented in `registry.py`
+- [ ] Step 9 (fail-closed) raises `NoProviderConfiguredError` — never silent fallback
+- [ ] All service routing endpoints in `api_routes.py` respond to JWT auth
+- [ ] All service route mutations call `record_activity()` with before/after snapshot
+
+### R036 — Service routing UI core complete when:
+- [ ] Service Routing Matrix page (`/ai-providers/services`) shows all 27 services with effective routes
+- [ ] Service detail page shows resolution_source and route_debug fields for system-admin
+- [ ] Migration status badges visible; system-admin can update status via dropdown
+- [ ] Edit route form validates with Zod before submit
+- [ ] Dangerous changes (provider change on gateway-routed service) use `ConfirmActionDialog`
+- [ ] `PermissionGate` hides system-scope management from org-admins
+
+---
+
+## §28 — ADR-030: AI Service-to-Provider Routing Matrix
+
+**Context:** The platform has 27+ AI-consuming services/features across 10+ modules. Provider/model selection is currently either hardcoded in service code (legacy-bypass) or resolved at module+capability granularity (`AIModuleOverride`). Features within the same module+capability cannot have different providers. Service code sometimes sets `provider_id`/`model` directly in `GatewayRequest`, which bypasses configuration and makes routing untraceable.
+
+**Decision:** Introduce `AIServiceDefinition` (service registry) and `AIServiceProviderRoute` (feature-level routing) to enable configuration-driven provider/model resolution at the service/feature level. Remove `provider_id` and `model` from the public `GatewayRequest` API. Define a 9-step resolution hierarchy that consults service routes → module overrides → capability defaults → fallback chain → fail-closed.
+
+**Rules:**
+- Service code calls gateway with `module_id`, `feature_id`, `capability` only — never hardcodes provider/model.
+- `GatewayRequest.provider_id` and `GatewayRequest.model` are removed from the public API.
+- Exception: admin test endpoint + explicit migration mode (`X-Migration-Mode` header + `ai_routes.system.manage`) for temporary use during P0 migrations.
+- Step 9 is non-negotiable: if no provider is configured, the gateway fails closed with `NoProviderConfiguredError`.
+
+**Why not replace `AIModuleOverride`?** Module-level overrides remain valid for coarse-grained routing (all features in a module use the same provider). Service-level routes add granularity on top. Both coexist in the resolution hierarchy.
+
+**Migration impact:** All 27 services in `AIServiceDefinition` seed data. Migration status tracked per service. `AIUsageLog` extended with 5 new attribution columns.
+
+**Alternatives considered:**
+- Extend `AIModuleOverride` to include `feature_id`: rejected — this changes the semantics of an existing model, risks breaking the existing registry resolution logic.
+- Use `config_override` JSONB on `AIModuleOverride` to store per-feature model: rejected — unvalidated, invisible to the Hub UI, unindexable.
+- Keep `provider_id`/`model` on `GatewayRequest` but add auditing: rejected — defeats the purpose of config-driven routing; code still determines routing.
+
+**Affected modules:** `apps/ai_providers/` (models, registry, gateway, api_routes), all 10+ AI-consuming modules (must remove hardcoded provider/model params from GatewayRequest calls), `lib/api/ai-providers.ts`, `app/(dashboard)/ai-providers/services/`.
+
+---
+
+_Document version: 2.0 — Round 034 follow-up, 2026-04-25_
+_Changes from v1.0: Added §16–§28 (Service Routing Matrix design, new backend models, routing resolution order, Gateway changes, UI sections, permissions, seed data, migration linkage, ADR-030)_
 _Next update: after Phase 2 backend routes are written (R035)_

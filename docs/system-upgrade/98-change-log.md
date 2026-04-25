@@ -17,6 +17,61 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-25 — Round 038: Module Manager Multi-Tenant Redesign
+
+### Files Changed (platform-ui)
+- `docs/system-upgrade/45-module-manager-redesign.md` — **created** (11 sections: problem diagnosis, design goals, 9 new model definitions — Module/OrgModule/OrgModuleSettings/ModuleDependency/ModuleLicense/ModulePermission/ModuleLog/ScriptExecution/ModuleChangelog, schema diagram, API redesign, permissions, migration strategy, open questions, acceptance criteria, ADR-031, R038-A/B/C/D backlog)
+- `docs/system-upgrade/14-decision-log.md` — **updated** (ADR-031 added: Module Manager Multi-Tenant Model Split)
+- `docs/system-upgrade/15-action-backlog.md` — **updated** (R038-A/B/C/D tasks added: 19 total items)
+- `docs/system-upgrade/96-rounds-index.md` — **updated** (Round 034 Follow-up + Round 038 entries added)
+- `docs/system-upgrade/98-change-log.md` — this entry
+
+### New Findings
+- `Module.is_installed` + `Module.is_enabled` are system-wide — no per-org module state is structurally possible
+- `ModulePurchase.organization` is `String(255)` with no FK — license ownership not queryable by org
+- `Module.dependencies` is a JSON Text blob — no referential integrity, no version constraints
+- `ModuleSettings` has no org scoping — per-org config is not possible without schema change
+- Auth pattern is Flask-Login throughout — violates ADR-028 BE-01/BE-03
+
+### Decision Changes
+- ADR-031 added: Module Manager Multi-Tenant Model Split
+
+### Backlog Changes
+- R038-A: 10 schema migration tasks
+- R038-B: 2 model rewrite tasks
+- R038-C: 2 JWT route tasks
+- R038-D: 6 platform-ui page tasks
+
+---
+
+## 2026-04-25 — Round 034 Follow-up: AI Service-to-Provider Routing Matrix
+
+### Files Changed (platform-ui)
+- `docs/system-upgrade/44-ai-providers-hub.md` — **updated** v1.0 → v2.0: added §16 (core routing rule), §17 (gap analysis — existing models insufficient for feature-level routing), §18 (AIServiceDefinition + AIServiceProviderRoute model designs), §19 (9-step routing resolution order), §20 (Gateway integration changes — GatewayRequest API cleanup, GatewayResponse route_debug, AIUsageLog 5 new columns), §21 (Section 11–13 UI design: Service Routing Matrix list/detail/edit), §22 (service routing API: 10 new endpoints), §23 (service routing permissions: 6 new), §24 (seed data: 27 known services), §25 (migration status linkage), §26 (open questions OQ-08–12), §27 (acceptance criteria for service routing), §28 (ADR-030 text); patched §01/§04/§06/§07/§10/§11/§12
+- `docs/system-upgrade/14-decision-log.md` — **updated** (ADR-030 added: AI Service-to-Provider Routing Matrix)
+- `docs/system-upgrade/40-ai-provider-gateway-billing.md` — **updated** (§20 addendum: gateway changes from ADR-030)
+- `docs/system-upgrade/41-direct-llm-call-audit-and-migration.md` — **updated** (§22 added: legacy file → service_id mapping table for 23 bypass files)
+- `docs/system-upgrade/35-platform-capabilities-build-order.md` — **updated** (R035 backend entry expanded; R037 UI entry expanded to include service routing sections)
+- `docs/system-upgrade/15-action-backlog.md` — **updated** (R035 expanded: 11 tasks; R037 expanded: +4 service routing UI tasks)
+- `docs/system-upgrade/96-rounds-index.md` — **updated** (R034 next-round pointer expanded)
+- `docs/system-upgrade/98-change-log.md` — this entry
+
+### New Findings
+- **Existing models are insufficient for feature-level routing.** `AIModuleOverride` keys on `(org_id, module_name, capability)` — two features in the same module+capability share one provider. Example: `helpdesk.screen_analysis` (vision, Anthropic) and `helpdesk.vision_description` (vision, Gemini) cannot have different providers today.
+- **`GatewayRequest` currently accepts `provider_id`/`model` overrides** — allows service code to hardcode routing, defeating the purpose of the provider layer. These must be removed.
+- **No service registry exists.** `feature_id` in `AIUsageLog` is free-form String(60) — unindexed, unenforced, invisible to any management UI.
+- **`AIModuleOverride` is NOT replaced** — it remains as the coarser-grained step 3 fallback in the 9-step hierarchy. New `AIServiceProviderRoute` adds step 2 (feature-level) above it.
+- **27 services mapped** from doc 41 bypass file audit to canonical `service_id` values in §24 seed data.
+
+### Backlog Changes
+- R035 tasks expanded from 5 → 11 (add service routing models, registry, gateway cleanup)
+- R037 tasks expanded (+4 Service Routing Matrix UI pages)
+
+### Decisions
+- ADR-030: AI Service-to-Provider Routing Matrix
+
+---
+
 ## 2026-04-25 — Round 034 (Documentation): AI Providers Hub Architecture & UI Plan
 
 ### Files Created (platform-ui)

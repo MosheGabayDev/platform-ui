@@ -688,8 +688,8 @@ Each page registers `PageAIContext` via `useRegisterPageContext()`. Priority ord
 | **Floating AI Assistant (LLM)** | Drawer + chat + AI context wiring + `PageContextDiff` | R033 |
 | **Floating AI Assistant (actions)** | `AIActionPreviewCard` + confirmation flow | R034 |
 | **Floating AI Assistant (voice)** | Voice mode + objective persistence + workflow resumption | R035 |
-| **AI Providers Hub (backend)** | `apps/ai_providers/api_routes.py` — 29 JWT endpoints + permissions migration | R035 |
+| **AI Providers Hub (backend)** | `apps/ai_providers/api_routes.py` — 39 JWT endpoints + permissions + service routing models (AIServiceDefinition, AIServiceProviderRoute) + AIUsageLog extension | R035 |
 | **AI Providers Hub (UI core)** | Overview + Providers + Defaults + Overrides + Usage (sections 1–5,7) | R036 |
-| **AI Providers Hub (UI advanced)** | Fallback chains + Health + Quotas + Migration status (sections 6,8–10) | R037 |
+| **AI Providers Hub (UI advanced)** | Fallback chains + Health + Quotas + Migration status (sections 6,8–10) + Service Routing Matrix (sections 11–13) | R037 |
 | **Module Import/Export** | JobRunner + ImportExport full + Wizard + AuditLog | R032+ |
 | **Production** | FeatureFlags, AuditLog, Notifications, CSP headers, Flask cookie security | R026 |

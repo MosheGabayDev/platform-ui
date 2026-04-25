@@ -661,4 +661,48 @@ Error case:
 
 ---
 
+## ADR-030 — AI Service-to-Provider Routing Matrix (2026-04-25)
+
+**Context:** The platform has 27+ AI-consuming services across 10+ modules. Provider/model routing is currently either (a) hardcoded in service code via `GatewayRequest(provider_id=..., model=...)`, or (b) resolved at module+capability granularity via `AIModuleOverride`. Two features in the same module+capability share one provider — they cannot be routed differently. No registry of named AI services/features exists. `feature_id` in `AIUsageLog` is a free-form string with no enforcement.
+
+**Decision:** Introduce `AIServiceDefinition` (service registry) and `AIServiceProviderRoute` (feature-level routing) to enable configuration-driven provider/model resolution at the service/feature granularity. Remove `provider_id` and `model` from the public `GatewayRequest` API. Implement a 9-step resolution hierarchy: user override → org+service → org+module → org+capability → system+service → system+module → system+capability → fallback chain → fail-closed. Service code must call the gateway with only `module_id`, `feature_id`, and `capability`.
+
+**Key rules:**
+- No service may hardcode provider/model in application code.
+- `GatewayRequest.provider_id` and `GatewayRequest.model` removed from public API.
+- Exception: admin test endpoint + `X-Migration-Mode` header + `ai_routes.system.manage` permission during P0 migrations only.
+- Step 9 is mandatory: if no provider configured → `NoProviderConfiguredError`, never silent fallback.
+- `AIModuleOverride` is NOT deprecated — it remains as the module-level fallback step (step 3/6 in hierarchy).
+
+**New models:** `AIServiceDefinition` (system-level registry, 27 known services seeded), `AIServiceProviderRoute` (feature-level routing with scope: system/org/module/feature/user).
+
+**New `AIUsageLog` columns:** `service_id`, `route_id`, `resolution_source`, `fallback_used`, `routing_scope`.
+
+**New permissions:** `ai_routes.view`, `ai_routes.manage`, `ai_routes.test`, `ai_routes.disable`, `ai_routes.usage.view`, `ai_routes.system.manage`.
+
+**Spec:** `docs/system-upgrade/44-ai-providers-hub.md §16–§28`
+
+**Affected modules:** `apps/ai_providers/` (models, registry, gateway, api_routes), all 27 AI-consuming service files, `lib/api/types.ts`, `app/(dashboard)/ai-providers/services/`.
+
+---
+
+---
+
+## ADR-031 — Module Manager Multi-Tenant Model Split (2026-04-25)
+
+- **Context:** Module Manager (`apps/module_manager/`) was designed single-tenant. `Module.is_installed` and `Module.is_enabled` are system-wide flags. No per-org enable/disable. `ModulePurchase.organization` is a loose string with no FK. Audit fields (`ModuleLog.user`, `ScriptExecution.executed_by`) are untyped strings. Routes use Flask-Login, violating ADR-028.
+- **Decision:** Split `Module` (system catalog) from a new `OrgModule` table (per-org state). Add `OrgModuleSettings` (per-org config, replacing `ModuleSettings`). Rename `ModulePurchase` → `ModuleLicense` with hard `org_id FK → orgs.id`. Replace `Module.dependencies` JSON blob with `ModuleDependency` join table. All audit string fields become `Integer FK → users.id`. All new routes use `@jwt_required` (ADR-028).
+- **Alternatives considered:**
+  - Add `org_id` columns to existing `Module` rows — rejected: creates (module × org) duplication, pollutes system catalog.
+  - JSON `enabled_orgs` array in `Module` — rejected: no referential integrity, unqueryable.
+- **Consequences:**
+  - All org-scoped module queries must join through `OrgModule`.
+  - `ModuleSettings` deprecated in favor of `OrgModuleSettings`.
+  - Data migration: seed `OrgModule` from current `Module.is_enabled`; parse `dependencies` JSON to `ModuleDependency` rows; resolve `ModuleLicense.org_id` from `organization` string.
+  - Old `/modules/*` Jinja2 routes stay until platform-ui `/modules` page ships.
+- **Affected modules:** `apps/module_manager/` (models, routes, api_routes), `scripts/migrations/`, `platform-ui/app/(dashboard)/modules/`.
+- **Spec:** `docs/system-upgrade/45-module-manager-redesign.md`
+
+---
+
 _Add new ADRs here as decisions are made during implementation._
