@@ -1,14 +1,14 @@
 # R040–R049 — GitHub Issue Drafts
 
 > Interim tracking until GitHub issues are created via CLI.
-> _Created: 2026-04-25 (R040-Control)_
-> When creating real issues: use `.github/ISSUE_TEMPLATE/platform-round.yml`
+> _Created: 2026-04-25 (R040-Control) | Updated: 2026-04-26 (accuracy fixes)_
+> When creating real issues: use `.github/ISSUE_TEMPLATE/platform-round.yml` (now present in both repos)
 
 ---
 
 ## R040 — Module Manager Additive Schema Foundation
 
-**Status:** ✅ Complete — commit `abdf3bc3`
+**Status:** ✅ Complete — commit `abdf3bc38985dcf1152a390ea81f3d1675103140`
 **Repo:** platformengineer
 
 **Goal:** Add 5 new SQLAlchemy models (ModuleVersion, OrgModule, OrgModuleSettings, ModuleDependency, ModuleLicense) plus 7 additive migrations and idempotent seeds, side-by-side with all existing Module Manager models unchanged.
@@ -29,41 +29,71 @@
 
 ## R040-Control — Implementation Governance Setup
 
-**Status:** ✅ Complete — commit TBD
+**Status:** ✅ Complete
+**Commit (platform-ui):** `202d45a678745d5d5046e60644751175d3e01340`
+**Commit (platformengineer):** `ed72d27913dc581e6553cace8186b3ea58ecefd5`
 **Repo:** platformengineer + platform-ui
 
 **Goal:** Establish governance system. Control Center, Risk Register, Issue Template, PR Template, Review Checklist, issue drafts, CLAUDE.md updates.
 
 ---
 
-## R041 — CI Enforcement + ActionButton Extraction
+## R041A — CI Enforcement (LLM Import Gate)
 
 **Status:** `[ ] ready to start`
 **Repo:** platformengineer
 **Dependencies:** R040 merged ✅
 
-**Goal:** Prevent future LLM bypass violations from being merged. Extract ActionButton as a shared reusable component.
+**Goal:** Prevent future LLM bypass violations from being merged via CI gate.
 
 **Scope:**
 - Wire `scripts/check_no_direct_llm_imports.py` into GitHub Actions (warning mode — non-blocking at first)
 - Add CI job to `.github/workflows/` that runs the script on every PR
-- Extract `ActionButton` from helpdesk module into `apps/shared/components/`
 - Write tests for the CI script
 
 **Out of scope:**
 - Fixing existing 55 LLM violations (R048)
 - Any new routes or DB changes
-- UI changes in platform-ui
+- ActionButton extraction (R041B)
 
 **Acceptance criteria:**
 - [ ] CI job runs on every PR and reports direct LLM imports
 - [ ] `scripts/check_no_direct_llm_imports.py` reports file + line for each violation
-- [ ] ActionButton in shared location, original import still works (backwards compat)
 - [ ] Regression gate green
 - [ ] Docs updated
 
 **Security checklist:** N/A — no routes, no DB
 **Tests required:** test_check_no_direct_llm_imports.py (unit)
+
+---
+
+## R041B — ActionButton Extraction
+
+**Status:** `[ ] ready to start`
+**Repo:** platform-ui (component) + platformengineer (if shared Python needed)
+**Dependencies:** R040 merged ✅ (can run in parallel with R041A)
+
+**Goal:** Extract ActionButton as a shared reusable component so every module uses the same pattern.
+
+**Scope:**
+- Extract `ActionButton` from `components/shared/` in platform-ui (already sketched in R023 plan)
+- Ensure spinner-during-mutation, disabled-when-isPending behavior
+- Update existing callers (Users, Orgs deactivate buttons)
+
+**Out of scope:**
+- Backend Python ActionButton equivalent (not needed — this is a frontend concern)
+- CI enforcement (R041A)
+- Any DB changes
+
+**Acceptance criteria:**
+- [ ] `ActionButton` in `components/shared/action-button.tsx` with spinner + disabled state
+- [ ] All existing deactivate/action buttons migrated to use shared component
+- [ ] TypeScript: EXIT 0
+- [ ] Regression gate green
+- [ ] Docs updated
+
+**Security checklist:** N/A — frontend component only
+**Tests required:** Visual verification (no unit test needed for pure UI component)
 
 ---
 
@@ -236,24 +266,31 @@
 
 ## R048 — P0 LLM Direct Import Cleanup
 
-**Status:** `[ ] ready to start (independent of blocked rounds)`
+**Status:** `[ ] partial-ready (Phase 1 can start now; Phase 2 waits for R043)`
 **Repo:** platformengineer
-**Dependencies:** R041 CI gate preferred (so cleanup is verified by CI)
+**Dependencies:**
+- Phase 1 (simple substitutions): R041A CI gate preferred — can start with fitness_nutrition, ala, ai_coach (no service routing needed)
+- Phase 2 (full cleanup): R043 AI Service Routing Matrix preferred — modules that need feature-level routing must wait
 
 **Goal:** Eliminate all 55+ direct `import openai` / `import anthropic` / `import google.generativeai` violations. Route all calls through `AIProviderGateway.call()`.
 
-**Scope:**
-- Migrate each violation file from direct LLM SDK to `AIProviderGateway.call(GatewayRequest(...))`
-- Verify `AIUsageLog` rows are written for each migrated call
-- Remove any dead `*_client.py` / `*_wrapper.py` files that were legacy bypass wrappers
-- CI gate (from R041) must pass after cleanup
+**Phase 1 — Simple Gateway Substitutions (can start now):**
+- `fitness_nutrition/ai_service.py` — already migrated (R031 ✅)
+- `ala/`, `ai_coach.py`, `helpdesk/` services — single-capability, no service routing needed
+- Remove dead bypass wrappers after each migration
+
+**Phase 2 — Service-routing-aware (wait for R043):**
+- `personal_info/ai_chat/providers/` — multi-provider routing needed
+- `life_assistant/` — needs service routing for feature differentiation
+- `ops_intelligence/`, `voice_support/` — need routing matrix targets
 
 **Out of scope:**
-- Voice gateway — it uses HTTP-based provider resolution, not the Python SDK path
+- Voice gateway — uses HTTP-based provider resolution, not Python SDK path
 - Adding new AI features
 
 **Acceptance criteria:**
-- [ ] `check_no_direct_llm_imports.py` reports zero violations
+- [ ] Phase 1: `check_no_direct_llm_imports.py` count reduced by at least 20 violations
+- [ ] Phase 2: `check_no_direct_llm_imports.py` reports zero violations
 - [ ] All migrated calls produce `AIUsageLog` rows
 - [ ] Existing behavior unchanged (responses same shape)
 - [ ] Regression gate green

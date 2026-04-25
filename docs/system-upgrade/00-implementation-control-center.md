@@ -1,7 +1,7 @@
 # 00 — Implementation Control Center
 
 > **This is the first doc to read after `CLAUDE.md`.** Every implementation round starts here.
-> _Last updated: 2026-04-25 (R040-Control — Governance Setup)_
+> _Last updated: 2026-04-26 (R040-Control follow-up — doc accuracy fixes)_
 
 ---
 
@@ -15,7 +15,9 @@
 
 ## Product Vision (Summary)
 
-ResolveAI is an **AI-native MSP management platform** for IT service providers. It manages multiple client organizations from one hub, runs AI agents that handle helpdesk, voice, and ops intelligence, and exposes a modular marketplace so each tenant enables only what they need.
+ResolveAI is an **AI-native generic organization platform** — a modular, multi-tenant operating system for any type of organization. It manages multiple organizations from one hub, runs AI agents autonomously on behalf of users, and exposes a modular marketplace so each tenant enables only the capabilities they need.
+
+MSP and IT operations is one supported module family (Helpdesk, ALA, Ops Intelligence, Remote Assist), not the platform's entire identity. The same foundation supports legal, medical, educational, and any other domain that needs AI-powered automation and multi-tenant module management.
 
 Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platform-foundation-roadmap.md)
 
@@ -27,11 +29,12 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 |-------|-------|
 | **Round** | R040-Control — Implementation Governance Setup |
 | **Status** | ✅ Complete (2026-04-25) |
-| **Commit** | pending |
-| **Branch** | main |
+| **Commit (platform-ui)** | `202d45a678745d5d5046e60644751175d3e01340` |
+| **Commit (platformengineer)** | `ed72d27913dc581e6553cace8186b3ea58ecefd5` |
+| **Branch** | main (both repos) |
 | **Purpose** | Establish governance system — no product features, no schema, no UI |
 
-**Previous completed:** R040 — Module Manager Additive Schema Foundation (`abdf3bc3`)
+**Previous completed:** R040 — Module Manager Additive Schema Foundation (`abdf3bc38985dcf1152a390ea81f3d1675103140`)
 
 ---
 
@@ -39,15 +42,19 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 
 | Round | Title | Status | Depends On | Repo |
 |-------|-------|--------|------------|------|
-| R041 | CI Enforcement + ActionButton Extraction | `[ ] ready` | R040 merged | platformengineer |
-| R042 | ModuleRegistry.sync_from_manifests() + ModuleCompatLayer | `[ ] blocked` | R040 migrations applied to DB | platformengineer |
+| R041A | CI Enforcement (LLM import gate in GitHub Actions) | `[ ] ready` | R040 merged | platformengineer |
+| R041B | ActionButton Extraction to shared component | `[ ] ready` | R040 merged | platform-ui + platformengineer |
+| R042 | ModuleRegistry.sync_from_manifests() + ModuleCompatLayer | `[ ] blocked` | R040 migrations in DB | platformengineer |
 | R043 | AI Service Routing Matrix Backend | `[ ] blocked` | R040 OrgModule tables live | platformengineer |
 | R044 | Navigation API + JWT Route Audit | `[ ] blocked` | R042 CompatLayer | platformengineer |
 | R045 | Feature Flags + Settings Engine | `[ ] blocked` | R040 in DB | platformengineer |
 | R046 | AuditLog + Notifications Foundation | `[ ] blocked` | R045 | platformengineer |
 | R047 | API Keys + Secrets Manager Backend | `[ ] blocked` | R040, R046 | platformengineer |
-| R048 | P0 LLM Direct Import Cleanup | `[ ] ready` | R043 preferred (not hard dep) | platformengineer |
+| R048 | P0 LLM Direct Import Cleanup | `[ ] partial-ready` | Simple gateway migrations: no extra dep. Full cleanup: R043 preferred | platformengineer |
 | R049 | Data Sources Hub Backend Foundation | `[ ] blocked` | R047, R046, R040 | platformengineer |
+
+> **R041A/B note:** CI enforcement (R041A) is platformengineer only. ActionButton extraction (R041B) requires changes in both platform-ui (component) and platformengineer (shared Python equivalent if any). They can run in parallel.
+> **R048 note:** Modules that only need simple `AIProviderGateway.call()` substitution (no service routing needed) can be migrated immediately — start with fitness_nutrition, ala, ai_coach. Full service-routing-aware migration requires R043 routing matrix first.
 
 > Full dependency graph: [`35-platform-capabilities-build-order.md`](35-platform-capabilities-build-order.md)
 
@@ -57,8 +64,8 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 
 | Blocker | Blocks | Action Required |
 |---------|--------|----------------|
-| R040 migrations not applied to EKS DB | R042, R043, R044, R045 | Run `python scripts/migrations/run_migration.py` for each of 7 files |
-| R040-Control not committed | All future rounds | Commit this governance round |
+| R040 migrations not applied to EKS DB | R042, R043, R044, R045 | **Pending approval.** Migration gate report provided. Apply after user approval. |
+| `modules.system_status` missing from DB | Module auto-registration at startup fails (WARN) | First migration to apply: `20260425_add_module_system_status` |
 
 ---
 

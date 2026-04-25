@@ -3,9 +3,23 @@
 _Running log of what changed in each update round._
 _Newest entry at the top._
 
+## R040-Control follow-up — 2026-04-26 — Doc accuracy fixes
+
+**Commit:** TBD (platform-ui, main)
+**Tests:** N/A — doc corrections only
+- Product vision broadened: "MSP platform" → "AI-native generic organization platform"
+- Full SHAs for R040 and R040-Control commits
+- R041 split into R041A (CI) + R041B (ActionButton); repos corrected
+- R048 readiness clarified: Phase 1 can start now, Phase 2 waits for R043
+- GitHub templates copied to platform-ui
+- Control Center blockers updated (R040-Control committed, system_status warning documented)
+
+---
+
 ## R040-Control — 2026-04-25 — Implementation Governance Setup
 
-**Commit:** TBD (platformengineer + platform-ui, main)
+**Commit (platform-ui):** `202d45a678745d5d5046e60644751175d3e01340`
+**Commit (platformengineer):** `ed72d27913dc581e6553cace8186b3ea58ecefd5`
 **Tests:** N/A — governance/process round
 
 ### Files Created (platform-ui)
@@ -34,7 +48,7 @@ This round added only governance process — no schema, no UI, no API changes.
 
 ## R040 — 2026-04-25 — Module Manager Additive Schema Foundation
 
-**Commit:** `abdf3bc3` (platformengineer main)
+**Commit:** `abdf3bc38985dcf1152a390ea81f3d1675103140` (platformengineer main)
 **Tests:** 43 passed, 0 failed
 
 ### Files Created (platformengineer)

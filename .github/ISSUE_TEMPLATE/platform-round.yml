@@ -1,0 +1,172 @@
+name: Platform Implementation Round
+description: Track a scoped implementation round for the ResolveAI platform
+title: "[RXXX] "
+labels: ["platform-round"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Platform Round Contract
+        Fill every section before starting implementation. An empty section = round not ready.
+        Reference: [`docs/system-upgrade/00-implementation-control-center.md`](../docs/system-upgrade/00-implementation-control-center.md)
+
+  - type: input
+    id: round-id
+    attributes:
+      label: Round ID
+      description: e.g. R041
+      placeholder: "R041"
+    validations:
+      required: true
+
+  - type: input
+    id: title
+    attributes:
+      label: Title
+      description: Short descriptive title (≤60 chars)
+      placeholder: "CI Enforcement + ActionButton Extraction"
+    validations:
+      required: true
+
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: One paragraph — what this round achieves and why it matters now
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope (In Scope)
+      description: Explicit list of what will be implemented. Be specific — file names, function names, model names.
+      placeholder: |
+        - Add check_no_direct_llm_imports.py CI enforcement script
+        - Wire script into GitHub Actions workflow
+        - Extract ActionButton component from helpdesk module
+    validations:
+      required: true
+
+  - type: textarea
+    id: out-of-scope
+    attributes:
+      label: Out of Scope
+      description: Explicit list of what will NOT be touched in this round
+      placeholder: |
+        - Fixing the 55 existing LLM violations (R048)
+        - Any UI changes
+        - DB schema changes
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: Rounds or changes that must be complete before this round can start
+      placeholder: |
+        - R040 merged to main ✅
+        - R040 migrations applied to EKS DB ❌ (blocker)
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Minimum 5 specific, testable criteria. A round is done ONLY when all pass.
+      placeholder: |
+        - [ ] CI fails on any new direct LLM import
+        - [ ] Existing violations are flagged but non-blocking (warning mode)
+        - [ ] ActionButton extracted to shared components with same behavior
+        - [ ] All existing tests still pass (regression gate green)
+        - [ ] 96-rounds-index.md updated
+    validations:
+      required: true
+
+  - type: textarea
+    id: security-checklist
+    attributes:
+      label: Security Checklist
+      description: Confirm each item applies or mark N/A
+      value: |
+        - [ ] No new `/api/*` write endpoint without `@jwt_required` (N/A if no new routes)
+        - [ ] No `request.json.get("org_id")` for data scoping (N/A if no new queries)
+        - [ ] All new DB queries scope by `org_id` (N/A if no DB changes)
+        - [ ] No hardcoded secrets or credentials
+        - [ ] No `str(exc)` in error responses
+        - [ ] `record_activity()` called on state changes (N/A if no mutations)
+    validations:
+      required: true
+
+  - type: textarea
+    id: shared-capability-checklist
+    attributes:
+      label: Shared Capability Checklist
+      description: Confirm shared services are used correctly
+      value: |
+        - [ ] Checked `26-platform-capabilities-catalog.md` — not duplicating existing capability
+        - [ ] LLM calls use `AIProviderGateway.call()` — not direct SDK
+        - [ ] Auth uses `@jwt_required` + `g.jwt_user`
+        - [ ] Response envelope is `{"success": bool, "data": {...}}`
+        - [ ] No new `*_client.py` or `*_wrapper.py`
+    validations:
+      required: true
+
+  - type: textarea
+    id: tests-required
+    attributes:
+      label: Tests Required
+      description: What tests must be written and pass before this round is done
+      placeholder: |
+        - Unit: test_ci_enforcement.py — verify script catches direct imports
+        - Regression: 00_regression.sh must still pass
+        - No integration tests needed (no DB changes)
+    validations:
+      required: true
+
+  - type: textarea
+    id: docs-to-update
+    attributes:
+      label: Docs to Update
+      description: Which docs must be updated as part of this round
+      value: |
+        - [ ] `apps/<module>/INDEX.md` for every changed file
+        - [ ] `docs/system-upgrade/96-rounds-index.md` — new entry
+        - [ ] `docs/system-upgrade/98-change-log.md` — new entry
+        - [ ] `docs/system-upgrade/15-action-backlog.md` — tasks completed
+        - [ ] `docs/system-upgrade/35-platform-capabilities-build-order.md` — if applicable
+    validations:
+      required: true
+
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks
+      description: Known risks for this round; link to relevant entries in 99-risk-register.md
+      placeholder: |
+        - R04 (Direct LLM Bypass) — this round partially mitigates
+        - Scope creep risk: don't fix existing violations in this round
+    validations:
+      required: false
+
+  - type: textarea
+    id: rollback-plan
+    attributes:
+      label: Rollback / Compatibility Plan
+      description: How to roll back if this round causes issues. Required if DB schema or API contract changes.
+      placeholder: |
+        No DB changes. CI script is additive — remove from workflow YAML to roll back.
+    validations:
+      required: true
+
+  - type: textarea
+    id: follow-ups
+    attributes:
+      label: Follow-ups / Out-of-scope items to track
+      description: Things discovered during this round that should become future issues
+      placeholder: |
+        - R048: Fix all 55 existing LLM violations now that CI gate is in place
+    validations:
+      required: false

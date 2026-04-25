@@ -694,7 +694,7 @@ Architecture/roadmap hardening. No code. Defined: existing DB-first migration pr
 ## Round 040 — Module Manager Additive Schema Foundation
 
 **Date:** 2026-04-25
-**Commit:** `abdf3bc3` (platformengineer, branch: main)
+**Commit:** `abdf3bc38985dcf1152a390ea81f3d1675103140` (platformengineer, branch: main)
 **Status:** Complete ✅
 
 ### Mission
@@ -758,7 +758,8 @@ OR: Apply R040 migrations to EKS DB, then R042 ModuleRegistry + CompatLayer
 ## Round 040-Control — Implementation Governance Setup
 
 **Date:** 2026-04-25
-**Commit:** TBD (platformengineer + platform-ui, branch: main)
+**Commit (platform-ui):** `202d45a678745d5d5046e60644751175d3e01340`
+**Commit (platformengineer):** `ed72d27913dc581e6553cace8186b3ea58ecefd5`
 **Status:** Complete ✅
 
 ### Mission
