@@ -101,6 +101,7 @@ app/
   (dashboard)/         — protected pages with sidebar shell
     layout.tsx         — QueryClient + LazyMotion + AnimatePresence + keyboard shortcuts
     page.tsx           — dashboard home (useQuery for real data)
+    ai-providers/      — AI Providers Hub (R036+) — spec: docs/system-upgrade/44-ai-providers-hub.md
   api/proxy/[...path]/ — Next.js proxy → Flask (cookie-forwarding)
   layout.tsx           — root: fonts, ThemeProvider, QueryProvider
   globals.css          — CSS variables, aurora keyframes, .glass helper
@@ -172,6 +173,7 @@ Proxy URL mapping (`app/api/proxy/[...path]/route.ts`):
 | `/api/proxy/ai-settings/*` | `/api/ai-settings/*` |
 | `/api/proxy/monitoring/*` | `/admin/api/monitoring/*` |
 | `/api/proxy/admin/*` | `/admin/api/*` |
+| `/api/proxy/ai-providers/*` | `/api/ai-providers/*` (R035+) |
 
 Flask URL configured via `FLASK_API_URL` env var (`.env.local` for dev, `.env.production` for prod).
 

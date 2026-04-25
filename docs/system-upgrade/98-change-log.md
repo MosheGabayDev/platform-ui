@@ -17,6 +17,35 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-25 — Round 034 (Documentation): AI Providers Hub Architecture & UI Plan
+
+### Files Created (platform-ui)
+- `docs/system-upgrade/44-ai-providers-hub.md` — **created** (§01 capability assessment, §02 frontend gap, §03 product goals, §04–§13 hub sections + API table, §14 permissions model, §15 security rules, §16 shared capability rules, §17 phased plan, §18 open questions, §19 acceptance criteria, §20 ADR-029; 29 API endpoints; TypeScript interfaces + Zod schemas)
+
+### Files Changed (platform-ui)
+- `docs/system-upgrade/14-decision-log.md` — **updated** (ADR-029 added: AI Providers Hub — side-by-side JWT routes)
+- `docs/system-upgrade/26-platform-capabilities-catalog.md` — **updated** (§30 AIProviders Hub added to summary table; full §30 section with purpose/files/security/permissions/spec)
+- `docs/system-upgrade/35-platform-capabilities-build-order.md` — **updated** (enforcement pointer added to executive summary)
+- `docs/system-upgrade/40-ai-provider-gateway-billing.md` — **updated** (§20 Hub reference added: circuit breaker, defaults, module overrides, quotas, migration status all map to Hub sections)
+- `docs/system-upgrade/41-direct-llm-call-audit-and-migration.md` — **updated** (§21 Migration Status Hub page reference added)
+- `docs/system-upgrade/43-shared-services-enforcement.md` — **updated** (R034 revision history entry added)
+- `docs/system-upgrade/15-action-backlog.md` — **updated** (R035/R036/R037 AI Providers Hub task tables added: 5 backend tasks, 11 UI core tasks, 4 advanced UI tasks)
+- `docs/system-upgrade/96-rounds-index.md` — **updated** (Round 034 entry added; next round: R035 backend JWT routes)
+- `docs/system-upgrade/98-change-log.md` — this entry
+
+### New Findings
+- Existing `apps/ai_providers/routes.py` is comprehensive (11 route groups, full CRUD + usage) but uses Flask-Login throughout — all routes must be re-implemented with `@jwt_required` for platform-ui, not proxied
+- Provider health state is NOT in DB — only in Redis circuit breaker. Hub health page must poll live Redis state via new backend endpoint
+- `api_key_ref` is Fernet-encrypted; frontend must never receive the value — serializer shows `has_api_key: bool` only (already enforced in existing `_provider_to_dict()`)
+- Blueprint prefix is `/ai-providers/` (not `/api/ai-providers/`) — new JWT blueprint must use `/api/ai-providers/` prefix to avoid collision
+
+### Backlog Changes
+- R035: Backend JWT routes (5 tasks) added
+- R036: Hub UI Core (11 tasks) added
+- R037: Hub UI Advanced (4 tasks) added
+
+---
+
 ## 2026-04-25 — Round 033 Follow-up: Shared Services Enforcement Clarity Pass
 
 ### Files Changed (platform-ui)

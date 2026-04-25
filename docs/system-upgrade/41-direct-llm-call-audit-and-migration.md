@@ -602,3 +602,16 @@ This round is complete when:
 - [ ] `docs/system-upgrade/15-action-backlog.md` updated with P0 migration tasks
 
 **No new AI features may be added to any P0 module until that module's direct provider calls are migrated.**
+
+---
+
+## §21 — Migration Status Hub Page (R037)
+
+Once the AI Providers Hub is built (ADR-029), migration status from this document will be surfaced as a read-only system-admin page.
+
+- **Route:** `app/(dashboard)/ai-providers/migration/page.tsx`
+- **Permission:** `ai_providers.system.manage`
+- **Data source:** `GET /api/ai-providers/migration-status` — latest `check_no_direct_llm_imports.py` scan report (JSON from CI or DB tracking table)
+- **Display:** Per-module table (module / violation count / priority / assigned round / status), P0/P1/P2 summary, progress bar toward zero
+
+**Full Hub spec:** `docs/system-upgrade/44-ai-providers-hub.md §10`

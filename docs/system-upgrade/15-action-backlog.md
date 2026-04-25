@@ -684,6 +684,47 @@ _Must complete before any write-tier AI action implementation. Spec: `docs/syste
 
 ---
 
+## AI Providers Hub — R035 (Backend) + R036 (UI Core) + R037 (Advanced)
+
+**Spec:** `docs/system-upgrade/44-ai-providers-hub.md` | **ADR:** ADR-029
+
+### R035 — Backend JWT Routes (platformengineer)
+
+| Task | File | Est. | Status |
+|------|------|------|--------|
+| Create `apps/ai_providers/api_routes.py` — all 29 endpoints with `@jwt_required + g.jwt_user` | `apps/ai_providers/api_routes.py` | 3 hr | `[ ]` R035 |
+| Register `api_blueprint` in `apps/__init__.py` | `apps/__init__.py` | 15 min | `[ ]` R035 |
+| Migration: add `ai_providers.*` permissions to DB | `scripts/migrations/versions/YYYYMMDD_add_ai_providers_permissions.py` | 30 min | `[ ]` R035 |
+| Add `/api/proxy/ai-providers/*` to proxy route | `app/api/proxy/[...path]/route.ts` | 15 min | `[ ]` R035 |
+| Integration tests for all new endpoints | `apps/ai_providers/tests/test_api_routes.py` | 2 hr | `[ ]` R035 |
+
+### R036 — Hub UI Core (platform-ui)
+
+| Task | File | Est. | Status |
+|------|------|------|--------|
+| `lib/api/ai-providers.ts` — typed fetch functions | `lib/api/ai-providers.ts` | 1 hr | `[ ]` R036 |
+| `queryKeys.aiProviders.*` additions | `lib/api/query-keys.ts` | 30 min | `[ ]` R036 |
+| TypeScript interfaces: AIProvider, AIUsageSummary, AIProviderHealth, AIOverviewStats, etc. | `lib/api/types.ts` | 30 min | `[ ]` R036 |
+| Zod schemas for all forms | `lib/modules/ai-providers/schemas.ts` | 30 min | `[ ]` R036 |
+| Overview page | `app/(dashboard)/ai-providers/page.tsx` | 1 hr | `[ ]` R036 |
+| Providers list page | `app/(dashboard)/ai-providers/providers/page.tsx` | 1.5 hr | `[ ]` R036 |
+| Provider detail page | `app/(dashboard)/ai-providers/providers/[id]/page.tsx` | 1.5 hr | `[ ]` R036 |
+| Defaults page | `app/(dashboard)/ai-providers/defaults/page.tsx` | 1 hr | `[ ]` R036 |
+| Module overrides page | `app/(dashboard)/ai-providers/overrides/page.tsx` | 1 hr | `[ ]` R036 |
+| Usage & billing page | `app/(dashboard)/ai-providers/usage/page.tsx` | 1.5 hr | `[ ]` R036 |
+| Sidebar nav + command palette + `g`+`i` shortcut | `components/shell/app-sidebar.tsx`, `components/shell/command-palette.tsx` | 30 min | `[ ]` R036 |
+
+### R037 — Hub UI Advanced (platform-ui)
+
+| Task | File | Est. | Status |
+|------|------|------|--------|
+| Fallback chains editor | `app/(dashboard)/ai-providers/fallback/page.tsx` | 2 hr | `[ ]` R037 |
+| Quotas page | `app/(dashboard)/ai-providers/quotas/page.tsx` | 1 hr | `[ ]` R037 |
+| Health monitor + circuit breaker reset | `app/(dashboard)/ai-providers/health/page.tsx` | 1.5 hr | `[ ]` R037 |
+| Migration status (system-admin only) | `app/(dashboard)/ai-providers/migration/page.tsx` | 1 hr | `[ ]` R037 |
+
+---
+
 ## Blocked
 
 | Task | Why Blocked | Unblocked By |

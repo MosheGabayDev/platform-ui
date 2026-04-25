@@ -636,4 +636,29 @@ Error case:
 
 ---
 
+## ADR-029 — AI Providers Hub: Side-by-Side JWT Routes (2026-04-25)
+
+**Context:** The platform has a comprehensive AI provider management system in `apps/ai_providers/routes.py` (provider CRUD, fallback chains, module overrides, usage APIs) but it uses Flask-Login authentication throughout (`@login_required + current_user`). Platform-ui uses JWT-only auth (`@jwt_required + g.jwt_user`). No React/Next.js UI exists for AI provider management.
+
+**Decision:** Build an AI Providers Hub in platform-ui. Add a new `apps/ai_providers/api_routes.py` Blueprint at `/api/ai-providers/` using `@jwt_required + g.jwt_user`. Do not modify `apps/ai_providers/routes.py` — the two blueprints coexist during migration. The new blueprint calls the same SQLAlchemy models and service layer as the existing routes.
+
+**Alternatives considered:**
+- Migrate existing routes to JWT in-place: risky — breaks the Jinja2 admin hub still in use by deployed code.
+- Use Flask-Login routes from Next.js via session cookie: not supported — platform-ui is JWT-only.
+- Replace all existing routes: too much churn; side-by-side coexistence is lower risk with a clear retirement path.
+
+**New permissions required:** `ai_providers.view`, `ai_providers.manage`, `ai_providers.rotate_key`, `ai_providers.usage.view`, `ai_providers.billing.view`, `ai_providers.health.view`, `ai_providers.quota.manage`, `ai_providers.system.manage`.
+
+**Hub sections:** Overview, Providers List, Provider Detail, Defaults, Module Overrides, Fallback Chains, Usage/Billing, Quotas, Health/Circuit Breakers, Migration Status (system-admin only).
+
+**Security rules:** Never expose `api_key_ref`; all mutations audit-logged via `record_activity()`; delete must check referential integrity (409 if provider in use); circuit breaker reset requires `ai_providers.system.manage`.
+
+**Phased implementation:** Phase 1 (R034): architecture + ADR. Phase 2 (R035): backend JWT routes. Phase 3 (R036): Hub UI core (sections 1–5 + usage). Phase 4 (R037): advanced sections (fallback editor, health monitor, quotas, migration status).
+
+**Spec:** `docs/system-upgrade/44-ai-providers-hub.md`
+
+**Affected modules:** `apps/ai_providers/` (new `api_routes.py`), `apps/__init__.py` (register blueprint), `app/(dashboard)/ai-providers/` (new route tree), `lib/api/`, `app/api/proxy/[...path]/`.
+
+---
+
 _Add new ADRs here as decisions are made during implementation._

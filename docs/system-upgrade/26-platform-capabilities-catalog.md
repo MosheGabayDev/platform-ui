@@ -64,6 +64,7 @@ This rule is enforced by code review and CI. Reviewers must reject PRs that dupl
 | 27 | [PlatformPolicy Engine](#27-platformpolicy-engine) | **now** | ⬜ Pending | — | R028 |
 | 28 | [PlatformHelp / Onboarding](#28-platformhelp--onboarding) | **later** | ⬜ Pending | — | Post-launch |
 | 29 | [PlatformTest Harness](#29-platformtest-harness) | **later** | ⬜ Pending | — | R06 ALA |
+| 30 | [AIProvidersHub](#30-aiproviders-hub) | **now** | ⬜ Pending | — | R035 (backend), R036 (UI) |
 | 30 | [PlatformDeveloper Docs / Agent Docs](#30-platformdeveloper-docs--agent-docs) | **later** | ⬜ Pending | — | Phase 3 |
 
 ---
@@ -938,6 +939,40 @@ Cross-cutting system — not a `Platform*` UI component. Extends existing capabi
 **AI-maintainability:** All assistant behavior in `floating-ai-assistant/` — zero coupling to individual page components except the `useRegisterPageContext()` hook. New pages add one `useRegisterPageContext()` call; no other wiring.
 
 **Spec:** `docs/system-upgrade/38-floating-ai-assistant.md` | **Decision:** ADR-025
+
+---
+
+---
+
+## §30 — AIProviders Hub
+
+**Purpose:** Central hub for managing AI providers, models, fallback chains, usage billing, and health monitoring. Admin-only. Exposes the full `apps/ai_providers/` backend layer as a React UI.
+
+**Priority:** now | **Status:** ⬜ Pending (R035 backend, R036 UI)
+
+**Modules that use it:** All modules that call `AIProviderGateway.call()` — helpdesk, ai_agents, ala, floating_assistant, knowledge, personal_info, ops_intelligence.
+
+**Libraries:** TanStack Query, Recharts (usage charts), React Hook Form + Zod.
+
+**Files (to build):**
+- `app/(dashboard)/ai-providers/` — route tree (10 pages)
+- `lib/api/ai-providers.ts` — typed fetch functions
+- `lib/api/query-keys.ts` — `queryKeys.aiProviders.*` additions
+- `lib/api/types.ts` — `AIProvider`, `AIUsageSummary`, `AIProviderHealth`, `AIOverviewStats`, etc.
+- `lib/modules/ai-providers/schemas.ts` — Zod form schemas
+- Backend: `apps/ai_providers/api_routes.py` (new JWT Blueprint at `/api/ai-providers/`)
+
+**First scope (R036):** Overview, Providers list + detail, Defaults, Module overrides, Usage summary.
+
+**Advanced scope (R037):** Fallback chain editor, Health monitor + circuit breaker, Quotas, Migration status.
+
+**Security:** `api_key_ref` never exposed — `has_api_key: bool` only. All mutations audit-logged. Delete checks referential integrity (409 if provider in use). Circuit breaker reset = `ai_providers.system.manage`.
+
+**Permissions:** `ai_providers.view` / `ai_providers.manage` / `ai_providers.rotate_key` / `ai_providers.usage.view` / `ai_providers.health.view` / `ai_providers.quota.manage` / `ai_providers.system.manage`.
+
+**AI-maintainability:** All forms use `PlatformForm + usePlatformMutation`. All tables use `DataTable<T>`. All pages use `PageShell`. All destructive actions use `ConfirmActionDialog`. org_id from session only.
+
+**Spec:** `docs/system-upgrade/44-ai-providers-hub.md` | **Decision:** ADR-029
 
 ---
 

@@ -445,6 +445,22 @@ _Updated after each round — append, never overwrite entries._
 
 ---
 
+## Round 034 — AI Providers Hub Architecture & UI Plan
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-25 |
+| **Topic** | Documentation-only: design the AI Providers Hub for platform-ui; assess existing backend capability; define JWT API routes, permissions, security rules, shared capability usage, and phased implementation plan |
+| **Objective** | Answer 15 questions about existing backend AI provider layer. Design 10 Hub sections with full API table (29 endpoints), TypeScript interfaces, Zod schemas, permissions model, security rules, and 4-phase implementation roadmap. |
+| **Key Findings** | • Existing `apps/ai_providers/routes.py` has full CRUD + usage APIs but uses Flask-Login throughout — incompatible with platform-ui JWT auth <br>• No platform-ui pages exist for AI provider management — `app/(dashboard)/` has no `ai-providers/` route <br>• Decision: new `apps/ai_providers/api_routes.py` at `/api/ai-providers/` with `@jwt_required` (side-by-side, not replacing existing routes) <br>• Provider health state not in DB — Redis-backed circuit breaker only (CLOSED/OPEN/HALF_OPEN, 5-failure threshold, 30s cooldown) <br>• API keys Fernet-encrypted in `api_key_ref`; frontend receives only `has_api_key: bool` — never the key value <br>• 8 new permissions required: `ai_providers.view/manage/rotate_key/usage.view/billing.view/health.view/quota.manage/system.manage` <br>• Migration status page (system-admin only) will surface `check_no_direct_llm_imports.py` scan results |
+| **Files Created (platform-ui)** | `docs/system-upgrade/44-ai-providers-hub.md` (15 sections: capability assessment, gap analysis, product goals, 10 hub sections, 29-endpoint API table, TypeScript interfaces, Zod schemas, permissions model, security rules, shared capability rules, phased plan, open questions, acceptance criteria, ADR-029) |
+| **Files Updated (platform-ui)** | `docs/system-upgrade/14-decision-log.md` (ADR-029 added), `docs/system-upgrade/26-platform-capabilities-catalog.md` (§30 AIProviders Hub added to summary table + full section), `docs/system-upgrade/35-platform-capabilities-build-order.md` (Hub enforcement pointer added), `docs/system-upgrade/40-ai-provider-gateway-billing.md` (§20 Hub reference added), `docs/system-upgrade/41-direct-llm-call-audit-and-migration.md` (§21 migration status Hub page added), `docs/system-upgrade/43-shared-services-enforcement.md` (R034 revision history entry), `docs/system-upgrade/15-action-backlog.md` (R035/R036/R037 Hub tasks added), `docs/system-upgrade/96-rounds-index.md`, `docs/system-upgrade/98-change-log.md` |
+| **Commits** | No new code — documentation + architecture planning round |
+| **Decisions Proposed** | ADR-029: AI Providers Hub — side-by-side JWT routes |
+| **Next Recommended Round** | Round 035: Backend JWT routes (`apps/ai_providers/api_routes.py`) + permissions migration + proxy route registration |
+
+---
+
 ## Round 030 — Direct LLM Call Audit + Gateway Migration Plan
 
 | Field | Value |

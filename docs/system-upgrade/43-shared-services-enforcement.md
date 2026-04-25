@@ -757,5 +757,6 @@ _No exceptions registered yet. All known legacy violations are tracked as P0/P1 
 
 | Date | Round | Change |
 |------|-------|--------|
+| 2026-04-25 | R034 | AI Providers Hub (ADR-029) added to new capability catalog entry (doc 26 §30); Hub tasks added to backlog (doc 15); ADR-029 added to decision log (doc 14); doc 40 §20 + doc 41 §21 cross-references added; doc 44 created |
 | 2026-04-25 | R033 follow-up | Canonical paths table added (§01); quick replacement table added (§01); ActionButton transition rule added (§FE-05); detection script registry table added (§07); P0-02/03/04 marked done; `DetailInfoRow` corrected to `InfoRow`; acceptance criteria updated |
 | 2026-04-25 | R032 | Document created — full enforcement plan |
