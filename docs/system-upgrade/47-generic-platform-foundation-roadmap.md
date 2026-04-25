@@ -838,7 +838,7 @@ Required before merging any PR:
 
 | # | Round ID | Title | Size | Gate | Blocked By |
 |---|----------|-------|------|------|-----------|
-| 1 | R040 | R038B — Module Manager additive schema migrations | Medium | OQ-01–OQ-07 answered (done), FK targets confirmed (done), acceptance criteria in doc 46 | Nothing — UNBLOCKED |
+| 1 | R040 | R038B — Module Manager additive schema migrations | Medium | OQ-01–OQ-07 answered (done), FK targets confirmed, acceptance criteria in doc 46; **storage constraint: `platform_managed_shared_db` only, no BYODB, additive migrations only, all tables org_id-scoped, no hardcoded connection strings** | Nothing — UNBLOCKED |
 | 2 | R041 | CI enforcement + ActionButton + shared UI gates | Small | CI gate added to CD workflow; ActionButton extracted; DetailView fully extracted | R040 preferred first but R041 is independent |
 | 3 | R042 | R038C — ModuleRegistry sync + CompatLayer | Medium | ModuleRegistry.sync_from_manifests() + ModuleCompatLayer + module_key identity migration | R040 (OrgModule tables must exist) |
 | 4 | R043 | AI Service Routing Matrix backend | Medium | AIServiceDefinition + AIServiceProviderRoute tables + 9-step resolver + 27-service seed | R040 (tables need org_id scoping via OrgModule) |
@@ -870,17 +870,32 @@ Required before merging any PR:
 
 Module development is "ready" only when all items below are checked. This gate prevents building features on a broken foundation.
 
+**Schema & storage (R040 gates):**
+- [ ] All R040 migrations are additive — no DROP COLUMN, no DROP TABLE, no data-losing ALTER
+- [ ] All new org-scoped tables include `org_id FK → organizations.id` (non-nullable)
+- [ ] No new hardcoded DB connection strings in any module code
+- [ ] No TenantDataStore, TenantDataRouter, or BYODB code introduced
+- [ ] All new model queries scope by `org_id` (future-router-compatible)
+- [ ] Any schema decision that would complicate future TenantDataStore routing is documented in doc 45 §21 R038B section
+
+**Module platform (R040–R042 gates):**
 - [ ] OrgModule table exists with org_id FK, status enum, and is populated by sync_from_manifests()
 - [ ] ModuleCompatLayer exists and all existing is_enabled/is_installed callers pass through it
 - [ ] ModuleVersion table exists and module versions are tracked
+
+**Navigation & features (R044–R045 gates):**
 - [ ] Navigation API returns org-specific nav items based on OrgModule state
 - [ ] Sidebar in platform-ui calls Navigation API (not hardcoded items)
 - [ ] Feature Flags Engine returns correct flag values per org_id from the database
 - [ ] Settings Engine allows reading/writing org and user settings generically
+
+**Audit & infrastructure (R046–R048 gates):**
 - [ ] AuditLog service receives record_activity() calls from all write endpoints
 - [ ] Notification service can send in-app notifications backed by platform_outbox
 - [ ] API Keys model exists with rotation and audit
 - [ ] check_no_direct_llm_imports.py runs in CI and fails on violation
+
+**Quality gates:**
 - [ ] TypeScript typecheck exits 0
 - [ ] Cross-tenant isolation test passes for at least 3 modules
 - [ ] No new request.json.get("org_id") patterns in any route

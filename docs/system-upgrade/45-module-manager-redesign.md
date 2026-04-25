@@ -935,6 +935,30 @@ Deliverables:
 
 Rollback: drop new tables and columns.
 
+#### R038B / R040 Storage Constraint (ADR-036, 2026-04-25)
+
+R038B implements `platform_managed_shared_db` only. The following rules apply and
+are acceptance criteria for this round:
+
+1. **Additive migrations only** — no `DROP COLUMN`, no `DROP TABLE`, no `ALTER COLUMN` that loses data
+2. **No destructive DB changes** — old `Module.is_enabled`, `Module.is_installed`, `Module.dependencies`,
+   `ModulePurchase.organization`, `ModuleLog.user` (String) fields remain untouched in this round
+3. **Compatibility layer preserved** — `ModuleCompatLayer` must translate old field reads to new
+   `OrgModule` queries; callers of old fields must not break
+4. **org-scoped tables are tenant-safe** — every new table with per-org data includes `org_id`
+   with FK to `organizations.id`; `org_id` is never nullable on org-scoped rows
+5. **No BYODB implementation** — no `TenantDataStore`, no `TenantDataRouter`, no customer DB
+   connection strings, no multi-DB session management
+6. **No hardcoded connection strings** — module code accesses DB only through the Flask-SQLAlchemy
+   `db.session`; no `create_engine()` calls in module code
+7. **Future-router-compatible** — every new model that may route to tenant DB in future must scope
+   all queries by `org_id`; no cross-org joins on owned tables
+8. **Schema decisions documented** — any schema choice that would make future `TenantDataStore`
+   routing difficult must be documented here before implementing
+
+If any design choice would make BYODB/dedicated-DB routing difficult later, STOP and document the
+conflict in this section rather than implementing a future-incompatible schema.
+
 ---
 
 ### R038C — Read Model + Availability Helper

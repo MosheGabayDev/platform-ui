@@ -767,6 +767,11 @@ Documentation only — complete. See `docs/system-upgrade/46-module-manager-impl
 
 Backend only. No UI. All additive — no destructive changes.
 
+> **Storage constraint (ADR-036, 2026-04-25):** R038B implements `platform_managed_shared_db` only.
+> No TenantDataStore, no TenantDataRouter, no BYODB, no customer DB connections.
+> All new tables scoped by `org_id`. All queries must remain future-router-compatible.
+> Full acceptance criteria: doc 45 §21 R038B section.
+
 | Task | File | Est. | Status |
 |------|------|------|--------|
 | Migration: `org_modules` table (OrgModule) | `scripts/migrations/versions/20260425_add_org_module.py` | 1 hr | `[ ]` R038B |
