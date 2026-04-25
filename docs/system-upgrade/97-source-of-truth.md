@@ -47,6 +47,10 @@ _Defines which file owns each concern. When you have new information, look up th
 | **Data Sources & Knowledge Connections** | `47-generic-platform-foundation-roadmap.md §9` | `26-platform-capabilities-catalog.md` | Full spec: DataConnection, DataSource, SourceAccessPolicy, MCP governance, DB governance, AI retrieval policy. |
 | **AI-Native Platform Vision** | `47-generic-platform-foundation-roadmap.md §2` | `10-target-architecture.md`, `docs/ARCHITECTURE.md §24` | Product purpose, target users, target organizations, AI operating model, module/marketplace fit, cross-platform strategy. |
 | **Platform pillars** | `47-generic-platform-foundation-roadmap.md §3` | `docs/ARCHITECTURE.md §24` | 10 pillars with status and key capabilities. |
+| **Implementation Control Center** | `00-implementation-control-center.md` | `CLAUDE.md §Implementation Governance` | Active round, next 10 rounds, blockers, DoR, DoD, do-not-start list. Read after CLAUDE.md. |
+| **Risk register** | `99-risk-register.md` | `00-implementation-control-center.md §Link` | All active platform risks (R01–R14) with mitigations, blocking status, review round. |
+| **Round review checklist** | `01-round-review-checklist.md` | `00-implementation-control-center.md §Review` | 11-section reviewer checklist. Run before marking any round done. |
+| **Implementation issue drafts** | `issues/R040-R049-issue-drafts.md` | GitHub issue tracker | Round contract bodies for R040–R049 until GitHub issues created. |
 
 ---
 

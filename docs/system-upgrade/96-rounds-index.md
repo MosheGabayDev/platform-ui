@@ -750,5 +750,51 @@ Pre-existing mapper error (`AgentAIChat`) noted — R040 is not the cause.
 - `docs/system-upgrade/35-platform-capabilities-build-order.md`
 
 ### Next Recommended Round
-R041: R038C — ModuleRegistry.sync_from_manifests() + ModuleCompatLayer (R042 in roadmap)
-OR: CI enforcement + ActionButton extraction (R041 in roadmap, independent)
+R041: CI enforcement + ActionButton extraction (independent, can start now)
+OR: Apply R040 migrations to EKS DB, then R042 ModuleRegistry + CompatLayer
+
+---
+
+## Round 040-Control — Implementation Governance Setup
+
+**Date:** 2026-04-25
+**Commit:** TBD (platformengineer + platform-ui, branch: main)
+**Status:** Complete ✅
+
+### Mission
+Process round — no product features, no schema, no UI.
+Establish a lightweight but strict governance system so every future round is scoped, reviewable, testable, issue-linked, and checked against security/shared-capability rules.
+
+### Files Created (platform-ui)
+- `docs/system-upgrade/00-implementation-control-center.md` — main control center (first doc after CLAUDE.md)
+- `docs/system-upgrade/99-risk-register.md` — 14 active risks with mitigations
+- `docs/system-upgrade/01-round-review-checklist.md` — reviewer checklist (11 sections)
+- `docs/system-upgrade/issues/R040-R049-issue-drafts.md` — issue bodies for R040–R049
+
+### Files Created (platformengineer)
+- `.github/ISSUE_TEMPLATE/platform-round.yml` — GitHub issue template for all future rounds
+- `.github/pull_request_template.md` — updated PR template with governance sections
+
+### Files Updated (platformengineer)
+- `CLAUDE.md` — added §Implementation Governance (10-rule agent contract)
+
+### Files Updated (platform-ui)
+- `docs/system-upgrade/96-rounds-index.md` (this file)
+- `docs/system-upgrade/98-change-log.md`
+- `docs/system-upgrade/97-source-of-truth.md`
+- `docs/system-upgrade/15-action-backlog.md`
+- `docs/system-upgrade/35-platform-capabilities-build-order.md`
+
+### Governance Artifacts Summary
+- **Control Center** — active round, next 10 rounds, blockers, foundation gates, do-not-start-yet list, DoR, DoD
+- **Risk Register** — 14 risks (R01–R14): scope creep, plan drift, missing tests, LLM bypass, tenant isolation regression, destructive migrations, BYODB premature, hardcoded nav, incomplete audit, incomplete billing, stale docs, out-of-order implementation, R040 migrations not applied, GitHub issues not created
+- **Issue Template** — 14 fields: round ID, title, goal, scope, out-of-scope, dependencies, ACs, security checklist, shared capability checklist, tests, docs, risks, rollback plan, follow-ups
+- **PR Template** — 9 sections: scope adherence, forbidden patterns, auth/RBAC, tenant isolation, audit, LLM, DB migration, tests, docs
+- **Review Checklist** — 11 sections: scope, forbidden patterns, auth/RBAC, tenant isolation, audit, billing/LLM, DB migration, tests, shared capability, docs, PR quality
+
+### Tests
+No tests required — governance/process round.
+
+### Next Recommended Round
+R041: CI enforcement + ActionButton extraction (ready to start)
+Pre-requisite: apply R040 migrations to EKS DB before R042/R043/R045

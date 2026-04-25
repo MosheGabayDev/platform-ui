@@ -3,6 +3,35 @@
 _Running log of what changed in each update round._
 _Newest entry at the top._
 
+## R040-Control — 2026-04-25 — Implementation Governance Setup
+
+**Commit:** TBD (platformengineer + platform-ui, main)
+**Tests:** N/A — governance/process round
+
+### Files Created (platform-ui)
+- `docs/system-upgrade/00-implementation-control-center.md` — control center
+- `docs/system-upgrade/99-risk-register.md` — 14 risks
+- `docs/system-upgrade/01-round-review-checklist.md` — 11-section reviewer checklist
+- `docs/system-upgrade/issues/R040-R049-issue-drafts.md` — 10 round issue bodies
+
+### Files Created (platformengineer)
+- `.github/ISSUE_TEMPLATE/platform-round.yml` — 14-field issue template
+- `.github/pull_request_template.md` (updated) — 9-section governance PR template
+
+### Files Updated (platformengineer)
+- `CLAUDE.md` — §Implementation Governance added (10-rule agent contract)
+
+### Files Updated (platform-ui)
+- `96-rounds-index.md` (this round + R040-Control entry)
+- `98-change-log.md` (this entry)
+- `97-source-of-truth.md` (4 governance doc entries added)
+- `35-platform-capabilities-build-order.md` (R040-Control table)
+
+### No Product Features
+This round added only governance process — no schema, no UI, no API changes.
+
+---
+
 ## R040 — 2026-04-25 — Module Manager Additive Schema Foundation
 
 **Commit:** `abdf3bc3` (platformengineer main)

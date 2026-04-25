@@ -979,10 +979,13 @@ Backend only. No UI.
 ## Phase R040–R049 — Next 10 Rounds (from R039 roadmap)
 
 _Reference: `docs/system-upgrade/47-generic-platform-foundation-roadmap.md §16`_
+_Governance: `docs/system-upgrade/00-implementation-control-center.md` | Issue drafts: `issues/R040-R049-issue-drafts.md`_
 
 | Task | Round | Gate/Blocked By | Status |
 |------|-------|----------------|--------|
-| R038B — Module Manager additive schema migrations (OrgModule, ModuleVersion, ModuleLicense, ModuleDependency) | R040 | UNBLOCKED (OQ-01–OQ-07 answered) | `[ ]` |
+| R038B — Module Manager additive schema migrations (OrgModule, ModuleVersion, ModuleLicense, ModuleDependency) | R040 | UNBLOCKED (OQ-01–OQ-07 answered) | `[x] 2026-04-25 (commit abdf3bc3)` |
+| Implementation Governance Setup (Control Center, Risk Register, Issue Template, PR Template, Review Checklist, CLAUDE.md) | R040-Control | R040 complete | `[x] 2026-04-25` |
+| **PENDING ACTION: Apply R040 migrations to EKS DB** (7 files in migrations/versions/20260425_*) | Pre-R042 | port-forward to localhost:5444 | `[ ] REQUIRED before R042/R043/R045` |
 | CI enforcement gate (LLM import check + ADR-028 check in PR CI) | R041 | Independent of R040 | `[ ]` |
 | ActionButton extraction + DetailView full extraction | R041 | Independent | `[ ]` |
 | R038C — ModuleRegistry.sync_from_manifests() + ModuleCompatLayer | R042 | R040 (OrgModule must exist) | `[ ]` |

@@ -719,3 +719,17 @@ Each page registers `PageAIContext` via `useRegisterPageContext()`. Priority ord
 | **S3/ObjectStorage strategy** | Bucket structure, lifecycle, cleanup handler rules defined | R039 addendum |
 | **manifest.v2.json `dataContract` extension** | Required for R038H (upgrade flow). Pydantic model update deferred to R038C | R038C |
 | **BYODB safety rules** | Defined; implementation P3 (R060+) | R039 addendum |
+
+---
+
+## R040-Control — Implementation Governance (2026-04-25)
+
+| Artifact | Location | Round |
+|----------|----------|-------|
+| **Control Center** — active round, blockers, DoR, DoD, next 10 rounds | `docs/system-upgrade/00-implementation-control-center.md` | R040-Control ✅ |
+| **Risk Register** — 14 active risks with mitigations | `docs/system-upgrade/99-risk-register.md` | R040-Control ✅ |
+| **Round Review Checklist** — 11-section reviewer checklist | `docs/system-upgrade/01-round-review-checklist.md` | R040-Control ✅ |
+| **GitHub Issue Template** — 14-field round contract | `.github/ISSUE_TEMPLATE/platform-round.yml` | R040-Control ✅ |
+| **PR Template** — 9-section governance checklist | `.github/pull_request_template.md` | R040-Control ✅ |
+| **Issue Drafts R040–R049** — full bodies for all 10 rounds | `docs/system-upgrade/issues/R040-R049-issue-drafts.md` | R040-Control ✅ |
+| **Agent Contract** — 10-rule implementation governance in CLAUDE.md | `CLAUDE.md §Implementation Governance` (platformengineer) | R040-Control ✅ |
