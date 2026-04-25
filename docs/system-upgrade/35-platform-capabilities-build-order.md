@@ -273,6 +273,8 @@ These capabilities are NOT needed before Helpdesk, AI Agents, or production:
 
 ## 11. Recommended Next 10 Capability Rounds
 
+> **Round offset note (added R032):** When this section was written (R014), the next global round was R023. Rounds R023–R031 were subsequently used for AI architecture, security, and gateway work (not platform-ui capabilities). Capability rounds therefore start at **R033**. The sub-sections below retain their original R023–R032 labels as relative slot names; map R023→R033, R024→R034, … R032→R042 when scheduling.
+
 > Each round = a focused capability build + a first consuming module page. Never build a capability without a confirmed consumer in the same round.
 
 ---

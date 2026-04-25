@@ -407,7 +407,24 @@ _Updated after each round — append, never overwrite entries._
 | **Files Updated (platformengineer)** | `apps/ai_providers/tasks.py` (write\_usage\_log\_extended task + \_try\_set helper), `apps/ai_providers/models.py` (AIUsageLog: 14 new attribution/billing columns), `apps/fitness_nutrition/ai_service.py` (full rewrite — no genai import), `apps/fitness_nutrition/workout_routes.py` (org\_id + user\_id passed to generate\_workout\_plan), `apps/fitness_nutrition/nutrition_routes.py` (org\_id + user\_id passed to generate\_meal\_plan) |
 | **Files Updated (platform-ui)** | `docs/system-upgrade/96-rounds-index.md`, `docs/system-upgrade/98-change-log.md`, `docs/system-upgrade/15-action-backlog.md`, `docs/system-upgrade/35-platform-capabilities-build-order.md` |
 | **Decisions Proposed** | None new — implements ADR-027 (R029) |
-| **Next Recommended Round** | Round 032: Migrate remaining P0 files (life_assistant/gemini_client.py, personal_info/ai_chat/providers/, ala/text_session.py) + integrate gateway into floating assistant runtime |
+| **Next Recommended Round** | Round 032: Commit Round 031 gateway files + CLAUDE.md fix + doc consistency corrections |
+
+---
+
+## Round 032 — Master Plan Consistency & Readiness Review
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-25 |
+| **Topic** | Documentation-only: audit all modernization plan docs for internal consistency; define canonical document hierarchy, implementation status matrices, and blocker register |
+| **Objective** | Cross-check 19 documents across platform-ui and platformengineer. Find and fix all conflicts. Determine which Round 031 gateway files are uncommitted. Produce master consistency document (doc 42). Correct stale statuses in docs 35, 40, 97. Add missing registry entries to doc 97. Fix CLAUDE.md response field name. |
+| **Key Findings** | • **BLK-01 (critical)**: Round 031 fully implemented but NOT committed — 13 files in platformengineer working tree, last commit = `0041db7b security(r022)` <br>• `CLAUDE.md` usage example had wrong field: `response.content` should be `response.output_text` — fixed <br>• Doc 40 status was "Implementation not started" — corrected to "Phase 1 implemented (uncommitted, R031)" <br>• Doc 40 AIUsageLog extension said "12 new fields" — corrected to "14 new fields" <br>• Doc 97 ADR count was "ADR-014" — corrected to "ADR-027" <br>• Doc 35 §11 used R023–R032 as future capability rounds but those numbers were consumed by AI/security work — offset note added, capability rounds start at R033 <br>• 8 conflicts total (C1–C8) identified and documented in doc 42 §03–§04 <br>• Implementation gates A–G defined (Gate C = first LLM feature, requires gateway committed) <br>• 10-entry blocker register (BLK-01–BLK-10) defined |
+| **Files Created (platform-ui)** | `docs/system-upgrade/42-master-plan-consistency-and-readiness.md` (15 sections: status matrices, blocker register, gates A–G, next 5 rounds, ambiguities) |
+| **Files Updated (platform-ui)** | `docs/system-upgrade/40-ai-provider-gateway-billing.md` (status + field count corrected), `docs/system-upgrade/35-platform-capabilities-build-order.md` (§11 round offset note), `docs/system-upgrade/97-source-of-truth.md` (ADR count ADR-014→ADR-027), `docs/system-upgrade/96-rounds-index.md`, `docs/system-upgrade/98-change-log.md` |
+| **Files Updated (platformengineer)** | `CLAUDE.md` (`response.content` → `response.output_text`) |
+| **Commits** | No code changes — documentation consistency round |
+| **Decisions Proposed** | None new — clarifications only |
+| **Next Recommended Round** | Round 033: Commit all Round 031 gateway files (BLK-01 resolution) + remaining P0 LLM migrations (ai_coach, voice_support, personal_info/ai_chat/providers/, jira_integration) + wire CI lint |
 
 ---
 

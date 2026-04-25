@@ -17,6 +17,29 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-25 — Round 032 (Documentation): Master Plan Consistency & Readiness Review
+
+### Files Changed (platform-ui)
+- `docs/system-upgrade/42-master-plan-consistency-and-readiness.md` — **created** (15-section master consistency document: 8 conflicts, status matrices, gates A–G, blocker register BLK-01–BLK-10, next 5 rounds)
+- `docs/system-upgrade/40-ai-provider-gateway-billing.md` — **updated** (status line: "not started" → "Phase 1 implemented (uncommitted, R031)"; "12 new fields" → "14 new fields")
+- `docs/system-upgrade/35-platform-capabilities-build-order.md` — **updated** (§11 header: round offset note added — capability rounds start at R033, not R023)
+- `docs/system-upgrade/97-source-of-truth.md` — **updated** (ADR count: "ADR-014" → "ADR-027")
+- `docs/system-upgrade/96-rounds-index.md` — **updated** (Round 032 entry added)
+- `docs/system-upgrade/98-change-log.md` — **updated** (this entry)
+
+### Files Changed (platformengineer)
+- `CLAUDE.md` — **updated** (AI Provider Gateway usage example: `response.content` → `response.output_text`)
+
+### New Findings
+- **BLK-01**: Round 031 gateway files exist in working tree but were never committed — `git log` confirms last commit is `0041db7b security(r022)`
+- **C5**: Doc 35 §11 used R023–R032 as platform-ui capability round labels, but those global round numbers were consumed by AI architecture + security work — offset note added, no renumbering applied (labels are relative slots now)
+- **C6**: Doc 97 ADR-014 stale — actual highest is ADR-027 (24-core-platform-and-module-system.md)
+
+### Backlog Changes
+- None (doc-only round)
+
+---
+
 ## 2026-04-25 — Round 031 (Implementation): AI Provider Gateway Phase 1
 
 ### Files Changed (platformengineer)

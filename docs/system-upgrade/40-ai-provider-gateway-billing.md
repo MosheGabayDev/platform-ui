@@ -1,7 +1,7 @@
 # 40 — AI Provider Gateway + Billing Metering Architecture
 
-_Round 029 — 2026-04-24_
-_Status: Architecture design complete. Implementation not started._
+_Round 029 — 2026-04-24 | Updated R031 — 2026-04-25_
+_Status: Architecture design complete. **Phase 1 implemented (platformengineer working tree, uncommitted — R031)**._
 
 > **Core rule:** No module may call OpenAI, Gemini, Anthropic, Claude, or any LLM/STT/TTS provider SDK directly. All AI calls go through the AI Provider Gateway. Every call emits a usage event linked to org / user / module / session.
 
@@ -24,7 +24,7 @@ This round defines the canonical architecture to close that gap: a unified AI Pr
 - `apps/ai_providers/policy.py` — quota pre-check + enforcement
 - `apps/ai_providers/billing_adapter.py` — bridge between `AIUsageLog` and `apps/billing/` outbox
 - `apps/ai_providers/schemas.py` — canonical request/response types
-- `AIUsageLog` schema extension — 12 new fields (migration required)
+- `AIUsageLog` schema extension — 14 new fields (migration required)
 
 **Existing components to reuse unchanged:**
 - `apps/ai_providers/registry.py` — provider resolution (keep as-is)

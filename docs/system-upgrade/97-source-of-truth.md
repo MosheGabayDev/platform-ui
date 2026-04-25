@@ -34,6 +34,13 @@ _Defines which file owns each concern. When you have new information, look up th
 | **Deep upgrade roadmap** | `docs/UPGRADE_ROADMAP.md` | `09-modernization-opportunities.md` | 5-tier upgrade plan with quick wins, dependency order, risk register. |
 | **AI-maintainability policy** | `23-ai-maintainability-and-code-cleanup.md` | `08-technical-debt-register.md`, `10-target-architecture.md`, `12-migration-roadmap.md` | Dead-code strategy, file size limits, INDEX.md standards, Vite app retirement, Jinja2 retirement schedule. |
 | **Module system + data export/import** | `24-core-platform-and-module-system.md` | `10-target-architecture.md §Module Data Ownership`, `12-migration-roadmap.md §Phase 3.5`, `14-decision-log.md (ADR-014)` | Module lifecycle, data ownership (owned/referenced/core), export package format, import modes, data contract spec, security rules, backend models, UI flows. |
+| **Platform capabilities build order** | `35-platform-capabilities-build-order.md` | `26-platform-capabilities-catalog.md` | Sequenced capability rounds, gate requirements, dependency graph. Capability round labels in §11 start at R033 (R023–R031 consumed by AI/security work). |
+| **AI Action Platform** | `36-ai-action-platform.md` | `39-ai-architecture-consistency-pass.md` | Canonical AI action design: AIActionDescriptor v1, capability levels, voice policy, security rules. Deprecated sections marked; use doc 39 for canonical terms. |
+| **Floating AI Assistant** | `38-floating-ai-assistant.md` | `36-ai-action-platform.md`, `40-ai-provider-gateway-billing.md` | Shell layout, drawer UX, PageContextDiff, voice mode spec. No LLM code yet — infra only. |
+| **AI architecture canonical terms** | `39-ai-architecture-consistency-pass.md` | `36-ai-action-platform.md` (deprecated §§) | Single source for: risk_tier retirement, voice_eligible canonical name, AIActionDescriptor v1 30-field schema, rollback policy, tool injection safety rules. |
+| **AI Provider Gateway architecture** | `40-ai-provider-gateway-billing.md` | `36-ai-action-platform.md §42`, `38-floating-ai-assistant.md §14` | Gateway pipeline, billing metering, usage event model, AIUsageLog 14-field extension, CI enforcement design. Phase 1 implemented (platformengineer working tree, R031). |
+| **Direct LLM call migration inventory** | `41-direct-llm-call-audit-and-migration.md` | `40-ai-provider-gateway-billing.md`, `15-action-backlog.md` | P0/P1/P2/P3 files, bypass wrapper deletion criteria, gateway Phase 1 readiness assessment. |
+| **Master plan consistency** | `42-master-plan-consistency-and-readiness.md` | All docs 00–41 | Conflicts found/fixed, canonical hierarchy, implementation status matrices, blocker register, gates A–G. Update after every round that changes overall status. |
 | **Round history** | `96-rounds-index.md` (this workspace) | — | Every investigation round. |
 | **Change log** | `98-change-log.md` (this workspace) | — | What changed in each round. |
 
@@ -80,6 +87,6 @@ Add the question immediately when it arises, not after the round ends.
 
 1. **Same terminology throughout**: "platform-ui" (frontend), "platformengineer" (backend), "Flask" (never "Django"), "TanStack Query" (never "React Query").
 2. **Dates**: ISO format `YYYY-MM-DD` everywhere.
-3. **ADR IDs**: sequential, never reuse. Current highest: ADR-014.
+3. **ADR IDs**: sequential, never reuse. Current highest: ADR-027.
 4. **Module numbers**: always zero-padded two digits (`01`, `04`, `17`).
 5. **Status markers**: `[ ]` TODO, `[~]` In Progress, `[x]` Done, `[!]` Blocked.
