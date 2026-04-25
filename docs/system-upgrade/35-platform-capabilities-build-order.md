@@ -579,10 +579,11 @@ Must start before any AI feature module merges to production.
 
 | Phase | Task | Gate |
 |-------|------|------|
-| Phase 1 | `gateway.py` + `policy.py` + `billing_adapter.py` + `schemas.py` written | Blocks all migrations |
-| Phase 1 | `AIUsageLog` 12-field extension migration (`20260424_extend_ai_usage_log`) | Blocks usage tracking |
-| Phase 1 | CI lint rule: direct LLM imports blocked (warn-only until Phase 2 complete) | Blocks Phase 2 enforcement |
-| **Phase 2** | **P0 migrations**: voice_support, fitness_nutrition, jira_integration, ala/commitment_task, personal_info/ai_chat/providers/ | **Before any new AI feature** |
+| ~~Phase 1~~ **DONE R031** | ~~`gateway.py` + `policy.py` + `billing_adapter.py` + `schemas.py` written~~ | ✅ |
+| ~~Phase 1~~ **DONE R031** | ~~`AIUsageLog` 14-field extension migration (`20260424_extend_ai_usage_log`)~~ | ✅ |
+| ~~Phase 1~~ **DONE R031** | ~~CI lint script `check_no_direct_llm_imports.py` + 8 gateway tests~~ | ✅ |
+| ~~Phase 1~~ **DONE R031** | ~~`fitness_nutrition/ai_service.py` P0 migration~~ | ✅ |
+| **Phase 2** | **P0 migrations remaining**: voice_support, ai_coach, jira_integration, ala/commitment_task, personal_info/ai_chat/providers/ | **Before any new AI feature** |
 | Phase 2 | Helpdesk, mobile_voice, ai_agents, ala migrated to gateway (P1 modules) | Before R027 ships |
 | Phase 3 | ops_intelligence, personal_info (10 files), life_assistant migrated (P2) | Before R032 |
 | Phase 3 | Remaining 15+ files migrated | Before Production Ready gate |

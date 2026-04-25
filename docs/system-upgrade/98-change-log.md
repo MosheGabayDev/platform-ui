@@ -17,6 +17,35 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-25 — Round 031 (Implementation): AI Provider Gateway Phase 1
+
+### Files Changed (platformengineer)
+- `apps/ai_providers/schemas.py` — **created** (`GatewayRequest` dataclass with `validate()`, `GatewayResponse`, `PolicyDecision`, `VALID_CAPABILITIES` frozenset)
+- `apps/ai_providers/gateway.py` — **created** (`AIProviderGateway.call()` full pipeline: validate → policy → resolve → call → log → billing → return; `_execute`, `_resolve_provider`, `_write_usage_log`, `_capability_to_registry`, `_provider_type_from_adapter` helpers)
+- `apps/ai_providers/policy.py` — **created** (`AIProviderPolicy.check()` fail-open wrapper; Phase 1 capability validation; Phase 2 TODOs: quota, rate limit, org active, module feature flag)
+- `apps/ai_providers/billing_adapter.py` — **created** (`AIProviderBillingAdapter.emit()` bridging to `service_billing.emit_billing_event()`; event type map; tolerates `ImportError` in dev/test)
+- `apps/ai_providers/tasks.py` — **updated** (`write_usage_log_extended` task with 14 attribution fields; `_try_set()` migration guard helper)
+- `apps/ai_providers/models.py` — **updated** (`AIUsageLog`: 14 new columns — `feature_id`, `conversation_id`, `action_id`, `ai_action_invocation_id`, `status`, `started_at`, `completed_at`, `error_code`, `correlation_id`, `cached_tokens`, `is_estimated`, `billable_cost`, `quota_bucket`, `is_billable`)
+- `scripts/migrations/versions/20260424_extend_ai_usage_log.py` — **created** (alembic `op.add_column` for all 14 new columns + 2 indexes; full `downgrade()`)
+- `scripts/check_no_direct_llm_imports.py` — **created** (CI lint scanner; scans `apps/`; allows only `apps/ai_providers/adapters/`; exit code 0/1)
+- `apps/ai_providers/tests/test_gateway.py` — **created** (8 tests: request validation ×2, policy deny, happy-path chat, failed provider, billable billing emit, non-billable billing skip, lint scanner ×2)
+- `apps/fitness_nutrition/ai_service.py` — **rewritten** (removed `google.generativeai` import + `os.getenv('GEMINI_AI_KEY')`; added `org_id`/`user_id` params; uses `AIProviderGateway.call()`)
+- `apps/fitness_nutrition/workout_routes.py` — **updated** (passes `org_id=current_user.org_id, user_id=current_user.id` to `generate_workout_plan`)
+- `apps/fitness_nutrition/nutrition_routes.py` — **updated** (passes `org_id=current_user.org_id, user_id=current_user.id` to `generate_meal_plan`)
+
+### New Findings
+- `_try_set()` pattern is the key to zero-downtime gateway rollout: gateway ships first, migration runs after, no crash window
+- `fitness_nutrition` had a module-level `genai.configure()` call that would fail at Flask startup if `GEMINI_AI_KEY` was unset — now fully eliminated
+- Billing adapter `ImportError` tolerance means gateway works in dev without billing module registered
+
+### Decision Changes
+- ADR-027 Phase 1 now implemented — no new ADR required
+
+### Backlog Changes
+- P0 item: `fitness_nutrition/ai_service.py` → **DONE** (remove from P0 migration list in `15-action-backlog.md`)
+
+---
+
 ## 2026-04-24 — Round 030 (Audit): Direct LLM Call Audit + Gateway Migration Plan
 
 ### Files Changed

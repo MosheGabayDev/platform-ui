@@ -515,18 +515,18 @@ _Must complete before any module ships LLM-calling features. Spec: `docs/system-
 
 | Task | File/Location | Effort | Status |
 |------|--------------|--------|--------|
-| `GatewayRequest` + `GatewayResponse` + `GatewayError` dataclasses | `apps/ai_providers/schemas.py` (new) | 1 hr | `[ ]` pre-R027 |
-| `AIProviderGateway.call()` + `call_stream()` — wraps registry + adapters + cost_tracker | `apps/ai_providers/gateway.py` (new) | 3 hr | `[ ]` pre-R027 |
-| `AIProviderPolicy.check()` — quota pre-check (Redis-first, DB-fallback) | `apps/ai_providers/policy.py` (new) | 2 hr | `[ ]` pre-R027 |
-| `AIProviderBillingAdapter.emit()` — bridges to `emit_billing_event()` | `apps/ai_providers/billing_adapter.py` (new) | 1 hr | `[ ]` pre-R027 |
-| `AIUsageLog` migration: 12 new fields | `scripts/migrations/` | 1 hr | `[ ]` pre-R027 |
-| `chat_stream_with_usage()` method on `AIProviderAdapter` base | `apps/ai_providers/adapters/base.py` | 1 hr | `[ ]` pre-R027 |
-| Streaming finalization: `gateway.finalize_stream(usage_log_id, is_partial)` | `apps/ai_providers/gateway.py` | 1 hr | `[ ]` pre-R027 |
-| Quota Redis keys + TTL (monthly_tokens, daily_calls, voice_minutes, concurrent_streams) | `apps/ai_providers/policy.py` | 1 hr | `[ ]` pre-R027 |
-| Non-billable mode gate: `non_billable=True` only allowed in test env | `apps/ai_providers/gateway.py` | 30 min | `[ ]` pre-R027 |
-| CI lint rule: direct LLM provider imports blocked outside `apps/ai_providers/` | `.github/workflows/lint.yml` | 30 min | `[ ]` pre-R027 |
-| Gateway unit tests: §16 core 8 tests | `apps/ai_providers/tests/test_gateway.py` | 2 hr | `[ ]` pre-R027 |
-| Billing tests: §16 billing 5 tests | `apps/ai_providers/tests/test_gateway_billing.py` | 1 hr | `[ ]` pre-R027 |
+| `GatewayRequest` + `GatewayResponse` + `GatewayError` dataclasses | `apps/ai_providers/schemas.py` (new) | 1 hr | `[x]` R031 |
+| `AIProviderGateway.call()` + `call_stream()` — wraps registry + adapters + cost_tracker | `apps/ai_providers/gateway.py` (new) | 3 hr | `[x]` R031 |
+| `AIProviderPolicy.check()` — quota pre-check (Redis-first, DB-fallback) | `apps/ai_providers/policy.py` (new) | 2 hr | `[x]` R031 (Phase 1 only; Redis quota deferred Phase 2) |
+| `AIProviderBillingAdapter.emit()` — bridges to `emit_billing_event()` | `apps/ai_providers/billing_adapter.py` (new) | 1 hr | `[x]` R031 |
+| `AIUsageLog` migration: 14 new fields | `scripts/migrations/versions/20260424_extend_ai_usage_log.py` | 1 hr | `[x]` R031 |
+| `chat_stream_with_usage()` method on `AIProviderAdapter` base | `apps/ai_providers/adapters/base.py` | 1 hr | `[ ]` Phase 2 |
+| Streaming finalization: `gateway.finalize_stream(usage_log_id, is_partial)` | `apps/ai_providers/gateway.py` | 1 hr | `[ ]` Phase 2 |
+| Quota Redis keys + TTL (monthly_tokens, daily_calls, voice_minutes, concurrent_streams) | `apps/ai_providers/policy.py` | 1 hr | `[ ]` Phase 2 |
+| Non-billable mode gate: `non_billable=True` only allowed in test env | `apps/ai_providers/gateway.py` | 30 min | `[ ]` Phase 2 |
+| CI lint rule: direct LLM provider imports blocked outside `apps/ai_providers/` | `scripts/check_no_direct_llm_imports.py` | 30 min | `[x]` R031 |
+| Gateway unit tests: §16 core 8 tests | `apps/ai_providers/tests/test_gateway.py` | 2 hr | `[x]` R031 |
+| Billing tests: §16 billing 5 tests | `apps/ai_providers/tests/test_gateway_billing.py` | 1 hr | `[ ]` Phase 2 |
 
 ## AI Provider Gateway — Phase 2 (P1 module migration, pre-production)
 
@@ -549,7 +549,7 @@ _These files have no key_resolver and no billing — highest risk._
 | Task | File | Effort | Status |
 |------|------|--------|--------|
 | Migrate `apps/voice_support/call_manager.py` | module-level genai import — fails at load if key missing | 1 hr | `[ ]` R031 |
-| Migrate `apps/fitness_nutrition/ai_service.py` | module-level genai import | 30 min | `[ ]` R031 |
+| Migrate `apps/fitness_nutrition/ai_service.py` | module-level genai import | 30 min | `[x]` R031 |
 | Migrate `apps/fitness_nutrition/ai_coach.py` | module-level genai import | 30 min | `[ ]` R031 |
 | Migrate `apps/jira_integration/ai_service.py` | no key_resolver, no billing, multi-provider | 2 hr | `[ ]` R031 |
 | Migrate `apps/jira_integration/troubleshooting_service.py` | direct openai_client, no billing | 1 hr | `[ ]` R031 |

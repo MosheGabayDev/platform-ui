@@ -395,6 +395,22 @@ _Updated after each round — append, never overwrite entries._
 
 ---
 
+## Round 031 — AI Provider Gateway Phase 1 Implementation
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-25 |
+| **Topic** | Implement AI Provider Gateway Phase 1 foundation in platformengineer |
+| **Objective** | Build the mandatory gateway layer designed in R029/R030: schemas, gateway, policy, billing adapter, AIUsageLog model extension + migration, CI lint script, reference P0 migration (fitness_nutrition), and tests. |
+| **Key Findings** | • `AIProviderGateway.call()` is synchronous chat + embedding only in Phase 1; streaming deferred to Phase 2 <br>• `_try_set()` pattern allows `write_usage_log_extended` to run on unmigrated DB — solves chicken-and-egg deployment order <br>• `AIProviderPolicy` fails open on errors (Redis/DB partial failure should not block all AI calls) <br>• `AIProviderBillingAdapter` tolerates `ImportError` on `service_billing` — dev/test environments without billing module work correctly <br>• Non-billable requests (`is_billable=False`) still write `AIUsageLog` — no silent skip <br>• `fitness_nutrition/ai_service.py` P0 migration: removed module-level `genai` import, `os.getenv('GEMINI_AI_KEY')` replaced, singleton `__init__` stripped, `org_id`/`user_id` passed per-call <br>• CI lint scanner (`check_no_direct_llm_imports.py`) scans `apps/` and allows only `apps/ai_providers/adapters/` to import banned packages |
+| **Files Created (platformengineer)** | `apps/ai_providers/schemas.py` (GatewayRequest, GatewayResponse, PolicyDecision, VALID_CAPABILITIES), `apps/ai_providers/gateway.py` (AIProviderGateway.call/\_execute/\_resolve\_provider/\_write\_usage\_log), `apps/ai_providers/policy.py` (AIProviderPolicy.check + Phase 2 TODOs), `apps/ai_providers/billing_adapter.py` (AIProviderBillingAdapter.emit), `scripts/migrations/versions/20260424_extend_ai_usage_log.py`, `scripts/check_no_direct_llm_imports.py`, `apps/ai_providers/tests/test_gateway.py` |
+| **Files Updated (platformengineer)** | `apps/ai_providers/tasks.py` (write\_usage\_log\_extended task + \_try\_set helper), `apps/ai_providers/models.py` (AIUsageLog: 14 new attribution/billing columns), `apps/fitness_nutrition/ai_service.py` (full rewrite — no genai import), `apps/fitness_nutrition/workout_routes.py` (org\_id + user\_id passed to generate\_workout\_plan), `apps/fitness_nutrition/nutrition_routes.py` (org\_id + user\_id passed to generate\_meal\_plan) |
+| **Files Updated (platform-ui)** | `docs/system-upgrade/96-rounds-index.md`, `docs/system-upgrade/98-change-log.md`, `docs/system-upgrade/15-action-backlog.md`, `docs/system-upgrade/35-platform-capabilities-build-order.md` |
+| **Decisions Proposed** | None new — implements ADR-027 (R029) |
+| **Next Recommended Round** | Round 032: Migrate remaining P0 files (life_assistant/gemini_client.py, personal_info/ai_chat/providers/, ala/text_session.py) + integrate gateway into floating assistant runtime |
+
+---
+
 ## Round 030 — Direct LLM Call Audit + Gateway Migration Plan
 
 | Field | Value |
