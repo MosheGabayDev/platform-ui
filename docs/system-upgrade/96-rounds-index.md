@@ -1221,3 +1221,81 @@ records audit, records billing, and works automatically for every module with AI
 
 Start R041A (CI enforcement — LLM import gate) which has no blockers.
 Create worktree using `52-parallel-worktree-agent-workflow.md §4` commands.
+
+---
+
+## Round R041-AI-Assist Governance — Mandatory Chat AI + Voice Agent Readiness for Every Module
+
+**Date:** 2026-04-26
+**Status:** Complete ✅
+**Repo:** platform-ui (docs only — no product features, no schema, no UI)
+
+| Field | Value |
+|-------|-------|
+| **Round** | R041-AI-Assist Governance — AI/Voice Readiness Mandate |
+| **Date** | 2026-04-26 |
+| **Scope** | Architecture/governance documentation — make AI/voice readiness mandatory for all modules |
+| **Tests** | N/A — governance round |
+| **Forbidden patterns** | None |
+| **Security** | N/A — no code changes |
+| **Tenant isolation** | N/A — no code changes |
+| **Docs updated** | 54 (§14+§15), 02 (§6 rewritten), 03, 48 (§2.8+§3.4), 50 (Chat AI+Voice flows), 51, 01 (§14), 99 (R22–R24), 15, 00, 96, 98 + platformengineer CLAUDE.md |
+| **Risks/follow-ups** | R22–R24 added; per-module AI_READINESS.md creation deferred to each module round |
+| **Next round** | R041A: CI enforcement (create worktree platformengineer-r041a-ci) |
+
+### Mission
+
+Make it absolutely unambiguous that every development round must include Chat AI and Voice Agent readiness. No module may be marked Done without declaring its AI/voice readiness level (even Level 0 + exception = valid). No module may be marked `migrated` without tested readiness evidence.
+
+### Files Created
+
+None — governance/standards round.
+
+### Files Updated
+
+| File | What changed |
+|------|-------------|
+| `54-ai-assistant-runtime.md` | §14 AI Readiness Levels (0–6) + §15 AI Test Harness design added |
+| `02-development-rules.md` | §6 rewritten as mandatory gate: readiness levels, voice rules, chat rules, Done gate, module contract |
+| `03-module-migration-progress.md` | ai_chat/voice_agent status values formalized; mandatory migrated gate documented |
+| `48-testing-and-evidence-standard.md` | §2.8 AI action backend tests + §3.4 frontend AI/voice UI tests added; evidence matrix updated |
+| `50-module-e2e-coverage-matrix.md` | 16 Chat AI E2E flows (AI-01–AI-16) + 14 Voice Agent E2E flows (VOICE-01–VOICE-14) added |
+| `51-agent-handoff-protocol.md` | AI_READINESS.md added to Before Work checklist; ai_chat/voice_agent columns added to After Work |
+| `01-round-review-checklist.md` | §14 AI/Voice Readiness Gate added (13 reviewer checks) |
+| `99-risk-register.md` | R22 (AI readiness omitted), R23 (unauthorized action), R24 (unsafe voice action) added |
+| `15-action-backlog.md` | Per-module AI_READINESS.md tasks + test harness implementation tasks added |
+| `00-implementation-control-center.md` | DoR + DoD updated with AI_READINESS.md requirement; this round recorded |
+
+### AI/Voice Readiness Levels Defined
+
+| Level | Name | Description |
+|-------|------|-------------|
+| 0 | Not Ready | No AI metadata (exception required) |
+| 1 | Explainable | Page context + explanation, no execution |
+| 2 | Guided | Workflow guidance, no execution |
+| 3 | Action Proposal | Propose + collect params, no execution |
+| 4 | Chat Action Ready | Execute via backend auth + audit |
+| 5 | Voice Assist Ready | Voice explain + limited low-risk execution |
+| 6 | Voice Action Ready | Voice execute low-risk, escalate high/critical |
+
+### Mandatory Gates Added
+
+- **Round Done gate (§14 checklist):** AI_READINESS.md must exist OR exception documented
+- **Migrated gate (§6 rule):** `ai_chat != "not_started"` + tests passing for declared level
+- **Voice gate (R24):** Level 5+ cannot be claimed without voice safety tests
+
+### Handoff Summary
+
+**Branch:** main (governance round, no worktree needed)
+**Tests:** N/A — governance/standards round
+**Blockers for next agent:** None. R041A is ready to start.
+
+**Warnings for next agent:**
+- Per-module `AI_READINESS.md` files do not yet exist — create each one when the module's implementation round begins
+- The test harness (`apps/tests/ai_readiness/`) does not yet exist — implement after Phase D
+- All `ai_chat` columns in `03-module-migration-progress.md` remain `not_started` until modules are implemented
+
+### Recommended Next Action
+
+Start R041A (CI enforcement — LLM import gate in GitHub Actions). No blockers.
+Create worktree: `git worktree add "..\worktrees\platformengineer-r041a-ci" -b feat/r041a-ci-enforcement main`

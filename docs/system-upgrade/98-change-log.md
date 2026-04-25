@@ -3,6 +3,32 @@
 _Running log of what changed in each update round._
 _Newest entry at the top._
 
+## R041-AI-Assist Governance — 2026-04-26 — Mandatory Chat AI + Voice Agent Readiness for Every Module
+
+**Scope:** Architecture/governance documentation — AI/voice readiness mandatory gate for all modules
+**Tests:** N/A — governance round
+
+### What changed
+- **Updated:** `54-ai-assistant-runtime.md` — §14 AI Readiness Levels (0–6) and §15 AI Test Harness design added
+- **Updated:** `02-development-rules.md §6` — rewritten as mandatory AI readiness gate: readiness levels, voice capability rules, chat capability rules, Done gate, module contract, refusal rules
+- **Updated:** `03-module-migration-progress.md` — `ai_chat`/`voice_agent` status values formalized (7 values); mandatory migrated gate added
+- **Updated:** `48-testing-and-evidence-standard.md` — §2.8 AI action backend tests + §3.4 frontend AI/voice UI tests; evidence matrix updated
+- **Updated:** `50-module-e2e-coverage-matrix.md` — 16 Chat AI E2E flows (AI-01–AI-16) + 14 Voice Agent E2E flows (VOICE-01–VOICE-14) added
+- **Updated:** `51-agent-handoff-protocol.md` — `AI_READINESS.md` added to Before Work checklist; ai_chat/voice_agent columns added to After Work mandatory updates
+- **Updated:** `01-round-review-checklist.md` — §14 AI/Voice Readiness Gate: 13 reviewer checks added; blocks round if no AI status declared
+- **Updated:** `99-risk-register.md` — R22 (AI readiness omitted), R23 (AI executes unauthorized action), R24 (voice agent performs unsafe action)
+- **Updated:** `15-action-backlog.md` — per-module AI_READINESS.md creation tasks + test harness implementation tasks added
+- **Updated:** `00-implementation-control-center.md` — DoR + DoD updated; AI_READINESS.md required per module round
+
+### Key rules enforced
+- Every module round must declare AI/voice readiness level (even Level 0 + exception is valid — silence is not)
+- A module cannot be marked `migrated` without a tested readiness level
+- Backend AI action tests mandatory at Level 4+: authorized execute, 403 denial, tenant isolation, audit row, AIUsageLog
+- Voice safety tests mandatory at Level 5+: VOICE-06–VOICE-12 flows
+- `01-round-review-checklist.md §14` blocks any round touching a module without AI_READINESS.md
+
+---
+
 ## R041-AI — 2026-04-26 — AI Assistant Runtime Contract
 
 **Scope:** Architecture clarification and development contract documentation only — no product code, no schema, no UI

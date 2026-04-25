@@ -1,7 +1,7 @@
 # 02 — Development Rules
 
 > Non-negotiable rules for all agents and developers working on this platform.
-> _Last updated: 2026-04-26 (R041-Governance Addendum — initial creation)_
+> _Last updated: 2026-04-26 (R041-AI-Assist Governance — §6 AI readiness expanded to mandatory gate)_
 >
 > **Read after:** `CLAUDE.md` → `00-implementation-control-center.md` → **this file**
 
@@ -148,30 +148,120 @@ A module round cannot be marked Done without:
 
 ---
 
-## 6. AI Readiness Rules
+## 6. AI Assistant Readiness Is Mandatory
 
-Every module must declare its AI readiness before it can be marked "migrated". Minimum declaration:
+> **This rule is absolute. No silent omission is allowed.**
+
+The global Chat AI assistant and Voice agent are not optional add-ons. They are core platform interaction layers. Every module, capability, and user-facing workflow must be developed so these assistants can support it automatically.
+
+### 6.1 Done Gate — Module Not Complete Without AI/Voice Status
+
+A module round cannot be marked **Done** unless one of these is true and documented:
+
+| Option | What is required |
+|--------|----------------|
+| **Full AI/Voice readiness** | AI readiness level declared + tested per `54-ai-assistant-runtime.md §14` |
+| **Read-only explanation support** | Level 1 page context declared + explanation tested |
+| **Explicit documented exception** | Reason + approval + follow-up issue reference in `AI_READINESS.md` |
+
+No silent omission. Every module must have one of the above before its round closes.
+
+### 6.2 AI Readiness Levels
+
+Full level definitions: `54-ai-assistant-runtime.md §14`.
+
+| Level | Name | Description |
+|-------|------|-------------|
+| 0 | Not Ready | No AI metadata — assistant cannot help with this module |
+| 1 | Explainable | Assistant explains page, fields, actions. No execution. |
+| 2 | Guided | Assistant guides workflows and suggests next steps. No execution. |
+| 3 | Action Proposal | Assistant proposes actions + collects parameters. User must execute manually. |
+| 4 | Chat Action Ready | Chat executes allowed actions via backend auth + confirmation + audit. |
+| 5 | Voice Assist Ready | Voice explains and guides. Limited low-risk execution with read-back confirm. |
+| 6 | Voice Action Ready | Voice executes low-risk actions. High/critical always routed to UI approval. |
+
+### 6.3 Per-Module AI Page Context
+
+Every user-facing page must declare (in `ai-page-contexts.ts`):
 
 | Field | Required |
 |-------|---------|
-| `ai_page_context` | What the global chat assistant knows about this page (or "not applicable") |
-| `ai_actions` | List of AI-executable actions on this module (or "none") |
-| `ai_service_routes` | Backend routes the AI assistant may call (or "none") |
-| `chat_explainable` | What the assistant can explain about module data |
-| `voice_capable` | What the voice agent can do (or "not applicable") |
-| `ai_refuse_list` | What AI must refuse (e.g. "never delete without user confirmation") |
-| `ai_permission_requirements` | Permissions required for AI-executed actions |
+| `page_id` | Unique ID: `<module_key>.<page_type>` (e.g. `helpdesk.tickets.list`) |
+| `module_key` | Module this page belongs to |
+| `title` / `description` | Human-readable page purpose |
+| `fields[]` | Fields visible on the page with labels and types |
+| `available_actions[]` | Action IDs available on this page |
+| `pii_fields[]` | Fields that are PII / sensitive |
+| `ai_explanation_rules[]` | What the assistant should/must not say about this page |
+| `refusal_rules[]` | What AI must refuse on this page |
 
-This declaration lives in `docs/modules/<module_key>/AI_READINESS.md` or as a section in `IMPLEMENTATION.md`.
+### 6.4 Per-Module AI Actions
 
-**Extended module contract (R041-AI):** See `54-ai-assistant-runtime.md §10` for the full AI/voice module contract, including:
-- `aiPageContexts` structure per page
-- `AIActionDescriptor` required fields for each registered action
-- `voice_eligible` and `danger_level` declarations
-- Required AI/voice tests (54 §11)
-- `ai_chat` and `voice_agent` status values for `03-module-migration-progress.md`
+Every AI-executable action must be registered in `AIActionRegistry` with a complete `AIActionDescriptor` (full spec: `54-ai-assistant-runtime.md §6`, canonical schema: `39-ai-architecture-consistency-pass.md`):
 
-**A module cannot be marked `migrated` until `ai_chat != "not_declared"` in `03-module-migration-progress.md`.**
+| Required field | Description |
+|----------------|-------------|
+| `action_id` | Unique: `<module_key>.<action_name>` |
+| `label` / `description` | Human-readable |
+| `required_permission` | RBAC permission string |
+| `input_schema` / `output_schema` | JSON schema |
+| `danger_level` | `low / medium / high / critical` |
+| `voice_eligible` | `true / false` — required for every action |
+| `confirmation_required` | `true / false` — required for every mutation |
+| `approval_required` | `true / false` |
+| `audit_required` | Always `true` for any execution |
+| `rollback_action_id` | If reversible; `null` otherwise |
+
+No unregistered action may be executed by the assistant.
+
+### 6.5 AI Refusal Rules
+
+Each module must document what the assistant must refuse. Examples:
+- Insufficient permission for the requested action
+- Module disabled for the org
+- Tenant mismatch (target belongs to another org)
+- High/critical action attempted via voice only
+- Missing confirmation token
+- Destructive action without approval
+- PII access denied for requester's role
+- Quota / billing unavailable
+- Data source access denied
+
+### 6.6 Voice Capability Rules
+
+- Voice uses the same backend authorization as chat — no shortcuts.
+- One action per voice turn.
+- Read-back before confirmation for any execution.
+- High/critical actions escalate to UI — voice never executes them directly.
+- No bulk destructive actions by voice.
+- No hard delete by voice.
+- No system-level dangerous action by voice unless explicitly voice-allowlisted and UI-confirmed.
+- Ambiguous request → ask clarification.
+- Silence or timeout → cancel pending confirmation, do not execute.
+- Never speak sensitive PII unless explicitly allowed by the user's role.
+
+### 6.7 Chat Capability Rules
+
+Chat may support any readiness level the module has declared and tested. Chat cannot bypass backend authorization for any reason. The model's output is guidance — the backend always re-checks (14 checks: `54-ai-assistant-runtime.md §8`).
+
+### 6.8 Required declarations per module
+
+In `docs/modules/<module_key>/AI_READINESS.md` (full template: `54-ai-assistant-runtime.md §10`):
+- Current and target readiness level
+- AI page contexts for every user-facing page
+- AI action registry entries (if Level 3+)
+- AI refusal rules
+- Voice eligibility rules and escalation policy
+- AI service routes (read-only backend routes the assistant may call)
+- Exception declaration if AI readiness is not applicable
+
+**The `ai_chat` and `voice_agent` columns in `03-module-migration-progress.md` must be updated after every module round.**
+
+**A module cannot be marked `migrated` until `ai_chat != "not_started"` and the declared level has passing tests.**
+
+Full module contract: `54-ai-assistant-runtime.md §10`
+Full readiness level spec: `54-ai-assistant-runtime.md §14`
+Required tests: `54-ai-assistant-runtime.md §11`
 
 ---
 
@@ -221,7 +311,9 @@ All per-module docs live under `docs/modules/<module_key>/`:
 
 Violations of rules §2 (Architecture), §3 (Security), and §4 (Testing) **block a round from being marked Done**.
 
-Violations of §5 (UX), §6 (AI Readiness), §7 (i18n) block a module from being marked **migrated** (but not from shipping an in-progress state).
+Violations of §5 (UX) and §7 (i18n) block a module from being marked **migrated** (but not from shipping an in-progress state).
+
+**Violations of §6 (AI Assistant Readiness) block a round from being marked Done** if no AI/voice status is declared (even `exception_approved` counts). A module cannot be marked `migrated` without a tested readiness level.
 
 Violations of §8 (Agent Collaboration) must be documented in the handoff summary and corrected in the next round.
 

@@ -1,6 +1,6 @@
 # 48 — Testing and Evidence Standard
 
-_Created: 2026-04-26 (R041-Test Addendum) | Updated: 2026-04-26 (R041-Governance Addendum — cross-references added)_
+_Created: 2026-04-26 (R041-Test Addendum) | Updated: 2026-04-26 (R041-AI-Assist Governance — §2.10 AI action tests + §3.4 frontend AI/voice UI tests added)_
 _Owner: Platform Engineering_
 
 > **This document is mandatory.** A module or capability is not Done unless it meets the evidence requirements in this standard.
@@ -227,7 +227,71 @@ def test_no_direct_llm_import():
     assert result.returncode == 0, result.stdout.decode()
 ```
 
-### 2.8 Data Sources / MCP / DB Connection Tests
+### 2.8 AI Assistant Action Tests
+
+For every module that implements AI-executable actions (readiness Level 3+):
+
+- Authorized user can execute a registered AI action → 200 + correct result
+- Unauthorized user (wrong role) receives `403` — action not executed
+- User cannot execute an action against a record in another org → `403 target_scope_violation`
+- Disabled module blocks AI action → `409 module_disabled` or `403`
+- Unregistered action ID is rejected → `400 action_not_registered`
+- Stale capability context returns `409 context_stale` after `context_version` increment
+- Confirmation token required for `medium`/`high`/`critical` actions — missing token rejected
+- `high`/`critical` danger level action requires approval or typed confirmation — missing returns `403`
+- `AIActionInvocation` audit row created for every execution attempt (success and denial)
+- `AIUsageLog` created for every LLM call made during action flow
+- Billing/usage event emitted or queued for every AI call
+- No PII/secrets leaked in action metadata or error responses
+
+**Assertion patterns:**
+
+```python
+def test_ai_action_denied_wrong_role(client, viewer_token):
+    resp = client.post("/api/ai/actions/execute",
+                       headers={"Authorization": f"Bearer {viewer_token}"},
+                       json={"action_id": "helpdesk.close_ticket", "params": {...}})
+    assert resp.status_code == 403
+    assert resp.json["error"] in ("permission_denied", "action_denied")
+
+def test_ai_action_tenant_isolation(client, org_a_token, org_b_record_id):
+    resp = client.post("/api/ai/actions/execute",
+                       headers={"Authorization": f"Bearer {org_a_token}"},
+                       json={"action_id": "helpdesk.close_ticket",
+                             "params": {"ticket_id": org_b_record_id}})
+    assert resp.status_code in (403, 404)
+
+def test_ai_action_creates_audit_row(client, admin_token, db_session):
+    client.post("/api/ai/actions/execute",
+                headers={"Authorization": f"Bearer {admin_token}"},
+                json={"action_id": "helpdesk.close_ticket", "params": {...},
+                      "confirmation_token": valid_token})
+    invocation = db_session.query(AIActionInvocation).filter_by(
+        action_id="helpdesk.close_ticket"
+    ).order_by(AIActionInvocation.created_at.desc()).first()
+    assert invocation is not None
+    assert invocation.user_id is not None
+    assert invocation.org_id is not None
+    assert invocation.status == "success"
+
+def test_unregistered_action_rejected(client, admin_token):
+    resp = client.post("/api/ai/actions/execute",
+                       headers={"Authorization": f"Bearer {admin_token}"},
+                       json={"action_id": "invented.fake_action", "params": {}})
+    assert resp.status_code == 400
+    assert resp.json["error"] == "action_not_registered"
+
+def test_stale_context_rejected(client, admin_token, bump_context_version):
+    bump_context_version()  # simulates role change / module toggle
+    resp = client.post("/api/ai/actions/execute",
+                       headers={"Authorization": f"Bearer {admin_token}"},
+                       json={"action_id": "helpdesk.close_ticket",
+                             "params": {...}, "context_version": old_version})
+    assert resp.status_code == 409
+    assert resp.json["error"] == "context_stale"
+```
+
+### 2.9 Data Sources / MCP / DB Connection Tests
 
 For future Data Sources Hub:
 
@@ -292,6 +356,42 @@ tests/e2e/security/
 - Each test file must `test.describe` with the feature/module being tested
 - All tests must clean up created resources (use `afterEach` teardown or isolated test data)
 - Tests must not depend on each other's execution order
+
+### 3.4 Frontend AI/Voice UI Tests
+
+For modules at AI readiness Level 1+, frontend E2E tests must cover:
+
+**Chat assistant UI:**
+- Floating assistant icon visible on authenticated module pages
+- No LLM/API call on page load (before user opens assistant) — assert no network call to `/api/ai/*`
+- Assistant drawer opens on icon click
+- Conversation persists across route navigation (same `conversationId` in Zustand store)
+- Current page context updates in assistant after navigation (page_id changes)
+- Action proposal card renders when assistant proposes an action
+- `ConfirmActionDialog` shown for actions with `danger_level >= medium`
+- Permission-denied message is safe, helpful, and contains no internal detail
+- Assistant does not execute action without confirmation for mutation endpoints
+
+**Voice agent UI (if module is Level 5+):**
+- Voice unavailable/degraded state renders correctly when voice service is down
+- Voice UI does not auto-start on page load
+- Voice session billing indicator visible during active session
+- Voice refusal renders safe message for ineligible or unauthorized actions
+
+**RTL and accessibility:**
+- RTL layout renders without overflow on all AI/voice UI surfaces
+- ARIA labels present on floating icon, drawer, and action confirmation elements
+
+**Spec file location:**
+```text
+tests/e2e/ai/
+  assistant-page-context.spec.ts    # page context + explanation flows
+  assistant-action-proposal.spec.ts # action proposal + confirmation
+  assistant-permission-denied.spec.ts # refusal flows
+  voice-agent-safety.spec.ts         # voice safety + UI escalation (if Level 5+)
+```
+
+These tests are scaffolded/skipped until the Phase A–B implementation is complete.
 
 ---
 
@@ -425,6 +525,10 @@ A module or capability is **not Done** without the following evidence:
 | Audit assertion | every sensitive mutation | test assertion in pytest output |
 | AIUsageLog assertion | every AI/LLM feature | test assertion in pytest output |
 | Billing event assertion | every billable feature | test assertion in pytest output |
+| AI readiness level declared | every module round | `docs/modules/<key>/AI_READINESS.md` exists |
+| AI action denial test (403) | every AI-executable action | pytest assertion |
+| AIActionInvocation row asserted | every AI action execution | pytest assertion |
+| Voice safety test | Level 5–6 modules | pytest + Playwright assertion |
 
 ---
 

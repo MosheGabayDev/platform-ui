@@ -1,7 +1,7 @@
 # 01 — Round Review Checklist
 
 > Reviewer runs this checklist before approving any implementation round.
-> _Last updated: 2026-04-26 (R041-Gov Worktree Addendum — §11 PR/worktree checks updated)_
+> _Last updated: 2026-04-26 (R041-AI-Assist Governance — §14 AI/Voice Readiness Gate added)_
 
 ---
 
@@ -208,6 +208,30 @@ A round may not be marked Done until all `[!]` items are resolved or explicitly 
 - [ ] Agent handoff summary written in `96-rounds-index.md` entry (see `51-agent-handoff-protocol.md §Handoff Summary Template`)
 
 **If any item is missing:** the round is **blocked** until the inventory, E2E plan, or removal documentation is added.
+
+---
+
+## 14. AI/Voice Readiness Gate
+
+> **Added R041-AI-Assist Governance (2026-04-26).** Full standard: `02-development-rules.md §6`, `54-ai-assistant-runtime.md §10–§14`.
+> A round that adds, modifies, or completes any module or user-facing capability **cannot be marked Done** without the evidence below.
+
+**A reviewer must verify:**
+
+- [ ] `docs/modules/<module_key>/AI_READINESS.md` exists for every module touched (or is being created in this round)
+- [ ] Module's current AI readiness level is declared (`current_level: 0–6`)
+- [ ] If Level 0: exception is documented with reason + follow-up issue reference (or Level 1 is implemented)
+- [ ] If Level 1+: `AIPageContext` exists for every user-facing page added or modified in this round
+- [ ] If Level 3+: every new AI-executable action has a complete `AIActionDescriptor` in `AIActionRegistry`
+- [ ] If Level 4+: backend AI action tests exist — authorized execute, 403 for unauthorized, tenant isolation, audit row, `AIUsageLog`
+- [ ] If Level 5+: voice eligibility declared (`voice_eligible: true/false`) for every action; voice safety tests exist
+- [ ] AI refusal rules documented for the module
+- [ ] `ai_chat` column in `03-module-migration-progress.md` updated to reflect current state
+- [ ] `voice_agent` column in `03-module-migration-progress.md` updated to reflect current state
+- [ ] If module has new pages: Chat AI E2E flows `AI-01` through `AI-07` are planned in `E2E_COVERAGE.md` (even if skipped with blocker)
+- [ ] If voice-eligible (Level 5+): Voice E2E flows `VOICE-01` through `VOICE-09` are planned in `E2E_COVERAGE.md`
+
+**If any item is missing without a documented exception:** the round is **blocked** until the AI/voice readiness declaration or exception is added.
 
 ---
 

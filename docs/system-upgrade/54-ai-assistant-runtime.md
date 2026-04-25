@@ -648,3 +648,97 @@ Every module that implements AI/voice features must have:
 - [ ] `context_version` increment event documented
 - [ ] Stale context test updated
 - [ ] Cache invalidation strategy documented
+
+---
+
+## 14. AI Readiness Levels
+
+Every module must declare its **current** and **target** readiness level. The level governs what the assistant can do on that module's pages.
+
+| Level | Name | What the assistant can do |
+|-------|------|--------------------------|
+| **0** | Not Ready | No AI metadata. Assistant cannot help with this module. |
+| **1** | Explainable | Assistant can explain the page, its purpose, its fields, and available actions. No execution. |
+| **2** | Guided | Assistant can explain workflows, suggest next steps, and guide the user through multi-step flows. No execution. |
+| **3** | Action Proposal | Assistant can propose actions and collect parameters but cannot execute — user must act manually. |
+| **4** | Chat Action Ready | Chat can execute allowed actions through backend authorization and confirmation. Full audit trail required. |
+| **5** | Voice Assist Ready | Voice can explain, guide, and propose actions. Limited low-risk execution with read-back and voice confirmation. |
+| **6** | Voice Action Ready | Voice can execute approved low-risk actions and route high/critical actions to UI confirmation. Full voice billing required. |
+
+### 14.1 Readiness level rules
+
+- Level 0: module must not appear in the assistant's page context registry.
+- Level 1–2: no action execution. Any attempt returns `{ error: "action_not_available" }`.
+- Level 3: `AIActionDescriptor` entries required (even if `execute_enabled: false`).
+- Level 4+: `AIActionDescriptor` with `execute_enabled: true`, backend re-check (§8), audit row, `AIUsageLog` mandatory.
+- Level 5–6: all of Level 4 plus `voice_eligible` declared per action, voice safety tests, voice billing wired.
+- **A module may not claim a level it has not implemented and tested.**
+
+### 14.2 Declaring level in module docs
+
+In `docs/modules/<module_key>/AI_READINESS.md`:
+
+```markdown
+## AI Readiness Level
+
+| Field | Value |
+|-------|-------|
+| current_level | 0 / 1 / 2 / 3 / 4 / 5 / 6 |
+| target_level | 0 / 1 / 2 / 3 / 4 / 5 / 6 |
+| target_round | RXXX |
+| exception | "none" or reason + approval reference |
+```
+
+Exceptions (staying at Level 0 permanently) require documented reason and a follow-up issue.
+
+### 14.3 Progress tracker status values
+
+The `ai_chat` and `voice_agent` columns in `03-module-migration-progress.md` must use:
+
+| Status | Meaning |
+|--------|---------|
+| `not_started` | No AI metadata (Level 0) |
+| `not_applicable` | No user-facing pages (system-only, infra module) |
+| `exception_approved` | Documented exception — AI not required, approved with issue ref |
+| `read_only_ready` | Level 1–2: page context declared, explanation tested |
+| `action_ready` | Level 3–4: actions registered, execution tested |
+| `voice_ready` | Level 5–6: voice eligible actions declared and tested |
+| `blocked` | Blocked on dependency — reason documented in tracker |
+| `tested` | All required tests for the declared level pass and are documented |
+
+---
+
+## 15. AI Assistant Test Harness (Planned)
+
+A future automated test harness will verify every module's AI/voice support without requiring a live LLM.
+
+### 15.1 Purpose
+
+The harness will:
+- Load each module's `AI_READINESS.md` and validate completeness
+- Load all `AIPageContext` declarations and validate required fields
+- Load all `AIActionDescriptor` entries and validate schemas
+- Cross-check declared permissions against `apps/authentication/rbac.py`
+- Validate `voice_eligible` rules against danger level constraints
+- Verify refusal rules are documented for every action
+- Verify E2E coverage exists for the declared readiness level
+- Fail CI if a module claims a readiness level without test evidence
+
+### 15.2 Harness design (not yet implemented)
+
+```
+apps/tests/ai_readiness/
+  run_harness.py                    — entry point, discovers all modules
+  validators/page_context.py        — validates AIPageContext completeness
+  validators/action_descriptor.py   — validates AIActionDescriptor schema
+  validators/permission_cross_check.py — verifies permissions exist in RBAC
+  validators/voice_policy.py        — validates voice eligibility rules
+  validators/coverage_check.py      — verifies E2E coverage for claimed level
+  reporters/evidence_matrix.py      — generates evidence matrix per module
+```
+
+### 15.3 Implementation trigger
+
+Build the harness after Phase D (dangerous action confirmations + audit). Requires at least 3 modules with complete AI/Voice declarations before the harness has enough coverage to be useful.
+
+**Tracking:** `docs/system-upgrade/15-action-backlog.md §AI Assistant Test Harness`

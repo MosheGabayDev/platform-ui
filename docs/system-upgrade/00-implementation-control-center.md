@@ -1,7 +1,7 @@
 # 00 — Implementation Control Center
 
 > **This is the first doc to read after `CLAUDE.md`.** Every implementation round starts here.
-> _Last updated: 2026-04-26 (R041-WT follow-up — shared docs reconciliation rule added to §52)_
+> _Last updated: 2026-04-26 (R041-AI-Assist Governance — AI/Voice readiness mandatory gate added to all module rounds)_
 
 ---
 
@@ -34,8 +34,9 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 | **Branch** | main (both repos) |
 | **Purpose** | Establish governance system — no product features, no schema, no UI |
 
-**Previous completed (most recent):** R041-Gov Worktree Addendum — Parallel Worktree Agent Workflow (2026-04-26)
-**Before that:** R041-Governance Addendum — Legacy Preservation, Module Inventory, Agent Handoff (2026-04-26)
+**Previous completed (most recent):** R041-AI-Assist Governance — Mandatory Chat AI + Voice Agent Readiness (2026-04-26)
+**Before that:** R041-Gov Worktree Addendum — Parallel Worktree Agent Workflow (2026-04-26)
+**Before that:** R041-AI — AI Assistant Runtime Contract (2026-04-26)
 **Before that:** R040 — Module Manager Additive Schema Foundation (`abdf3bc38985dcf1152a390ea81f3d1675103140`)
 
 ---
@@ -142,6 +143,7 @@ The following are explicitly out of scope until foundation gates are green:
 - [ ] Previous round is committed and documented in `96-rounds-index.md`
 - [ ] If round touches a module: `docs/modules/<module_key>/LEGACY_INVENTORY.md` exists (or is being created in this round)
 - [ ] If round touches a module: `docs/modules/<module_key>/E2E_COVERAGE.md` exists (or is being created in this round)
+- [ ] If round touches a module: `docs/modules/<module_key>/AI_READINESS.md` exists (or is being created in this round) — see `02-development-rules.md §6`
 
 **Then:**
 1. Read `CLAUDE.md` — confirm no rule changes since last session
@@ -166,7 +168,7 @@ The following are explicitly out of scope until foundation gates are green:
 - [ ] No legacy patterns introduced (no raw `org_id` from request, no `import openai`, no render_template in /api/*)
 - [ ] Security checks passed (see `01-round-review-checklist.md §Security`)
 - [ ] Tenant isolation: every new DB query scoped by `org_id`
-- [ ] Docs updated: `96-rounds-index.md`, `98-change-log.md`, `15-action-backlog.md`, `03-module-migration-progress.md` (if module touched), affected module `INDEX.md`
+- [ ] Docs updated: `96-rounds-index.md`, `98-change-log.md`, `15-action-backlog.md`, `03-module-migration-progress.md` (if module touched), affected module `INDEX.md`, `AI_READINESS.md` (if module touched)
 - [ ] Risks/follow-ups written as issues or entries in `99-risk-register.md`
 - [ ] Commit SHA returned in final response
 - [ ] PR opened or review requested (for changes to shared contracts/models)
@@ -207,7 +209,7 @@ The following are explicitly out of scope until foundation gates are green:
 | [`51-agent-handoff-protocol.md`](51-agent-handoff-protocol.md) | Protocol for parallel agents and context handoff between sessions |
 | [`52-parallel-worktree-agent-workflow.md`](52-parallel-worktree-agent-workflow.md) | Git worktree workflow — naming, creation, lock list, safe/unsafe parallel tracks, **shared docs reconciliation rule (§6.1)**, PR workflow, cleanup |
 | [`53-runtime-deployment-architecture.md`](53-runtime-deployment-architecture.md) | Runtime pod/service separation, Kubernetes topology, deployment boundaries, failure isolation, health checks, migration job rule |
-| [`54-ai-assistant-runtime.md`](54-ai-assistant-runtime.md) | Global chat AI assistant + voice agent runtime contract — page context, capability context, action proposal flow, backend re-check, confirmation policy, audit/billing, module contract |
+| [`54-ai-assistant-runtime.md`](54-ai-assistant-runtime.md) | Global chat AI assistant + voice agent runtime contract — page context, capability context, action proposal flow, backend re-check, confirmation policy, audit/billing, **AI readiness levels §14**, module contract, test harness §15 |
 | [`26-platform-capabilities-catalog.md`](26-platform-capabilities-catalog.md) | Shared capability catalog |
 
 ---

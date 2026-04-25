@@ -1,15 +1,28 @@
 # 03 — Module Migration Progress Tracker
 
 > Central tracker for the platform rewrite. Updated after every module-related round.
-> _Last updated: 2026-04-26 (R041-Gov Worktree Addendum — worktree workflow linked)_
+> _Last updated: 2026-04-26 (R041-AI-Assist Governance — ai_chat/voice_agent status values formalized)_
 >
 > **Rules:**
 > - This file is updated after every round that touches a module.
 > - Per-module docs live at `docs/modules/<module_key>/` — see links in each row.
 > - A module may not start rewrite until `legacy_inventory` = `inventory_complete`.
 > - A module may not be marked `migrated` until all evidence columns are green.
+> - **AI/Voice readiness is mandatory.** A module cannot be marked `migrated` until `ai_chat != "not_started"`. `exception_approved` counts if documented.
 >
-> **Status values:** `not_started` | `inventory_in_progress` | `inventory_complete` | `api_in_progress` | `ui_in_progress` | `tests_in_progress` | `blocked` | `ready_for_review` | `migrated` | `deprecated` | `intentionally_removed`
+> **Status values (overall):** `not_started` | `inventory_in_progress` | `inventory_complete` | `api_in_progress` | `ui_in_progress` | `tests_in_progress` | `blocked` | `ready_for_review` | `migrated` | `deprecated` | `intentionally_removed`
+>
+> **Status values (`ai_chat` / `voice_agent` columns):**
+> - `not_started` — no AI metadata declared (Level 0)
+> - `not_applicable` — no user-facing pages (system-only or infra module)
+> - `exception_approved` — AI not required; documented reason + issue ref in `AI_READINESS.md`
+> - `read_only_ready` — Level 1–2: page context declared, explanation tested
+> - `action_ready` — Level 3–4: actions registered, execution + audit tested
+> - `voice_ready` — Level 5–6: voice eligible declared, voice tests pass
+> - `blocked` — blocked on dependency; reason documented in this row
+> - `tested` — all required tests for declared level pass and are documented
+>
+> Full readiness level spec: `54-ai-assistant-runtime.md §14`
 
 ---
 

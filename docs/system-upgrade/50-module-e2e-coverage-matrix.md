@@ -1,7 +1,7 @@
 # 50 — Module E2E Coverage Matrix Standard
 
 > **Global standard and index** for end-to-end test coverage per module.
-> _Last updated: 2026-04-26 (R041-Governance Addendum — initial creation)_
+> _Last updated: 2026-04-26 (R041-AI-Assist Governance — Chat AI and Voice E2E flow sets added)_
 >
 > ## How to use this doc
 >
@@ -51,10 +51,58 @@ Every module must have E2E coverage for these flows. A module that skips any of 
 | BASE-14 | Export produces correct file | P2 | If module supports export |
 | BASE-15 | Import validates and rejects bad data | P2 | If module supports import |
 | BASE-16 | Audit event appears after mutation | P1 | Create/update/delete → audit row |
-| BASE-17 | AI chat can explain page | P2 | If module is AI-chat-ready |
-| BASE-18 | Voice agent refuses unauthorized action | P2 | If module is voice-ready |
+| BASE-17 | AI chat can explain page | P2 | If module is AI-chat-ready (Level 1+) |
+| BASE-18 | Voice agent refuses unauthorized action | P2 | If module is voice-ready (Level 5+) |
 | BASE-19 | RTL layout renders without overflow | P2 | Hebrew locale |
 | BASE-20 | Mobile viewport smoke test | P2 | 375px wide, key flows |
+
+---
+
+## Chat AI E2E Flows (Required for Level 1+)
+
+Every module at AI readiness Level 1+ must cover these flows. Skip with documented blocker if not yet implemented.
+
+| flow_id | flow_name | priority | notes |
+|---------|----------|---------|-------|
+| AI-01 | Floating assistant icon visible on authenticated page | P1 | Requires Phase A |
+| AI-02 | No LLM/API call before user opens assistant | P0 | Assert no `/api/ai/*` call on page load |
+| AI-03 | Assistant drawer opens on icon click | P1 | Requires Phase A |
+| AI-04 | Assistant identifies current page (page_id in context) | P1 | Requires Phase B |
+| AI-05 | Assistant explains page purpose in plain language | P1 | Level 1 minimum |
+| AI-06 | Assistant explains at least one field or column | P2 | Level 1 minimum |
+| AI-07 | Assistant lists available actions for the user's role | P1 | Level 1+ |
+| AI-08 | Assistant refuses action user lacks permission for — safe message | P0 | No internal detail leaked |
+| AI-09 | Conversation persists across route navigation | P1 | Same conversationId after nav |
+| AI-10 | Current page context updates after navigation | P1 | page_id changes in Zustand store |
+| AI-11 | Assistant proposes an allowed action (Level 3+) | P1 | Action proposal card renders |
+| AI-12 | ConfirmActionDialog shown for medium/high/critical danger | P0 | Level 4 |
+| AI-13 | Confirmed action executes and result shown in chat | P1 | Level 4 |
+| AI-14 | Denied action returns safe refusal with reason | P0 | Level 4 |
+| AI-15 | AIUsageLog created for every LLM call | P0 | Backend assertion |
+| AI-16 | AIActionInvocation created for every execution attempt | P0 | Backend assertion |
+
+---
+
+## Voice Agent E2E Flows (Required for Level 5+)
+
+Every module at AI readiness Level 5+ must cover these flows. If voice is not yet implemented, skip with a documented blocker and planned behavior.
+
+| flow_id | flow_name | priority | notes |
+|---------|----------|---------|-------|
+| VOICE-01 | Voice session does not auto-start on page load | P0 | Always |
+| VOICE-02 | Voice can explain current page | P1 | Level 5 minimum |
+| VOICE-03 | Voice can propose a low-risk allowed action | P1 | Level 6 |
+| VOICE-04 | Voice reads back action before confirmation | P0 | Level 6 |
+| VOICE-05 | Voice confirms on "yes" / cancels on silence or timeout | P0 | Level 6 |
+| VOICE-06 | Voice refuses action that is voice_ineligible | P0 | Level 5+ |
+| VOICE-07 | Voice refuses high/critical action — escalates to UI | P0 | Level 5+; UI token created |
+| VOICE-08 | Voice asks clarification on ambiguous request | P2 | Level 5+ |
+| VOICE-09 | Voice billing recorded (AIUsageLog for STT+TTS+LLM) | P0 | Level 5+ |
+| VOICE-10 | Voice audit row (AIActionInvocation) created | P0 | Level 6 |
+| VOICE-11 | Bulk destructive action refused by voice | P0 | Level 5+ |
+| VOICE-12 | Hard delete refused by voice | P0 | Level 5+ |
+| VOICE-13 | Voice unavailable state renders gracefully | P1 | When voice service down |
+| VOICE-14 | RTL voice UI renders without overflow | P2 | Hebrew locale |
 
 ---
 

@@ -1,7 +1,7 @@
 # 51 — Agent Handoff Protocol
 
 > Protocol for handing off work between AI agents and for parallel agent coordination.
-> _Last updated: 2026-04-26 (R041-WT follow-up — shared docs reconciliation rule added)_
+> _Last updated: 2026-04-26 (R041-AI-Assist Governance — AI readiness added to before/after checklists)_
 >
 > **Purpose:** Multiple agents may work in parallel on different modules. This protocol ensures no context is lost, no conflicts occur, and any agent can pick up where another left off.
 >
@@ -27,8 +27,11 @@ Every agent must read these docs before writing any code:
 5. The relevant round/issue contract — assigned scope, acceptance criteria, out-of-scope list
 6. The relevant module's `docs/modules/<module_key>/LEGACY_INVENTORY.md` — if it exists
 7. The relevant module's `docs/modules/<module_key>/E2E_COVERAGE.md` — if it exists
+8. The relevant module's `docs/modules/<module_key>/AI_READINESS.md` — if it exists; if not, it must be created before implementation starts
 
 **If any of the above docs do not exist for the module being worked on:** create them before writing product code.
+
+**AI readiness check:** Before writing any module code, confirm the module's `ai_chat` and `voice_agent` status in `03-module-migration-progress.md`. If `not_started`, create the `AI_READINESS.md` with at minimum a level declaration and exception documentation if AI is not applicable.
 
 ---
 
@@ -73,13 +76,14 @@ Before a round is closed, the agent must update:
 
 | Doc | What to update |
 |-----|---------------|
-| `docs/system-upgrade/03-module-migration-progress.md` | Every column that changed for touched modules |
+| `docs/system-upgrade/03-module-migration-progress.md` | Every column that changed — including `ai_chat` and `voice_agent` |
 | `docs/system-upgrade/96-rounds-index.md` | New round entry (see template below) |
 | `docs/system-upgrade/98-change-log.md` | New entry prepended |
 | `docs/system-upgrade/15-action-backlog.md` | Completed tasks marked `[x]`, new follow-up tasks added |
 | `docs/modules/<module_key>/TESTING.md` | Test evidence added, gaps documented |
 | `docs/modules/<module_key>/LEGACY_INVENTORY.md` | Inventory updated if capabilities were added/changed |
-| `docs/modules/<module_key>/E2E_COVERAGE.md` | Coverage status updated for affected flows |
+| `docs/modules/<module_key>/E2E_COVERAGE.md` | Coverage status updated for affected flows (including AI-XX and VOICE-XX) |
+| `docs/modules/<module_key>/AI_READINESS.md` | Readiness level updated; page contexts, actions, refusal rules updated if changed |
 | `docs/system-upgrade/99-risk-register.md` | New risks added if discovered |
 
 ---

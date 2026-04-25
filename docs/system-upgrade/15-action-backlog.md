@@ -1,6 +1,6 @@
 # 15 — Action Backlog
 
-_Last updated: 2026-04-26 (R041-Gov Worktree Addendum — parallel worktree tasks added)_
+_Last updated: 2026-04-26 (R041-AI-Assist Governance — AI test harness + mandatory readiness tasks added)_
 
 ---
 
@@ -1174,6 +1174,54 @@ _Reference: `docs/system-upgrade/53-runtime-deployment-architecture.md`_
 | **Add `app_info` metric with version + commit SHA** | `apps/observability/metrics.py` — gauge with version labels | P2 | `[ ]` |
 | **Add queue depth metric for Celery queues** | `apps/observability/metrics.py` — `celery_queue_length{queue}` | P2 | `[ ]` |
 | **Verify correlation ID flows from UI → API → workers** | `apps/middleware/trace_id.py` — confirm `X-Request-Id` propagated in task metadata | P2 | `[ ]` |
+
+---
+
+---
+
+## AI/Voice Readiness — Per-Module Work (R041-AI-Assist Governance)
+
+> Every module must have `AI_READINESS.md` created when its implementation round starts.
+> Create the file with at minimum a `current_level` declaration (Level 0 + exception = valid).
+
+### Per-module AI_READINESS.md creation (when each module round starts)
+
+| Task | Module | Priority | Status |
+|------|--------|----------|--------|
+| Create `docs/modules/helpdesk/AI_READINESS.md` | helpdesk | P1 | `[ ]` |
+| Create `docs/modules/users/AI_READINESS.md` | users | P1 | `[ ]` |
+| Create `docs/modules/admin/AI_READINESS.md` | admin | P1 | `[ ]` |
+| Create `docs/modules/authentication/AI_READINESS.md` | authentication | P1 | `[ ]` |
+| Create `docs/modules/ai_providers/AI_READINESS.md` | ai_providers | P2 | `[ ]` |
+| Create `docs/modules/ala/AI_READINESS.md` | ala | P2 | `[ ]` |
+| Create `docs/modules/floating_assistant/AI_READINESS.md` | floating_assistant | P1 | `[ ]` |
+
+### AI assistant implementation readiness tasks
+
+| Task | File(s) | Priority | Status |
+|------|---------|----------|--------|
+| **Create `apps/tests/ai_readiness/` test harness skeleton** | `run_harness.py`, validators skeleton | P2 — after Phase D | `[ ]` |
+| **Create E2E scaffold for Chat AI flows** | `tests/e2e/ai/assistant-page-context.spec.ts` etc. | P2 — after Phase A | `[ ]` |
+| **Create E2E scaffold for Voice Agent flows** | `tests/e2e/ai/voice-agent-safety.spec.ts` | P2 — after Phase E | `[ ]` |
+| **Wire AI_READINESS.md creation into module round template** | `.github/ISSUE_TEMPLATE/platform-round.yml` | P2 | `[ ]` |
+
+---
+
+## AI Assistant Test Harness
+
+> Tracks implementation of the automated test harness for verifying AI/voice readiness across all modules.
+> Full spec: `54-ai-assistant-runtime.md §15`.
+> Build trigger: after Phase D (dangerous action confirmations + audit) AND at least 3 modules with AI_READINESS.md.
+
+| Task | File(s) | Priority | Status |
+|------|---------|----------|--------|
+| **`run_harness.py`** — discover + validate all module AI declarations | `apps/tests/ai_readiness/run_harness.py` | P2 | `[ ]` |
+| **`validators/page_context.py`** — validate AIPageContext completeness | `apps/tests/ai_readiness/validators/` | P2 | `[ ]` |
+| **`validators/action_descriptor.py`** — validate AIActionDescriptor schema | `apps/tests/ai_readiness/validators/` | P2 | `[ ]` |
+| **`validators/permission_cross_check.py`** — verify permissions in RBAC | `apps/tests/ai_readiness/validators/` | P2 | `[ ]` |
+| **`validators/voice_policy.py`** — validate voice eligibility rules | `apps/tests/ai_readiness/validators/` | P2 | `[ ]` |
+| **`validators/coverage_check.py`** — verify E2E coverage for claimed level | `apps/tests/ai_readiness/validators/` | P2 | `[ ]` |
+| **Wire harness into CI gate** | `.github/workflows/ci.yml` — fail PR if module claims level without evidence | P2 | `[ ]` |
 
 ---
 

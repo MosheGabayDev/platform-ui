@@ -1,7 +1,7 @@
 # 99 — Risk Register
 
 > Active platform risks with mitigations and blocking status.
-> _Last updated: 2026-04-26 (R041-Governance Addendum — R17–R20 added)_
+> _Last updated: 2026-04-26 (R041-AI-Assist Governance — R22–R24 added)_
 > _Review: update after every round that changes risk status._
 
 ---
@@ -363,3 +363,48 @@
 | **Owner/Area** | Deployment, CI/CD, `apps/__init__.py` (db.create_all removal), platform-ui (Dockerfile) |
 | **Next Review** | Before P2 module work begins |
 | **Status** | 🟡 Active — standard defined; 3 gaps remain: `db.create_all()` in startup, platform-ui Dockerfile missing, migration Job resource not yet created |
+
+---
+
+## R22 — AI/Voice Readiness Omitted From Module Development
+
+| Field | Value |
+|-------|-------|
+| **Description** | Modules are built and shipped without declaring AI/voice readiness level, registering page contexts, or declaring AI actions. The platform's core AI-native product promise fails silently — the assistant cannot help users on those pages. Adding AI support retroactively requires invasive, expensive refactoring. |
+| **Impact** | Critical — the platform's defining differentiator (AI-native experience) is absent from completed modules |
+| **Likelihood** | H — without an enforced gate, this is easy to defer under time pressure |
+| **Mitigation** | `02-development-rules.md §6` — mandatory AI readiness rule; `01-round-review-checklist.md §14` — reviewer gate; `03-module-migration-progress.md` — mandatory `ai_chat`/`voice_agent` columns; `AI_READINESS.md` required per module; `54-ai-assistant-runtime.md §10–§14` — full contract |
+| **Blocking** | Blocks a round from being marked Done if no AI/voice status declared (§14 gate) |
+| **Owner/Area** | All module rounds |
+| **Next Review** | First module marked ready_for_review |
+| **Status** | 🟡 Active — gate defined; no modules have AI declarations yet |
+
+---
+
+## R23 — AI Agent Executes Unauthorized Action
+
+| Field | Value |
+|-------|-------|
+| **Description** | The AI assistant or voice agent executes an action the user does not have permission for, or against a resource in another tenant, because the frontend context was accepted as the authorization source. |
+| **Impact** | Critical — unauthorized data modification, privilege escalation, cross-tenant data breach |
+| **Likelihood** | M — risk exists whenever prompt-injected or client-supplied parameters are used for authorization |
+| **Mitigation** | 14-check backend re-authorization on every action (`54-ai-assistant-runtime.md §8`); `org_id` always from JWT; `AIActionRegistry` — unregistered actions rejected; `AIActionInvocation` audit row mandatory; per-action permission re-check; tenant scope re-check on target record; stale context detection (`context_version`); AI action denial tests mandatory (`48-testing-and-evidence-standard.md §2.8`) |
+| **Blocking** | Blocks a round if AI action tests do not include authorization denial tests |
+| **Owner/Area** | All AI action capable modules (Level 4+) |
+| **Next Review** | Phase C implementation (AI action execution) |
+| **Status** | 🟡 Active — controls designed; not yet implemented |
+
+---
+
+## R24 — Voice Agent Performs Unsafe or Unauthorized Action
+
+| Field | Value |
+|-------|-------|
+| **Description** | The voice agent executes a dangerous action (high/critical danger level, bulk destructive, hard delete) via verbal confirmation only, without UI approval — or executes against a resource the user cannot modify. |
+| **Impact** | Critical — irreversible destructive action triggered by a voice misunderstanding, ambient noise, or voice spoofing |
+| **Likelihood** | M — risk exists in any voice-interactive system; one-action-per-turn and read-back reduce but do not eliminate it |
+| **Mitigation** | Voice safety rules (`02-development-rules.md §6.6`): one action per turn, read-back before confirm, high/critical always escalate to UI, no bulk destructive by voice, no hard delete by voice, silence/timeout cancels; voice uses same backend authorization as chat; `voice_eligible: false` enforced in registry; voice E2E flows VOICE-06 through VOICE-12 must pass before Level 5+ claimed; `AIActionInvocation` created for every voice attempt |
+| **Blocking** | Blocks a module from claiming Level 5+ without voice safety tests |
+| **Owner/Area** | All voice-capable modules (Level 5+) |
+| **Next Review** | Phase E implementation (voice agent) |
+| **Status** | 🟡 Active — safety rules defined; voice Phase E not yet implemented |
