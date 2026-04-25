@@ -34,7 +34,8 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 | **Branch** | main (both repos) |
 | **Purpose** | Establish governance system — no product features, no schema, no UI |
 
-**Previous completed (most recent):** R041-AI-Assist Governance — Mandatory Chat AI + Voice Agent Readiness (2026-04-26)
+**Previous completed (most recent):** R041-AI-Knowledge — Global System Capability Knowledge Base (2026-04-26)
+**Before that:** R041-AI-Assist Governance — Mandatory Chat AI + Voice Agent Readiness (2026-04-26)
 **Before that:** R041-Gov Worktree Addendum — Parallel Worktree Agent Workflow (2026-04-26)
 **Before that:** R041-AI — AI Assistant Runtime Contract (2026-04-26)
 **Before that:** R040 — Module Manager Additive Schema Foundation (`abdf3bc38985dcf1152a390ea81f3d1675103140`)
@@ -210,6 +211,7 @@ The following are explicitly out of scope until foundation gates are green:
 | [`52-parallel-worktree-agent-workflow.md`](52-parallel-worktree-agent-workflow.md) | Git worktree workflow — naming, creation, lock list, safe/unsafe parallel tracks, **shared docs reconciliation rule (§6.1)**, PR workflow, cleanup |
 | [`53-runtime-deployment-architecture.md`](53-runtime-deployment-architecture.md) | Runtime pod/service separation, Kubernetes topology, deployment boundaries, failure isolation, health checks, migration job rule |
 | [`54-ai-assistant-runtime.md`](54-ai-assistant-runtime.md) | Global chat AI assistant + voice agent runtime contract — page context, capability context, action proposal flow, backend re-check, confirmation policy, audit/billing, **AI readiness levels §14**, module contract, test harness §15 |
+| [`55-ai-system-capability-knowledge-base.md`](55-ai-system-capability-knowledge-base.md) | Global AI knowledge model — SystemCapability, SolutionTemplate, CapabilityRecommendation, 3 assistant modes (Advisory/Guided/Delegated), advisory flow, module capability metadata contract §6.1, KB-01–KB-15 E2E tests, ADR |
 | [`26-platform-capabilities-catalog.md`](26-platform-capabilities-catalog.md) | Shared capability catalog |
 
 ---
