@@ -702,3 +702,6 @@ Each page registers `PageAIContext` via `useRegisterPageContext()`. Priority ord
 | **Module Manager (cleanup)** | Drop deprecated columns/tables + remove CompatLayer | R038G (30d after R038F) |
 | **Module Manager (versioning + upgrade)** | `ModuleUpgradeJob`, `ModulePackage` + extend `ModuleVersion` columns + 9-step upgrade workflow + rollback + checksum verification + version UI pages | R038H (≥2w after R038F) |
 | **Module Manager (marketplace + store)** | `ModuleStoreListing` + store UI + trial/purchase/license flow | R038I (after billing decision) |
+| **Generic Platform Foundation Roadmap (planning)** | 10 pillars defined, 11 domains inventoried, 12 P0 gates identified, ADR-033/034/035 added, next 10 rounds recommended — doc 47 created | R039 ✅ |
+| **Broad module development ready** | All 15 acceptance criteria in doc 47 §18 checked: OrgModule, CompatLayer, ModuleVersion, Nav API, Feature Flags, Settings Engine, AuditLog, Notification service, API Keys, CI LLM gate, TypeScript passes, cross-tenant tests pass, no request.json org_id patterns, regression gate passes | R040–R048 |
+| **Data Sources Hub (foundation)** | DataConnection + DataSource + SourceAccessPolicy + connector secrets (SSM) + AI retrieval policy + sync jobs (no UI yet) | R049 |

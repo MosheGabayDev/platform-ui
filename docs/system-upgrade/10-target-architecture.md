@@ -306,3 +306,39 @@ AI agents (ALA voice, Helpdesk AI, Investigation Console) execute platform actio
 - `context_version` Redis counter invalidated on role/module/flag/deactivation changes
 - Voice sessions: 8-action cap, `voice_invocable: true` only, `danger_level >= "high"` → UI redirect
 - Full spec: `docs/system-upgrade/36-ai-action-platform.md §23–§32`, Decision: ADR-023
+
+---
+
+## AI-Native Generic Organization Platform (ADR-034, R039)
+
+The platform is positioned as an AI-native generic organization platform. Key alignment:
+
+- **Generic first:** no hardcoded vertical domain logic; all domain models live in modules
+- **AI is infrastructure:** AI is a governed operating layer, not a feature add-on; all AI calls go through `AIProviderGateway.call()`; direct LLM imports are banned by CI
+- **Module marketplace:** organizations discover, install, license, and use capability modules; no vertical features hardcoded into the platform core
+- **Tenant-aware by default:** every model, route, and AI call scopes to `org_id` derived from the authenticated session
+- **Cross-platform ready:** business logic decoupled from Next.js into `lib/platform/`; portable types and schemas; parameterized API base URL
+
+### Foundation Gates (R040–R048)
+
+Broad multi-tenant module development requires completing the following foundation gates:
+
+| Gate | Round |
+|------|-------|
+| OrgModule schema migrations (R038B) | R040 |
+| CI enforcement (LLM import gate + ADR-028 check) | R041 |
+| ModuleRegistry sync + ModuleCompatLayer | R042 |
+| AI Service Routing Matrix backend | R043 |
+| Navigation API + sidebar wiring | R044 |
+| Feature Flags Engine + Settings Engine | R045 |
+| AuditLog Platform Service + Notification Service | R046 |
+| API Keys + Secrets Manager backend | R047 |
+| LLM direct import cleanup (55+ files) | R048 |
+
+### Data Sources & Knowledge Connections Platform (ADR-035)
+
+New Pillar 6. Organizations connect, govern, index, and use their own information sources. MCP servers, databases, SaaS connectors, file repositories, and APIs are registered as tenant-scoped `DataConnection` + `DataSource` records with `SourceAccessPolicy`, sync jobs, indexing, and AI retrieval controls. ops_intelligence becomes a consumer, not the owner.
+
+**Full roadmap:** `docs/system-upgrade/47-generic-platform-foundation-roadmap.md`
+
+ADR-033 (Foundation First), ADR-034 (AI-Native Generic Platform), ADR-035 (Data Sources Platform)

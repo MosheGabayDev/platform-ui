@@ -627,3 +627,35 @@ _Updated after each round — append, never overwrite entries._
 | **Commits** | No code changes — architecture/planning round only |
 | **Decisions Proposed** | ADR-021: Dangerous Action Standard (formalized) · ADR-022: AI Delegated Action Platform |
 | **Next Recommended Round** | Round 023 implementation: ActionButton + DetailView extraction + PlatformFeatureFlags (unblocks Helpdesk Phase A) |
+
+---
+
+## Round 039 — Generic Platform Foundation Roadmap
+
+**Date:** 2026-04-25
+**Status:** Complete
+**Output:** `docs/system-upgrade/47-generic-platform-foundation-roadmap.md`
+
+### Mission
+Planning and sequencing round. Define all required platform capabilities, current status, dependencies, correct build order, and master development plan for turning the system into a generic, extensible, AI-native organization platform.
+
+### Key Decisions
+- ADR-033: Generic Platform Foundation First — complete foundation before broad module dev
+- ADR-034: AI-Native Generic Organization Platform — platform is generic, not helpdesk-only
+- ADR-035: Data Sources & Knowledge Connections Platform — new platform domain (Pillar 6)
+- 10 platform pillars defined
+- 11 capability domains mapped (Identity, Tenant, Module, Data, AI, Data Sources, Integration, Operations, Billing, UX, DevOps)
+- 12 P0 foundation gates identified that block all broad module development
+- Next 10 rounds recommended (R040–R049)
+
+### Files Created
+- `docs/system-upgrade/47-generic-platform-foundation-roadmap.md` (new — 700+ line master roadmap)
+
+### Files Updated
+- `docs/system-upgrade/35-platform-capabilities-build-order.md`
+- `docs/system-upgrade/15-action-backlog.md`
+- `docs/system-upgrade/96-rounds-index.md`
+- `docs/system-upgrade/98-change-log.md`
+- `docs/system-upgrade/97-source-of-truth.md`
+- `docs/system-upgrade/10-target-architecture.md`
+- `docs/ARCHITECTURE.md`

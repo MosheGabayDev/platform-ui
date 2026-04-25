@@ -928,6 +928,43 @@ Backend only. No UI.
 
 ---
 
+## R039 — Generic Platform Foundation Roadmap (COMPLETE)
+
+- [x] Create `47-generic-platform-foundation-roadmap.md` — 700+ line master platform roadmap
+- [x] Define 10 platform pillars with status and key capabilities
+- [x] Map 11 capability domains (all capabilities inventoried with status, priority, round)
+- [x] Define Data Sources & Knowledge Connections Platform (new domain — ADR-035)
+- [x] Add ADR-033, ADR-034, ADR-035
+- [x] Identify 12 P0 foundation gates blocking broad module development
+- [x] Recommend next 10 rounds (R040–R049) with dependency ordering
+- [x] Update ARCHITECTURE.md §24 (AI-Native Generic Platform pillars)
+- [x] Update 97-source-of-truth.md (4 new registry rows, ADR highest updated to ADR-035)
+- [x] Update 35-platform-capabilities-build-order.md (R039 gate row + next rounds)
+- [x] Update 98-change-log.md, 96-rounds-index.md
+
+## Phase R040–R049 — Next 10 Rounds (from R039 roadmap)
+
+_Reference: `docs/system-upgrade/47-generic-platform-foundation-roadmap.md §16`_
+
+| Task | Round | Gate/Blocked By | Status |
+|------|-------|----------------|--------|
+| R038B — Module Manager additive schema migrations (OrgModule, ModuleVersion, ModuleLicense, ModuleDependency) | R040 | UNBLOCKED (OQ-01–OQ-07 answered) | `[ ]` |
+| CI enforcement gate (LLM import check + ADR-028 check in PR CI) | R041 | Independent of R040 | `[ ]` |
+| ActionButton extraction + DetailView full extraction | R041 | Independent | `[ ]` |
+| R038C — ModuleRegistry.sync_from_manifests() + ModuleCompatLayer | R042 | R040 (OrgModule must exist) | `[ ]` |
+| AI Service Routing Matrix backend (AIServiceDefinition + AIServiceProviderRoute + 9-step resolver) | R043 | R040 (org_id scoping) | `[ ]` |
+| R038D — Navigation API (GET /api/org/modules/navigation + sidebar wiring + auth fix) | R044 | R042 (CompatLayer must exist) | `[ ]` |
+| Feature Flags Engine (generic OrgFeatureFlag + useFeatureFlag hook) | R045 | R040 (OrgModule for scoping) | `[ ]` |
+| Settings Engine (generic org/user settings registry + useSettings hook) | R045 | R040 | `[ ]` |
+| AuditLog Platform Service (standardize record_activity() into structured service) | R046 | R045 (Settings Engine for notification prefs) | `[ ]` |
+| Notification Platform Service (generic, backed by platform_outbox) | R046 | R045 | `[ ]` |
+| API Keys backend (model, rotation, audit) | R047 | R040, R046 (audit required on key ops) | `[ ]` |
+| Secrets Manager backend (SSM-backed connector secrets interface) | R047 | R040, R046 | `[ ]` |
+| P0 LLM direct import cleanup (all 55+ files → AIProviderGateway) | R048 | R043 (routing matrix available for targets) | `[ ]` |
+| Data Sources Hub backend foundation (DataConnection, DataSource, SourceAccessPolicy, AI retrieval policy) | R049 | R047 (Secrets Manager), R046 (audit), R040 | `[ ]` |
+
+---
+
 ## Blocked
 
 | Task | Why Blocked | Unblocked By |

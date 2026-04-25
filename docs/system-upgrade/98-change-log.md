@@ -17,6 +17,35 @@ _Newest entry at the top._
 
 ---
 
+## R039 — 2026-04-25 — Generic Platform Foundation Roadmap
+
+### Files Created
+- `47-generic-platform-foundation-roadmap.md` — 700+ line master platform roadmap (new)
+
+### Decisions Made
+- ADR-033: Generic Platform Foundation First — complete foundation before broad module dev
+- ADR-034: AI-Native Generic Organization Platform — platform is generic, not helpdesk-only
+- ADR-035: Data Sources & Knowledge Connections Platform — new platform domain
+- 10 platform pillars finalized (Identity, Tenant, Module, Data, AI, Data Sources, Integration, Operations, Billing, UX, DevOps/Infra)
+- 11 capability domains fully inventoried with status, priority, and round estimates
+- 12 P0 foundation gates identified that block all broad module development
+- Recommended next 10 rounds (R040–R049) with dependency ordering
+- Broad module development NOT ready — 12 P0 foundation gates missing
+- R040 (R038B schema migrations) is the unblocked next step
+
+### Vision Clarified
+Platform is an AI-native generic organization platform, not a single-purpose product. All new development must prioritize generic platform capabilities over vertical features. Modules extend the platform; they do not fork it.
+
+### Files Updated
+- `docs/system-upgrade/35-platform-capabilities-build-order.md` — R039 gate row + next rounds updated
+- `docs/system-upgrade/15-action-backlog.md` — R039 complete section + R040–R049 phase backlog
+- `docs/system-upgrade/96-rounds-index.md` — Round 039 entry
+- `docs/system-upgrade/97-source-of-truth.md` — 4 new registry rows
+- `docs/system-upgrade/10-target-architecture.md` — AI-Native Generic Platform section
+- `docs/ARCHITECTURE.md` — Pillar 24 section
+
+---
+
 ## 2026-04-25 — Round 038B0: Module Manager Open Questions & Implementation Inventory
 
 ### Files Changed (platform-ui)

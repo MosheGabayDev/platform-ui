@@ -43,6 +43,10 @@ _Defines which file owns each concern. When you have new information, look up th
 | **Master plan consistency** | `42-master-plan-consistency-and-readiness.md` | All docs 00–41 | Conflicts found/fixed, canonical hierarchy, implementation status matrices, blocker register, gates A–G. Update after every round that changes overall status. |
 | **Round history** | `96-rounds-index.md` (this workspace) | — | Every investigation round. |
 | **Change log** | `98-change-log.md` (this workspace) | — | What changed in each round. |
+| **Generic Platform Foundation Roadmap** | `47-generic-platform-foundation-roadmap.md` | `10-target-architecture.md`, `docs/ARCHITECTURE.md` | Master platform roadmap: pillars, capability inventory, build order, ADRs 033-035. |
+| **Data Sources & Knowledge Connections** | `47-generic-platform-foundation-roadmap.md §9` | `26-platform-capabilities-catalog.md` | Full spec: DataConnection, DataSource, SourceAccessPolicy, MCP governance, DB governance, AI retrieval policy. |
+| **AI-Native Platform Vision** | `47-generic-platform-foundation-roadmap.md §2` | `10-target-architecture.md`, `docs/ARCHITECTURE.md §24` | Product purpose, target users, target organizations, AI operating model, module/marketplace fit, cross-platform strategy. |
+| **Platform pillars** | `47-generic-platform-foundation-roadmap.md §3` | `docs/ARCHITECTURE.md §24` | 10 pillars with status and key capabilities. |
 
 ---
 
@@ -87,6 +91,6 @@ Add the question immediately when it arises, not after the round ends.
 
 1. **Same terminology throughout**: "platform-ui" (frontend), "platformengineer" (backend), "Flask" (never "Django"), "TanStack Query" (never "React Query").
 2. **Dates**: ISO format `YYYY-MM-DD` everywhere.
-3. **ADR IDs**: sequential, never reuse. Current highest: ADR-027.
+3. **ADR IDs**: sequential, never reuse. Current highest: ADR-035.
 4. **Module numbers**: always zero-padded two digits (`01`, `04`, `17`).
 5. **Status markers**: `[ ]` TODO, `[~]` In Progress, `[x]` Done, `[!]` Blocked.

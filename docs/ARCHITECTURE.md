@@ -958,3 +958,43 @@ and temporary bootstrap with a documented migration task.
 Direct URL access to disabled module → `403 {"error": "module_unavailable"}`.
 
 **Full spec:** `docs/system-upgrade/45-module-manager-redesign.md §33`
+
+---
+
+## 24. AI-Native Generic Organization Platform
+
+**The platform is a generic, AI-powered operating layer for organizations.** Not a single-purpose product. Modules extend the platform; they do not fork it. (ADR-034, R039)
+
+### Platform Pillars
+
+| # | Pillar | Purpose | Status |
+|---|--------|---------|--------|
+| 1 | Identity & Trust | Users, roles, permissions, MFA, sessions, API keys | foundation-built |
+| 2 | Organization & Tenant Control | Orgs, isolation, settings, policies, feature flags, plan/tier state | partial |
+| 3 | Module & Marketplace | Registry, org modules, store, licenses, versions, nav | partial |
+| 4 | Data & Knowledge | Registry, media, documents, backups, search | not-started |
+| 5 | AI Operation | Providers, routing, billing, actions, assistants, voice | partial |
+| 6 | Data Sources & Knowledge Connections | MCP, databases, SaaS, APIs, indexing, RAG | not-started |
+| 7 | Workflow & Automation | Jobs, approvals, notifications, timelines | partial |
+| 8 | Experience | Dashboards, global search, command palette, page help, cross-platform | partial |
+| 9 | Billing & Commercial | Plans, usage, quotas, invoices, entitlements | partial |
+| 10 | Operations & Infrastructure | Logs, monitoring, deployment, health, CI/CD | foundation-built |
+
+### Generic Service Rule
+
+Any capability used by 2 or more modules must become a platform service. No module may own auth, audit, media, search, notifications, settings, or AI provider access. Modules call platform services; they do not re-implement them.
+
+### AI Operating Model
+
+AI is the primary interaction layer for non-technical users — not a feature add-on. All AI calls go through `AIProviderGateway.call(GatewayRequest(...))`. Direct LLM imports (`import openai`, `import anthropic`, `import google.generativeai`) outside `apps/ai_providers/adapters/` are banned and enforced by CI.
+
+AI cannot: bypass RBAC, cross org boundaries, access disabled modules, skip billing/audit, expose PII without policy permission, execute destructive actions without approval.
+
+### Foundation Gates (R040–R048)
+
+Before broad multi-tenant module development, these must be complete: OrgModule schema (R040), ModuleRegistry sync + CompatLayer (R042), Navigation API (R044), Feature Flags + Settings Engine (R045), AuditLog + Notification services (R046), API Keys + Secrets Manager (R047), LLM import cleanup (R048).
+
+### Full Spec
+`docs/system-upgrade/47-generic-platform-foundation-roadmap.md`
+
+ADR-033 (Generic Platform Foundation First), ADR-034 (AI-Native Generic Organization Platform), ADR-035 (Data Sources & Knowledge Connections Platform)
