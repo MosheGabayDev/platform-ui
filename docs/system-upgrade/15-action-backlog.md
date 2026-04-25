@@ -1,6 +1,6 @@
 # 15 — Action Backlog
 
-_Last updated: 2026-04-26 (R040 migrations applied — G-ModuleDB gate ✅)_
+_Last updated: 2026-04-26 (R041-Test Addendum — security/multi-tenant test tasks added)_
 
 ---
 
@@ -57,6 +57,27 @@ _Last updated: 2026-04-26 (R040 migrations applied — G-ModuleDB gate ✅)_
 | **Role-aware nav filtering** | `components/shell/app-sidebar.tsx` | P2 | `[ ]` |
 | **Auth E2E test** | `e2e/auth.spec.ts` — login, session, logout flow | P2 | `[ ]` |
 | **Set Flask cookie security** | `SESSION_COOKIE_SECURE=True`, `SESSION_COOKIE_SAMESITE=Lax` in prod | P1 (before prod) | `[ ]` |
+
+---
+
+## Security & Multi-Tenant Test Coverage (P1 — required before each module round)
+
+> Standard: `48-testing-and-evidence-standard.md` | Enforced by: `01-round-review-checklist.md §12`
+
+| Task | Scope | Priority | Status |
+|------|-------|----------|--------|
+| **Create `apps/tests/helpers/security.py`** | Backend test helpers: `make_jwt`, `admin_headers`, `viewer_headers`, `assert_401`, `assert_403`, `assert_audit_exists`, `assert_no_pii_leaked` | P1 | `[ ]` |
+| **Add tenant isolation tests: Users module** | `apps/admin/tests/` — Org A cannot read/write Org B users | P1 | `[ ]` |
+| **Add tenant isolation tests: Orgs module** | `apps/admin/tests/` — Org A cannot read/write Org B orgs | P1 | `[ ]` |
+| **Add tenant isolation tests: Roles module** | `apps/authentication/tests/` — Org A cannot read/write Org B roles | P1 | `[ ]` |
+| **Add audit assertion tests: Users/Orgs/Roles mutations** | Assert `UserActivity` row exists after create/update/delete | P1 | `[ ]` |
+| **Add safe-error tests: all protected endpoints** | No `str(exc)`, no stack traces in error responses | P1 | `[ ]` |
+| **Playwright setup: install + `playwright.config.ts`** | platform-ui root — configure for TEST env | P1 | `[ ]` |
+| **Create E2E security spec scaffolds** | `tests/e2e/security/auth-redirect.spec.ts`, `permission-denied.spec.ts`, `tenant-isolation.spec.ts`, `module-disabled.spec.ts` — scaffolded/skipped until credentials available | P2 | `[~]` (scaffolds created R041-Test) |
+| **Add AI governance tests: fitness_nutrition module** | `AIProviderGateway.call()` used; `AIUsageLog` row asserted | P1 | `[ ]` (R048) |
+| **Add AI governance tests: ala module** | Same pattern | P1 | `[ ]` (R048) |
+| **CI gate: Playwright smoke in PR checks** | `.github/workflows/` — after Playwright setup complete | P2 | `[ ]` (R041A) |
+| **CI gate: LLM import scan in GitHub Actions** | `scripts/check_no_direct_llm_imports.py` as PR gate | P1 | `[ ]` (R041A) |
 
 ---
 

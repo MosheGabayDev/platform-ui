@@ -1,7 +1,7 @@
 # 99 — Risk Register
 
 > Active platform risks with mitigations and blocking status.
-> _Last updated: 2026-04-26 (R040 migrations applied + Code-First Schema Rule added)_
+> _Last updated: 2026-04-26 (R041-Test Addendum — R16 security test coverage added)_
 > _Review: update after every round that changes risk status._
 
 ---
@@ -262,3 +262,29 @@
 - Server defaults: ❌ Missing on 9 columns across 4 tables (see table above)
 - FK cascade: ❌ 3 FKs have NO ACTION instead of CASCADE
 - Named indexes: ⚠️ 2 migration-named indexes missing; functionally-equivalent `ix_*` present
+
+---
+
+## R16 — Insufficient Security and Multi-Tenant Test Coverage
+
+| Field | Value |
+|-------|-------|
+| **Description** | Existing modules and API routes lack systematic security tests: authentication (401), authorization (403), tenant isolation, audit assertions, safe error responses, and AI governance. Cross-tenant data exposure or unauthorized mutations could ship undetected. |
+| **Impact** | H — critical security or compliance incident if cross-tenant leak or privilege escalation reaches production undetected |
+| **Likelihood** | H — no security test standard existed before R041-Test Addendum; most modules have no isolation or RBAC tests |
+| **Mitigation** | `48-testing-and-evidence-standard.md` — mandatory test categories; `01-round-review-checklist.md §12` — reviewer gate; E2E security scaffold (`tests/e2e/security/`) created; backend security helper pattern documented; CI gate plan defined in §5 of standard |
+| **Blocking** | Implicit blocker on every round that adds API routes, DB queries, or UI mutations — `§12` in the round review checklist enforces this |
+| **Owner/Area** | All modules; enforced per-round via `01-round-review-checklist.md §12` |
+| **Next Review** | R042 (first round to add new API routes post-R041-Test) |
+| **Status** | 🟡 Active — standard now defined; retroactive coverage per-module pending |
+
+**Immediate gaps (as of 2026-04-26):**
+
+| Gap | Severity | Plan |
+|-----|----------|------|
+| No tenant isolation tests in any existing module | H | Per-module task; prioritize helpdesk + users + orgs first |
+| No audit assertion tests in any module | M | Per-module task when module round runs |
+| E2E security specs scaffolded/skipped (no test credentials yet) | M | Unblock via `E2E_ORG_*` env vars in TEST env setup |
+| Backend security helper module (`apps/tests/helpers/security.py`) not created | M | Create in first round that adds security tests |
+| AI governance tests not applied to existing AI modules (fitness_nutrition, ala, ai_coach) | H | R048 cleanup round |
+| No CI gate for LLM import scan in GitHub Actions yet | H | R041A CI enforcement round |

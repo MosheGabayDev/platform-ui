@@ -1,7 +1,7 @@
 # 00 — Implementation Control Center
 
 > **This is the first doc to read after `CLAUDE.md`.** Every implementation round starts here.
-> _Last updated: 2026-04-26 (R040-Control follow-up — doc accuracy fixes)_
+> _Last updated: 2026-04-26 (R041-Test Addendum — security/multi-tenant test standard added)_
 
 ---
 
@@ -34,7 +34,8 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 | **Branch** | main (both repos) |
 | **Purpose** | Establish governance system — no product features, no schema, no UI |
 
-**Previous completed:** R040 — Module Manager Additive Schema Foundation (`abdf3bc38985dcf1152a390ea81f3d1675103140`)
+**Previous completed (most recent):** R041-Test Addendum — Security/Multi-Tenant Test Standard (2026-04-26)
+**Before that:** R040 — Module Manager Additive Schema Foundation (`abdf3bc38985dcf1152a390ea81f3d1675103140`)
 
 ---
 
@@ -42,6 +43,7 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 
 | Round | Title | Status | Depends On | Repo |
 |-------|-------|--------|------------|------|
+| R041-Test | Security/Multi-Tenant Test Standard | `[x] complete 2026-04-26` | R040 merged | platform-ui |
 | R041A | CI Enforcement (LLM import gate in GitHub Actions) | `[ ] ready` | R040 merged | platformengineer |
 | R041B | ActionButton Extraction to shared component | `[ ] ready` | R040 merged | platform-ui + platformengineer |
 | R042 | ModuleRegistry.sync_from_manifests() + ModuleCompatLayer | `[ ] blocked` | R040 migrations in DB | platformengineer |
@@ -192,6 +194,7 @@ The following are explicitly out of scope until foundation gates are green:
 | [`96-rounds-index.md`](96-rounds-index.md) | History of every round |
 | [`98-change-log.md`](98-change-log.md) | What changed in each round |
 | [`43-shared-services-enforcement.md`](43-shared-services-enforcement.md) | Mandatory shared services — no legacy patterns |
+| [`48-testing-and-evidence-standard.md`](48-testing-and-evidence-standard.md) | Testing standard — security/multi-tenant/AI governance evidence requirements |
 | [`26-platform-capabilities-catalog.md`](26-platform-capabilities-catalog.md) | Shared capability catalog |
 
 ---

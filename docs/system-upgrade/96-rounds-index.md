@@ -831,3 +831,78 @@ No tests required — governance/process round.
 ### Next Recommended Round
 R041A: CI enforcement (ready to start) | R041B: ActionButton extraction (ready to start, runs in parallel)
 R042: ModuleRegistry + CompatLayer (now unblocked — but run R042 fix migrations first)
+
+---
+
+## Round R041-Test — Security, Multi-Tenant, RBAC, and AI Governance Test Standard
+
+**Date:** 2026-04-26
+**Status:** Complete ✅
+**Repo:** platform-ui (docs + E2E scaffolds)
+
+| Field | Value |
+|-------|-------|
+| **Round** | R041-Test — Security/Multi-Tenant/AI Governance Test Standard |
+| **Date** | 2026-04-26 |
+| **Scope** | Testing standards, governance docs, E2E scaffold, reviewer gate — no product features |
+| **Tests** | N/A — governance/standards round |
+| **Forbidden patterns** | None |
+| **Security** | Checked |
+| **Tenant isolation** | Checked |
+| **Docs updated** | 00, 01, 15, 35, 48 (new), 96, 97, 98, 99 |
+| **Risks/follow-ups** | R16 added; backend security helpers deferred; E2E unblocked when Playwright + credentials available |
+| **Next round** | R041A (CI enforcement) or R041B (ActionButton) |
+
+### Mission
+
+Governance and test standards round. Extend the review and evidence system so every module and shared capability must include security and multi-tenant tests before it is marked Done.
+
+### Files Created (platform-ui)
+- `docs/system-upgrade/48-testing-and-evidence-standard.md` — full testing standard (new)
+- `tests/e2e/security/auth-redirect.spec.ts` — E2E scaffold: unauthenticated redirect
+- `tests/e2e/security/permission-denied.spec.ts` — E2E scaffold: viewer cannot admin
+- `tests/e2e/security/tenant-isolation.spec.ts` — E2E scaffold: Org A cannot access Org B
+- `tests/e2e/security/module-disabled.spec.ts` — E2E scaffold: disabled module blocked
+- `tests/e2e/security/.env.test.local.example` — required env vars documented
+
+### Files Updated (platform-ui)
+- `docs/system-upgrade/01-round-review-checklist.md` — §12 Security & Multi-Tenant Test Evidence added
+- `docs/system-upgrade/99-risk-register.md` — R16 added (insufficient security test coverage)
+- `docs/system-upgrade/00-implementation-control-center.md` — R041-Test recorded, testing standard linked
+- `docs/system-upgrade/15-action-backlog.md` — security/multi-tenant test tasks added
+- `docs/system-upgrade/35-platform-capabilities-build-order.md` — security test gate note added
+- `docs/system-upgrade/97-source-of-truth.md` — testing standard entry added
+- `docs/system-upgrade/98-change-log.md` — entry prepended
+
+### Test Categories Added to Standard
+
+| Category | Description |
+|----------|-------------|
+| 2.1 Authentication | 401 for all protected routes/APIs |
+| 2.2 Authorization/RBAC | 403 for role-restricted mutations; UI-hidden ≠ backend-secure |
+| 2.3 Multi-tenant isolation | Org A cannot read/write/delete Org B records |
+| 2.4 Module availability | Disabled module → 403 module_unavailable |
+| 2.5 Audit trail | Every sensitive mutation asserts audit row exists |
+| 2.6 Safe errors | No stack traces, SQL errors, or secrets in responses |
+| 2.7 AI governance | Gateway + AIUsageLog required; no direct SDK import |
+| 2.8 Data sources/MCP | Source ownership, access policy, read-only by default |
+| 2.9 Billing/quota | Quota enforcement, usage event recording, license checks |
+
+### E2E Security Structure (scaffolded/skipped)
+All 4 spec files are scaffolded with `test.skip()` guards. Tests activate when:
+1. Playwright installed: `npx playwright install --with-deps`
+2. `.env.test.local` populated with test org credentials
+3. TEST environment running
+
+### Reviewer Gate Added
+`01-round-review-checklist.md §12` blocks rounds without security/tenant evidence.
+
+### Known Gaps (documented in R16 and 48 §9)
+- Backend helper module `apps/tests/helpers/security.py` not yet created
+- Existing modules have no retroactive security tests yet (per-module task)
+- AI governance tests not applied to fitness_nutrition/ala/ai_coach (R048)
+- CI gate for LLM import scan (R041A)
+
+### Next Recommended Round
+R041A: CI enforcement (LLM import gate + PR security checks) — ready to start
+R041B: ActionButton extraction — ready to start, runs in parallel with R041A

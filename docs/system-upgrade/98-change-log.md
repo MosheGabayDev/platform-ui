@@ -3,6 +3,29 @@
 _Running log of what changed in each update round._
 _Newest entry at the top._
 
+## R041-Test Addendum — 2026-04-26 — Security/Multi-Tenant Test Standard
+
+**Scope:** Testing standards, governance docs, E2E scaffold, reviewer gate
+**Tests:** N/A — governance round
+
+### What changed
+- **New:** `48-testing-and-evidence-standard.md` — 9 required test categories with code examples, CI gate plan, evidence matrix, RBAC matrix template, module TESTING.md template, backend helper patterns
+- **New:** `tests/e2e/security/` — 4 scaffolded E2E spec files (auth-redirect, permission-denied, tenant-isolation, module-disabled) + env var example
+- **Updated:** `01-round-review-checklist.md §12` — new reviewer gate: security/multi-tenant test evidence required on every round
+- **Updated:** `99-risk-register.md §R16` — risk: insufficient security test coverage (H impact, H likelihood, gap inventory)
+- **Updated:** `00-implementation-control-center.md` — R041-Test complete, testing standard linked in governance docs
+- **Updated:** `15-action-backlog.md` — 12 security test tasks added (helpers, module isolation tests, AI governance, Playwright setup, CI gates)
+- **Updated:** `35-platform-capabilities-build-order.md` — security test gate mandate added
+- **Updated:** `97-source-of-truth.md` — `48-testing-and-evidence-standard.md` registered
+
+### Key decisions
+- Every module round is **blocked** until security + tenant isolation evidence exists (§12 gate)
+- E2E specs are scaffolded/skipped until Playwright setup + test credentials available
+- Backend security helper module (`apps/tests/helpers/security.py`) deferred to first module round that adds security tests
+- AI governance test pattern deferred to R048 for existing modules
+
+---
+
 ## R040 Schema Adoption + Code-First Rule — 2026-04-26 — Governance clarification
 
 **Commit (platform-ui):** `0dbf0acd32ae34d52aa8e1e25535518bc31bce6b`

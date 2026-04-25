@@ -1,7 +1,7 @@
 # 01 — Round Review Checklist
 
 > Reviewer runs this checklist before approving any implementation round.
-> _Last updated: 2026-04-25 (R040-Control — Governance Setup)_
+> _Last updated: 2026-04-26 (R041-Test Addendum — security/multi-tenant §12 added)_
 
 ---
 
@@ -108,6 +108,9 @@ A round may not be marked Done until all `[!]` items are resolved or explicitly 
 
 ## 8. Tests
 
+> For security and multi-tenant test requirements, see **§12** below.
+> Full evidence standard: `48-testing-and-evidence-standard.md`.
+
 - [ ] New models: structural tests verify column existence, constraints, and relationships
 - [ ] New routes: at least one test per endpoint (happy path + 401/403)
 - [ ] Regression gate passes: `bash scripts/test_steps/00_regression.sh`
@@ -152,6 +155,28 @@ A round may not be marked Done until all `[!]` items are resolved or explicitly 
 - [ ] PR body links to the GitHub issue (or notes the issue draft)
 - [ ] Diff is ≤500 LOC net (or justified in PR body if larger)
 - [ ] No debug prints, commented-out code blocks, or TODO stubs left in (unless explicitly deferred with an issue)
+
+---
+
+## 12. Security & Multi-Tenant Test Evidence
+
+> **Added R041-Test Addendum (2026-04-26).** Full standard: `48-testing-and-evidence-standard.md`.
+> A round that adds or modifies API routes, DB queries, or UI actions **cannot be marked Done** without the evidence below.
+
+**A reviewer must verify:**
+
+- [ ] Authentication: 401 tests exist for every new/modified protected endpoint
+- [ ] Authorization: 403 tests exist for every role-restricted mutation
+- [ ] Tenant isolation: org-scoped module has tests proving Org A cannot read/write Org B records
+- [ ] Org ID in request body/query string is rejected as a scoping mechanism (tested)
+- [ ] Audit: `record_activity()` calls are tested with an assertion that the audit row exists
+- [ ] Safe errors: no `str(exc)`, no stack traces, no SQL errors in error response bodies (tested)
+- [ ] Frontend permission gates have matching backend API denial tests (not just UI-hidden)
+- [ ] E2E denial flow exists or is explicitly blocked with a documented reason in `48-testing-and-evidence-standard.md §Known Gaps`
+- [ ] AI features: `AIProviderGateway.call()` used; `AIUsageLog` row asserted in test
+- [ ] PII / secrets: no sensitive fields leak to non-privileged roles (tested)
+
+**If any item is missing:** the round is **blocked** until evidence is added OR an exception is written into `99-risk-register.md` with a follow-up issue.
 
 ---
 

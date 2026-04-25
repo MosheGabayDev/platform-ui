@@ -1,6 +1,6 @@
 # 35 — Platform Capabilities Build Order
 
-_Created: 2026-04-24 | R023 | Updated R024 (AI Action Platform) | R025 (AI Capability Context) | R026 (capability levels, viability checks, delete policy)_
+_Created: 2026-04-24 | R023 | Updated R024 (AI Action Platform) | R025 (AI Capability Context) | R026 (capability levels, viability checks, delete policy) | R041-Test (security test mandate added)_
 _Owner: platform-ui build sequencing_
 
 ---
@@ -16,6 +16,8 @@ Platform has 30 named capabilities (doc 26). 8 are fully implemented, 5 are part
 **Current security posture:** 9.2/10 (R022). Foundation is ready for Helpdesk development. All pre-production security blockers are resolved.
 
 **Enforcement:** Before building any capability or module, check `docs/system-upgrade/43-shared-services-enforcement.md` for the mandatory frontend/backend contract rules (ADR-028). Using the wrong pattern when a shared capability exists is a violation, not a workaround.
+
+**Security test gate (R041-Test Addendum):** Every capability round must include security and multi-tenant test evidence before it is marked Done. See `48-testing-and-evidence-standard.md` and `01-round-review-checklist.md §12`.
 
 ---
 
