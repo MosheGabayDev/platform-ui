@@ -872,11 +872,46 @@ AI Consumer (any module)
 - `apps/ai_providers/cost_tracker.py` — `calculate_cost()`, `log_usage()`
 - `apps/billing/service_billing.py` — `emit_billing_event()` (billing outbox)
 
-### 21.4 New files needed
+### 21.4 Implemented files (R031)
 
-| File | Purpose |
-|------|---------|
-| `apps/ai_providers/gateway.py` | Unified entry point |
-| `apps/ai_providers/policy.py` | Quota pre-check |
-| `apps/ai_providers/billing_adapter.py` | Bridge to billing outbox |
-| `apps/ai_providers/schemas.py` | GatewayRequest, GatewayResponse, GatewayError |
+| File | Purpose | Status |
+|------|---------|--------|
+| `apps/ai_providers/gateway.py` | Unified entry point — `AIProviderGateway.call()` | ✅ Committed R031 |
+| `apps/ai_providers/policy.py` | Quota pre-check — `AIProviderPolicy.check()` | ✅ Committed R031 |
+| `apps/ai_providers/billing_adapter.py` | Bridge to billing outbox | ✅ Committed R031 |
+| `apps/ai_providers/schemas.py` | GatewayRequest, GatewayResponse, PolicyDecision | ✅ Committed R031 |
+
+---
+
+## 22. Capability-First Development Rule
+
+> **Mandatory rule:** Before building any new component, hook, or route — check whether a shared capability already exists. Use it. Never re-implement.
+
+**Frontend capabilities catalog:** `docs/system-upgrade/26-platform-capabilities-catalog.md`
+**Library standards:** `docs/system-upgrade/25-open-source-capability-layer.md`
+**Enforcement plan:** `docs/system-upgrade/43-shared-services-enforcement.md`
+
+### 22.1 Mandatory shared frontend capabilities
+
+| Pattern | Shared implementation | Forbidden alternative |
+|---------|----------------------|----------------------|
+| List pages | `DataTable<T>` from `components/shared/data-table/` | Custom table shell per page |
+| Forms + mutations | `PlatformForm` + `usePlatformMutation` + Zod in `schemas.ts` | Inline Zod, manual `useState(loading)` |
+| Permission gates | `PermissionGate` + `usePermission()` | `session.user.role ===` inline comparisons |
+| Page layout | `PageShell` + `DetailView` components | Custom per-module page headers |
+| Dangerous actions | `ConfirmActionDialog` | `window.confirm()` or `alert()` |
+| API calls | `lib/api/<module>.ts` + `queryKeys` | Direct `fetch()` in components |
+
+### 22.2 Mandatory shared backend services
+
+| Pattern | Shared implementation | Forbidden alternative |
+|---------|----------------------|----------------------|
+| Authentication | `@jwt_required` + `g.jwt_user` | Flask-Login session for JSON APIs |
+| RBAC | `@role_required` / `@permission_required` | Trusting client headers |
+| Tenant scope | `g.jwt_user.org_id` on all queries | `request.json.get("org_id")` |
+| Audit logging | `record_activity()` on all mutations | No audit on write operations |
+| AI / LLM | `AIProviderGateway.call(GatewayRequest(...))` | Direct `openai` / `anthropic` / `genai` SDK |
+
+### 22.3 Exception policy
+
+All exceptions must be documented in `docs/system-upgrade/43-shared-services-enforcement.md §Appendix A`. No silent exceptions.

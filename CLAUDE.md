@@ -241,6 +241,36 @@ if (error) return <ErrorBadge />;
 
 ---
 
+## Shared Capabilities Enforcement (MANDATORY before any new module code)
+
+> **ADR-028** — All new module code must use the approved shared capabilities. No local workarounds. Full spec: `docs/system-upgrade/43-shared-services-enforcement.md`
+
+**AI-agent checklist — run before writing any component, hook, or page:**
+
+```
+BEFORE ADDING ANY COMPONENT OR PAGE:
+
+1. Tables: DataTable<T> from components/shared/data-table/ — NEVER custom table shell
+2. Forms: PlatformForm + usePlatformMutation + Zod in lib/modules/<module>/schemas.ts
+3. Mutations: usePlatformMutation — NEVER inline useState(loading) + catch + toast pattern
+4. Permissions: PermissionGate + usePermission() — NEVER session.user.role === inline
+5. Layout: PageShell + DetailView components — NEVER custom per-page header
+6. Dangerous actions: ConfirmActionDialog — NEVER window.confirm() or alert()
+7. API calls: lib/api/<module>.ts + queryKeys — NEVER fetch() directly in components
+8. Query keys: queryKeys.<module>.* — NEVER inline ["users"] string arrays
+9. org_id: from session only — NEVER in form state or request body for auth
+10. LLM: backend AIProviderGateway.call() only — NEVER provider SDK in frontend
+
+CHECK CATALOG FIRST:
+- docs/system-upgrade/26-platform-capabilities-catalog.md
+- docs/system-upgrade/25-open-source-capability-layer.md
+
+IF BLOCKED BY MISSING SHARED CAPABILITY:
+- Add backlog task to docs/system-upgrade/15-action-backlog.md
+- Build shared capability first, then the module
+- If urgent: document exception in docs/system-upgrade/43-shared-services-enforcement.md §Appendix A
+```
+
 ## Definition of Done (every task)
 
 - [ ] No physical CSS direction classes (`pl-`, `pr-`, `ml-`, `mr-`, `left-`, `right-`)

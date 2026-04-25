@@ -23,7 +23,11 @@ This catalog documents every **horizontal capability** that must be built once a
 >
 > A module-local implementation that is used in 2+ modules automatically becomes a candidate for promotion to this catalog. File a backlog item when you notice the duplication.
 
-This rule is enforced by code review. Reviewers must reject PRs that duplicate existing capabilities.
+This rule is enforced by code review and CI. Reviewers must reject PRs that duplicate existing capabilities.
+
+**Full enforcement plan:** `docs/system-upgrade/43-shared-services-enforcement.md` (ADR-028, R032)
+**PR checklist:** `docs/system-upgrade/43-shared-services-enforcement.md §11`
+**AI-agent guardrails:** `docs/system-upgrade/43-shared-services-enforcement.md §12`
 
 ---
 

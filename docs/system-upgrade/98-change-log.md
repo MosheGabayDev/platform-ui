@@ -17,6 +17,34 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-25 — Round 033 (Documentation): Shared Services and Platform Capabilities Enforcement Plan
+
+### Files Created (platform-ui)
+- `docs/system-upgrade/43-shared-services-enforcement.md` — **created** (full enforcement plan: §01–§15 + Appendix A)
+
+### Files Changed (platform-ui)
+- `docs/ARCHITECTURE.md` — **updated** (§21.4: gateway files marked implemented R031; §22 new section: Capability-First Rule with mandatory frontend/backend tables)
+- `docs/system-upgrade/14-decision-log.md` — **updated** (ADR-028 added: Shared Services Enforcement; ADR-027 field count corrected 12→14)
+- `docs/system-upgrade/15-action-backlog.md` — **updated** (P0 enforcement tasks section + P1 enforcement tasks section added)
+- `docs/system-upgrade/26-platform-capabilities-catalog.md` — **updated** (Mandatory Rule: enforcement plan cross-reference + PR/AI-agent checklist links added)
+- `CLAUDE.md` — **updated** (§Shared Capabilities Enforcement section added with AI-agent guardrail checklist)
+- `docs/system-upgrade/96-rounds-index.md` — **updated** (Round 033 entry added; Round 032 next-round pointer corrected)
+- `docs/system-upgrade/98-change-log.md` — **updated** (this entry)
+
+### Files Changed (platformengineer)
+- `CLAUDE.md` — **updated** (§Shared Services Enforcement section added with backend AI-agent guardrail checklist)
+
+### New Findings
+- All shared frontend capabilities and backend services now have explicit mandatory/forbidden contracts
+- 15 frontend + 14 backend patterns classified as forbidden with FAIL/WARN severity
+- ADR-028 establishes Capability-First as an enforced architectural rule (not just a guideline)
+
+### Backlog Changes
+- P0 enforcement tasks added: CI wiring, 3 detection scripts, P0 LLM migrations, ActionButton component
+- P1 enforcement tasks added: 5 CI gate tasks for R034–R035
+
+---
+
 ## 2026-04-25 — Round 032 (Documentation): Master Plan Consistency & Readiness Review
 
 ### Files Changed (platform-ui)

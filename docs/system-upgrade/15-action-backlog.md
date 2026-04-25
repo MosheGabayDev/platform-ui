@@ -576,6 +576,34 @@ _These files have no key_resolver and no billing — highest risk._
 
 ---
 
+## Shared Services Enforcement — P0 Tasks (R032–R033, ADR-028)
+
+_Spec: `docs/system-upgrade/43-shared-services-enforcement.md`_
+
+| Task | File/Location | Effort | Status |
+|------|--------------|--------|--------|
+| Wire `check_no_direct_llm_imports.py` to CI (warn-only) | `.github/workflows/lint.yml` | 30 min | `[ ]` R033 |
+| Add AI-agent guardrail checklist (§12) to `CLAUDE.md` (platformengineer) | `CLAUDE.md` | 30 min | `[ ]` R032 |
+| Add AI-agent guardrail checklist (§12) to `CLAUDE.md` (platform-ui) | `CLAUDE.md` | 30 min | `[ ]` R032 |
+| Write `scripts/check_no_org_id_from_body.py` + baseline scan | `scripts/check_no_org_id_from_body.py` | 1 hr | `[ ]` R033 |
+| Write `scripts/check_json_api_auth.py` + baseline scan | `scripts/check_json_api_auth.py` | 1 hr | `[ ]` R033 |
+| Migrate remaining P0 LLM files: ai_coach, voice_support, personal_info/ai_chat/providers/, jira_integration | `apps/*/` | 3 hr | `[ ]` R033 |
+| Add allowlist entries for known violations in `check_no_direct_llm_imports.py` with R0NN targets | `scripts/check_no_direct_llm_imports.py` | 30 min | `[ ]` R033 |
+| Create `ActionButton` component (loading spinner + disabled state during mutation) | `components/shared/action-button.tsx` | 1 hr | `[ ]` R033 |
+| Create module IMPLEMENTATION.md template from doc 43 §10 checklist | `docs/templates/IMPLEMENTATION_TEMPLATE.md` | 30 min | `[ ]` R033 |
+
+## Shared Services Enforcement — P1 Tasks (R034–R035)
+
+| Task | File/Location | Effort | Status |
+|------|--------------|--------|--------|
+| Add `window.confirm()` grep check to platform-ui CI | `.github/workflows/lint.yml` | 15 min | `[ ]` R034 |
+| Add direct `fetch()` check to platform-ui CI | `scripts/check_no_direct_fetch_in_components.py` | 1 hr | `[ ]` R034 |
+| Add inline query key check to platform-ui CI | `scripts/check_no_inline_query_keys.ts` | 1 hr | `[ ]` R034 |
+| Move `check_no_direct_llm_imports.py` from warn → hard-fail (after allowlist stable) | `.github/workflows/lint.yml` | 15 min | `[ ]` R035 |
+| Move `check_json_api_auth.py` from warn → hard-fail | `.github/workflows/lint.yml` | 15 min | `[ ]` R035 |
+
+---
+
 ## Consistency-Pass Blockers (B1–B10, pre-R027)
 
 _Must complete before any write-tier AI action implementation. Spec: `docs/system-upgrade/39-ai-architecture-consistency-pass.md §12`_

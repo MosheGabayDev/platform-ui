@@ -608,11 +608,31 @@ Error case:
 
 **Migration:** Priority order — helpdesk (P1), mobile_voice (P1), ai_agents (P1), ala (P1), ops_intelligence (P2), personal_info (P2), life_assistant (P3), remaining 37 files (P3).
 
-**AIUsageLog extension:** 12 new fields: `feature_id`, `conversation_id`, `action_id`, `ai_action_invocation_id`, `status`, `started_at`, `completed_at`, `error_code`, `correlation_id`, `cached_tokens`, `is_estimated`, `billable_cost`, `quota_bucket`. Migration: `20260424_extend_ai_usage_log`.
+**AIUsageLog extension:** 14 new fields (corrected R032): `feature_id`, `conversation_id`, `action_id`, `ai_action_invocation_id`, `status`, `started_at`, `completed_at`, `error_code`, `correlation_id`, `cached_tokens`, `is_estimated`, `billable_cost`, `quota_bucket`, `is_billable`. Migration: `20260424_extend_ai_usage_log` (R031 committed).
 
 **Spec:** `docs/system-upgrade/40-ai-provider-gateway-billing.md`
 
 **Affected modules:** `apps/ai_providers/` (gateway.py, policy.py, billing_adapter.py, schemas.py added), `apps/billing/` (reused), all 55+ bypass modules (migration required).
+
+---
+
+## ADR-028 — Shared Services and Capability-First Enforcement (2026-04-25)
+
+**Context:** The platform rewrite spans 19 modules and two repositories. Early modules (Users, Roles, Organizations) established shared capabilities (DataTable, PlatformForm, PermissionGate, PageShell, DetailView) and backend patterns (@jwt_required, g.jwt_user, record_activity). Without explicit enforcement, new modules built by developers or AI agents will continue using old one-off patterns (custom tables, inline Zod schemas, window.confirm(), direct LLM imports) rather than the established shared infrastructure.
+
+**Decision:** All new platform-ui and platformengineer rewrite work must use the approved shared capabilities and backend services when they exist. Legacy one-off patterns are prohibited except through documented, time-boxed exceptions in `docs/system-upgrade/43-shared-services-enforcement.md §Appendix A`.
+
+**Scope:**
+- Frontend: DataTable<T>, PlatformForm+usePlatformMutation, PermissionGate/usePermission, PageShell+DetailView, ConfirmActionDialog, lib/api/<module>.ts+queryKeys — mandatory for all new module code
+- Backend: @jwt_required, g.jwt_user, @role_required/@permission_required, org_id from g.jwt_user.org_id, record_activity, AIProviderGateway.call() — mandatory for all new API routes
+- Detection: P0 CI lint scripts (check_no_direct_llm_imports.py, check_no_org_id_from_body.py, check_json_api_auth.py) wired to CI by R033
+- Exceptions: Must be documented with why/migration-round/owner/approval — no silent exceptions
+
+**Enforcement layers:** Documentation → Code review checklist → Static detection scripts → CI gates → AI-agent guardrails in CLAUDE.md
+
+**Spec:** `docs/system-upgrade/43-shared-services-enforcement.md`
+
+**Affected modules:** All future module work in platform-ui and platformengineer.
 
 ---
 

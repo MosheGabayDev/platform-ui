@@ -424,7 +424,24 @@ _Updated after each round — append, never overwrite entries._
 | **Files Updated (platformengineer)** | `CLAUDE.md` (`response.content` → `response.output_text`) |
 | **Commits** | No code changes — documentation consistency round |
 | **Decisions Proposed** | None new — clarifications only |
-| **Next Recommended Round** | Round 033: Commit all Round 031 gateway files (BLK-01 resolution) + remaining P0 LLM migrations (ai_coach, voice_support, personal_info/ai_chat/providers/, jira_integration) + wire CI lint |
+| **Next Recommended Round** | Round 033: Shared Services and Platform Capabilities Enforcement Plan (doc 43, ADR-028) |
+
+---
+
+## Round 033 — Shared Services and Platform Capabilities Enforcement Plan
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-25 |
+| **Topic** | Documentation-only: define mandatory shared capability usage rules, legacy pattern blacklist, CI enforcement design, exception policy, and AI-agent guardrails |
+| **Objective** | Remove all ambiguity about which shared patterns must be used. Define what is forbidden. Design static detection scripts and CI gates. Update CLAUDE.md in both repos. Prevent old one-off patterns from proliferating during the rewrite. |
+| **Key Findings** | • All shared frontend capabilities (DataTable, PlatformForm, PermissionGate, PageShell, DetailView, ConfirmActionDialog) now have explicit "must use" contracts with forbidden alternatives <br>• All shared backend services (@jwt_required, g.jwt_user, @role_required, record_activity, AIProviderGateway) have explicit "must use" contracts <br>• 15 frontend + 14 backend forbidden patterns documented with FAIL/WARN severity <br>• 3 P0 detection scripts designed (check_no_direct_llm_imports: exists; check_no_org_id_from_body: new; check_json_api_auth: new) <br>• CI rollout: Phase 1 warn-only (R034), Phase 2 hard-fail new violations (R036), Phase 3 full hard-fail (R038) <br>• Exception policy: every exception requires file/reason/migration-round/owner/approval — no silent exceptions <br>• Module development checklist (pre/during/post), PR reviewer checklist, AI-agent guardrail checklist all defined <br>• ADR-028 added to decision log |
+| **Files Created (platform-ui)** | `docs/system-upgrade/43-shared-services-enforcement.md` (15 sections: capability contracts, backend contracts, blacklist, enforcement layers, CI plan, exception policy, checklists, P0/P1 tasks, acceptance criteria) |
+| **Files Updated (platform-ui)** | `docs/ARCHITECTURE.md` (§21.4 updated: gateway files marked ✅ R031; §22 new: Capability-First Rule with mandatory tables), `docs/system-upgrade/14-decision-log.md` (ADR-028 added; ADR-027 field count corrected 12→14), `docs/system-upgrade/15-action-backlog.md` (P0 + P1 enforcement tasks added), `docs/system-upgrade/26-platform-capabilities-catalog.md` (enforcement plan cross-reference added), `CLAUDE.md` (AI-agent guardrail checklist added), `docs/system-upgrade/96-rounds-index.md`, `docs/system-upgrade/98-change-log.md` |
+| **Files Updated (platformengineer)** | `CLAUDE.md` (AI-agent backend guardrail checklist added) |
+| **Commits** | No new code — documentation round |
+| **Decisions Proposed** | ADR-028: Shared Services and Capability-First Enforcement |
+| **Next Recommended Round** | Round 034: P0 LLM migrations (ai_coach, voice_support, personal_info/ai_chat/providers/, jira_integration) + wire check_no_direct_llm_imports.py to CI + ActionButton component |
 
 ---
 
