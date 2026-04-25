@@ -906,3 +906,112 @@ All 4 spec files are scaffolded with `test.skip()` guards. Tests activate when:
 ### Next Recommended Round
 R041A: CI enforcement (LLM import gate + PR security checks) — ready to start
 R041B: ActionButton extraction — ready to start, runs in parallel with R041A
+
+---
+
+## Round R041-Gov — Governance Addendum: Legacy Preservation, Module Inventory, Agent Handoff
+
+**Date:** 2026-04-26
+**Status:** Complete ✅
+**Repo:** platform-ui (docs only — no product features, no schema, no UI)
+
+| Field | Value |
+|-------|-------|
+| **Round** | R041-Gov — Governance Addendum |
+| **Date** | 2026-04-26 |
+| **Scope** | Planning, governance, inventory structure, test coverage structure, and agent handoff process only |
+| **Tests** | N/A — governance/standards round |
+| **Forbidden patterns** | None |
+| **Security** | N/A — no code changes |
+| **Tenant isolation** | N/A — no code changes |
+| **Docs updated** | 00, 01, 02 (new), 03 (new), 15, 35, 48, 49 (new), 50 (new), 51 (new), 96, 97, 98, 99 |
+| **Risks/follow-ups** | R17–R20 added; no blockers created |
+| **Next round** | R041A (CI enforcement) or first module round with LEGACY_INVENTORY.md |
+
+### Mission
+
+Governance-only round. Create a formal system to ensure that during the rewrite:
+1. No legacy functionality is lost (mandatory inventory before rewrite)
+2. Every module has an E2E coverage plan before rewrite
+3. Every module has security and multi-tenant tests
+4. Every module is AI-agent-ready and i18n-ready (tracked)
+5. Progress is tracked centrally
+6. Multiple agents can work in parallel without losing context
+
+### Files Created (platform-ui)
+
+| File | Purpose |
+|------|---------|
+| `docs/system-upgrade/02-development-rules.md` | Non-negotiable rules — product, architecture, security, testing, UX, AI, i18n |
+| `docs/system-upgrade/03-module-migration-progress.md` | Central per-module rewrite tracker with all modules inventoried |
+| `docs/system-upgrade/49-legacy-functionality-inventory.md` | Standard + template for per-module `LEGACY_INVENTORY.md` |
+| `docs/system-upgrade/50-module-e2e-coverage-matrix.md` | Standard + template for per-module `E2E_COVERAGE.md` |
+| `docs/system-upgrade/51-agent-handoff-protocol.md` | Agent handoff protocol — before/during/after work + handoff summary template |
+
+### Files Updated (platform-ui)
+
+| File | What changed |
+|------|-------------|
+| `00-implementation-control-center.md` | R041-Gov recorded; new docs linked in Key Governance Documents; DoR + DoD checklists extended |
+| `01-round-review-checklist.md` | §13 Legacy Functionality Preservation added |
+| `15-action-backlog.md` | "Legacy Preservation & Module Readiness" section added (11 tasks) |
+| `35-platform-capabilities-build-order.md` | Legacy preservation gate paragraph added |
+| `48-testing-and-evidence-standard.md` | Cross-references to new docs added |
+| `97-source-of-truth.md` | 11 new entries added (per-module docs, agent protocol, new governance docs) |
+| `99-risk-register.md` | R17–R20 added (legacy loss, agent drift, UX simplification removes caps, AI/i18n untracked) |
+| `98-change-log.md` | Entry prepended |
+
+### Key Rules Established
+
+| Rule | Where enforced |
+|------|---------------|
+| No Feature Loss During Rewrite | `02-development-rules.md`, `01-round-review-checklist.md §13` |
+| No Module Rewrite Without Inventory | `02-development-rules.md`, `00-implementation-control-center.md §DoR` |
+| No Module Done Without Evidence | `02-development-rules.md`, `01-round-review-checklist.md §13` |
+| AI readiness declared for all modules | `02-development-rules.md §AI Readiness`, `03-module-migration-progress.md` |
+| i18n readiness declared for all modules | `02-development-rules.md §i18n`, `03-module-migration-progress.md` |
+| Agent handoff summary required | `51-agent-handoff-protocol.md`, `01-round-review-checklist.md §13` |
+
+### Per-Module File Convention
+
+Actual inventories and E2E plans are per-module (not in central docs), to support parallel agents and avoid merge conflicts:
+
+| File | Location | Required before |
+|------|----------|----------------|
+| `LEGACY_INVENTORY.md` | `docs/modules/<module_key>/` | Rewrite can start |
+| `E2E_COVERAGE.md` | `docs/modules/<module_key>/` | Rewrite can start |
+| `TESTING.md` | `docs/modules/<module_key>/` | Module marked Done |
+| `AI_READINESS.md` | `docs/modules/<module_key>/` | Module marked migrated |
+| `I18N_READINESS.md` | `docs/modules/<module_key>/` | Module marked migrated |
+
+Central tracker `03-module-migration-progress.md` links to all per-module docs.
+
+### New Risks Added
+
+| Risk | Impact | Summary |
+|------|--------|---------|
+| R17 — Legacy Functionality Loss | Critical | Capabilities removed during rewrite without documentation |
+| R18 — Agent Context Loss | H | Parallel agents lose context, create conflicting implementations |
+| R19 — UX Simplification Removes Capability | H | Designer simplifies by removing rather than redesigning |
+| R20 — AI/i18n Not Tracked During Development | M/H | Modules ship without AI/i18n readiness declarations |
+
+### Handoff Summary
+
+**Completed:**
+- 5 new governance docs created
+- 8 existing docs updated
+- R17–R20 added to risk register
+- All new docs cross-referenced in source-of-truth registry
+- Per-module file convention explicitly documented
+
+**Not Completed (deferred — out of scope):**
+- Actual per-module `LEGACY_INVENTORY.md` files (created when each module's round starts)
+- Actual per-module `E2E_COVERAGE.md` files (same)
+- Per-module `AI_READINESS.md` and `I18N_READINESS.md` (same)
+- CLAUDE.md update for platformengineer repo — added separately
+
+**Tests Run:** N/A — governance round, no code changes
+
+**Next Recommended Action:**
+Start R041A (CI enforcement — LLM import gate) which has no blockers. Alternatively, start the first module rewrite round by first creating the module's `LEGACY_INVENTORY.md` following the template in `49-legacy-functionality-inventory.md`.
+

@@ -3,6 +3,34 @@
 _Running log of what changed in each update round._
 _Newest entry at the top._
 
+## R041-Gov — 2026-04-26 — Governance Addendum: Legacy Preservation, Module Inventory, Agent Handoff
+
+**Scope:** Planning, governance, inventory structure, test coverage structure, agent handoff process — no product features, no schema, no UI
+**Tests:** N/A — governance round
+
+### What changed
+- **New:** `02-development-rules.md` — non-negotiable rules for all agents: product, architecture, security, testing, UX, AI readiness, i18n, agent collaboration, per-module doc convention
+- **New:** `03-module-migration-progress.md` — central per-module rewrite tracker (all known modules, all status columns, blockers registry)
+- **New:** `49-legacy-functionality-inventory.md` — standard + template for per-module `LEGACY_INVENTORY.md` (required before any module rewrite)
+- **New:** `50-module-e2e-coverage-matrix.md` — standard + template for per-module `E2E_COVERAGE.md` (required base flows, status values, evidence requirements)
+- **New:** `51-agent-handoff-protocol.md` — agent handoff protocol with before/during/after checklists and handoff summary template
+- **Updated:** `01-round-review-checklist.md §13` — Legacy Functionality Preservation gate added (inventory, E2E plan, removal docs, AI/i18n declarations, handoff summary)
+- **Updated:** `99-risk-register.md §R17–R20` — four new risks: legacy loss, agent drift, UX simplification removes cap, AI/i18n untracked
+- **Updated:** `00-implementation-control-center.md` — R041-Gov recorded; new docs in Key Governance Docs; DoR + DoD extended
+- **Updated:** `15-action-backlog.md` — "Legacy Preservation & Module Readiness" section added (11 tasks)
+- **Updated:** `35-platform-capabilities-build-order.md` — legacy preservation gate paragraph added
+- **Updated:** `48-testing-and-evidence-standard.md` — cross-references to new governance docs added
+- **Updated:** `97-source-of-truth.md` — 11 new entries registered (all new docs + per-module file locations)
+
+### Key decisions
+- Per-module inventories and E2E plans are per-module files (`docs/modules/<key>/`), NOT stored in the central docs, to support parallel agents and avoid merge conflicts
+- Central tracker (`03-module-migration-progress.md`) is the index; it links to per-module docs
+- No module rewrite without LEGACY_INVENTORY.md + E2E_COVERAGE.md
+- No module marked migrated without AI_READINESS.md + I18N_READINESS.md declared
+- Agent handoff summary is required in 96-rounds-index.md entry for every round
+
+---
+
 ## R041-Test Addendum — 2026-04-26 — Security/Multi-Tenant Test Standard
 
 **Scope:** Testing standards, governance docs, E2E scaffold, reviewer gate

@@ -1,7 +1,7 @@
 # 01 — Round Review Checklist
 
 > Reviewer runs this checklist before approving any implementation round.
-> _Last updated: 2026-04-26 (R041-Test Addendum — security/multi-tenant §12 added)_
+> _Last updated: 2026-04-26 (R041-Governance Addendum — §13 legacy preservation + agent handoff added)_
 
 ---
 
@@ -177,6 +177,28 @@ A round may not be marked Done until all `[!]` items are resolved or explicitly 
 - [ ] PII / secrets: no sensitive fields leak to non-privileged roles (tested)
 
 **If any item is missing:** the round is **blocked** until evidence is added OR an exception is written into `99-risk-register.md` with a follow-up issue.
+
+---
+
+## 13. Legacy Functionality Preservation
+
+> **Added R041-Governance Addendum (2026-04-26).** Full standard: `02-development-rules.md §No Feature Loss During Rewrite`.
+> A round that rewrites or modifies UI/API for an existing module **cannot be marked Done** without the evidence below.
+
+**A reviewer must verify:**
+
+- [ ] `docs/modules/<module_key>/LEGACY_INVENTORY.md` exists for every module touched (or is being created in this round)
+- [ ] Every must-preserve capability in the inventory is implemented in the new platform or has a documented `new_design_location`
+- [ ] No capability was silently removed — every removal/change has an entry in `LEGACY_INVENTORY.md §Removal/Deprecation`
+- [ ] Removed or deprecated capabilities are documented with: reason, replacement (or "none"), approval, and issue/round reference
+- [ ] `docs/modules/<module_key>/E2E_COVERAGE.md` exists and covers the capabilities touched in this round
+- [ ] `docs/system-upgrade/03-module-migration-progress.md` is updated — status columns reflect current state
+- [ ] AI readiness status declared for module (even if "not_applicable")
+- [ ] i18n readiness status declared for module (even if "deferred")
+- [ ] If new UI pages added: loading/error/empty states exist; RTL layout verified
+- [ ] Agent handoff summary written in `96-rounds-index.md` entry (see `51-agent-handoff-protocol.md §Handoff Summary Template`)
+
+**If any item is missing:** the round is **blocked** until the inventory, E2E plan, or removal documentation is added.
 
 ---
 

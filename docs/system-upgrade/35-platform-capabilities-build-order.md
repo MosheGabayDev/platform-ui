@@ -1,6 +1,6 @@
 # 35 — Platform Capabilities Build Order
 
-_Created: 2026-04-24 | R023 | Updated R024 (AI Action Platform) | R025 (AI Capability Context) | R026 (capability levels, viability checks, delete policy) | R041-Test (security test mandate added)_
+_Created: 2026-04-24 | R023 | Updated R024 (AI Action Platform) | R025 (AI Capability Context) | R026 (capability levels, viability checks, delete policy) | R041-Test (security test mandate added) | R041-Gov (legacy preservation + module inventory mandate added)_
 _Owner: platform-ui build sequencing_
 
 ---
@@ -18,6 +18,8 @@ Platform has 30 named capabilities (doc 26). 8 are fully implemented, 5 are part
 **Enforcement:** Before building any capability or module, check `docs/system-upgrade/43-shared-services-enforcement.md` for the mandatory frontend/backend contract rules (ADR-028). Using the wrong pattern when a shared capability exists is a violation, not a workaround.
 
 **Security test gate (R041-Test Addendum):** Every capability round must include security and multi-tenant test evidence before it is marked Done. See `48-testing-and-evidence-standard.md` and `01-round-review-checklist.md §12`.
+
+**Legacy preservation gate (R041-Governance Addendum):** Every module round must have a `LEGACY_INVENTORY.md` before rewrite starts and an `E2E_COVERAGE.md` plan before the module is marked Done. No capability may be silently removed — see `02-development-rules.md §No Feature Loss During Rewrite` and `01-round-review-checklist.md §13`.
 
 ---
 

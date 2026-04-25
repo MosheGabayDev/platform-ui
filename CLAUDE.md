@@ -1,7 +1,7 @@
 # Platform UI — AI Agent Instructions
 
 > Every AI working on this project MUST read this file completely before writing any code.
-> Last updated: 2026-04-23
+> Last updated: 2026-04-26 (R041-Governance Addendum)
 
 ---
 
@@ -17,12 +17,24 @@
 
 ## Must-Read Before Coding
 
-1. [`docs/design/DESIGN_SYSTEM.md`](docs/design/DESIGN_SYSTEM.md) — visual language, colors, spacing, typography
-2. [`docs/design/TOKENS.md`](docs/design/TOKENS.md) — CSS variables, animation timing, z-index scale
-3. [`docs/design/ANIMATIONS.md`](docs/design/ANIMATIONS.md) — motion rules + full Framer Motion variant library
-4. [`docs/design/COMPONENTS.md`](docs/design/COMPONENTS.md) — all component patterns and anti-patterns
-5. [`docs/design/MOBILE.md`](docs/design/MOBILE.md) — mobile rules, PWA, iOS Safari specifics
-6. [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — full system architecture blueprint
+**Governance (read first — in order):**
+1. [`docs/system-upgrade/00-implementation-control-center.md`](docs/system-upgrade/00-implementation-control-center.md) — active round, blockers, do-not-start list
+2. [`docs/system-upgrade/02-development-rules.md`](docs/system-upgrade/02-development-rules.md) — non-negotiable product, architecture, security, testing, UX, AI, i18n rules
+3. [`docs/system-upgrade/03-module-migration-progress.md`](docs/system-upgrade/03-module-migration-progress.md) — which modules are in what state; per-module doc links
+4. [`docs/system-upgrade/51-agent-handoff-protocol.md`](docs/system-upgrade/51-agent-handoff-protocol.md) — agent collaboration and handoff rules
+
+**Design (read before writing UI):**
+5. [`docs/design/DESIGN_SYSTEM.md`](docs/design/DESIGN_SYSTEM.md) — visual language, colors, spacing, typography
+6. [`docs/design/TOKENS.md`](docs/design/TOKENS.md) — CSS variables, animation timing, z-index scale
+7. [`docs/design/ANIMATIONS.md`](docs/design/ANIMATIONS.md) — motion rules + full Framer Motion variant library
+8. [`docs/design/COMPONENTS.md`](docs/design/COMPONENTS.md) — all component patterns and anti-patterns
+9. [`docs/design/MOBILE.md`](docs/design/MOBILE.md) — mobile rules, PWA, iOS Safari specifics
+10. [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — full system architecture blueprint
+
+**Before rewriting any module:**
+- `docs/modules/<module_key>/LEGACY_INVENTORY.md` must exist (template: `49-legacy-functionality-inventory.md`)
+- `docs/modules/<module_key>/E2E_COVERAGE.md` must exist (standard: `50-module-e2e-coverage-matrix.md`)
+- No capability may be silently removed — see `02-development-rules.md §No Feature Loss During Rewrite`
 
 ---
 
@@ -290,3 +302,7 @@ IF BLOCKED BY MISSING SHARED CAPABILITY:
 - [ ] Error state handled (badge or EmptyState — never crash)
 - [ ] Build passes: `npm run build` with zero errors
 - [ ] CLAUDE.md file structure updated if new files added
+- [ ] If module touched: `docs/system-upgrade/03-module-migration-progress.md` updated
+- [ ] If module rewritten: `docs/modules/<key>/LEGACY_INVENTORY.md` exists and is updated
+- [ ] If module rewritten: `docs/modules/<key>/E2E_COVERAGE.md` exists and is updated
+- [ ] Handoff summary written in `96-rounds-index.md` entry (see `51-agent-handoff-protocol.md`)

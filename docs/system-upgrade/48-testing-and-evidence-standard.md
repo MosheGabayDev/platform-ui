@@ -1,10 +1,17 @@
 # 48 — Testing and Evidence Standard
 
-_Created: 2026-04-26 (R041-Test Addendum)_
+_Created: 2026-04-26 (R041-Test Addendum) | Updated: 2026-04-26 (R041-Governance Addendum — cross-references added)_
 _Owner: Platform Engineering_
 
 > **This document is mandatory.** A module or capability is not Done unless it meets the evidence requirements in this standard.
 > Read this before writing any test. Read the round-review checklist (`01-round-review-checklist.md §12`) before marking a round Done.
+>
+> **Cross-references:**
+> - Legacy preservation: `02-development-rules.md §No Feature Loss During Rewrite`
+> - Module migration progress: `03-module-migration-progress.md`
+> - Per-module E2E plans: `docs/modules/<key>/E2E_COVERAGE.md` (standard: `50-module-e2e-coverage-matrix.md`)
+> - Per-module testing docs: `docs/modules/<key>/TESTING.md`
+> - Agent handoff: `51-agent-handoff-protocol.md`
 
 ---
 

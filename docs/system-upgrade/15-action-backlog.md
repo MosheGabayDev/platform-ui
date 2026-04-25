@@ -1,6 +1,6 @@
 # 15 — Action Backlog
 
-_Last updated: 2026-04-26 (R041-Test Addendum — security/multi-tenant test tasks added)_
+_Last updated: 2026-04-26 (R041-Governance Addendum — legacy preservation and agent handoff tasks added)_
 
 ---
 
@@ -57,6 +57,27 @@ _Last updated: 2026-04-26 (R041-Test Addendum — security/multi-tenant test tas
 | **Role-aware nav filtering** | `components/shell/app-sidebar.tsx` | P2 | `[ ]` |
 | **Auth E2E test** | `e2e/auth.spec.ts` — login, session, logout flow | P2 | `[ ]` |
 | **Set Flask cookie security** | `SESSION_COOKIE_SECURE=True`, `SESSION_COOKIE_SAMESITE=Lax` in prod | P1 (before prod) | `[ ]` |
+
+---
+
+## Legacy Preservation & Module Readiness (P1 — required before any module rewrite round)
+
+> Standard: `49-legacy-functionality-inventory.md` | Progress tracker: `03-module-migration-progress.md`
+> Enforced by: `01-round-review-checklist.md §13` | Rules: `02-development-rules.md §No Module Rewrite Without Inventory`
+
+| Task | Scope | Priority | Status |
+|------|-------|----------|--------|
+| **Create per-module `LEGACY_INVENTORY.md` template** | Already defined in `49-legacy-functionality-inventory.md` — create first real inventory when first module round starts | P1 | `[ ]` |
+| **Inventory `users` module** | `docs/modules/users/LEGACY_INVENTORY.md` — pages, routes, capabilities, must-preserve list | P1 | `[ ]` |
+| **Inventory `roles` module** | `docs/modules/roles/LEGACY_INVENTORY.md` | P1 | `[ ]` |
+| **Inventory `admin/orgs` module** | `docs/modules/admin/LEGACY_INVENTORY.md` | P1 | `[ ]` |
+| **Inventory `helpdesk` module** | `docs/modules/helpdesk/LEGACY_INVENTORY.md` | P1 | `[ ]` |
+| **Create `E2E_COVERAGE.md` for `users` module** | `docs/modules/users/E2E_COVERAGE.md` — base flows + module-specific flows | P1 | `[ ]` |
+| **Create `E2E_COVERAGE.md` for `roles` module** | `docs/modules/roles/E2E_COVERAGE.md` | P1 | `[ ]` |
+| **Create `E2E_COVERAGE.md` for `helpdesk` module** | `docs/modules/helpdesk/E2E_COVERAGE.md` | P1 | `[ ]` |
+| **Update `03-module-migration-progress.md` after each module round** | Keep status columns current; link to per-module docs as created | P1 | `[~]` (initial table created R041-Gov) |
+| **Declare AI readiness for each module** | `docs/modules/<key>/AI_READINESS.md` — even if "not applicable" | P2 | `[ ]` |
+| **Declare i18n readiness for each module** | `docs/modules/<key>/I18N_READINESS.md` — hardcoded strings inventory | P2 | `[ ]` |
 
 ---
 

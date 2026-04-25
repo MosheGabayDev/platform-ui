@@ -1,7 +1,7 @@
 # 99 — Risk Register
 
 > Active platform risks with mitigations and blocking status.
-> _Last updated: 2026-04-26 (R041-Test Addendum — R16 security test coverage added)_
+> _Last updated: 2026-04-26 (R041-Governance Addendum — R17–R20 added)_
 > _Review: update after every round that changes risk status._
 
 ---
@@ -288,3 +288,63 @@
 | Backend security helper module (`apps/tests/helpers/security.py`) not created | M | Create in first round that adds security tests |
 | AI governance tests not applied to existing AI modules (fitness_nutrition, ala, ai_coach) | H | R048 cleanup round |
 | No CI gate for LLM import scan in GitHub Actions yet | H | R041A CI enforcement round |
+
+---
+
+## R17 — Legacy Functionality Loss During Rewrite
+
+| Field | Value |
+|-------|-------|
+| **Description** | During the platform-ui rewrite, existing module capabilities are silently removed because no formal inventory was done before implementation started. Users discover missing features only after migration. |
+| **Impact** | Critical — lost user-facing functionality; potential customer churn and data inaccessibility |
+| **Likelihood** | H — no per-module inventory process existed before R041-Governance; rewrite pressure creates incentive to simplify by removing rather than redesigning |
+| **Mitigation** | Mandatory `LEGACY_INVENTORY.md` before any module rewrite (enforced by `01-round-review-checklist.md §13`); `02-development-rules.md §No Feature Loss During Rewrite`; Removal/Deprecation log required per capability; `03-module-migration-progress.md` tracks must-preserve status |
+| **Blocking** | Blocks any module from entering rewrite phase without its inventory |
+| **Owner/Area** | All module rounds; enforced via `01-round-review-checklist.md §13` |
+| **Next Review** | First module round that starts implementation |
+| **Status** | 🟡 Active — standard defined; no inventories created yet |
+
+---
+
+## R18 — Agent Context Loss / Parallel Work Drift
+
+| Field | Value |
+|-------|-------|
+| **Description** | Multiple AI agents work on the same codebase in separate sessions. Without a handoff protocol, each agent starts without context of prior decisions, creates conflicting implementations, or re-implements already-solved problems. |
+| **Impact** | H — duplicate work, conflicting implementations, orphaned code, broken dependencies, lost architectural decisions |
+| **Likelihood** | H — multi-agent parallel work is planned; session context is ephemeral; memory is limited |
+| **Mitigation** | `51-agent-handoff-protocol.md` — mandatory before/during/after work; handoff summary required in `96-rounds-index.md`; `03-module-migration-progress.md` as shared state; issue-based workflow with round contracts; `CLAUDE.md` auto-memory system |
+| **Blocking** | No — process control risk |
+| **Owner/Area** | All agents; enforced via `51-agent-handoff-protocol.md` |
+| **Next Review** | First parallel-agent session |
+| **Status** | 🟡 Active — protocol defined; not yet tested under parallel load |
+
+---
+
+## R19 — UI Simplification Removes Required Capability
+
+| Field | Value |
+|-------|-------|
+| **Description** | A designer or agent simplifies a UI flow by merging, removing, or reorganizing screens, inadvertently losing a required user capability that was only available through the removed path. |
+| **Impact** | H — specific user workflows break; power users lose required features; potential data inaccessibility |
+| **Likelihood** | M — simplification is explicitly encouraged by product rules; risk exists when simplification decisions are made without capability mapping |
+| **Mitigation** | UX simplification allowed only if capability mapping is preserved (documented in `LEGACY_INVENTORY.md`); all removed or merged flows must be in §Removal/Deprecation; stakeholder approval required for intentional removals; `02-development-rules.md §No Feature Loss During Rewrite` |
+| **Blocking** | Blocks a round if removed capability not documented |
+| **Owner/Area** | All UI/module rounds |
+| **Next Review** | First module UI round |
+| **Status** | 🟡 Active — rule defined; enforcement is per-round code review |
+
+---
+
+## R20 — AI / i18n Readiness Not Tracked During Module Development
+
+| Field | Value |
+|-------|-------|
+| **Description** | Modules are built and shipped without declaring AI readiness or i18n readiness. Adding these capabilities later requires invasive refactoring. Hardcoded strings accumulate and become expensive to extract. |
+| **Impact** | M/H — delayed AI feature integration; expensive retroactive i18n work; poor international/RTL user experience |
+| **Likelihood** | H — without a tracking requirement, these are easy to skip under time pressure |
+| **Mitigation** | AI readiness and i18n readiness columns in `03-module-migration-progress.md`; required declaration in `docs/modules/<key>/AI_READINESS.md` and `I18N_READINESS.md`; `01-round-review-checklist.md §13` requires status declaration before module marked Done; `02-development-rules.md §AI Readiness` and `§i18n` define minimum requirements |
+| **Blocking** | Blocks a module from being marked `migrated` (not from shipping in-progress state) |
+| **Owner/Area** | All module rounds |
+| **Next Review** | First module marked ready_for_review |
+| **Status** | 🟡 Active — tracking requirements defined; no modules have declarations yet |

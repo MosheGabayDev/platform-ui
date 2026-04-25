@@ -49,7 +49,17 @@ _Defines which file owns each concern. When you have new information, look up th
 | **Platform pillars** | `47-generic-platform-foundation-roadmap.md §3` | `docs/ARCHITECTURE.md §24` | 10 pillars with status and key capabilities. |
 | **Implementation Control Center** | `00-implementation-control-center.md` | `CLAUDE.md §Implementation Governance` | Active round, next 10 rounds, blockers, DoR, DoD, do-not-start list. Read after CLAUDE.md. |
 | **Testing and evidence standard** | `48-testing-and-evidence-standard.md` | `01-round-review-checklist.md §12` | Mandatory test categories: auth, RBAC, tenant isolation, audit, safe errors, AI governance, data sources, billing. Evidence matrix, E2E security structure, backend helper patterns, CI gate plan. |
-| **Risk register** | `99-risk-register.md` | `00-implementation-control-center.md §Link` | All active platform risks (R01–R16) with mitigations, blocking status, review round. |
+| **Development rules** | `02-development-rules.md` | `CLAUDE.md §Shared Services Enforcement`, `01-round-review-checklist.md` | Non-negotiable rules for all agents: product, architecture, security, testing, UX, AI readiness, i18n. |
+| **Module migration progress** | `03-module-migration-progress.md` | `51-agent-handoff-protocol.md §After Work` | Central per-module rewrite tracker. Update after every module-related round. Links to per-module docs. |
+| **Legacy inventory standard** | `49-legacy-functionality-inventory.md` | `docs/modules/<key>/LEGACY_INVENTORY.md` | Standard template for per-module legacy inventory. Actual inventories are per-module files, not this file. |
+| **E2E coverage standard** | `50-module-e2e-coverage-matrix.md` | `docs/modules/<key>/E2E_COVERAGE.md` | Standard and global index for E2E coverage. Actual coverage plans are per-module files. |
+| **Agent handoff protocol** | `51-agent-handoff-protocol.md` | `96-rounds-index.md §Handoff Summary` | Protocol for parallel agents and context handoff. Handoff summaries live in the round's `96-rounds-index.md` entry. |
+| **Per-module legacy inventory** | `docs/modules/<module_key>/LEGACY_INVENTORY.md` | `49-legacy-functionality-inventory.md` (template) | Per-module: existing functionality inventory. Must exist before rewrite starts. |
+| **Per-module E2E coverage** | `docs/modules/<module_key>/E2E_COVERAGE.md` | `50-module-e2e-coverage-matrix.md` (standard) | Per-module: E2E flow plan and evidence. Must exist before rewrite starts. |
+| **Per-module testing docs** | `docs/modules/<module_key>/TESTING.md` | `48-testing-and-evidence-standard.md` | Per-module: test evidence, known gaps, security test matrix. |
+| **Per-module AI readiness** | `docs/modules/<module_key>/AI_READINESS.md` | `02-development-rules.md §AI Readiness` | Per-module: AI page context, actions, routes, voice capability, refuse list. |
+| **Per-module i18n readiness** | `docs/modules/<module_key>/I18N_READINESS.md` | `02-development-rules.md §i18n` | Per-module: translation key inventory, hardcoded string list, RTL status. |
+| **Risk register** | `99-risk-register.md` | `00-implementation-control-center.md §Link` | All active platform risks (R01–R20) with mitigations, blocking status, review round. |
 | **Round review checklist** | `01-round-review-checklist.md` | `00-implementation-control-center.md §Review` | 11-section reviewer checklist. Run before marking any round done. |
 | **Implementation issue drafts** | `issues/R040-R049-issue-drafts.md` | GitHub issue tracker | Round contract bodies for R040–R049 until GitHub issues created. |
 

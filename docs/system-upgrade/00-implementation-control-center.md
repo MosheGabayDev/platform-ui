@@ -1,7 +1,7 @@
 # 00 — Implementation Control Center
 
 > **This is the first doc to read after `CLAUDE.md`.** Every implementation round starts here.
-> _Last updated: 2026-04-26 (R041-Test Addendum — security/multi-tenant test standard added)_
+> _Last updated: 2026-04-26 (R041-Governance Addendum — legacy preservation, module inventory, agent handoff)_
 
 ---
 
@@ -34,7 +34,8 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 | **Branch** | main (both repos) |
 | **Purpose** | Establish governance system — no product features, no schema, no UI |
 
-**Previous completed (most recent):** R041-Test Addendum — Security/Multi-Tenant Test Standard (2026-04-26)
+**Previous completed (most recent):** R041-Governance Addendum — Legacy Preservation, Module Inventory, Agent Handoff (2026-04-26)
+**Before that:** R041-Test Addendum — Security/Multi-Tenant Test Standard (2026-04-26)
 **Before that:** R040 — Module Manager Additive Schema Foundation (`abdf3bc38985dcf1152a390ea81f3d1675103140`)
 
 ---
@@ -44,6 +45,7 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 | Round | Title | Status | Depends On | Repo |
 |-------|-------|--------|------------|------|
 | R041-Test | Security/Multi-Tenant Test Standard | `[x] complete 2026-04-26` | R040 merged | platform-ui |
+| R041-Gov | Governance Addendum — Legacy Preservation + Agent Handoff | `[x] complete 2026-04-26` | R041-Test | platform-ui |
 | R041A | CI Enforcement (LLM import gate in GitHub Actions) | `[ ] ready` | R040 merged | platformengineer |
 | R041B | ActionButton Extraction to shared component | `[ ] ready` | R040 merged | platform-ui + platformengineer |
 | R042 | ModuleRegistry.sync_from_manifests() + ModuleCompatLayer | `[ ] blocked` | R040 migrations in DB | platformengineer |
@@ -137,6 +139,8 @@ The following are explicitly out of scope until foundation gates are green:
 - [ ] Docs that will need updating are identified
 - [ ] Rollback/compatibility plan exists if DB schema or API contract changes
 - [ ] Previous round is committed and documented in `96-rounds-index.md`
+- [ ] If round touches a module: `docs/modules/<module_key>/LEGACY_INVENTORY.md` exists (or is being created in this round)
+- [ ] If round touches a module: `docs/modules/<module_key>/E2E_COVERAGE.md` exists (or is being created in this round)
 
 **Then:**
 1. Read `CLAUDE.md` — confirm no rule changes since last session
@@ -161,7 +165,7 @@ The following are explicitly out of scope until foundation gates are green:
 - [ ] No legacy patterns introduced (no raw `org_id` from request, no `import openai`, no render_template in /api/*)
 - [ ] Security checks passed (see `01-round-review-checklist.md §Security`)
 - [ ] Tenant isolation: every new DB query scoped by `org_id`
-- [ ] Docs updated: `96-rounds-index.md`, `98-change-log.md`, `15-action-backlog.md`, affected module `INDEX.md`
+- [ ] Docs updated: `96-rounds-index.md`, `98-change-log.md`, `15-action-backlog.md`, `03-module-migration-progress.md` (if module touched), affected module `INDEX.md`
 - [ ] Risks/follow-ups written as issues or entries in `99-risk-register.md`
 - [ ] Commit SHA returned in final response
 - [ ] PR opened or review requested (for changes to shared contracts/models)
@@ -195,6 +199,11 @@ The following are explicitly out of scope until foundation gates are green:
 | [`98-change-log.md`](98-change-log.md) | What changed in each round |
 | [`43-shared-services-enforcement.md`](43-shared-services-enforcement.md) | Mandatory shared services — no legacy patterns |
 | [`48-testing-and-evidence-standard.md`](48-testing-and-evidence-standard.md) | Testing standard — security/multi-tenant/AI governance evidence requirements |
+| [`02-development-rules.md`](02-development-rules.md) | Non-negotiable development rules — product, architecture, security, testing, UX, AI, i18n |
+| [`03-module-migration-progress.md`](03-module-migration-progress.md) | Central module rewrite tracker — per-module status, blockers, evidence links |
+| [`49-legacy-functionality-inventory.md`](49-legacy-functionality-inventory.md) | Standard template for per-module legacy inventory (`docs/modules/<key>/LEGACY_INVENTORY.md`) |
+| [`50-module-e2e-coverage-matrix.md`](50-module-e2e-coverage-matrix.md) | Standard for per-module E2E coverage plans (`docs/modules/<key>/E2E_COVERAGE.md`) |
+| [`51-agent-handoff-protocol.md`](51-agent-handoff-protocol.md) | Protocol for parallel agents and context handoff between sessions |
 | [`26-platform-capabilities-catalog.md`](26-platform-capabilities-catalog.md) | Shared capability catalog |
 
 ---
