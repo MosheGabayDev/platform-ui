@@ -1,6 +1,6 @@
 # 45 — Module Manager Redesign
 
-_Created: 2026-04-25 (R038) | v2.0: 2026-04-25 (R038 Follow-up) | Status: Design / Pre-Implementation_
+_Created: 2026-04-25 (R038) | v3.0: 2026-04-25 (R038A2 + R038B0) | Status: Design / Pre-Implementation_
 
 ---
 
@@ -42,7 +42,9 @@ Every piece of module data belongs in exactly one place.
 | `category` | e.g. `helpdesk`, `analytics`, `ai`, `security` |
 | `author`, `homepage`, `icon` | Static metadata |
 
-**Location:** Each module's manifest lives at `apps/<module>/module.manifest.json`.
+**Location:** Each module's manifest lives at `apps/<module>/manifest.v2.json`
+(v1 fallback: `manifest.json`). **NOT** `module.manifest.json` — that name was a spec
+error corrected in R038B0 (see doc 46 §6). The validator loads `manifest.v2.json` first.
 It is parsed at startup by `ModuleRegistry.sync_from_manifests()` and used to update DB catalog
 records. The manifest is the ground truth; DB catalog records are derived state.
 
@@ -1494,6 +1496,146 @@ The original R038A-G phases are preserved. Two new phases are added.
 
 ---
 
+## §33 — Navigation Source of Truth
+
+### Principle
+
+Sidebar links, command palette entries, bottom navigation entries, and all module-related
+route visibility must be driven by the Module Registry and per-org module state.
+Hardcoded module nav links are a temporary bootstrap measure only.
+
+A module's nav items must not appear if any of the following is true:
+- Module does not exist in the catalog (`system_status` not in `active`, `beta`)
+- `OrgModule` row does not exist for the org
+- `OrgModule.org_status` is not `enabled`
+- License/plan does not permit access
+- Feature flag blocks it
+- User lacks the required permission declared in the nav item
+- Route is explicitly hidden
+
+### Manifest — Static Nav Declaration
+
+`manifest.v2.json` declares nav items in the `menu_items` array. Current format:
+
+```json
+"menu_items": [
+  {
+    "id": "admin_organizations",
+    "label": {"en": "Organizations", "he": "ארגונים"},
+    "url": "/admin/organizations",
+    "icon": "building",
+    "order": 1,
+    "permission": "admin",
+    "match_prefix": "/admin/organizations"
+  }
+]
+```
+
+Fields to add in R038B manifest v3 spec:
+- `group` — nav group/category for sidebar section
+- `feature_flag` — optional feature flag gate
+- `visibility_rule` — `always` / `core_only` / `enabled_only` (default: `enabled_only`)
+
+### Runtime Resolution
+
+Navigation is resolved per-request using:
+
+```
+is_module_available(org_id, module_key)
+  AND Module.system_status IN ('active', 'beta')
+  AND OrgModule.org_status = 'enabled'
+  AND (license permits OR module.is_core)
+  AND feature_flag_enabled(org_id, nav_item.feature_flag) IF feature_flag set
+  AND user_has_permission(user_id, nav_item.permission) IF permission set
+```
+
+### Planned API
+
+```
+GET /api/org/modules/navigation
+```
+
+Auth: `@jwt_required`
+Response: only navigation items available for current user/org.
+
+```json
+{
+  "success": true,
+  "nav": [
+    {
+      "module_key": "admin",
+      "nav_id": "admin_organizations",
+      "label": "Organizations",
+      "path": "/admin/organizations",
+      "icon": "building",
+      "group": "administration",
+      "order": 1,
+      "required_permission": "admin",
+      "is_core": true,
+      "match_prefix": "/admin/organizations"
+    }
+  ],
+  "ttl_seconds": 60
+}
+```
+
+Rules:
+- No unavailable module links
+- No unauthorized module links
+- No cross-org leakage
+- Cacheable with TTL 60s (short — invalidated on module enable/disable, permission change, feature flag change, license change)
+- Cache key: `nav:{org_id}:{user_id}`
+
+### UI Surfaces Affected
+
+| Surface | Current state | Target state |
+|---------|--------------|--------------|
+| Sidebar (`app-sidebar.tsx`) | Hardcoded + partial `enabled_modules` injection | Module Registry API |
+| Command palette | Hardcoded | Module Registry API |
+| Mobile bottom nav | Hardcoded | Module Registry API |
+| Breadcrumbs | Static | Module-aware (R038E) |
+| AI Page Context suggestions | None | Module Registry (R038E) |
+
+### Hardcoded Nav Deprecation Rule
+
+Once `GET /api/org/modules/navigation` exists (R038D/E):
+- No new module nav link may be added directly to `app-sidebar.tsx`
+- Module nav must come from the resolved navigation API
+- Command palette must use the same source
+- Bottom nav must use the same source
+
+Hardcoded links permitted only for:
+- Core shell routes not managed by Module Manager (`/`, `/settings`, `/profile`)
+- Temporary bootstrap before Module Registry API exists
+- Documented exception with migration task in R038G backlog
+
+### Backend Route Enforcement
+
+Nav filtering is a UX layer only. Backend must enforce independently:
+
+```python
+@module_required('module_key')
+def some_route():
+    ...
+```
+
+Direct URL access to a disabled/unlicensed/suspended module must return:
+- Frontend: `ModuleUnavailablePage` component
+- Backend API: `403 {"error": "module_unavailable", "module_key": "..."}`
+
+### Disabled / Unlicensed / Suspended Modules
+
+| State | Sidebar | Backend API | Module Store |
+|-------|---------|------------|--------------|
+| Not installed | Hidden | 403 | Show (install available) |
+| Disabled | Hidden | 403 | Show (enable available) |
+| Suspended | Hidden | 403 | Show (suspended badge) |
+| Unlicensed | Hidden | 403 | Show (purchase available) |
+| Deprecated | Hidden from nav | 403 | Show with deprecation warning |
+| Removed | Hidden | 403 | Hidden |
+
+---
+
 ## Revision History
 
 | Date | Author | Change |
@@ -1501,3 +1643,4 @@ The original R038A-G phases are preserved. Two new phases are added.
 | 2026-04-25 | Platform Eng | v1.0 — initial design |
 | 2026-04-25 | Platform Eng | v2.0 — R038 Follow-up: source of truth, lifecycle, manifest integration, permission model, enforcement, audit, testing, backward compat, AI integration, R038A-G split |
 | 2026-04-25 | Platform Eng | v3.0 — R038A2: per-org versioning (§22), upgrade workflow (§23), rollback policy (§24), package management (§25), marketplace (§26), license/purchase flow (§27), store UI routes (§28), security (§29), AI integration v2 (§30), R038H-I phases (§31), ADR-032 (§32) |
+| 2026-04-25 | Platform Eng | v3.1 — R038B0: header fix, manifest filename corrected to manifest.v2.json (§01), Navigation Source of Truth (§33), implementation inventory in doc 46 |

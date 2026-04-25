@@ -693,11 +693,12 @@ Each page registers `PageAIContext` via `useRegisterPageContext()`. Priority ord
 | **AI Providers Hub (UI advanced)** | Fallback chains + Health + Quotas + Migration status (sections 6,8–10) + Service Routing Matrix (sections 11–13) | R037 |
 | **Module Import/Export** | JobRunner + ImportExport full + Wizard + AuditLog | R032+ |
 | **Production** | FeatureFlags, AuditLog, Notifications, CSP headers, Flask cookie security | R026 |
-| **Module Manager (schema foundation)** | `org_modules`, `org_module_settings`, `module_dependencies`, `module_licenses` tables + `modules.system_status` + JSONB columns + permission rows + data seeds | R038B |
+| **Module Manager (open questions + inventory)** | OQ-01–OQ-07 answered, FK targets verified, schema inventoried, manifest files audited, legacy callers inventoried, nav source of truth documented — see doc 46 | R038B0 ✅ |
+| **Module Manager (schema foundation)** | `org_modules`, `module_versions` (moved from R038H), `module_licenses` (scaffold), `module_dependencies` tables + `modules.system_status` + extend `module_logs`/`module_purchases` + permission rows + data seeds | R038B |
 | **Module Manager (read model)** | `ModuleRegistry.sync_from_manifests()` + `is_module_available()` + `ModuleEnforcementService` + `ModuleCompatLayer` + §14 read tests | R038C |
 | **Module Manager (read APIs)** | 6 JWT read endpoints at `/api/org/modules/*` + `/api/modules/catalog` + register blueprint | R038D |
 | **Module Manager (platform-ui read hub)** | TypeScript types + Zod + query keys + `/modules` list + `/modules/[key]` detail + `/modules/catalog` | R038E |
 | **Module Manager (enable/disable)** | Write APIs + precondition enforcement + ConfirmActionDialog + dependent warning + write tests | R038F |
 | **Module Manager (cleanup)** | Drop deprecated columns/tables + remove CompatLayer | R038G (30d after R038F) |
-| **Module Manager (versioning + upgrade)** | `ModuleVersion`, `ModuleUpgradeJob`, `ModulePackage` + 9-step upgrade workflow + rollback + checksum verification + version UI pages | R038H (≥2w after R038F) |
+| **Module Manager (versioning + upgrade)** | `ModuleUpgradeJob`, `ModulePackage` + extend `ModuleVersion` columns + 9-step upgrade workflow + rollback + checksum verification + version UI pages | R038H (≥2w after R038F) |
 | **Module Manager (marketplace + store)** | `ModuleStoreListing` + store UI + trial/purchase/license flow | R038I (after billing decision) |

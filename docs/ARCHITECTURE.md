@@ -915,3 +915,46 @@ AI Consumer (any module)
 ### 22.3 Exception policy
 
 All exceptions must be documented in `docs/system-upgrade/43-shared-services-enforcement.md §Appendix A`. No silent exceptions.
+
+---
+
+## 23. Navigation Source of Truth
+
+**Navigation must be module-driven. No hardcoded module nav links after R038D.**
+
+### Rule
+
+Sidebar links, command palette entries, and mobile bottom nav entries must be resolved
+at runtime from `GET /api/org/modules/navigation` (JWT-required, org-scoped).
+
+A nav item must not appear if:
+- Module `system_status` not in `active`, `beta`
+- `OrgModule` for this org does not exist or `org_status ≠ enabled`
+- License/plan does not permit access
+- Feature flag blocks the nav item
+- User lacks the required `permission` declared in the nav item
+
+### Manifest declares nav items
+
+`manifest.v2.json` → `menu_items` array (fields: `id`, `label`, `url`, `icon`, `order`, `permission`, `match_prefix`).
+The Module Registry syncs these to DB at startup.
+
+### UI surfaces
+
+| Surface | After R038D/E |
+|---------|--------------|
+| Sidebar (`app-sidebar.tsx`) | Module Registry API |
+| Command palette | Module Registry API |
+| Mobile bottom nav | Module Registry API |
+| Breadcrumbs | Module-aware (R038E) |
+| AI Page Context | Module Registry (R038E) |
+
+Hardcoded links are permitted only for core shell routes (`/`, `/settings`, `/profile`)
+and temporary bootstrap with a documented migration task.
+
+### Backend enforcement is mandatory regardless
+
+`@module_required('module_key')` on every route.
+Direct URL access to disabled module → `403 {"error": "module_unavailable"}`.
+
+**Full spec:** `docs/system-upgrade/45-module-manager-redesign.md §33`

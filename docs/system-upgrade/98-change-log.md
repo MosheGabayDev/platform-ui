@@ -17,6 +17,44 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-25 — Round 038B0: Module Manager Open Questions & Implementation Inventory
+
+### Files Changed (platform-ui)
+- `docs/system-upgrade/46-module-manager-implementation-inventory.md` — **created** v1.0: OQ-01–OQ-07 answered with code evidence, schema inventory (7 tables), manifest inventory (75 files), legacy caller inventory, migration framework findings, FK verification, R038B scope recommendation, ModuleVersion timing decision, ModulePackage/Store timing decision, nav source of truth pre-findings, 13 acceptance criteria
+- `docs/system-upgrade/45-module-manager-redesign.md` — **updated** v2.0 → v3.1: header fixed (was stuck at v2.0), §01 manifest filename corrected from `module.manifest.json` to `manifest.v2.json`, §33 Navigation Source of Truth added (manifest nav declaration, runtime resolution algorithm, `GET /api/org/modules/navigation` planned API, 5 UI surfaces affected, hardcoded nav deprecation rule, backend enforcement, disabled/suspended/unlicensed module table)
+- `docs/system-upgrade/15-action-backlog.md` — **updated**: R038B0 gate entry added; R038B scope updated (ModuleVersion moved from R038H, module_purchases FK added, pre-migration check added, OrgModuleSettings deferred); R038D updated (nav API task + `/api/modules/enabled-menu` auth fix)
+- `docs/system-upgrade/35-platform-capabilities-build-order.md` — **updated** (R038B0 gate row added; R038B description updated; R038H updated — ModuleVersion already in R038B)
+- `docs/system-upgrade/96-rounds-index.md` — **updated** (Round 038B0 entry added)
+- `docs/system-upgrade/98-change-log.md` — this entry
+
+### New Findings
+- Manifest filename is `manifest.v2.json` (not `module.manifest.json`) — doc 45 §01 had an error
+- `module_key` concept maps directly to `Module.name` — no new identity column needed
+- 75 manifest files across 37+ modules already exist; `manifest.v2.json` already serves `menu_items` nav data
+- `Organization` model is a stub (`organizations`, `id` only) — FK confirmed safe
+- `/api/modules/enabled-menu` route at routes.py:2027 has no `@login_required` — security gap
+- `apps/__init__.py:193` has partial org-filtered nav via `OrgFeatureFlag` (migration hook point for R038E)
+- `ModuleVersion` must be in R038B scope to avoid breaking FK migration later
+
+### Decision Changes
+- OQ-01: Seed strategy = lazy (non-core) + pre-seed (is_core=True × all orgs)
+- OQ-02: No ModuleSettings seed in R038B (defer to R038F)
+- OQ-03: Licenses not required until R038I
+- OQ-04: FK target = `organizations.id`, `users.id`
+- OQ-05: `ScriptExecution` remains system-only, no org scope
+- OQ-06: Manifest filename corrected
+- OQ-07: `system_status='deprecated'` blocks new org enables
+- ModuleVersion: include in R038B (moved from R038H)
+- ModulePackage: defer to R038H; ModuleStoreListing: defer to R038I
+
+### Backlog Changes
+- R038B0 gate entry added to backlog (done)
+- R038B scope updated: ModuleVersion added, module_purchases FK added, OrgModuleSettings deferred
+- R038D: `GET /api/org/modules/navigation` task added; auth fix for enabled-menu added
+- R038H scope reduced: ModuleVersion already done in R038B
+
+---
+
 ## 2026-04-25 — Round 038A2: Module Versioning, Upgrade Jobs, Package Management, and Marketplace
 
 ### Files Changed (platform-ui)

@@ -522,6 +522,22 @@ _Updated after each round — append, never overwrite entries._
 
 ---
 
+## Round 038B0 — Module Manager Open Questions & Implementation Inventory
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-25 |
+| **Topic** | Investigation-only: answer OQ-01–OQ-07, verify FK targets, inventory current schema, audit manifest files and legacy callers, decide ModuleVersion/Package/Store timing, add Navigation Source of Truth |
+| **Objective** | Make R038B migration safe by verifying every assumption from doc 45. No code written. |
+| **Key Findings** | • Manifest filename is `manifest.v2.json` (NOT `module.manifest.json` — doc 45 §01 corrected) <br>• `module_key` = `Module.name` — already exists, only needs denormalization onto `OrgModule` <br>• 75 manifest files across 37+ modules (v1 + v2); `manifest.v2.json` has full `menu_items` nav data <br>• `Organization` is a stub model (`organizations` table, `id` only) — FK confirmed: `organizations.id` <br>• `ModuleVersion` must be in R038B scope to avoid breaking FK migration in R038H <br>• `ModulePackage` and `ModuleStoreListing` deferred to R038H/I <br>• OrgModule seed: lazy for non-core, pre-seed `is_core=True` × all orgs at migration time <br>• `ModuleLog.user` and `ModulePurchase.organization` are String (no FK) — add nullable FK columns in R038B without dropping the strings <br>• `/api/modules/enabled-menu` route has no auth (`@login_required` missing) — security gap; fix in R038D <br>• `apps/__init__.py:193` already has partial org-filtered module nav via `OrgFeatureFlag` — this is the migration hook for R038E <br>• Navigation Source of Truth section added to doc 45 §33 with planned API `GET /api/org/modules/navigation` <br>• ADR-032 no-hot-loading rule clarified: existing blueprint auto-register at startup uses local filesystem — permitted; hot-loading of uploaded package files is banned |
+| **Files Created (platform-ui)** | `docs/system-upgrade/46-module-manager-implementation-inventory.md` (v1.0) |
+| **Files Updated (platform-ui)** | `docs/system-upgrade/45-module-manager-redesign.md` (v2.0 → v3.1: header fixed, §01 manifest filename corrected, §33 Navigation Source of Truth added), `docs/system-upgrade/15-action-backlog.md` (R038B0 gate entry, R038B scope updated with ModuleVersion + module_purchases FK + pre-migration check, R038D nav API + auth fix tasks added), `docs/system-upgrade/35-platform-capabilities-build-order.md` (R038B0 gate row added), `docs/system-upgrade/98-change-log.md`, `docs/system-upgrade/96-rounds-index.md` |
+| **Commits** | No code changes — investigation and documentation round |
+| **Decisions Made** | OQ-01: lazy seed non-core, pre-seed core modules. OQ-02: no seed. OQ-03: licenses deferred. OQ-04: FK = organizations.id. OQ-05: script executions system-only. OQ-06: manifest filename = manifest.v2.json. OQ-07: deprecated blocks new enables. ModuleVersion in R038B. ModulePackage/Store in R038H/I. |
+| **Next Recommended Round** | R038B: write additive schema migrations (org_modules, module_versions, module_licenses, module_dependencies, extend module_logs, extend module_purchases, add system_status to modules) |
+
+---
+
 ## Round 030 — Direct LLM Call Audit + Gateway Migration Plan
 
 | Field | Value |

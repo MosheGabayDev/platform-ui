@@ -739,15 +739,29 @@ _Must complete before any write-tier AI action implementation. Spec: `docs/syste
 
 ---
 
-## Module Manager Redesign — R038A–R038G
+## Module Manager Redesign — R038A–R038I
 
-**Spec:** `docs/system-upgrade/45-module-manager-redesign.md` | **ADR:** ADR-031
+**Spec:** `docs/system-upgrade/45-module-manager-redesign.md` | **ADR:** ADR-031, ADR-032
 
-> Gate: All open questions in doc 45 §18 must be answered before R038B starts.
+> Gate: All open questions in doc 45 §18 answered ✅ — see `docs/system-upgrade/46-module-manager-implementation-inventory.md`
 
-### R038A — Module Manager Contract & Migration Plan ✅ (this doc)
+### R038A — Module Manager Contract & Migration Plan ✅
 
 Documentation only — complete. See `docs/system-upgrade/45-module-manager-redesign.md` §01–§21.
+
+### R038B0 — Open Questions & Implementation Inventory ✅
+
+Documentation only — complete. See `docs/system-upgrade/46-module-manager-implementation-inventory.md`.
+
+**Key findings from R038B0:**
+- FK targets confirmed: `organizations.id`, `users.id`
+- Manifest filename corrected: `manifest.v2.json` (not `module.manifest.json`)
+- `module_key` = `Module.name` (no new column needed)
+- `ModuleVersion` must be in R038B scope (not R038H) to avoid breaking FK migration
+- Navigation Source of Truth added to doc 45 §33
+- Planned nav API: `GET /api/org/modules/navigation`
+- `/api/modules/enabled-menu` has no auth — security gap to fix in R038D
+- `apps/__init__.py:193` already has partial org filtering via `OrgFeatureFlag` (migration hook)
 
 ### R038B — Additive Schema Foundation (platformengineer)
 
@@ -756,17 +770,18 @@ Backend only. No UI. All additive — no destructive changes.
 | Task | File | Est. | Status |
 |------|------|------|--------|
 | Migration: `org_modules` table (OrgModule) | `scripts/migrations/versions/20260425_add_org_module.py` | 1 hr | `[ ]` R038B |
-| Migration: `org_module_settings` table | `scripts/migrations/versions/20260425_add_org_module_settings.py` | 30 min | `[ ]` R038B |
+| **Migration: `module_versions` table (ModuleVersion, minimal)** — moved from R038H (see doc 46 §9) | `scripts/migrations/versions/20260425_add_module_versions.py` | 45 min | `[ ]` R038B |
+| Migration: `module_licenses` table (ModuleLicense, org_id FK, empty scaffold) | `scripts/migrations/versions/20260425_add_module_license.py` | 30 min | `[ ]` R038B |
 | Migration: `module_dependencies` table | `scripts/migrations/versions/20260425_add_module_dependency.py` | 30 min | `[ ]` R038B |
-| Migration: `module_licenses` table (ModuleLicense, org_id FK) | `scripts/migrations/versions/20260425_add_module_license.py` | 1 hr | `[ ]` R038B |
 | Migration: `module_logs` — add nullable `org_id`, `user_id`, `user_display`, `module_key` | `scripts/migrations/versions/20260425_extend_module_logs.py` | 30 min | `[ ]` R038B |
-| Migration: `modules` — add `system_status` column (backfill from `is_installed`) | `scripts/migrations/versions/20260425_add_module_system_status.py` | 30 min | `[ ]` R038B |
-| Migration: JSONB columns — `module_logs.details`, `script_executions.result_data`, `script_executions.arguments` | `scripts/migrations/versions/20260425_module_jsonb_columns.py` | 45 min | `[ ]` R038B |
+| Migration: `module_purchases` — add nullable `org_id FK → organizations.id` (keep `organization` String) | `scripts/migrations/versions/20260425_extend_module_purchases.py` | 20 min | `[ ]` R038B |
+| Migration: `modules` — add `system_status` column (DEFAULT 'active') | `scripts/migrations/versions/20260425_add_module_system_status.py` | 20 min | `[ ]` R038B |
 | Migration: add `modules.*` + `modules.system.*` permissions to DB | `scripts/migrations/versions/20260425_add_module_permissions.py` | 30 min | `[ ]` R038B |
+| Data seed: `ModuleVersion` rows — one per existing `Module` (version=Module.version) | inline in migration | 30 min | `[ ]` R038B |
+| Data seed: `OrgModule` rows for `is_core=True` modules × all orgs (org_status='enabled') | `scripts/seeds/org_modules_core.py` | 45 min | `[ ]` R038B |
 | Data seed: `ModuleDependency` rows from `Module.dependencies` JSON (idempotent, log unmapped) | `scripts/seeds/module_dependencies.py` | 30 min | `[ ]` R038B |
-| Data seed: `OrgModule` rows from `Module.is_enabled` for all orgs | `scripts/seeds/org_modules.py` | 1 hr | `[ ]` R038B |
-| Data seed: `ModuleLicense` rows from `ModulePurchase` + org lookup | `scripts/seeds/module_licenses.py` | 1 hr | `[ ]` R038B |
-| Rewrite `apps/module_manager/models.py` — all 9 new models (OrgModule, OrgModuleSettings, ModuleDependency, ModuleLicense, updated Module/ModuleLog/ScriptExecution) | `apps/module_manager/models.py` | 2 hr | `[ ]` R038B |
+| Rewrite `apps/module_manager/models.py` — add OrgModule, ModuleVersion, ModuleLicense, ModuleDependency; update Module/ModuleLog | `apps/module_manager/models.py` | 2 hr | `[ ]` R038B |
+| Pre-migration check: `SELECT COUNT(*) FROM organizations` must be > 0 | manual step | 5 min | `[ ]` R038B gate |
 
 ### R038C — Read Model + Availability Helper (platformengineer)
 
@@ -793,6 +808,8 @@ Backend only. No UI.
 | `GET /api/modules/catalog` — system catalog (system_admin) | `apps/module_manager/api_routes.py` | 30 min | `[ ]` R038D |
 | `GET /api/modules/catalog/<key>` — catalog detail + dependency graph | `apps/module_manager/api_routes.py` | 30 min | `[ ]` R038D |
 | `GET /api/modules/licenses` — license list (system_admin) | `apps/module_manager/api_routes.py` | 20 min | `[ ]` R038D |
+| **`GET /api/org/modules/navigation`** — nav items for current user/org (JWT, org-scoped, 60s TTL) | `apps/module_manager/api_routes.py` | 45 min | `[ ]` R038D |
+| Fix `/api/modules/enabled-menu` — add `@login_required` (security gap, no auth currently) | `apps/module_manager/routes.py:2027` | 10 min | `[ ]` R038D |
 | Register `module_manager_api_bp` in `apps/__init__.py` | `apps/__init__.py` | 15 min | `[ ]` R038D |
 | Integration tests: read API auth + org scoping (4 tests) | `apps/module_manager/tests/test_api_routes.py` | 45 min | `[ ]` R038D |
 
