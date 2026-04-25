@@ -739,49 +739,99 @@ _Must complete before any write-tier AI action implementation. Spec: `docs/syste
 
 ---
 
-## Module Manager Redesign — R038
+## Module Manager Redesign — R038A–R038G
 
 **Spec:** `docs/system-upgrade/45-module-manager-redesign.md` | **ADR:** ADR-031
 
-### R038-A — Schema Migrations (platformengineer)
+> Gate: All open questions in doc 45 §18 must be answered before R038B starts.
+
+### R038A — Module Manager Contract & Migration Plan ✅ (this doc)
+
+Documentation only — complete. See `docs/system-upgrade/45-module-manager-redesign.md` §01–§21.
+
+### R038B — Additive Schema Foundation (platformengineer)
+
+Backend only. No UI. All additive — no destructive changes.
 
 | Task | File | Est. | Status |
 |------|------|------|--------|
-| Migration: `OrgModule` table | `scripts/migrations/versions/20260425_add_org_module.py` | 1 hr | `[ ]` R038 |
-| Migration: `OrgModuleSettings` table | `scripts/migrations/versions/20260425_add_org_module_settings.py` | 30 min | `[ ]` R038 |
-| Migration: `ModuleDependency` table | `scripts/migrations/versions/20260425_add_module_dependency.py` | 30 min | `[ ]` R038 |
-| Migration: `ModuleLicense` table (copy + `org_id` FK) | `scripts/migrations/versions/20260425_add_module_license.py` | 1 hr | `[ ]` R038 |
-| Migration: `module_logs` — add `org_id`, `user_id`, `user_display` | `scripts/migrations/versions/20260425_extend_module_logs.py` | 30 min | `[ ]` R038 |
-| Migration: rename `modules.is_installed` → `is_system_installed` | `scripts/migrations/versions/20260425_rename_module_installed.py` | 15 min | `[ ]` R038 |
-| Migration: convert Text JSON → JSONB (config_schema, menu_items, details, result_data, arguments) | `scripts/migrations/versions/20260425_module_jsonb_columns.py` | 45 min | `[ ]` R038 |
-| Data seed: `ModuleDependency` rows from `Module.dependencies` JSON | `scripts/seeds/module_dependencies.py` | 30 min | `[ ]` R038 |
-| Data seed: `OrgModule` baseline rows for all orgs | `scripts/seeds/org_modules.py` | 1 hr | `[ ]` R038 |
-| Migration: add `modules.*` permissions | `scripts/migrations/versions/20260425_add_module_permissions.py` | 30 min | `[ ]` R038 |
+| Migration: `org_modules` table (OrgModule) | `scripts/migrations/versions/20260425_add_org_module.py` | 1 hr | `[ ]` R038B |
+| Migration: `org_module_settings` table | `scripts/migrations/versions/20260425_add_org_module_settings.py` | 30 min | `[ ]` R038B |
+| Migration: `module_dependencies` table | `scripts/migrations/versions/20260425_add_module_dependency.py` | 30 min | `[ ]` R038B |
+| Migration: `module_licenses` table (ModuleLicense, org_id FK) | `scripts/migrations/versions/20260425_add_module_license.py` | 1 hr | `[ ]` R038B |
+| Migration: `module_logs` — add nullable `org_id`, `user_id`, `user_display`, `module_key` | `scripts/migrations/versions/20260425_extend_module_logs.py` | 30 min | `[ ]` R038B |
+| Migration: `modules` — add `system_status` column (backfill from `is_installed`) | `scripts/migrations/versions/20260425_add_module_system_status.py` | 30 min | `[ ]` R038B |
+| Migration: JSONB columns — `module_logs.details`, `script_executions.result_data`, `script_executions.arguments` | `scripts/migrations/versions/20260425_module_jsonb_columns.py` | 45 min | `[ ]` R038B |
+| Migration: add `modules.*` + `modules.system.*` permissions to DB | `scripts/migrations/versions/20260425_add_module_permissions.py` | 30 min | `[ ]` R038B |
+| Data seed: `ModuleDependency` rows from `Module.dependencies` JSON (idempotent, log unmapped) | `scripts/seeds/module_dependencies.py` | 30 min | `[ ]` R038B |
+| Data seed: `OrgModule` rows from `Module.is_enabled` for all orgs | `scripts/seeds/org_modules.py` | 1 hr | `[ ]` R038B |
+| Data seed: `ModuleLicense` rows from `ModulePurchase` + org lookup | `scripts/seeds/module_licenses.py` | 1 hr | `[ ]` R038B |
+| Rewrite `apps/module_manager/models.py` — all 9 new models (OrgModule, OrgModuleSettings, ModuleDependency, ModuleLicense, updated Module/ModuleLog/ScriptExecution) | `apps/module_manager/models.py` | 2 hr | `[ ]` R038B |
 
-### R038-B — Model Updates (platformengineer)
+### R038C — Read Model + Availability Helper (platformengineer)
 
-| Task | File | Est. | Status |
-|------|------|------|--------|
-| Rewrite `apps/module_manager/models.py` — all 9 new models | `apps/module_manager/models.py` | 2 hr | `[ ]` R038 |
-| Add `is_module_available(org_id, module_name)` helper | `apps/module_manager/services.py` | 30 min | `[ ]` R038 |
-
-### R038-C — JWT API Routes (platformengineer)
+Backend only. No UI.
 
 | Task | File | Est. | Status |
 |------|------|------|--------|
-| Create `apps/module_manager/api_routes.py` — 20 JWT endpoints | `apps/module_manager/api_routes.py` | 3 hr | `[ ]` R038 |
-| Register `module_manager_api_bp` in `apps/__init__.py` | `apps/__init__.py` | 15 min | `[ ]` R038 |
+| `ModuleRegistry.sync_from_manifests()` — manifest → DB catalog sync | `apps/module_manager/registry.py` | 1 hr | `[ ]` R038C |
+| `is_module_available(org_id, module_key)` — authoritative check | `apps/module_manager/services.py` | 30 min | `[ ]` R038C |
+| `get_enabled_modules_for_org(org_id)` | `apps/module_manager/services.py` | 20 min | `[ ]` R038C |
+| `ModuleEnforcementService.check_enable_preconditions()` — 8-step fail-closed | `apps/module_manager/services.py` | 1 hr | `[ ]` R038C |
+| `ModuleCompatLayer.get_enabled_modules()` — read-through (old + new) | `apps/module_manager/services.py` | 30 min | `[ ]` R038C |
+| Write tests from §14 (read-only scenarios: 8 tests) | `apps/module_manager/tests/test_availability.py` | 1 hr | `[ ]` R038C |
 
-### R038-D — Platform-UI (platform-ui, after R038-C ships)
+### R038D — JWT Read APIs (platformengineer)
+
+Backend only. No UI.
 
 | Task | File | Est. | Status |
 |------|------|------|--------|
-| TypeScript: `OrgModule`, `Module`, `ModuleLicense`, `ModuleLog` types | `lib/api/types.ts` | 30 min | `[ ]` R038 |
-| Zod schemas: module forms | `lib/modules/modules/schemas.ts` | 30 min | `[ ]` R038 |
-| Query keys: `queryKeys.modules.*` | `lib/api/query-keys.ts` | 15 min | `[ ]` R038 |
-| Modules list page (org view) | `app/(dashboard)/modules/page.tsx` | 1.5 hr | `[ ]` R038 |
-| Module detail page | `app/(dashboard)/modules/[name]/page.tsx` | 1.5 hr | `[ ]` R038 |
-| System catalog page (system_admin only) | `app/(dashboard)/modules/catalog/page.tsx` | 1.5 hr | `[ ]` R038 |
+| `GET /api/org/modules` — list enabled modules for calling org | `apps/module_manager/api_routes.py` | 30 min | `[ ]` R038D |
+| `GET /api/org/modules/<key>` — module detail + settings | `apps/module_manager/api_routes.py` | 30 min | `[ ]` R038D |
+| `GET /api/org/modules/<key>/settings` — org module settings | `apps/module_manager/api_routes.py` | 30 min | `[ ]` R038D |
+| `GET /api/modules/catalog` — system catalog (system_admin) | `apps/module_manager/api_routes.py` | 30 min | `[ ]` R038D |
+| `GET /api/modules/catalog/<key>` — catalog detail + dependency graph | `apps/module_manager/api_routes.py` | 30 min | `[ ]` R038D |
+| `GET /api/modules/licenses` — license list (system_admin) | `apps/module_manager/api_routes.py` | 20 min | `[ ]` R038D |
+| Register `module_manager_api_bp` in `apps/__init__.py` | `apps/__init__.py` | 15 min | `[ ]` R038D |
+| Integration tests: read API auth + org scoping (4 tests) | `apps/module_manager/tests/test_api_routes.py` | 45 min | `[ ]` R038D |
+
+### R038E — platform-ui Read-Only Module Hub (platform-ui, after R038D deployed)
+
+| Task | File | Est. | Status |
+|------|------|------|--------|
+| TypeScript types: `OrgModule`, `Module`, `ModuleLicense`, `ModuleLog` | `lib/api/types.ts` | 30 min | `[ ]` R038E |
+| Zod schemas: module forms | `lib/modules/modules/schemas.ts` | 30 min | `[ ]` R038E |
+| Query keys: `queryKeys.modules.*` | `lib/api/query-keys.ts` | 15 min | `[ ]` R038E |
+| `lib/api/modules.ts` — typed fetch functions | `lib/api/modules.ts` | 30 min | `[ ]` R038E |
+| `/modules` list page — org view | `app/(dashboard)/modules/page.tsx` | 1.5 hr | `[ ]` R038E |
+| `/modules/[key]` detail page + settings (read-only) | `app/(dashboard)/modules/[key]/page.tsx` | 1.5 hr | `[ ]` R038E |
+| `/modules/catalog` — system catalog (system_admin only) | `app/(dashboard)/modules/catalog/page.tsx` | 1.5 hr | `[ ]` R038E |
+
+### R038F — Write APIs + Enable/Disable Flow (platformengineer + platform-ui)
+
+| Task | File | Est. | Status |
+|------|------|------|--------|
+| `POST /api/org/modules/<key>/enable` — full precondition checks | `apps/module_manager/api_routes.py` | 1 hr | `[ ]` R038F |
+| `POST /api/org/modules/<key>/disable` — dependent module warning | `apps/module_manager/api_routes.py` | 45 min | `[ ]` R038F |
+| `PUT /api/org/modules/<key>/settings` — settings update | `apps/module_manager/api_routes.py` | 30 min | `[ ]` R038F |
+| `POST /api/modules/catalog/sync` — manifest sync trigger | `apps/module_manager/api_routes.py` | 30 min | `[ ]` R038F |
+| License CRUD endpoints | `apps/module_manager/api_routes.py` | 45 min | `[ ]` R038F |
+| Enable/disable flow in platform-ui with `ConfirmActionDialog` | `app/(dashboard)/modules/[key]/page.tsx` | 1 hr | `[ ]` R038F |
+| Dependent module warning dialog | `components/modules/modules/dependent-warning-dialog.tsx` | 45 min | `[ ]` R038F |
+| Write tests from §14 (write scenarios: 7 tests) | `apps/module_manager/tests/test_api_routes.py` | 1 hr | `[ ]` R038F |
+
+### R038G — Cleanup / Deprecation (after 30-day production burn-in)
+
+| Task | File | Est. | Status |
+|------|------|------|--------|
+| Remove `modules.is_installed`, `is_enabled`, `dependencies`, `config_data`, `installed_version` | migration | 45 min | `[ ]` R038G |
+| Remove `module_logs.user` (string) | migration | 15 min | `[ ]` R038G |
+| Remove `script_executions.executed_by` (string) | migration | 15 min | `[ ]` R038G |
+| Drop `module_settings` table | migration | 15 min | `[ ]` R038G |
+| Drop `module_purchases` table | migration | 15 min | `[ ]` R038G |
+| Remove `ModuleCompatLayer` read-through helper | `apps/module_manager/services.py` | 30 min | `[ ]` R038G |
+| Update module docs: INDEX.md, IMPLEMENTATION.md | `apps/module_manager/` | 30 min | `[ ]` R038G |
 
 ---
 

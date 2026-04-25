@@ -693,3 +693,9 @@ Each page registers `PageAIContext` via `useRegisterPageContext()`. Priority ord
 | **AI Providers Hub (UI advanced)** | Fallback chains + Health + Quotas + Migration status (sections 6,8–10) + Service Routing Matrix (sections 11–13) | R037 |
 | **Module Import/Export** | JobRunner + ImportExport full + Wizard + AuditLog | R032+ |
 | **Production** | FeatureFlags, AuditLog, Notifications, CSP headers, Flask cookie security | R026 |
+| **Module Manager (schema foundation)** | `org_modules`, `org_module_settings`, `module_dependencies`, `module_licenses` tables + `modules.system_status` + JSONB columns + permission rows + data seeds | R038B |
+| **Module Manager (read model)** | `ModuleRegistry.sync_from_manifests()` + `is_module_available()` + `ModuleEnforcementService` + `ModuleCompatLayer` + §14 read tests | R038C |
+| **Module Manager (read APIs)** | 6 JWT read endpoints at `/api/org/modules/*` + `/api/modules/catalog` + register blueprint | R038D |
+| **Module Manager (platform-ui read hub)** | TypeScript types + Zod + query keys + `/modules` list + `/modules/[key]` detail + `/modules/catalog` | R038E |
+| **Module Manager (enable/disable)** | Write APIs + precondition enforcement + ConfirmActionDialog + dependent warning + write tests | R038F |
+| **Module Manager (cleanup)** | Drop deprecated columns/tables + remove CompatLayer | R038G (30d after R038F) |

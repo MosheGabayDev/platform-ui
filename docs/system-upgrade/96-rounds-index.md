@@ -488,7 +488,22 @@ _Updated after each round — append, never overwrite entries._
 | **Files Updated (platform-ui)** | `docs/system-upgrade/14-decision-log.md` (ADR-031 added), `docs/system-upgrade/96-rounds-index.md`, `docs/system-upgrade/98-change-log.md` |
 | **Commits** | No new code — documentation + architecture planning round |
 | **Decisions Proposed** | ADR-031: Module Manager Multi-Tenant Model Split |
-| **Next Recommended Round** | Round 035: Backend JWT routes for AI Providers Hub OR Round 038-A: Module Manager schema migrations |
+| **Next Recommended Round** | Round 038 Follow-up: module contract hardening (source of truth, lifecycle, manifest, dependency enforcement, backward compat, testing strategy, R038 phase split) |
+
+---
+
+## Round 038 Follow-up — Module Manager Contract Hardening
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-04-25 |
+| **Topic** | Documentation-only: tighten Module Manager redesign before implementation — source of truth, lifecycle model, manifest integration, permission model, dependency enforcement, route/nav enforcement, audit requirements, testing strategy, backward compatibility plan, AI integration, R038 phase split |
+| **Objective** | Prevent a dangerous big-bang migration. Make R038B the smallest safe first step. Define manifest-first architecture. Clarify all implementation contracts before any code is written. |
+| **Key Findings** | • Original R038 was too large — mixed schema migrations + models + APIs + UI in one round <br>• `module_key` must be the primary identity — not `module_id` or `display_name` <br>• Manifest files (`apps/*/module.manifest.json`) own all static metadata; DB owns only runtime/org state <br>• `ModuleRegistry.sync_from_manifests()` is the sync bridge — DB catalog is derived state <br>• Two distinct lifecycles: system module (`registered → beta → active → deprecated → removed`) vs org module (`available → installed → enabled → disabled → suspended → uninstalled`) <br>• `ModuleEnforcementService.check_enable_preconditions()` checks 8 conditions fail-closed before any enable <br>• Disabling a module when dependents exist returns `dependent_modules` warning — no auto-cascade <br>• `ModuleCompatLayer` read-through allows gradual migration without breaking existing callers <br>• Phase 4 (G) drops must be gated on 30-day production observation after R038F <br>• AI integration: Module Manager provides registry data only; execution still via AI Action Platform + AI Provider Gateway <br>• 9 new permissions: `modules.view/enable/disable/configure/audit.view/license.view/system.manage/system.licenses/system.audit.view` |
+| **Files Updated (platform-ui)** | `docs/system-upgrade/45-module-manager-redesign.md` (v1.0 → v2.0: 21 sections — source of truth, identity terms, lifecycle model, manifest integration, permission model, dependency/license enforcement, route/nav enforcement, audit requirements, API contract, testing strategy, backward compatibility, AI integration, migration strategy, R038A-G phase split), `docs/system-upgrade/14-decision-log.md` (ADR-031 clarified — manifest-first rule added), `docs/system-upgrade/15-action-backlog.md` (R038 replaced by R038A-G: 43 tasks across 7 phases), `docs/system-upgrade/35-platform-capabilities-build-order.md` (Gate Summary: R038B-G rows added), `docs/system-upgrade/96-rounds-index.md`, `docs/system-upgrade/98-change-log.md` |
+| **Commits** | No code changes — documentation hardening round |
+| **Decisions Proposed** | ADR-031 clarification: manifest-first rule + `module_key` as primary identity |
+| **Next Recommended Round** | Answer OQ-01–OQ-07 (§18), then R038B: additive schema foundation |
 
 ---
 

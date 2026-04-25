@@ -17,6 +17,32 @@ _Newest entry at the top._
 
 ---
 
+## 2026-04-25 — Round 038 Follow-up: Module Manager Contract Hardening
+
+### Files Changed (platform-ui)
+- `docs/system-upgrade/45-module-manager-redesign.md` — **updated** v1.0 → v2.0: added §01 (source of truth — manifest vs DB), §02 (module identity terms: module_key/module_id/org_module_id), §03 (lifecycle model — system: registered/beta/active/deprecated/removed; org: available/installed/enabled/disabled/suspended/uninstalled + transition rules), §04 (manifest integration — canonical schema, sync process, validation, version mismatch handling), §09 (permission model — 9 permissions with role assignments), §10 (dependency & license enforcement — 8-step fail-closed precondition check, disable warnings), §11 (route/nav enforcement — `is_module_available()` + `@module_required` decorator), §12 (audit requirements — 12 action types with required fields), §13 (API contract outline), §14 (testing strategy — 14 required tests), §15 (backward compatibility plan — 4 phases, 30-day gate for cleanup), §16 (AI integration — registry data only, execution via AI Action/Gateway), §21 (R038 phase split: R038A-G with gate conditions); updated §07 model design, §17 migration strategy, §20 ADR-031
+- `docs/system-upgrade/15-action-backlog.md` — **updated**: replaced single R038-A/B/C/D with R038A-G (43 tasks: R038A doc, R038B 12 tasks, R038C 6 tasks, R038D 8 tasks, R038E 7 tasks, R038F 8 tasks, R038G 7 tasks)
+- `docs/system-upgrade/35-platform-capabilities-build-order.md` — **updated**: added 6 R038B-G gate rows to Gate Summary table
+- `docs/system-upgrade/96-rounds-index.md` — **updated**: R038 next-round pointer + Round 038 Follow-up entry added
+- `docs/system-upgrade/98-change-log.md` — this entry
+
+### New Findings
+- Original R038 would have been a big-bang migration (schema + models + APIs + UI all at once)
+- `module_key` must be primary identity for all references — not `module_id`
+- `apps/*/module.manifest.json` is the correct source of truth for all static module metadata
+- `ModuleCompatLayer` read-through is required during transition to avoid breaking old callers
+- Disable operation must warn on dependents, not auto-cascade
+
+### Decision Changes
+- ADR-031 clarified: manifest-first rule + `module_key` primary identity added
+- R038 split into 7 phases — first implementation round is R038B (additive schema only)
+
+### Backlog Changes
+- R038 (4 old tasks) → R038A-G (43 tasks across 7 phases)
+- Gate condition added: OQ-01–OQ-07 must be answered before R038B starts
+
+---
+
 ## 2026-04-25 — Round 038: Module Manager Multi-Tenant Redesign
 
 ### Files Changed (platform-ui)
