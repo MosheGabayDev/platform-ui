@@ -1,7 +1,7 @@
 # 51 — Agent Handoff Protocol
 
 > Protocol for handing off work between AI agents and for parallel agent coordination.
-> _Last updated: 2026-04-26 (R041-Gov Worktree Addendum — worktree integration added)_
+> _Last updated: 2026-04-26 (R041-WT follow-up — shared docs reconciliation rule added)_
 >
 > **Purpose:** Multiple agents may work in parallel on different modules. This protocol ensures no context is lost, no conflicts occur, and any agent can pick up where another left off.
 >
@@ -162,12 +162,19 @@ When multiple agents work concurrently:
 - Two agents must not modify the same module simultaneously.
 - `03-module-migration-progress.md` shows which modules are in-progress — check before starting.
 
-### Shared files
+### Shared docs reconciliation
 
-- **Never edit in parallel:** `CLAUDE.md`, `00-implementation-control-center.md`, `03-module-migration-progress.md`, `96-rounds-index.md`, `98-change-log.md`
-- These are updated by one agent (coordinator) after all parallel PRs are merged.
-- Full lock list: `52-parallel-worktree-agent-workflow.md §7`.
-- If two agents finish at the same time: coordinate via the "Update Protocol" in each doc.
+The following files are **shared coordination docs** — never updated by two agents simultaneously:
+
+`CLAUDE.md`, `00-implementation-control-center.md`, `15-action-backlog.md`, `35-platform-capabilities-build-order.md`, `96-rounds-index.md`, `97-source-of-truth.md`, `98-change-log.md`, `99-risk-register.md`, `03-module-migration-progress.md`
+
+**Each agent updates only module-local docs** during their round. Central docs are reconciled via one of two paths:
+- **Docs coordinator:** a dedicated post-merge agent round updates all central docs at once.
+- **Final PR reconciliation:** the last parallel PR to merge includes central docs updates as a separate commit.
+
+If a round *must* update a central doc during its own PR: it must be explicitly listed in the agent assignment contract, and no other active agent may edit the same file. See `52-parallel-worktree-agent-workflow.md §6.1` for the full rule.
+
+Full lock list: `52-parallel-worktree-agent-workflow.md §7`.
 
 ### Conflict resolution
 

@@ -1,7 +1,7 @@
 # 00 — Implementation Control Center
 
 > **This is the first doc to read after `CLAUDE.md`.** Every implementation round starts here.
-> _Last updated: 2026-04-26 (R041-Gov Worktree Addendum — parallel worktree workflow added)_
+> _Last updated: 2026-04-26 (R041-WT follow-up — shared docs reconciliation rule added to §52)_
 
 ---
 
@@ -205,7 +205,7 @@ The following are explicitly out of scope until foundation gates are green:
 | [`49-legacy-functionality-inventory.md`](49-legacy-functionality-inventory.md) | Standard template for per-module legacy inventory (`docs/modules/<key>/LEGACY_INVENTORY.md`) |
 | [`50-module-e2e-coverage-matrix.md`](50-module-e2e-coverage-matrix.md) | Standard for per-module E2E coverage plans (`docs/modules/<key>/E2E_COVERAGE.md`) |
 | [`51-agent-handoff-protocol.md`](51-agent-handoff-protocol.md) | Protocol for parallel agents and context handoff between sessions |
-| [`52-parallel-worktree-agent-workflow.md`](52-parallel-worktree-agent-workflow.md) | Git worktree workflow — naming, creation, lock list, safe/unsafe parallel tracks, PR workflow, cleanup |
+| [`52-parallel-worktree-agent-workflow.md`](52-parallel-worktree-agent-workflow.md) | Git worktree workflow — naming, creation, lock list, safe/unsafe parallel tracks, **shared docs reconciliation rule (§6.1)**, PR workflow, cleanup |
 | [`26-platform-capabilities-catalog.md`](26-platform-capabilities-catalog.md) | Shared capability catalog |
 
 ---

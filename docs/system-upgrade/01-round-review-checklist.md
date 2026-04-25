@@ -157,6 +157,7 @@ A round may not be marked Done until all `[!]` items are resolved or explicitly 
 - [ ] No debug prints, commented-out code blocks, or TODO stubs left in (unless explicitly deferred with an issue)
 - [ ] PR was opened from a **feature branch**, not from `main`/`master` (worktree workflow)
 - [ ] PR body includes handoff summary (see `52-parallel-worktree-agent-workflow.md §9`)
+- [ ] If PR modifies a shared coordination doc (`CLAUDE.md`, `00`, `15`, `35`, `96`, `97`, `98`, `99`): PR body notes potential merge conflicts and confirms no other active PR modifies the same file (see `52-parallel-worktree-agent-workflow.md §6.1`)
 
 ---
 

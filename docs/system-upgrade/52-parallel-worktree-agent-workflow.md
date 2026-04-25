@@ -1,7 +1,7 @@
 # 52 — Parallel Worktree Agent Workflow
 
 > Official workflow for running multiple AI agents in parallel using Git worktrees.
-> _Last updated: 2026-04-26 (R041-Gov Worktree Addendum — initial creation)_
+> _Last updated: 2026-04-26 (R041-WT follow-up — shared docs reconciliation rule added)_
 >
 > **Read after:** `CLAUDE.md` → `00-implementation-control-center.md` → `51-agent-handoff-protocol.md` → **this file**
 
@@ -146,10 +146,18 @@ Allowed files/directories:
 Forbidden files/directories:
   - CLAUDE.md
   - docs/system-upgrade/00-implementation-control-center.md
+  - docs/system-upgrade/15-action-backlog.md
+  - docs/system-upgrade/35-platform-capabilities-build-order.md
   - docs/system-upgrade/96-rounds-index.md
+  - docs/system-upgrade/97-source-of-truth.md
   - docs/system-upgrade/98-change-log.md
+  - docs/system-upgrade/99-risk-register.md
   - docs/system-upgrade/03-module-migration-progress.md
   - (see full lock list in §7)
+
+Central docs this agent IS allowed to update (list explicitly, or write "none — post-merge reconciliation"):
+  - <file> — reason
+  NOTE: Each listed file must NOT be in any other active agent's allowed list.
 
 Tests required:
   - <test files to write or update>
@@ -185,8 +193,45 @@ Return commit SHA, tests, risks, and handoff notes.
 
 - **No two agents may edit the same code module at the same time.** Check `03-module-migration-progress.md` for `api_in_progress` before starting.
 - **No two agents may edit the same migration chain.** Migration files have `down_revision` dependencies — concurrent edits create broken chains.
-- **Shared governance docs** (`CLAUDE.md`, `00`, `96`, `98`, `03`) are **updated after merge** by one coordinator, not by parallel agents.
-- Shared docs updates may be batched and applied after all parallel PRs are merged.
+- **Shared governance docs are updated after merge, not during parallel work.** See §6.1 below.
+- Shared docs updates may be batched and applied by a coordinator after all parallel PRs are merged.
+
+### 6.1 Shared Docs Reconciliation Rule
+
+> **This rule governs all central summary/source-of-truth docs.**
+
+The following files are **shared coordination docs**. Two agents must never update the same file simultaneously:
+
+| File | Update timing |
+|------|--------------|
+| `CLAUDE.md` | After all related PRs merged |
+| `docs/system-upgrade/00-implementation-control-center.md` | After all related PRs merged |
+| `docs/system-upgrade/15-action-backlog.md` | After all related PRs merged |
+| `docs/system-upgrade/35-platform-capabilities-build-order.md` | After all related PRs merged |
+| `docs/system-upgrade/96-rounds-index.md` | After all related PRs merged |
+| `docs/system-upgrade/97-source-of-truth.md` | After all related PRs merged |
+| `docs/system-upgrade/98-change-log.md` | After all related PRs merged |
+| `docs/system-upgrade/99-risk-register.md` | After all related PRs merged |
+
+**Rules:**
+
+1. Each agent updates **module-local docs only** during their round:
+   - `docs/modules/<module_key>/LEGACY_INVENTORY.md`
+   - `docs/modules/<module_key>/E2E_COVERAGE.md`
+   - `docs/modules/<module_key>/TESTING.md`
+   - `apps/<module>/INDEX.md`
+   - Round-specific new files
+
+2. **Shared central docs** are updated by one of two methods:
+   - **Option A — Docs coordinator agent:** a dedicated agent round (no code changes) runs after all parallel PRs are merged and updates all central docs in one commit.
+   - **Option B — Final reconciliation in the last PR:** the last parallel PR to merge includes central docs updates as a separate commit at the end.
+
+3. If a round **must** update a central doc during its own PR (e.g. it introduces a new risk that blocks other rounds), that file must be **explicitly listed in the agent assignment contract** (§5), and no other in-progress round may edit the same file.
+
+4. **PRs touching central docs must include this note in the PR body:**
+   > "This PR modifies a shared coordination doc (`<filename>`). Reviewer: check for merge conflicts with any other open PRs."
+
+5. When in doubt: defer the central doc update to a post-merge reconciliation pass. It is always safe to update central docs later.
 
 ### Schema-specific
 
