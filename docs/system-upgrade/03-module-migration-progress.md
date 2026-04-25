@@ -1,7 +1,7 @@
 # 03 — Module Migration Progress Tracker
 
 > Central tracker for the platform rewrite. Updated after every module-related round.
-> _Last updated: 2026-04-26 (R041-Governance Addendum — initial creation)_
+> _Last updated: 2026-04-26 (R041-Gov Worktree Addendum — worktree workflow linked)_
 >
 > **Rules:**
 > - This file is updated after every round that touches a module.

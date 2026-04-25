@@ -180,11 +180,14 @@ This declaration lives in `docs/modules/<module_key>/AI_READINESS.md` or as a se
 ## 8. Agent Collaboration Rules
 
 - Multiple agents may work on different modules in parallel.
+- **Every parallel agent works in a Git worktree.** Never work directly on `main` or `master`. See `52-parallel-worktree-agent-workflow.md` for setup, naming, and cleanup.
 - Agents must not modify shared contracts (auth, RBAC decorators, shared components) without documenting impact.
+- Agents must not edit locked files in parallel — see `52-parallel-worktree-agent-workflow.md §7` for the full lock list.
 - Every agent must read the handoff protocol before starting: `51-agent-handoff-protocol.md`.
 - Every agent must leave a handoff summary when done (template in `51-agent-handoff-protocol.md`).
 - Progress tracker `03-module-migration-progress.md` must be updated after every module-related round.
 - Agents must not implement outside their assigned round/issue scope.
+- Safe and unsafe parallel combinations are defined in `52-parallel-worktree-agent-workflow.md §8`.
 
 ---
 

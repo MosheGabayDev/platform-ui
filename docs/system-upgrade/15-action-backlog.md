@@ -1,6 +1,6 @@
 # 15 — Action Backlog
 
-_Last updated: 2026-04-26 (R041-Governance Addendum — legacy preservation and agent handoff tasks added)_
+_Last updated: 2026-04-26 (R041-Gov Worktree Addendum — parallel worktree tasks added)_
 
 ---
 
@@ -57,6 +57,20 @@ _Last updated: 2026-04-26 (R041-Governance Addendum — legacy preservation and 
 | **Role-aware nav filtering** | `components/shell/app-sidebar.tsx` | P2 | `[ ]` |
 | **Auth E2E test** | `e2e/auth.spec.ts` — login, session, logout flow | P2 | `[ ]` |
 | **Set Flask cookie security** | `SESSION_COOKIE_SECURE=True`, `SESSION_COOKIE_SAMESITE=Lax` in prod | P1 (before prod) | `[ ]` |
+
+---
+
+## Parallel Worktree Workflow (P1 — required before first parallel agent session)
+
+> Standard: `52-parallel-worktree-agent-workflow.md`
+
+| Task | Scope | Priority | Status |
+|------|-------|----------|--------|
+| **Create worktrees directory** | `mkdir C:\Users\moshe\OneDrive\Documents\Projects\worktrees` | P1 | `[ ]` |
+| **Create worktree for R041A** | `git worktree add ..\worktrees\platformengineer-r041a-ci -b feat/r041a-ci-enforcement main` | P1 | `[ ]` |
+| **Create worktree for R041B** | `git worktree add ..\worktrees\platform-ui-r041b-actionbutton -b feat/r041b-actionbutton master` | P1 | `[ ]` |
+| **Verify worktree setup before each parallel session** | `git worktree list` + `git branch --show-current` in each worktree | P1 | `[ ]` |
+| **Cleanup worktrees after PR merge** | `git worktree remove` + `git branch -d` + `git worktree prune` | P1 | `[ ]` (after each merged PR) |
 
 ---
 

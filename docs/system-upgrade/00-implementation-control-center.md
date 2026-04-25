@@ -1,7 +1,7 @@
 # 00 — Implementation Control Center
 
 > **This is the first doc to read after `CLAUDE.md`.** Every implementation round starts here.
-> _Last updated: 2026-04-26 (R041-Governance Addendum — legacy preservation, module inventory, agent handoff)_
+> _Last updated: 2026-04-26 (R041-Gov Worktree Addendum — parallel worktree workflow added)_
 
 ---
 
@@ -34,8 +34,8 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 | **Branch** | main (both repos) |
 | **Purpose** | Establish governance system — no product features, no schema, no UI |
 
-**Previous completed (most recent):** R041-Governance Addendum — Legacy Preservation, Module Inventory, Agent Handoff (2026-04-26)
-**Before that:** R041-Test Addendum — Security/Multi-Tenant Test Standard (2026-04-26)
+**Previous completed (most recent):** R041-Gov Worktree Addendum — Parallel Worktree Agent Workflow (2026-04-26)
+**Before that:** R041-Governance Addendum — Legacy Preservation, Module Inventory, Agent Handoff (2026-04-26)
 **Before that:** R040 — Module Manager Additive Schema Foundation (`abdf3bc38985dcf1152a390ea81f3d1675103140`)
 
 ---
@@ -46,6 +46,7 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 |-------|-------|--------|------------|------|
 | R041-Test | Security/Multi-Tenant Test Standard | `[x] complete 2026-04-26` | R040 merged | platform-ui |
 | R041-Gov | Governance Addendum — Legacy Preservation + Agent Handoff | `[x] complete 2026-04-26` | R041-Test | platform-ui |
+| R041-WT | Worktree Addendum — Parallel Agent Workflow | `[x] complete 2026-04-26` | R041-Gov | platform-ui |
 | R041A | CI Enforcement (LLM import gate in GitHub Actions) | `[ ] ready` | R040 merged | platformengineer |
 | R041B | ActionButton Extraction to shared component | `[ ] ready` | R040 merged | platform-ui + platformengineer |
 | R042 | ModuleRegistry.sync_from_manifests() + ModuleCompatLayer | `[ ] blocked` | R040 migrations in DB | platformengineer |
@@ -204,6 +205,7 @@ The following are explicitly out of scope until foundation gates are green:
 | [`49-legacy-functionality-inventory.md`](49-legacy-functionality-inventory.md) | Standard template for per-module legacy inventory (`docs/modules/<key>/LEGACY_INVENTORY.md`) |
 | [`50-module-e2e-coverage-matrix.md`](50-module-e2e-coverage-matrix.md) | Standard for per-module E2E coverage plans (`docs/modules/<key>/E2E_COVERAGE.md`) |
 | [`51-agent-handoff-protocol.md`](51-agent-handoff-protocol.md) | Protocol for parallel agents and context handoff between sessions |
+| [`52-parallel-worktree-agent-workflow.md`](52-parallel-worktree-agent-workflow.md) | Git worktree workflow — naming, creation, lock list, safe/unsafe parallel tracks, PR workflow, cleanup |
 | [`26-platform-capabilities-catalog.md`](26-platform-capabilities-catalog.md) | Shared capability catalog |
 
 ---

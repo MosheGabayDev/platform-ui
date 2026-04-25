@@ -1,7 +1,7 @@
 # 01 — Round Review Checklist
 
 > Reviewer runs this checklist before approving any implementation round.
-> _Last updated: 2026-04-26 (R041-Governance Addendum — §13 legacy preservation + agent handoff added)_
+> _Last updated: 2026-04-26 (R041-Gov Worktree Addendum — §11 PR/worktree checks updated)_
 
 ---
 
@@ -155,6 +155,8 @@ A round may not be marked Done until all `[!]` items are resolved or explicitly 
 - [ ] PR body links to the GitHub issue (or notes the issue draft)
 - [ ] Diff is ≤500 LOC net (or justified in PR body if larger)
 - [ ] No debug prints, commented-out code blocks, or TODO stubs left in (unless explicitly deferred with an issue)
+- [ ] PR was opened from a **feature branch**, not from `main`/`master` (worktree workflow)
+- [ ] PR body includes handoff summary (see `52-parallel-worktree-agent-workflow.md §9`)
 
 ---
 

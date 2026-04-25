@@ -3,6 +3,28 @@
 _Running log of what changed in each update round._
 _Newest entry at the top._
 
+## R041-WT — 2026-04-26 — Parallel Worktree Agent Workflow
+
+**Scope:** Governance/process documentation only — no product features, no schema, no UI
+**Tests:** N/A — governance round
+
+### What changed
+- **New:** `52-parallel-worktree-agent-workflow.md` — complete worktree workflow: directory convention, branch naming, creation commands, agent assignment contract template, parallel safety rules, file lock list, safe/unsafe parallel tracks, PR workflow, merge order, cleanup commands, quick reference card
+- **Updated:** `51-agent-handoff-protocol.md` — worktree-first rule added; worktree fields in handoff summary template; orientation checklist updated
+- **Updated:** `02-development-rules.md §8` — worktree-first rule + lock list reference added to agent collaboration section
+- **Updated:** `00-implementation-control-center.md` — R041-WT recorded; `52` linked in Key Governance Docs
+- **Updated:** `01-round-review-checklist.md §11` — branch-from-feature-branch check added
+- **Updated:** `15-action-backlog.md` — Parallel Worktree Workflow setup tasks added (5 tasks)
+- **Updated:** `97-source-of-truth.md` — `52` registered
+
+### Key decisions
+- Worktree directory: `C:\Users\moshe\OneDrive\Documents\Projects\worktrees\`
+- Branch naming always includes round ID for traceability
+- Locked governance files updated only after PR merge (not by parallel agents)
+- R041A (CI, platformengineer) + R041B (ActionButton, platform-ui) identified as first safe parallel pair
+
+---
+
 ## R041-Gov — 2026-04-26 — Governance Addendum: Legacy Preservation, Module Inventory, Agent Handoff
 
 **Scope:** Planning, governance, inventory structure, test coverage structure, agent handoff process — no product features, no schema, no UI

@@ -1,7 +1,7 @@
 # Platform UI — AI Agent Instructions
 
 > Every AI working on this project MUST read this file completely before writing any code.
-> Last updated: 2026-04-26 (R041-Governance Addendum)
+> Last updated: 2026-04-26 (R041-Gov Worktree Addendum)
 
 ---
 
@@ -22,19 +22,30 @@
 2. [`docs/system-upgrade/02-development-rules.md`](docs/system-upgrade/02-development-rules.md) — non-negotiable product, architecture, security, testing, UX, AI, i18n rules
 3. [`docs/system-upgrade/03-module-migration-progress.md`](docs/system-upgrade/03-module-migration-progress.md) — which modules are in what state; per-module doc links
 4. [`docs/system-upgrade/51-agent-handoff-protocol.md`](docs/system-upgrade/51-agent-handoff-protocol.md) — agent collaboration and handoff rules
+5. [`docs/system-upgrade/52-parallel-worktree-agent-workflow.md`](docs/system-upgrade/52-parallel-worktree-agent-workflow.md) — **Git worktree workflow** (naming, creation, lock list, safe/unsafe tracks, PR workflow, cleanup)
 
 **Design (read before writing UI):**
-5. [`docs/design/DESIGN_SYSTEM.md`](docs/design/DESIGN_SYSTEM.md) — visual language, colors, spacing, typography
-6. [`docs/design/TOKENS.md`](docs/design/TOKENS.md) — CSS variables, animation timing, z-index scale
-7. [`docs/design/ANIMATIONS.md`](docs/design/ANIMATIONS.md) — motion rules + full Framer Motion variant library
-8. [`docs/design/COMPONENTS.md`](docs/design/COMPONENTS.md) — all component patterns and anti-patterns
-9. [`docs/design/MOBILE.md`](docs/design/MOBILE.md) — mobile rules, PWA, iOS Safari specifics
-10. [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — full system architecture blueprint
+6. [`docs/design/DESIGN_SYSTEM.md`](docs/design/DESIGN_SYSTEM.md) — visual language, colors, spacing, typography
+7. [`docs/design/TOKENS.md`](docs/design/TOKENS.md) — CSS variables, animation timing, z-index scale
+8. [`docs/design/ANIMATIONS.md`](docs/design/ANIMATIONS.md) — motion rules + full Framer Motion variant library
+9. [`docs/design/COMPONENTS.md`](docs/design/COMPONENTS.md) — all component patterns and anti-patterns
+10. [`docs/design/MOBILE.md`](docs/design/MOBILE.md) — mobile rules, PWA, iOS Safari specifics
+11. [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — full system architecture blueprint
 
 **Before rewriting any module:**
 - `docs/modules/<module_key>/LEGACY_INVENTORY.md` must exist (template: `49-legacy-functionality-inventory.md`)
 - `docs/modules/<module_key>/E2E_COVERAGE.md` must exist (standard: `50-module-e2e-coverage-matrix.md`)
 - No capability may be silently removed — see `02-development-rules.md §No Feature Loss During Rewrite`
+
+---
+
+## Parallel Agent Rules (NEVER BREAK)
+
+- **Never work directly on `main` or `master`.** All feature/fix/docs work happens in a Git worktree on a feature branch.
+- **Every parallel agent session uses a worktree.** See `docs/system-upgrade/52-parallel-worktree-agent-workflow.md` for setup.
+- **Branch name must include the round ID.** `feat/r041b-actionbutton`, not `feat/actionbutton`.
+- **Locked governance files** (`CLAUDE.md`, `00`, `96`, `98`, `03`) are updated by the coordinator after PR merge, not by parallel agents.
+- Full lock list: `52-parallel-worktree-agent-workflow.md §7`.
 
 ---
 

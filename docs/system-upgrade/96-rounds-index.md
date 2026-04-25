@@ -1015,3 +1015,48 @@ Central tracker `03-module-migration-progress.md` links to all per-module docs.
 **Next Recommended Action:**
 Start R041A (CI enforcement — LLM import gate) which has no blockers. Alternatively, start the first module rewrite round by first creating the module's `LEGACY_INVENTORY.md` following the template in `49-legacy-functionality-inventory.md`.
 
+
+---
+
+## Round R041-WT — Parallel Worktree Agent Workflow
+
+**Date:** 2026-04-26
+**Status:** Complete
+
+| Field | Value |
+|-------|-------|
+| **Round** | R041-WT -- Parallel Worktree Agent Workflow |
+| **Date** | 2026-04-26 |
+| **Scope** | Governance/process docs only -- no features, no schema, no UI |
+| **Tests** | N/A -- governance round |
+| **Docs updated** | 00, 01, 02, 03, 15, 51, 52 (new), 96, 97, 98 |
+| **Next round** | R041A: CI enforcement (create worktree platformengineer-r041a-ci) |
+
+### Mission
+
+Define official parallel development workflow using Git worktrees so multiple agents
+work safely in parallel with branch isolation, file ownership, review gates, clean PRs,
+agent handoff, and no context loss.
+
+### Files Created
+
+- docs/system-upgrade/52-parallel-worktree-agent-workflow.md
+
+### Files Updated
+
+- 51-agent-handoff-protocol.md: worktree-first rule + worktree fields in handoff template
+- 02-development-rules.md: worktree-first rule in agent collaboration section
+- 00-implementation-control-center.md: R041-WT recorded, 52 linked
+- 01-round-review-checklist.md: branch-from-feature-branch check in PR section
+- 15-action-backlog.md: Parallel Worktree Workflow setup tasks added
+- 97-source-of-truth.md: 52 registered
+
+### Safe Parallel Pairs
+
+R041A (platformengineer CI) + R041B (platform-ui ActionButton) -- safe, different repos.
+
+### Handoff Summary
+
+**Worktree path:** N/A (governance round in main repo)
+**Tests:** N/A
+**Next:** Create worktrees for R041A + R041B using 52 section 4 commands.

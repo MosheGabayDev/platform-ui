@@ -1,9 +1,11 @@
 # 51 — Agent Handoff Protocol
 
 > Protocol for handing off work between AI agents and for parallel agent coordination.
-> _Last updated: 2026-04-26 (R041-Governance Addendum — initial creation)_
+> _Last updated: 2026-04-26 (R041-Gov Worktree Addendum — worktree integration added)_
 >
 > **Purpose:** Multiple agents may work in parallel on different modules. This protocol ensures no context is lost, no conflicts occur, and any agent can pick up where another left off.
+>
+> **Worktree workflow:** See `52-parallel-worktree-agent-workflow.md` for Git worktree setup, naming conventions, and parallel safety rules. Every parallel agent session should use a worktree, not the main working directory.
 
 ---
 
@@ -132,6 +134,13 @@ Every agent must leave a handoff summary at the end of their round. This summary
 ### Recommended Next Action
 
 <One paragraph describing what should happen next and why, with round reference>
+
+### Worktree Info
+
+**Worktree path:** C:\Users\moshe\OneDrive\Documents\Projects\worktrees\<name>
+**Branch:** <branch-name>
+**Worktree status:** active (PR open) | merged (cleanup pending) | cleaned
+**PR:** #<number> or "not yet opened"
 ```
 
 ---
@@ -139,6 +148,13 @@ Every agent must leave a handoff summary at the end of their round. This summary
 ## Parallel Agent Coordination Rules
 
 When multiple agents work concurrently:
+
+### Worktree-first rule
+
+- **Every parallel agent must work in a Git worktree**, not the main repo directory.
+- Worktree setup: `52-parallel-worktree-agent-workflow.md §4`.
+- **Never work directly on `main` or `master`.**
+- Never start work without confirming `git branch --show-current` shows the feature branch.
 
 ### Module assignment
 
@@ -149,7 +165,8 @@ When multiple agents work concurrently:
 ### Shared files
 
 - **Never edit in parallel:** `CLAUDE.md`, `00-implementation-control-center.md`, `03-module-migration-progress.md`, `96-rounds-index.md`, `98-change-log.md`
-- These are updated by one agent at the end of each round.
+- These are updated by one agent (coordinator) after all parallel PRs are merged.
+- Full lock list: `52-parallel-worktree-agent-workflow.md §7`.
 - If two agents finish at the same time: coordinate via the "Update Protocol" in each doc.
 
 ### Conflict resolution
@@ -183,6 +200,9 @@ If a round must be abandoned mid-implementation:
 ## Quick Orientation Checklist for a New Agent
 
 ```
+[ ] Confirm worktree setup (52-parallel-worktree-agent-workflow.md §4)
+    - git branch --show-current  ← must be feature branch, NOT main/master
+    - git status                 ← must be clean
 [ ] Read CLAUDE.md — especially §Shared Services Enforcement and §Security Rules
 [ ] Read 00-implementation-control-center.md — active round, blockers, do-not-start
 [ ] Read 02-development-rules.md — product, arch, security, testing, UX rules
@@ -193,6 +213,7 @@ If a round must be abandoned mid-implementation:
 [ ] Run: bash scripts/test_steps/00_regression.sh — baseline passing
 [ ] Check git log: any WIP commits from previous agent?
 [ ] Check 96-rounds-index.md: any handoff summary for your round?
+[ ] Check 52-parallel-worktree-agent-workflow.md §7 — am I allowed to edit the files I need?
 ```
 
 If any of these steps surface a concern: add it to `13-open-questions.md` before writing code.
