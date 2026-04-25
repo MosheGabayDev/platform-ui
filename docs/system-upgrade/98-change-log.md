@@ -3,6 +3,31 @@
 _Running log of what changed in each update round._
 _Newest entry at the top._
 
+## R040 — 2026-04-25 — Module Manager Additive Schema Foundation
+
+**Commit:** `abdf3bc3` (platformengineer main)
+**Tests:** 43 passed, 0 failed
+
+### Files Created (platformengineer)
+- `apps/module_manager/models.py` — 5 new model classes appended; Module + ModuleLog patched additively
+- `apps/module_manager/seeds.py` — idempotent seed helpers (ModuleVersion, OrgModule core seed)
+- `apps/module_manager/tests/test_r040_schema.py` — 43 structural tests
+- 7 migration files in `migrations/versions/20260425_*.py`
+
+### New Tables
+`module_versions`, `org_modules`, `org_module_settings`, `module_dependencies`, `module_licenses`
+
+### New Columns (additive)
+`modules.system_status`, `module_logs.org_id`, `module_logs.user_id`, `module_logs.module_key`
+
+### Deferred
+- ModuleDependency JSON seed → R038C
+- ModulePurchase backfill → R038I
+- Module permissions seed → R038C
+
+### Constraints Met
+Additive only · No DROP/RENAME · No BYODB · org_id on all org-scoped tables · 43/43 tests pass
+
 ---
 
 ## Format

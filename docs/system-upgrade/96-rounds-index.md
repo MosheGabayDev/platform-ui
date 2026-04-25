@@ -688,3 +688,67 @@ Architecture/roadmap hardening. No code. Defined: existing DB-first migration pr
 - `docs/system-upgrade/96-rounds-index.md`
 - `docs/system-upgrade/98-change-log.md`
 - `docs/ARCHITECTURE.md`
+
+---
+
+## Round 040 — Module Manager Additive Schema Foundation
+
+**Date:** 2026-04-25
+**Commit:** `abdf3bc3` (platformengineer, branch: main)
+**Status:** Complete ✅
+
+### Mission
+Implement R038B: additive multi-tenant schema foundation for the Module Manager redesign.
+Backend only. No UI. No destructive changes. platform_managed_shared_db only.
+
+### Models Added
+- `ModuleVersion` — system-level version catalog (no org_id)
+- `OrgModule` — per-org runtime state (replaces global is_enabled/is_installed)
+- `OrgModuleSettings` — per-org module settings (JSONB)
+- `ModuleDependency` — normalized dependency graph
+- `ModuleLicense` — org entitlement scaffold
+
+### Models Patched (additive only)
+- `Module.system_status` column added (VARCHAR 30, default 'active')
+- `ModuleLog.org_id` / `user_id` / `module_key` nullable compat FK columns added
+
+### Migration Files (migrations/versions/)
+- `20260425_add_module_versions.py` (down_revision=None)
+- `20260425_add_org_modules.py` (chains to module_versions)
+- `20260425_add_org_module_settings.py` (chains to org_modules)
+- `20260425_add_module_dependencies.py` (down_revision=None)
+- `20260425_add_module_licenses.py` (down_revision=None)
+- `20260425_extend_module_logs.py` (down_revision=None)
+- `20260425_add_module_system_status.py` (down_revision=None)
+
+### Tests
+43 structural tests in `apps/module_manager/tests/test_r040_schema.py` — all pass.
+Pre-existing mapper error (`AgentAIChat`) noted — R040 is not the cause.
+
+### Storage Constraint Verified
+- No DROP / RENAME operations
+- No BYODB / TenantDataStore / TenantDataRouter
+- All org-scoped tables: org_id FK → organizations.id, non-nullable
+- No hardcoded connection strings
+
+### Deferred Items
+- ModuleDependency seed from JSON blob → R038C (format unverified across modules)
+- ModulePurchase → ModuleLicense backfill → R038I (org string not safely mappable)
+- module_permissions seed → R038C
+
+### Files Created/Updated (platformengineer)
+- `apps/module_manager/models.py` (modified)
+- `apps/module_manager/seeds.py` (new)
+- `apps/module_manager/tests/__init__.py` (new)
+- `apps/module_manager/tests/test_r040_schema.py` (new)
+- 7× `migrations/versions/20260425_*.py` (new)
+
+### Files Updated (platform-ui docs)
+- `docs/system-upgrade/15-action-backlog.md`
+- `docs/system-upgrade/96-rounds-index.md`
+- `docs/system-upgrade/98-change-log.md`
+- `docs/system-upgrade/35-platform-capabilities-build-order.md`
+
+### Next Recommended Round
+R041: R038C — ModuleRegistry.sync_from_manifests() + ModuleCompatLayer (R042 in roadmap)
+OR: CI enforcement + ActionButton extraction (R041 in roadmap, independent)

@@ -763,30 +763,29 @@ Documentation only — complete. See `docs/system-upgrade/46-module-manager-impl
 - `/api/modules/enabled-menu` has no auth — security gap to fix in R038D
 - `apps/__init__.py:193` already has partial org filtering via `OrgFeatureFlag` (migration hook)
 
-### R038B — Additive Schema Foundation (platformengineer)
+### R038B — Additive Schema Foundation (platformengineer) ✅ COMPLETE (R040, commit abdf3bc3)
 
 Backend only. No UI. All additive — no destructive changes.
 
-> **Storage constraint (ADR-036, 2026-04-25):** R038B implements `platform_managed_shared_db` only.
-> No TenantDataStore, no TenantDataRouter, no BYODB, no customer DB connections.
-> All new tables scoped by `org_id`. All queries must remain future-router-compatible.
-> Full acceptance criteria: doc 45 §21 R038B section.
+> **Storage constraint (ADR-036, 2026-04-25):** `platform_managed_shared_db` only.
+> No BYODB, no TenantDataStore, no TenantDataRouter. All tables org_id-scoped.
 
-| Task | File | Est. | Status |
-|------|------|------|--------|
-| Migration: `org_modules` table (OrgModule) | `scripts/migrations/versions/20260425_add_org_module.py` | 1 hr | `[ ]` R038B |
-| **Migration: `module_versions` table (ModuleVersion, minimal)** — moved from R038H (see doc 46 §9) | `scripts/migrations/versions/20260425_add_module_versions.py` | 45 min | `[ ]` R038B |
-| Migration: `module_licenses` table (ModuleLicense, org_id FK, empty scaffold) | `scripts/migrations/versions/20260425_add_module_license.py` | 30 min | `[ ]` R038B |
-| Migration: `module_dependencies` table | `scripts/migrations/versions/20260425_add_module_dependency.py` | 30 min | `[ ]` R038B |
-| Migration: `module_logs` — add nullable `org_id`, `user_id`, `user_display`, `module_key` | `scripts/migrations/versions/20260425_extend_module_logs.py` | 30 min | `[ ]` R038B |
-| Migration: `module_purchases` — add nullable `org_id FK → organizations.id` (keep `organization` String) | `scripts/migrations/versions/20260425_extend_module_purchases.py` | 20 min | `[ ]` R038B |
-| Migration: `modules` — add `system_status` column (DEFAULT 'active') | `scripts/migrations/versions/20260425_add_module_system_status.py` | 20 min | `[ ]` R038B |
-| Migration: add `modules.*` + `modules.system.*` permissions to DB | `scripts/migrations/versions/20260425_add_module_permissions.py` | 30 min | `[ ]` R038B |
-| Data seed: `ModuleVersion` rows — one per existing `Module` (version=Module.version) | inline in migration | 30 min | `[ ]` R038B |
-| Data seed: `OrgModule` rows for `is_core=True` modules × all orgs (org_status='enabled') | `scripts/seeds/org_modules_core.py` | 45 min | `[ ]` R038B |
-| Data seed: `ModuleDependency` rows from `Module.dependencies` JSON (idempotent, log unmapped) | `scripts/seeds/module_dependencies.py` | 30 min | `[ ]` R038B |
-| Rewrite `apps/module_manager/models.py` — add OrgModule, ModuleVersion, ModuleLicense, ModuleDependency; update Module/ModuleLog | `apps/module_manager/models.py` | 2 hr | `[ ]` R038B |
-| Pre-migration check: `SELECT COUNT(*) FROM organizations` must be > 0 | manual step | 5 min | `[ ]` R038B gate |
+| Task | File | Status |
+|------|------|--------|
+| Migration: `org_modules` table (OrgModule) | `migrations/versions/20260425_add_org_modules.py` | `[x]` |
+| Migration: `module_versions` table (ModuleVersion) | `migrations/versions/20260425_add_module_versions.py` | `[x]` |
+| Migration: `module_licenses` table (scaffold) | `migrations/versions/20260425_add_module_licenses.py` | `[x]` |
+| Migration: `module_dependencies` table | `migrations/versions/20260425_add_module_dependencies.py` | `[x]` |
+| Migration: `org_module_settings` table | `migrations/versions/20260425_add_org_module_settings.py` | `[x]` |
+| Migration: `module_logs` — add nullable `org_id`, `user_id`, `module_key` | `migrations/versions/20260425_extend_module_logs.py` | `[x]` |
+| Migration: `modules.system_status` column | `migrations/versions/20260425_add_module_system_status.py` | `[x]` |
+| Models: ModuleVersion, OrgModule, OrgModuleSettings, ModuleDependency, ModuleLicense | `apps/module_manager/models.py` | `[x]` |
+| Seed helpers: seed_module_versions(), seed_core_org_modules() | `apps/module_manager/seeds.py` | `[x]` |
+| Tests: 43 structural tests (all pass) | `apps/module_manager/tests/test_r040_schema.py` | `[x]` |
+| ModuleDependency seed from JSON blob | deferred → R038C (format unverified) | `[~]` |
+| ModulePurchase → ModuleLicense backfill | deferred → R038I (org string ambiguous) | `[~]` |
+| module_permissions seed | deferred → R038C | `[~]` |
+| module_purchases extend (org_id FK) | deferred → R038I | `[~]` |
 
 ### R038C — Read Model + Availability Helper (platformengineer)
 

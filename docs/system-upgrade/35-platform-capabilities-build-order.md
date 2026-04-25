@@ -694,7 +694,7 @@ Each page registers `PageAIContext` via `useRegisterPageContext()`. Priority ord
 | **Module Import/Export** | JobRunner + ImportExport full + Wizard + AuditLog | R032+ |
 | **Production** | FeatureFlags, AuditLog, Notifications, CSP headers, Flask cookie security | R026 |
 | **Module Manager (open questions + inventory)** | OQ-01–OQ-07 answered, FK targets verified, schema inventoried, manifest files audited, legacy callers inventoried, nav source of truth documented — see doc 46 | R038B0 ✅ |
-| **Module Manager (schema foundation)** | `org_modules`, `module_versions` (moved from R038H), `module_licenses` (scaffold), `module_dependencies` tables + `modules.system_status` + extend `module_logs`/`module_purchases` + permission rows + data seeds | R038B |
+| **Module Manager (schema foundation)** | `org_modules`, `module_versions`, `org_module_settings`, `module_licenses` (scaffold), `module_dependencies` + `modules.system_status` + extend `module_logs` + seeds + 43 tests | R038B ✅ R040 (commit abdf3bc3) |
 | **Module Manager (read model)** | `ModuleRegistry.sync_from_manifests()` + `is_module_available()` + `ModuleEnforcementService` + `ModuleCompatLayer` + §14 read tests | R038C |
 | **Module Manager (read APIs)** | 6 JWT read endpoints at `/api/org/modules/*` + `/api/modules/catalog` + register blueprint | R038D |
 | **Module Manager (platform-ui read hub)** | TypeScript types + Zod + query keys + `/modules` list + `/modules/[key]` detail + `/modules/catalog` | R038E |
