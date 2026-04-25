@@ -82,6 +82,7 @@ A round may not be marked Done until all `[!]` items are resolved or explicitly 
 
 > Skip if no migrations in this round.
 
+**Standard migration checks:**
 - [ ] All new columns are nullable OR have a `server_default` (additive-only rule per ADR-036)
 - [ ] No `op.drop_column()` without a 30-day transition gate approval
 - [ ] No `op.alter_column()` that changes nullability from nullable→NOT NULL without backfill
@@ -92,6 +93,16 @@ A round may not be marked Done until all `[!]` items are resolved or explicitly 
 - [ ] `down_revision` correctly chains to dependency migrations (especially FK dependencies)
 - [ ] No `create_engine()` in migration files — use `op.get_bind()` if raw SQL needed
 - [ ] JSONB columns use `sqlalchemy.dialects.postgresql.JSONB` (PostgreSQL-only project)
+
+**Code-First Schema Rule checks:**
+- [ ] All new tables/columns are defined in SQLAlchemy models first, before migration is written
+- [ ] All schema changes are represented in migration files (not applied via `db.create_all()` alone)
+- [ ] No DB object was created manually outside of a tracked migration
+- [ ] `db.create_all()` was NOT used as a substitute for running a migration in this round
+- [ ] If `alembic stamp` was used: schema equivalence evidence is documented (column names, types, constraints, FKs, indexes all compared)
+- [ ] If a table pre-existed in DB before the migration: schema adoption checklist completed (see `CLAUDE.md §Code-First Schema Rule`)
+- [ ] FK `ondelete` rules in migration match the intended behavior (CASCADE vs NO ACTION documented)
+- [ ] Named indexes in migration (`idx_*`) do not duplicate model auto-indexes (`ix_*`) on the same column — or duplication is documented as acceptable
 
 ---
 

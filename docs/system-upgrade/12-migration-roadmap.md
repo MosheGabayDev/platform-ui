@@ -1,6 +1,12 @@
 # 12 — Migration Roadmap
 
-_Last updated: 2026-04-24 (R023 planning — capability build order in 35-platform-capabilities-build-order.md)_
+_Last updated: 2026-04-26 (Code-First Schema Rule added; R040 schema adoption documented)_
+
+## Code-First Schema Rule (mandatory for all future migrations)
+
+> Before writing any migration, confirm the SQLAlchemy model exists. Before stamping any revision, run the schema adoption checklist. See `CLAUDE.md §Code-First Schema Rule` and `CLAUDE.md §Database`.
+
+**Known violation (R040, 2026-04-26):** 5 tables pre-existed via `db.create_all()`. Stamped after column verification. Drift documented in `99-risk-register.md §R15`. Follow-up fix migrations pending before R042 data ingestion.
 
 ---
 

@@ -796,11 +796,38 @@ Establish a lightweight but strict governance system so every future round is sc
 ### Tests
 No tests required — governance/process round.
 
-### Post-Round Migration Note (2026-04-26)
-R040 migrations applied to EKS DB 2026-04-26. All 7 revisions stamped or run. G-ModuleDB gate ✅.
-5 tables live: `module_versions`, `org_modules`, `module_dependencies`, `module_licenses`, `org_module_settings`
-4 columns added: `modules.system_status`, `module_logs.org_id/user_id/module_key`
+### Post-Round Schema Adoption Note (2026-04-26)
+
+**Context:** 5 R040 tables pre-existed in DB when migrations were attempted. Origin: `db.create_all()` in `apps/__init__.py:1487` on app restart after R040 commit. Tables were created from SQLAlchemy model definitions, not migration files.
+
+**Revisions stamped (tables pre-existing):**
+- `20260425_add_module_versions` (via descendant `20260425_add_org_module_settings`)
+- `20260425_add_org_modules` (via descendant `20260425_add_org_module_settings`)
+- `20260425_add_org_module_settings` — head of chain
+- `20260425_add_module_dependencies` — independent head
+- `20260425_add_module_licenses` — independent head
+
+**Revisions run (columns not pre-existing):**
+- `20260425_add_module_system_status` — applied via alembic
+- `20260425_extend_module_logs` — applied via alembic
+
+**Schema verification results:**
+| Check | Result |
+|-------|--------|
+| Column names match migration | ✅ All 5 tables |
+| Column types match | ✅ All 5 tables |
+| Column nullability match | ✅ All 5 tables |
+| Unique constraints match | ✅ All 5 tables |
+| FK targets correct | ✅ All FKs reference correct tables |
+| FK ondelete='CASCADE' | ❌ 3 FKs have NO ACTION (see R15) |
+| server_default present | ❌ 9 columns missing (see R15) |
+| Named migration indexes | ⚠️ 2 missing; ix_* equivalents present |
+| Tables empty | ✅ No data at risk |
+
+**Code-First Schema Rule added:** `CLAUDE.md §Code-First Schema Rule` — all future agents must follow.
+**Drift documented:** `99-risk-register.md §R15` — follow-up migrations required before R042 data ingestion.
+**G-ModuleDB gate:** ✅ Green (maintained — functional correctness unaffected).
 
 ### Next Recommended Round
 R041A: CI enforcement (ready to start) | R041B: ActionButton extraction (ready to start, runs in parallel)
-R042: ModuleRegistry + CompatLayer (now unblocked)
+R042: ModuleRegistry + CompatLayer (now unblocked — but run R042 fix migrations first)

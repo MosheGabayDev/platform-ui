@@ -1,7 +1,7 @@
 # 99 — Risk Register
 
 > Active platform risks with mitigations and blocking status.
-> _Last updated: 2026-04-25 (R040-Control — Governance Setup)_
+> _Last updated: 2026-04-26 (R040 migrations applied + Code-First Schema Rule added)_
 > _Review: update after every round that changes risk status._
 
 ---
@@ -222,3 +222,43 @@
 | **Owner/Area** | Project management |
 | **Next Review** | R041 start |
 | **Status** | 🟡 Mitigated by drafts file; full resolution pending |
+
+---
+
+## R15 — DB Schema Drift: R040 Tables Created via `db.create_all()` Not Migrations
+
+| Field | Value |
+|-------|-------|
+| **Description** | 5 R040 tables (`module_versions`, `org_modules`, `module_dependencies`, `module_licenses`, `org_module_settings`) were created by `apps/__init__.py:1487` `db.create_all()` on app restart after R040 commit, not by running the migration files. Three drift categories identified and documented. |
+| **Impact** | M — drift between migration spec and live DB; will affect new environment setup unless migrations are re-tested |
+| **Likelihood** | H — already happened; ongoing risk from `db.create_all()` in startup code |
+| **Mitigation** | Code-First Schema Rule added to `CLAUDE.md`. Drift documented. Fix migrations required before R042 data ingestion (see follow-ups below). |
+| **Blocking** | No — tables are empty; functional correctness unaffected for now |
+| **Owner/Area** | DB operations; platformengineer |
+| **Next Review** | Before R042 seeds any OrgModule data |
+| **Status** | 🟡 Documented — low immediate risk, fix required before data ingestion |
+
+**Drift inventory (all 5 tables, identified 2026-04-26):**
+
+| Drift Type | Columns/Objects Affected | Risk |
+|-----------|--------------------------|------|
+| Missing DB `server_default` | `dependency_type`, `status` (org_modules, module_licenses), `auto_update_policy`, `release_channel_allowed`, `release_channel` (module_versions), `migration_required`, `rollback_supported`, `license_type`, `created_at` on all 5 tables | L — Python `default=` handles these for ORM inserts; raw SQL inserts could miss values |
+| Missing FK `ondelete='CASCADE'` | `module_dependencies.module_id`, `module_licenses.org_id`, `org_modules.org_id` | M — orphan rows if parent deleted; no data currently at risk |
+| Duplicate / misnamed indexes | `idx_mdep_module_id` and `idx_mv_module_id` missing; `ix_*` equivalents present from `index=True` on model columns | L — functionally equivalent; wastes index namespace |
+
+**Root cause:** `db.create_all()` in `apps/__init__.py:1487` creates tables from model Python `default=` values only — it does not apply migration `server_default`, `ondelete` cascade rules, or explicitly named indexes from `op.create_index()` calls.
+
+**Required follow-up migrations (before R042 data ingestion):**
+- `20260426_fix_r040_fk_cascade.py` — add CASCADE to 3 FKs via `op.drop_constraint()` + `op.create_foreign_key()`
+- `20260426_fix_r040_server_defaults.py` — add server_defaults to nullable-constrained columns
+- `20260426_fix_r040_indexes.py` — create `idx_mdep_module_id`, `idx_mv_module_id` (currently only `ix_*` equivalents exist)
+
+**Verification evidence (2026-04-26):**
+- Column names: ✅ All match migration definitions
+- Column types: ✅ All match
+- Column nullability: ✅ All match
+- Unique constraints: ✅ All present
+- Primary keys: ✅ All correct
+- Server defaults: ❌ Missing on 9 columns across 4 tables (see table above)
+- FK cascade: ❌ 3 FKs have NO ACTION instead of CASCADE
+- Named indexes: ⚠️ 2 migration-named indexes missing; functionally-equivalent `ix_*` present

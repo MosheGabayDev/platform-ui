@@ -3,6 +3,45 @@
 _Running log of what changed in each update round._
 _Newest entry at the top._
 
+## R040 Schema Adoption + Code-First Rule — 2026-04-26 — Governance clarification
+
+**Commit (platform-ui):** `0dbf0acd32ae34d52aa8e1e25535518bc31bce6b`
+**Tests:** N/A — verification + governance round
+
+### Key findings
+- 5 R040 tables pre-existed in DB before migrations were applied
+- **Origin confirmed:** `apps/__init__.py:1487` `db.create_all()` on app restart after R040 commit
+- Revisions stamped after schema verification (see drift inventory below)
+- `db.create_all()` creates from Python model `default=` only — does NOT apply `server_default`, `ondelete` cascade, or migration-named indexes
+
+### Stamp justification
+Revisions stamped (not run) for 5 tables because:
+1. All column names, types, nullability match migration definitions ✅
+2. All unique constraints present ✅
+3. Tables are empty — no data at risk ✅
+4. Drift items documented in R15 risk register — low immediate impact ✅
+5. Running the migration would fail with `DuplicateTable` ✅
+
+### Schema drift found
+| Type | Count | Risk |
+|------|-------|------|
+| Missing `server_default` | 9 columns across 4 tables | L |
+| Missing FK `ondelete='CASCADE'` | 3 FKs | M |
+| Missing migration-named index (`idx_*`) | 2 indexes (ix_* equivalent present) | L |
+
+Full drift inventory: `99-risk-register.md §R15`
+
+### Documentation added
+- `CLAUDE.md §Code-First Schema Rule` — new mandatory section
+- `01-round-review-checklist.md §7` — 8 new Code-First checks added
+- `99-risk-register.md §R15` — drift + follow-up migrations documented
+- `96-rounds-index.md` — R040 migration note updated with schema adoption details
+
+### G-ModuleDB status
+✅ Green — maintained. Functional correctness unaffected (tables empty, Python defaults handle inserts). Follow-up migrations (`fix_r040_fk_cascade`, `fix_r040_server_defaults`, `fix_r040_indexes`) required before R042 seeds data.
+
+---
+
 ## R040 Migrations Applied — 2026-04-26 — DB schema live
 
 **Action:** Applied all 7 R040 migrations to EKS DB via localhost:15432 port-forward

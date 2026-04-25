@@ -90,6 +90,20 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 
 ---
 
+## Code-First Schema Rule (mandatory — see `CLAUDE.md §Code-First Schema Rule`)
+
+> The codebase (SQLAlchemy models + Alembic migration files) is the source of truth for DB schema.
+> The live DB must not define tables or columns independently of tracked code.
+
+**Known violation:** R040 tables created by `db.create_all()` at app startup (`apps/__init__.py:1487`), not migrations. Schema adoption completed 2026-04-26 with drift documented in `99-risk-register.md §R15`.
+
+**Action required before R042 data ingestion:**
+- [ ] `20260426_fix_r040_fk_cascade.py` — add CASCADE to 3 FKs
+- [ ] `20260426_fix_r040_server_defaults.py` — add 9 missing server_defaults
+- [ ] `20260426_fix_r040_indexes.py` — create 2 missing migration-named indexes
+
+---
+
 ## Do-Not-Start-Yet List
 
 The following are explicitly out of scope until foundation gates are green:
