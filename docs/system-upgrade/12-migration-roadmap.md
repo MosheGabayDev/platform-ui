@@ -189,4 +189,21 @@ _Last updated: 2026-04-24 (R023 planning — capability build order in 35-platfo
 | First domain migrated | +14 weeks | User management live in platform-ui; Jinja2 equivalent deleted |
 | Helpdesk in platform-ui | +20 weeks | Helpdesk fully functional in Next.js with real-time status |
 | All Vite apps retired | +30 weeks | `ai-agents-ui/`, `ala-ui/`, `ops-ui/`, `dyn-dt-ui/` all removed |
+
+---
+
+## Existing DB First — Additive Migration Principle (ADR-036, R039 addendum)
+
+The existing `platformengineer` PostgreSQL database is the migration base. The platform does not require a fresh DB — all evolution is additive.
+
+**Rules (summary — full spec in doc 47 §21.1):**
+1. Add new tables/columns side-by-side; never drop old fields in the same migration that replaces them
+2. Compatibility layers required before removing any field with callers
+3. Destructive migrations: 30-day minimum gap + gate + backup + rollback plan
+4. Old Jinja2 session routes may coexist while JWT APIs replace them
+5. Every migration: nullable or defaulted columns, `org_id` from day one
+6. Runner: `python scripts/migrations/run_migration.py <revision_id>` — never `alembic` CLI directly
+7. Naming: `YYYYMMDD_description.py`
+
+This principle extends the migration principles listed above — additive safety takes precedence over any refactoring speed goal.
 | Jinja2 fully retired | +52 weeks | `templates/` directory deleted; Flask serves only API |

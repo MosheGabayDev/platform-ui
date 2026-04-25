@@ -627,4 +627,45 @@ At session start, `GET /api/ai/context` returns an `AIUserCapabilityContext` obj
 
 Key fields: `available_actions` (filtered to user's role), `unavailable_action_categories` (safe category names — no unauthorized action IDs), `enabled_modules`, `feature_flags`, `can_see_pii`, `onboarding_mode`, `context_version` (Redis counter, invalidated on any permission change).
 
+---
+
+## Module Data Contract (ADR-036, R039 addendum)
+
+Every module must declare a `dataContract` section in its `manifest.v2.json`. This declaration drives module install, upgrade, export, import, backup, restore, and AI data access policy.
+
+### Required dataContract fields (summary)
+
+| Section | Key fields | Required |
+|---------|-----------|----------|
+| `tables` | `owned`, `referenced`, `core` | yes |
+| `objectStorage` | `s3Prefixes`, `mediaCollections` | if module uses files |
+| `indexes` | `search`, `vector` | if applicable |
+| `secrets` | `refs` (SSM paths only, never values) | if applicable |
+| `retention` | `defaultDays`, `pii` | yes |
+| `importExport` | `exportable`, `importable`, `requiresDryRun` | yes |
+| `backupRestore` | `includedInOrgBackup`, `restoreOrder` | yes |
+| `upgrade` | `migrationHandlers`, `requiresBackupBeforeUpgrade` | yes |
+
+**Rules:**
+- Modules cannot own data silently
+- Undeclared table/file/index ownership will fail CI in the enforcement phase (R060+)
+- Export/import reads `dataContract` to enumerate scope
+- AI access policy reads `dataContract` to gate data access
+- Full spec: `docs/system-upgrade/47-generic-platform-foundation-roadmap.md §21.2–21.3`
+
+### Tenant Storage Modes (ADR-036)
+
+The platform is designed to eventually support multiple tenant data storage modes:
+
+| Mode | When | Status |
+|------|------|--------|
+| `platform_managed_shared_db` | Default, all orgs today | **active** |
+| `platform_managed_dedicated_db` | Enterprise isolation | planned (P3) |
+| `customer_managed_db` | BYODB enterprise+ | planned (P3) |
+| `hybrid` | Mixed data placement | planned (P3) |
+
+Module code must write DB queries scoped by `org_id` to remain compatible with future routing modes. Direct DB connection strings in module code are forbidden.
+
+Full spec: `docs/system-upgrade/47-generic-platform-foundation-roadmap.md §21.4–21.6`
+
 Full spec: `docs/system-upgrade/36-ai-action-platform.md §23–§32`

@@ -998,3 +998,50 @@ Before broad multi-tenant module development, these must be complete: OrgModule 
 `docs/system-upgrade/47-generic-platform-foundation-roadmap.md`
 
 ADR-033 (Generic Platform Foundation First), ADR-034 (AI-Native Generic Organization Platform), ADR-035 (Data Sources & Knowledge Connections Platform)
+
+## 25. Data Ownership, Artifacts & Tenant Storage Strategy
+
+**Every module declares its owned data.** No module owns data silently.
+
+### Existing DB First
+The `platformengineer` PostgreSQL DB is the migration base. All changes are additive.
+Destructive migrations require: 30-day gap, backup, rollback plan, gate approval.
+
+### Module Data Contract
+Every `manifest.v2.json` must include `dataContract` declaring:
+- owned/referenced/core DB tables
+- S3 prefixes and media collections
+- indexes and vector embeddings
+- secret references (SSM paths only)
+- retention policy
+- import/export handlers
+- backup/restore rules
+- upgrade/rollback migration handlers
+
+### Tenant Storage Modes
+| Mode | Default? | Status |
+|------|---------|--------|
+| `platform_managed_shared_db` | yes | active |
+| `platform_managed_dedicated_db` | no | P3 planned |
+| `customer_managed_db` (BYODB) | no | P3 enterprise |
+| `hybrid` | no | P3 planned |
+
+### TenantDataRouter
+Future abstraction layer for routing `(org_id, module_key)` to the correct DB session.
+Module code must be router-compatible today: always scope by `org_id`, never hardcode connection strings.
+
+### S3 Structure
+```
+platform-data/
+  org/{org_id}/{module_key}/media/attachments/documents/exports/indexes/
+  packages/{module_key}/{version}/
+  backups/org/{org_id}/{timestamp}/
+  artifacts/embeddings/org/{org_id}/
+```
+
+### BYODB Safety (enterprise P3)
+TLS required. Read-only by default. Least-privilege credentials. All queries audited.
+Row limits + timeouts mandatory. No arbitrary SQL execution by AI.
+
+**Full spec:** `docs/system-upgrade/47-generic-platform-foundation-roadmap.md §21`
+**ADR:** ADR-036

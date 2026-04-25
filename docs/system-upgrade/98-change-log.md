@@ -17,6 +17,29 @@ _Newest entry at the top._
 
 ---
 
+## R039 addendum — 2026-04-25 — Data Ownership, Artifacts & Tenant Storage Strategy
+
+### New Content Added
+- `47-generic-platform-foundation-roadmap.md §21` — Data Ownership, Artifacts & Tenant Storage Strategy (10 subsections)
+- ADR-036: Existing DB First, Data Artifact Registry, Tenant Storage Modes
+
+### Docs Updated
+- `12-migration-roadmap.md` — Existing DB-First additive principle section
+- `24-core-platform-and-module-system.md` — dataContract manifest section, tenant storage modes
+- `45-module-manager-redesign.md` — dataContract manifest extension note
+- `35-platform-capabilities-build-order.md` — R039 addendum gate rows
+- `15-action-backlog.md` — R039 addendum tasks, deferred items
+- `96-rounds-index.md` — R039 addendum entry
+- `ARCHITECTURE.md` — Data & Storage Strategy section
+
+### Key Rules Established
+- Additive migration only; destructive = 30d gate + backup + rollback
+- Every module must declare `dataContract` in manifest.v2.json
+- TenantDataRouter is P3 but module code must be router-compatible today (always org_id scoped, no hardcoded connection strings)
+- BYODB is enterprise P3 only — strict safety rules defined
+
+---
+
 ## R039 — 2026-04-25 — Generic Platform Foundation Roadmap
 
 ### Files Created

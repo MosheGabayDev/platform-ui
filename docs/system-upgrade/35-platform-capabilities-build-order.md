@@ -705,3 +705,17 @@ Each page registers `PageAIContext` via `useRegisterPageContext()`. Priority ord
 | **Generic Platform Foundation Roadmap (planning)** | 10 pillars defined, 11 domains inventoried, 12 P0 gates identified, ADR-033/034/035 added, next 10 rounds recommended — doc 47 created | R039 ✅ |
 | **Broad module development ready** | All 15 acceptance criteria in doc 47 §18 checked: OrgModule, CompatLayer, ModuleVersion, Nav API, Feature Flags, Settings Engine, AuditLog, Notification service, API Keys, CI LLM gate, TypeScript passes, cross-tenant tests pass, no request.json org_id patterns, regression gate passes | R040–R048 |
 | **Data Sources Hub (foundation)** | DataConnection + DataSource + SourceAccessPolicy + connector secrets (SSM) + AI retrieval policy + sync jobs (no UI yet) | R049 |
+
+---
+
+## R039 addendum — Data Ownership & Storage Strategy (2026-04-25)
+
+| Deliverable | Notes | Round |
+|-------------|-------|-------|
+| **Existing DB-First principle adopted** | ADR-036: additive migrations, 30d destructive gap, CompatLayer pattern | R039 addendum |
+| **Platform Data & Artifact Registry spec** | Every module must declare `dataContract` in manifest | R039 addendum |
+| **Tenant Storage Modes spec** | `platform_managed_shared_db` default + 3 future modes defined | R039 addendum |
+| **TenantDataStore + TenantDataRouter concept** | Schema concept defined; implementation P3 (R060+) | R039 addendum |
+| **S3/ObjectStorage strategy** | Bucket structure, lifecycle, cleanup handler rules defined | R039 addendum |
+| **manifest.v2.json `dataContract` extension** | Required for R038H (upgrade flow). Pydantic model update deferred to R038C | R038C |
+| **BYODB safety rules** | Defined; implementation P3 (R060+) | R039 addendum |

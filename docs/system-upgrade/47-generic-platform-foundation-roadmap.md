@@ -920,8 +920,381 @@ Module development is "ready" only when all items below are checked. This gate p
 
 ---
 
+## 21. Data Ownership, Artifacts & Tenant Storage Strategy
+
+> Added: R039 addendum, 2026-04-25. Supersedes any informal assumptions about data placement.
+
+### 21.1 Existing DB First, Additive Migration
+
+**Principle:** The existing `platformengineer` PostgreSQL database is the migration base. All platform evolution uses additive migrations on top of the existing schema.
+
+**Rules:**
+- Add new tables/columns side-by-side; never drop old fields in the same round they are replaced
+- Introduce compatibility layers before removing any field that has callers
+- Destructive migrations (DROP COLUMN, DROP TABLE) require: explicit gate approval, regression tests passing, verified backup, documented rollback plan, 30-day minimum gap after replacement goes live
+- Old Jinja2 session routes may coexist temporarily while JWT APIs replace them — this is intentional, not technical debt
+- Every migration must be tenant-safe: new columns are nullable or have defaults; new tables include `org_id` from day one
+- Migration runner: `python scripts/migrations/run_migration.py <revision_id>` (custom Alembic runner in `scripts/migrations/versions/`)
+- Never use `alembic` CLI directly
+- Migration file naming: `YYYYMMDD_description.py`
+
+### 21.2 Platform Data & Artifact Registry
+
+**Purpose:** Central registry of all data and artifacts owned or used by each module. Every module must declare its ownership before install, upgrade, or export/import can safely operate.
+
+**Registry serves:**
+- Module installation: create owned tables/indexes/S3 prefixes
+- Module upgrade: run migration handlers, update schema version
+- Module removal: run cleanup handlers, preserve retained data
+- Export/import: enumerate owned tables and files
+- Backup/restore: include/exclude based on contract
+- Tenant data routing: know where each module's data lives
+- AI data access policy: restrict AI to declared, governed sources
+- Compliance/audit: data classification and retention policy per module
+
+**Every module must declare in its manifest:**
+
+#### DB Ownership
+- `owned` tables (module is responsible for schema)
+- `referenced` tables (module reads, does not own schema)
+- `core` tables (platform core — module only reads, never writes except via platform APIs)
+- Migration scripts (Alembic files under `scripts/migrations/versions/`)
+- Seed scripts
+- Schema version
+- Data classification (public / internal / confidential / restricted / pii)
+- Retention policy (days; pii handling)
+
+#### Object/File Ownership
+- S3 bucket or prefix (e.g. `org/{org_id}/helpdesk/attachments/`)
+- Media collections
+- Document collections
+- Attachment storage
+- Package storage
+- Export package storage
+
+#### Derived Data
+- Search indexes
+- Vector indexes / embeddings
+- Cache key namespaces
+- Generated reports
+- AI memory stores
+
+#### Sensitive Resources
+- Secret references (SSM paths, never values)
+- API key references
+- OAuth token storage keys
+- Connection string references
+- Encryption key references
+
+#### Operation Handlers
+- Import handler (function path)
+- Export handler (function path)
+- Backup handler (function path)
+- Restore handler (function path)
+- Upgrade handler (function path)
+- Rollback handler (function path)
+- Cleanup handler (function path)
+
+**Enforcement (later CI phase):**
+- Modules cannot own data silently — undeclared table/file/index ownership fails CI review in a later round
+- Export/import reads contracts to enumerate scope
+- Module install/upgrade uses contracts to create/migrate resources
+- AI access policy reads contracts to gate data access
+- Backup/restore uses contracts to determine inclusion and restore order
+
+### 21.3 Manifest dataContract Extension
+
+All module `manifest.v2.json` files must include a `dataContract` section. Modules without `dataContract` will be treated as legacy and flagged for audit.
+
+**Full example:**
+```json
+{
+  "dataContract": {
+    "tables": {
+      "owned": ["helpdesk_tickets", "helpdesk_comments", "helpdesk_sessions"],
+      "referenced": ["users", "organizations", "roles"],
+      "core": ["permissions", "feature_flags"]
+    },
+    "objectStorage": {
+      "s3Prefixes": ["org/{org_id}/helpdesk/attachments/"],
+      "mediaCollections": ["helpdesk_attachments"],
+      "documentCollections": [],
+      "exportStorage": "org/{org_id}/exports/helpdesk/"
+    },
+    "indexes": {
+      "search": ["helpdesk_tickets_search"],
+      "vector": ["helpdesk_ticket_embeddings"]
+    },
+    "secrets": {
+      "refs": ["helpdesk.integration.api_key"]
+    },
+    "retention": {
+      "defaultDays": 365,
+      "pii": "restricted",
+      "anonymizationSupported": true
+    },
+    "importExport": {
+      "exportable": true,
+      "importable": true,
+      "requiresDryRun": true,
+      "supportsAnonymization": true,
+      "exportFormat": "jsonl"
+    },
+    "backupRestore": {
+      "includedInOrgBackup": true,
+      "restoreOrder": 50
+    },
+    "upgrade": {
+      "migrationHandlers": ["apps.helpdesk.migrations.v2_upgrade"],
+      "rollbackHandlers": ["apps.helpdesk.migrations.v2_rollback"],
+      "requiresBackupBeforeUpgrade": true
+    }
+  }
+}
+```
+
+**Fields spec:**
+
+| Field | Required | Notes |
+|-------|----------|-------|
+| `tables.owned` | yes | Tables the module is responsible for creating/migrating |
+| `tables.referenced` | yes | Tables the module reads but does not own |
+| `tables.core` | no | Platform core tables consumed read-only |
+| `objectStorage.s3Prefixes` | if module uses files | Use `{org_id}` placeholder |
+| `retention.defaultDays` | yes | 0 = indefinite |
+| `importExport.exportable` | yes | — |
+| `backupRestore.includedInOrgBackup` | yes | — |
+| `upgrade.requiresBackupBeforeUpgrade` | yes | — |
+
+### 21.4 Tenant Storage Modes
+
+The platform is architected to support multiple tenant data storage modes. The default is platform-managed shared DB. Future modes enable enterprise isolation and BYODB.
+
+| Mode | Description | Target |
+|------|-------------|--------|
+| `platform_managed_shared_db` | Default. All orgs share platform DB, all tables scoped by `org_id`. | All orgs today |
+| `platform_managed_dedicated_db` | Platform manages a separate DB/schema for a single tenant. Useful for enterprise isolation, compliance, or performance. | Enterprise tier |
+| `customer_managed_db` | Customer provides their own DB in their own cloud/account. Platform connects using stored credentials and manages schema/data per the module data contracts. | Enterprise+ / BYODB |
+| `hybrid` | Core platform identity, billing, and governance remain in platform DB; module-owned data may live in tenant DB. | Enterprise+ hybrid |
+
+**Constraints:**
+- All modes use the same API, governance, and audit layer
+- Mode is set per org and per module (a module may be excluded from BYODB)
+- Mode changes require migration job and admin approval
+- Platform-managed shared DB remains the only tested mode until R060+
+
+### 21.5 TenantDataStore Conceptual Model
+
+Represents the data store configuration for a tenant org.
+
+```
+TenantDataStore
+├── id
+├── org_id
+├── storage_mode             (see §21.4)
+├── db_type                  (postgres | mysql | mssql | sqlite | external_api | object_storage_only)
+├── connection_secret_ref    (SSM path — never stored plaintext)
+├── host_alias               (human-readable label)
+├── database_name
+├── schema_name
+├── region
+├── cloud_provider           (aws | azure | gcp | self_hosted | platform)
+├── status                   (draft | active | degraded | disabled | migration_required | error)
+├── schema_version           (per-org tracked version)
+├── last_health_check_at
+├── created_by               (user_id)
+├── created_at
+└── updated_at
+```
+
+**Rules:**
+- Connection string never stored plaintext — always as `connection_secret_ref` (SSM SecureString path)
+- Connection secret never returned to frontend
+- All connection tests are audited
+- Customer DB must use TLS
+- Least-privilege DB user required
+- Write permissions are optional and explicitly approved per module
+- Cross-org shared DB credentials forbidden (except platform-level dedicated design)
+- Schema version tracked per org/data store; mismatch triggers `migration_required` status
+
+### 21.6 TenantDataRouter Abstraction
+
+A routing abstraction layer responsible for resolving where an org/module's data lives and returning a scoped database session.
+
+**Responsibilities:**
+- Resolve which `TenantDataStore` handles `(org_id, module_key)` pair
+- Return correct SQLAlchemy bind / connection / session
+- Apply tenant scoping (ensure `org_id` filter is present on all queries)
+- Enforce module data contracts (block access to tables not declared in `dataContract`)
+- Support both platform DB and BYODB transparently to module code
+- Log and audit connection health and migration activity
+
+**Rules:**
+- Module code must NOT open arbitrary DB connections
+- Module code asks for a module-scoped data session from the router
+- Direct DB connection strings in module code are forbidden
+- AI never connects directly to a tenant DB
+- All AI queries go through governed data/query services (Data Sources Hub)
+- Cross-module data access requires explicit platform API, not direct DB join
+
+**Implementation note:** TenantDataRouter is a P3 feature. For now (P0/P1 phases), platform-managed shared DB is assumed; the router is a future abstraction boundary. Module code should write DB queries in a way that is compatible with a future router (i.e., always scope by `org_id`, never hardcode connection strings).
+
+### 21.7 S3 / Object Storage Strategy
+
+All file and media paths must be declared in module data contracts. No module writes random S3 paths.
+
+**ObjectStorageResource conceptual model:**
+
+```
+ObjectStorageResource
+├── id
+├── org_id (nullable — platform-level resources have no org_id)
+├── module_key
+├── resource_type            (media | attachment | document | export_package | import_package |
+│                             module_package | backup | generated_report | embedding_artifact)
+├── bucket
+├── prefix                   (may include {org_id} placeholder)
+├── storage_class            (standard | ia | glacier | etc.)
+├── encryption_mode          (sse_s3 | sse_kms | client_side)
+├── retention_policy         (days or "indefinite")
+├── lifecycle_policy         (S3 lifecycle rule reference)
+├── created_at
+└── updated_at
+```
+
+**Rules:**
+- Every module file/media path declared in `manifest.v2.json dataContract.objectStorage`
+- Module package files live in controlled package storage (`module_packages/`)
+- Org media lives in org-scoped prefixes (`org/{org_id}/`)
+- Export/import packages: checksums required, signed manifests required
+- Backups: lifecycle policies required (no indefinite storage without explicit policy)
+- Deletion: requires cleanup handlers and audit event
+- No module writes random S3 paths at runtime
+
+**Planned S3 bucket structure:**
+```
+platform-data/
+  org/{org_id}/
+    {module_key}/
+      media/
+      attachments/
+      documents/
+      exports/
+      indexes/
+  packages/
+    {module_key}/
+      {version}/
+  backups/
+    org/{org_id}/
+      {timestamp}/
+  artifacts/
+    embeddings/
+      org/{org_id}/
+```
+
+### 21.8 Export / Import / Install / Upgrade Integration
+
+The Data & Artifact Registry drives all lifecycle operations.
+
+#### Export Flow
+1. Read `dataContract.tables.owned` — stream each table as JSONL/Parquet (scoped to `org_id`)
+2. Read `dataContract.objectStorage.s3Prefixes` — enumerate and stream files
+3. Include manifest (module version, schema version, export timestamp)
+4. Include schema snapshot (column names/types)
+5. Include checksums (SHA-256 per file and table dump)
+6. Include ID mapping file (for import remapping)
+7. Sign package (HMAC or asymmetric signature)
+
+#### Import Flow
+1. Validate package signature and checksums
+2. Dry-run: validate schema compatibility against target module version
+3. Validate `TenantStorageMode` compatibility
+4. Remap IDs (primary keys, FK references) using mapping file
+5. Restore files to org-scoped S3 prefixes
+6. Run DB import in transaction; rollback on error if supported
+7. Record audit event with row counts and error summary
+
+#### Module Install
+1. Read `dataContract` from manifest
+2. Create owned tables/indexes in correct `TenantDataStore`
+3. Create S3 prefixes (if applicable)
+4. Seed permissions and settings declared in manifest
+5. Register module data ownership in Platform Data & Artifact Registry
+6. Record install audit event
+
+#### Module Upgrade
+1. Dry-run migration against schema snapshot
+2. Backup org data if `upgrade.requiresBackupBeforeUpgrade = true`
+3. Run `upgrade.migrationHandlers` in declared order
+4. Update `schema_version` only after all handlers succeed
+5. Run rollback handlers if any handler fails
+6. Record upgrade audit event (success or failure with safe error message)
+
+#### Module Uninstall
+1. Disable module first (soft state)
+2. Export org data if required by org admin (honor `importExport.exportable`)
+3. Run `cleanup.handlers` to delete owned S3 files and indexes
+4. Preserve retained data per `retention` policy (do not delete PII-classified data without explicit confirmation)
+5. Record uninstall audit event
+
+### 21.9 BYODB Safety Rules
+
+Customer-managed DB is an enterprise-only feature with strict safety requirements.
+
+**Access rules:**
+- Enterprise tier only — requires system-admin + org-admin approval
+- Connection test required before activation (results audited)
+- TLS required (plaintext connections rejected at connection layer)
+- Least-privilege DB user required (documented minimum permissions per DB type)
+- Schema dry-run required before any migration runs against customer DB
+- No destructive schema changes without approval flow
+- Backup/export required before upgrade migrations
+
+**Query safety:**
+- Query timeouts mandatory (configurable, default 30s)
+- Row limits mandatory (configurable, default 10,000 for AI queries)
+- No arbitrary SQL execution by AI (governed query builder or allowlisted queries only)
+- No full table dump to LLM (scoped retrieval only)
+- All queries audited (table, filter, row count, execution time)
+- Data classification required for all indexed columns (PII handling enforced)
+
+**Operational rules:**
+- Customer DB health monitored (connection check every 5 minutes)
+- Fallback behavior defined per module if customer DB is unavailable
+- SLA and responsibility boundaries documented in org contract
+- Platform never modifies tables not declared in active module data contracts
+
+### 21.10 Relationship Between TenantDataStore and Data Sources Hub
+
+These are two distinct but related systems:
+
+| Concern | TenantDataStore / Data Artifact Registry | Data Sources Hub |
+|---------|------------------------------------------|-----------------|
+| **What it is** | Where platform-managed, module-owned org data lives | External knowledge/tool sources connected to the platform |
+| **Who manages it** | Platform (or customer in BYODB mode) | Organization admin connects external services |
+| **Examples** | helpdesk_tickets table, org media files, module indexes | Google Drive folder, Jira project, GitHub repo, MCP server |
+| **AI access** | AI queries only through governed data/query services | AI accesses via SourceAccessPolicy + governed retrieval |
+| **Secrets** | Connection string in SSM (if BYODB) | OAuth tokens / API keys in SSM |
+| **Audit** | Migration events, schema version changes, health checks | Sync jobs, tool executions, retrieval events |
+| **BYODB overlap** | Customer DB can also register as a DataSource for AI querying | Only through SourceAccessPolicy — governed, row-limited, classification-checked |
+
+**Rule:** The same customer-provided database can appear as both a `TenantDataStore` (for platform module data) and as a `DataSource` in the Data Sources Hub (for AI retrieval) — but the two access paths are independent, separately audited, and separately governed.
+
+---
+
+### ADR-036: Existing DB First, Data Artifact Registry, and Tenant Storage Modes
+
+- **Context:** Multiple platform modules were beginning to own data without declaring it. There was no central registry of what data each module owns. The database evolution strategy was informal. Enterprise organizations would eventually require dedicated or customer-managed data stores.
+- **Decision:** (1) The existing `platformengineer` DB is the migration base — all changes are additive. (2) Every module must declare DB tables, object storage, indexes, secrets, and lifecycle handlers in a `dataContract` manifest section. (3) The platform supports `platform_managed_shared_db` (default), `platform_managed_dedicated_db`, `customer_managed_db`, and `hybrid` tenant storage modes. (4) A `TenantDataRouter` abstraction provides a future boundary for multi-DB routing without requiring module code changes.
+- **Alternatives:** Informal data placement (rejected — creates import/export, backup, and multi-tenancy failures); Big-bang DB rewrite (rejected — violates existing DB-first principle); BYODB now (rejected — P3 feature, premature complexity).
+- **Consequences:** Module development is slightly more formal (manifest dataContract required). Foundation phases gain clear data ownership for export/import/backup. BYODB is possible in the future without breaking existing module code.
+- **Affected modules:** all modules with DB tables; module_manager; data platform; backup/export infrastructure
+
+---
+
 ## 20. Revision History
 
 | Version | Date | Author | Notes |
 |---------|------|--------|-------|
 | v1.0 | 2026-04-25 | R039 | Initial creation — full platform roadmap |
+| v1.1 | 2026-04-25 | R039 addendum | Added §21: Data Ownership, Artifacts & Tenant Storage Strategy; ADR-036 |

@@ -1644,3 +1644,21 @@ Direct URL access to a disabled/unlicensed/suspended module must return:
 | 2026-04-25 | Platform Eng | v2.0 — R038 Follow-up: source of truth, lifecycle, manifest integration, permission model, enforcement, audit, testing, backward compat, AI integration, R038A-G split |
 | 2026-04-25 | Platform Eng | v3.0 — R038A2: per-org versioning (§22), upgrade workflow (§23), rollback policy (§24), package management (§25), marketplace (§26), license/purchase flow (§27), store UI routes (§28), security (§29), AI integration v2 (§30), R038H-I phases (§31), ADR-032 (§32) |
 | 2026-04-25 | Platform Eng | v3.1 — R038B0: header fix, manifest filename corrected to manifest.v2.json (§01), Navigation Source of Truth (§33), implementation inventory in doc 46 |
+
+---
+
+## dataContract Manifest Extension (ADR-036, R039 addendum)
+
+All module manifests (`manifest.v2.json`) must include a `dataContract` section.
+
+The Module Manager reads `dataContract` during:
+- `ModuleRegistry.sync_from_manifests()` — register data ownership
+- Module install — create owned tables/S3 prefixes
+- Module upgrade — run migration handlers, check backup requirement
+- Module uninstall — run cleanup handlers, check retention policy
+
+**dataContract is required for R038H (ModulePackage + upgrade flow).** Modules without `dataContract` will be treated as legacy and flagged in `sync_from_manifests()`.
+
+See full spec: `docs/system-upgrade/47-generic-platform-foundation-roadmap.md §21.2–21.3`
+
+Example `dataContract` structure is in doc 47 §21.3. The Pydantic manifest schema (`apps/module_manager/manifest_schema.py`) must be extended to include a `DataContract` model in the R038B or R038C round.

@@ -942,6 +942,36 @@ Backend only. No UI.
 - [x] Update 35-platform-capabilities-build-order.md (R039 gate row + next rounds)
 - [x] Update 98-change-log.md, 96-rounds-index.md
 
+## R039 addendum — Data Ownership & Storage Strategy (COMPLETE)
+- [x] Existing DB-First principle documented (ADR-036)
+- [x] Platform Data & Artifact Registry spec added to doc 47 §21.2
+- [x] manifest.v2.json `dataContract` extension spec added to doc 47 §21.3
+- [x] Tenant storage modes defined (doc 47 §21.4)
+- [x] TenantDataStore concept model defined (doc 47 §21.5)
+- [x] TenantDataRouter abstraction defined (doc 47 §21.6)
+- [x] S3 / ObjectStorage strategy defined (doc 47 §21.7)
+- [x] Export/import/install/upgrade integration defined (doc 47 §21.8)
+- [x] BYODB safety rules defined (doc 47 §21.9)
+- [x] Relationship to Data Sources Hub clarified (doc 47 §21.10)
+- [x] ADR-036 added
+- [x] Updated: docs 12, 24, 45, 35, 96, 98, ARCHITECTURE.md
+
+## Deferred to R038C
+- [ ] Extend `apps/module_manager/manifest_schema.py` with `DataContract` Pydantic model
+- [ ] `ModuleRegistry.sync_from_manifests()` reads and stores `dataContract` data
+
+## Deferred to R049 (Data Sources Hub)
+- [ ] DataConnection + DataSource models
+- [ ] SourceAccessPolicy enforcement
+- [ ] Connector secrets (SSM-backed)
+- [ ] AI retrieval policy
+
+## Deferred to R060+ (TenantDataStore)
+- [ ] TenantDataStore model and migration
+- [ ] TenantDataRouter implementation
+- [ ] BYODB connection flow
+- [ ] platform_managed_dedicated_db provisioning
+
 ## Phase R040–R049 — Next 10 Rounds (from R039 roadmap)
 
 _Reference: `docs/system-upgrade/47-generic-platform-foundation-roadmap.md §16`_

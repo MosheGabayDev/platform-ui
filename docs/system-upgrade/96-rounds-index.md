@@ -659,3 +659,32 @@ Planning and sequencing round. Define all required platform capabilities, curren
 - `docs/system-upgrade/97-source-of-truth.md`
 - `docs/system-upgrade/10-target-architecture.md`
 - `docs/ARCHITECTURE.md`
+
+---
+
+## Round 039 addendum — Data Ownership, Artifacts & Tenant Storage Strategy
+
+**Date:** 2026-04-25
+**Status:** Complete
+
+### Mission
+Architecture/roadmap hardening. No code. Defined: existing DB-first migration principle, Platform Data & Artifact Registry (module data contracts), manifest `dataContract` extension, tenant storage modes (shared/dedicated/BYODB/hybrid), TenantDataStore/TenantDataRouter abstraction, S3 object storage strategy, export/import/install/upgrade lifecycle integration, BYODB safety rules.
+
+### Key Decisions
+- ADR-036: Existing DB First, Data Artifact Registry, Tenant Storage Modes
+- Additive migration principle formalized — destructive migrations require 30d gate
+- Every module must declare `dataContract` in manifest.v2.json
+- 4 tenant storage modes defined; platform_managed_shared_db is default and only tested mode
+- TenantDataRouter is a P3 future abstraction — module code must be written router-compatible today (always scope by org_id, never hardcode connection strings)
+- BYODB = enterprise P3 feature only
+
+### Files Updated
+- `docs/system-upgrade/47-generic-platform-foundation-roadmap.md` (§21 added, ADR-036 added)
+- `docs/system-upgrade/12-migration-roadmap.md`
+- `docs/system-upgrade/24-core-platform-and-module-system.md`
+- `docs/system-upgrade/45-module-manager-redesign.md`
+- `docs/system-upgrade/35-platform-capabilities-build-order.md`
+- `docs/system-upgrade/15-action-backlog.md`
+- `docs/system-upgrade/96-rounds-index.md`
+- `docs/system-upgrade/98-change-log.md`
+- `docs/ARCHITECTURE.md`
