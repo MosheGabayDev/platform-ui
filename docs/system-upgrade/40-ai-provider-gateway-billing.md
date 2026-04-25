@@ -1,7 +1,9 @@
 # 40 — AI Provider Gateway + Billing Metering Architecture
 
-_Round 029 — 2026-04-24 | Updated R031 — 2026-04-25_
+_Round 029 — 2026-04-24 | Updated R031 — 2026-04-25 | Updated R041-AI (cross-reference to 54)_
 _Status: Architecture design complete. **Phase 1 implemented (platformengineer working tree, uncommitted — R031)**._
+
+> **Runtime contract:** `54-ai-assistant-runtime.md §9` defines what every AI assistant action must record (AIActionInvocation fields, AIUsageLog fields, billing event fields). Doc 40 retains the gateway pipeline design, billing metering architecture, `AIUsageLog` 14-field extension, CI enforcement design, and quota enforcement model.
 
 > **Core rule:** No module may call OpenAI, Gemini, Anthropic, Claude, or any LLM/STT/TTS provider SDK directly. All AI calls go through the AI Provider Gateway. Every call emits a usage event linked to org / user / module / session.
 

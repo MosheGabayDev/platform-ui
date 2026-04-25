@@ -207,6 +207,7 @@ The following are explicitly out of scope until foundation gates are green:
 | [`51-agent-handoff-protocol.md`](51-agent-handoff-protocol.md) | Protocol for parallel agents and context handoff between sessions |
 | [`52-parallel-worktree-agent-workflow.md`](52-parallel-worktree-agent-workflow.md) | Git worktree workflow — naming, creation, lock list, safe/unsafe parallel tracks, **shared docs reconciliation rule (§6.1)**, PR workflow, cleanup |
 | [`53-runtime-deployment-architecture.md`](53-runtime-deployment-architecture.md) | Runtime pod/service separation, Kubernetes topology, deployment boundaries, failure isolation, health checks, migration job rule |
+| [`54-ai-assistant-runtime.md`](54-ai-assistant-runtime.md) | Global chat AI assistant + voice agent runtime contract — page context, capability context, action proposal flow, backend re-check, confirmation policy, audit/billing, module contract |
 | [`26-platform-capabilities-catalog.md`](26-platform-capabilities-catalog.md) | Shared capability catalog |
 
 ---

@@ -3,6 +3,33 @@
 _Running log of what changed in each update round._
 _Newest entry at the top._
 
+## R041-AI — 2026-04-26 — AI Assistant Runtime Contract
+
+**Scope:** Architecture clarification and development contract documentation only — no product code, no schema, no UI
+**Tests:** N/A — architecture round
+
+### What changed
+- **New:** `54-ai-assistant-runtime.md` — end-to-end runtime contract: global chat assistant lifecycle, voice agent safety limits, page context registry structure, user capability context (server-generated only), action proposal flow (9 steps), action registry (`AIActionDescriptor` fields), confirmation/approval policy (low/medium/high/critical), backend authorization re-check (14 checks), audit/billing requirements, module AI/voice contract, required tests (chat + voice + integration), implementation phases (A–F)
+- **Updated:** `36-ai-action-platform.md` — cross-reference to 54 added in header
+- **Updated:** `38-floating-ai-assistant.md` — cross-reference to 54 §1 added in header
+- **Updated:** `39-ai-architecture-consistency-pass.md` — cross-reference to 54 added in header
+- **Updated:** `40-ai-provider-gateway-billing.md` — cross-reference to 54 §9 added in header
+- **Updated:** `02-development-rules.md §6` — extended AI readiness rules with module contract pointer and `migrated` blocker rule
+- **Updated:** `97-source-of-truth.md` — `54` registered
+- **Updated:** `00-implementation-control-center.md` — `54` linked in Key Governance Documents
+- **Updated:** `15-action-backlog.md` — AI assistant implementation tasks added (Phase A–F)
+- **Updated:** `96-rounds-index.md` — R041-AI round entry appended
+
+### Key clarifications
+- Assistant must not make any LLM or API call on page load — only on user explicit interaction
+- Capability context is server-generated, guidance-only for prompt; backend always re-checks all 14 conditions before execution
+- Voice agent is strictly limited: one action per turn, read-back, high/critical always escalate to UI, no bulk destructive, no hard delete, no system action
+- Every module page must declare `aiPageContext`; every AI action must be registered in `AIActionRegistry`
+- A module cannot be marked `migrated` until `ai_chat != "not_declared"` in progress tracker
+- `AIActionInvocation` + `AIUsageLog` rows are mandatory for every action execution and every LLM call
+
+---
+
 ## R041-Infra — 2026-04-26 — Runtime Deployment Architecture
 
 **Scope:** Architecture/governance documentation only — no product features, no schema, no UI, no K8s manifest changes

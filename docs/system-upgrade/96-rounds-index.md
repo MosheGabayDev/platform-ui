@@ -1147,3 +1147,77 @@ from production startup. Migrations run as controlled Jobs. Heavy jobs queued.
 Start R041A (CI enforcement — LLM import gate in GitHub Actions). Create worktree for R041A
 using the commands in `52-parallel-worktree-agent-workflow.md §4`. R041A is in the
 `platformengineer` repo with no blockers.
+
+---
+
+## Round R041-AI — AI Assistant Runtime Contract
+
+**Date:** 2026-04-26
+**Status:** Complete
+
+| Field | Value |
+|-------|-------|
+| **Round** | R041-AI — AI Assistant Runtime, Voice Agent, Page Context, Action Execution |
+| **Date** | 2026-04-26 |
+| **Scope** | Architecture clarification and development contract documentation only — no product code |
+| **Tests** | N/A — architecture round |
+| **Docs updated** | 54 (new), 36, 38, 39, 40, 02, 97, 00, 15, 96, 98 + platformengineer CLAUDE.md |
+| **Next round** | R041A: CI enforcement (create worktree platformengineer-r041a-ci) |
+
+### Mission
+
+Clarify the full runtime architecture for the global chat AI assistant and voice agent.
+Make it unambiguous how the assistant understands the current page, keeps context
+across navigation, knows what the user can do, proposes and executes actions only
+through backend authorization, handles confirmation/approval, respects voice limits,
+records audit, records billing, and works automatically for every module with AI metadata.
+
+### Files Created
+
+- `docs/system-upgrade/54-ai-assistant-runtime.md` — 13 sections:
+  §1 global chat assistant lifecycle, §2 voice agent + safety limits,
+  §3 page context registry structure, §4 user capability context,
+  §5 action proposal flow (9 steps), §6 action registry (AIActionDescriptor fields),
+  §7 confirmation/approval policy (all danger levels), §8 backend re-check (14 checks),
+  §9 audit/billing (AIActionInvocation + AIUsageLog fields),
+  §10 module AI/voice contract, §11 required tests, §12 implementation phases A-F,
+  §13 enforcement rules for future rounds
+
+### Files Updated
+
+- `36-ai-action-platform.md`: cross-reference to 54 in header
+- `38-floating-ai-assistant.md`: cross-reference to 54 §1 in header
+- `39-ai-architecture-consistency-pass.md`: cross-reference to 54 in header
+- `40-ai-provider-gateway-billing.md`: cross-reference to 54 §9 in header
+- `02-development-rules.md §6`: extended AI readiness rules with module contract pointer
+- `97-source-of-truth.md`: 54 registered
+- `00-implementation-control-center.md`: 54 linked in Key Governance Documents
+- `15-action-backlog.md`: AI assistant implementation tasks Phase A-F added
+- `platformengineer/CLAUDE.md`: 54 added to key governance docs list
+
+### Completed
+
+- [x] Global chat runtime defined (54 §1)
+- [x] Voice runtime defined (54 §2)
+- [x] Page context registry defined (54 §3)
+- [x] User capability context defined (54 §4)
+- [x] Action proposal flow defined (54 §5)
+- [x] Action registry defined (54 §6)
+- [x] Confirmation/approval policy defined (54 §7)
+- [x] Backend authorization re-check defined (54 §8)
+- [x] Audit/billing requirements defined (54 §9)
+- [x] Module AI/voice contract defined (54 §10)
+- [x] Required tests defined (54 §11)
+- [x] Implementation phases A-F defined (54 §12)
+- [x] No module can be marked migrated without ai_chat declaration
+
+### Not Completed (deferred — out of scope)
+
+- [ ] Actual implementation (R032–R035 for shell/LLM, R027–R030 for actions)
+- [ ] Per-module `AI_READINESS.md` files (created when each module round starts)
+- [ ] `aiPageContexts` declarations per module (created during Phase F implementation)
+
+### Recommended Next Action
+
+Start R041A (CI enforcement — LLM import gate) which has no blockers.
+Create worktree using `52-parallel-worktree-agent-workflow.md §4` commands.

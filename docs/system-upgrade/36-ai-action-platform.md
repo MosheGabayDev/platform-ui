@@ -1,7 +1,9 @@
 # 36 — AI Action Platform Architecture
 
-_Round 024 — 2026-04-24 | Updated Round 026 (§33–§40) | Updated Round 027 (§41) | Updated Round 028 (consistency pass — deprecated sections marked)_
+_Round 024 — 2026-04-24 | Updated Round 026 (§33–§40) | Updated Round 027 (§41) | Updated Round 028 (consistency pass — deprecated sections marked) | Updated R041-AI (cross-reference to 54)_
 _Status: Design complete. Implementation not started._
+
+> **Runtime contract:** `54-ai-assistant-runtime.md` is the canonical source for end-to-end runtime behavior (page context registry, capability context lifecycle, action proposal flow, backend re-check, confirmation policy, audit/billing requirements, voice safety limits, module contract, implementation phases). When this doc and doc 54 conflict on runtime behavior, doc 54 wins. This doc retains the action platform design rationale and action registry schema.
 
 > **Consistency note (Round 028):** Sections §05 (old AIActionDescriptor), §06 (old permission check), §09 (old voice rules), and §11/§23 (`voiceInvocable`) contain pre-v1 drafts that conflict with the canonical definitions in `docs/system-upgrade/39-ai-architecture-consistency-pass.md`. The deprecated sections are marked below. Implementers must follow doc 39, not the deprecated sections.
 

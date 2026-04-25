@@ -164,6 +164,15 @@ Every module must declare its AI readiness before it can be marked "migrated". M
 
 This declaration lives in `docs/modules/<module_key>/AI_READINESS.md` or as a section in `IMPLEMENTATION.md`.
 
+**Extended module contract (R041-AI):** See `54-ai-assistant-runtime.md §10` for the full AI/voice module contract, including:
+- `aiPageContexts` structure per page
+- `AIActionDescriptor` required fields for each registered action
+- `voice_eligible` and `danger_level` declarations
+- Required AI/voice tests (54 §11)
+- `ai_chat` and `voice_agent` status values for `03-module-migration-progress.md`
+
+**A module cannot be marked `migrated` until `ai_chat != "not_declared"` in `03-module-migration-progress.md`.**
+
 ---
 
 ## 7. i18n Rules

@@ -1072,6 +1072,78 @@ _Governance: `docs/system-upgrade/00-implementation-control-center.md` | Issue d
 
 ---
 
+## AI Assistant Runtime Implementation (R041-AI — contract complete, implementation pending)
+
+_Reference: `docs/system-upgrade/54-ai-assistant-runtime.md`_
+_Phases track: R032–R035 for shell/LLM, R027–R030 for actions_
+
+### Phase A — Page Context Registry + Chat Shell (R032)
+
+| Task | File(s) | Priority | Status |
+|------|---------|----------|--------|
+| **`useRegisterPageContext()` hook** | `lib/hooks/use-register-page-context.ts` | P1 | `[ ]` R032 |
+| **`AIPageContextRegistry` Zustand store** | `lib/stores/ai-page-context-registry.ts` | P1 | `[ ]` R032 |
+| **`FloatingAIButton` component** | `components/shell/floating-ai-assistant/FloatingAIButton.tsx` | P1 | `[ ]` R032 |
+| **`AIAssistantDrawer` (no LLM yet)** | `components/shell/floating-ai-assistant/AIAssistantDrawer.tsx` | P1 | `[ ]` R032 |
+| **Test: no LLM call on page load** | `lib/stores/ai-assistant-session.test.ts` | P1 | `[ ]` R032 |
+
+### Phase B — Capability Context + Read-Only Assistant (R033)
+
+| Task | File(s) | Priority | Status |
+|------|---------|----------|--------|
+| **`GET /api/ai/context` endpoint** | `apps/ai_providers/internal_routes.py` or new module | P1 | `[ ]` R033 |
+| **`UserCapabilityContext` model + generation** | `apps/ai_providers/capability_context.py` | P1 | `[ ]` R033 |
+| **Context staleness: `context_version` increment events** | `apps/authentication/`, `apps/module_manager/` | P1 | `[ ]` R033 |
+| **First LLM message send with capability context** | `lib/stores/ai-assistant-session.ts` | P1 | `[ ]` R033 |
+| **Page explanation test** | `apps/ai_providers/tests/test_capability_context.py` | P1 | `[ ]` R033 |
+| **Stale context 409 test** | `apps/ai_providers/tests/test_capability_context.py` | P1 | `[ ]` R033 |
+
+### Phase C — Action Proposal UI + Low-Risk Actions (R027/R028)
+
+| Task | File(s) | Priority | Status |
+|------|---------|----------|--------|
+| **`AIActionRegistry` backend** | `apps/ai_action_platform/registry.py` | P1 | `[ ]` R027 |
+| **`AIActionProposal` + `ConfirmationToken` models** | `apps/ai_action_platform/models.py` | P1 | `[ ]` R027 |
+| **`POST /api/ai-actions/propose`** | `apps/ai_action_platform/routes.py` | P1 | `[ ]` R027 |
+| **`POST /api/ai-actions/confirm`** | `apps/ai_action_platform/routes.py` | P1 | `[ ]` R028 |
+| **`AIActionPreviewCard` component** | `components/shared/ai-action-preview-card.tsx` | P1 | `[ ]` R028 |
+| **Test: authorized user executes, AIActionInvocation row asserted** | `apps/ai_action_platform/tests/` | P1 | `[ ]` R027 |
+| **Test: unauthorized user gets 403, no execution** | `apps/ai_action_platform/tests/` | P1 | `[ ]` R027 |
+| **Test: unregistered action returns 400** | `apps/ai_action_platform/tests/` | P1 | `[ ]` R027 |
+| **Test: cross-tenant target returns 403** | `apps/ai_action_platform/tests/` | P1 | `[ ]` R027 |
+
+### Phase D — Dangerous Confirmations + Audit (R028/R030)
+
+| Task | File(s) | Priority | Status |
+|------|---------|----------|--------|
+| **Full confirmation flow (medium/high/critical)** | `apps/ai_action_platform/routes.py` | P1 | `[ ]` R028 |
+| **`AIActionInvocation` audit model** | `apps/ai_action_platform/models.py` | P1 | `[ ]` R028 |
+| **Audit write failure → action rollback** | `apps/ai_action_platform/executor.py` | P1 | `[ ]` R028 |
+| **AIUsageLog assertion in all action tests** | `apps/ai_action_platform/tests/` | P1 | `[ ]` R028 |
+
+### Phase E — Voice Agent (R029)
+
+| Task | File(s) | Priority | Status |
+|------|---------|----------|--------|
+| **Voice eligibility filter in action registry** | `apps/ai_action_platform/registry.py` | P1 | `[ ]` R029 |
+| **Voice confirmation: 60s TTL, `confirmed_via: "voice"`** | `apps/ai_action_platform/routes.py` | P1 | `[ ]` R029 |
+| **Escalation for high/critical: pending_ui_confirmation token** | `apps/ai_action_platform/routes.py` | P1 | `[ ]` R029 |
+| **Voice billing: AIUsageLog for STT + TTS + LLM** | `apps/ai_providers/gateway.py` | P1 | `[ ]` R029 |
+| **Test: voice refuses `voice_ineligible` action** | `apps/ai_action_platform/tests/` | P1 | `[ ]` R029 |
+| **Test: voice escalates high-risk, no execution** | `apps/ai_action_platform/tests/` | P1 | `[ ]` R029 |
+| **Test: voice billing recorded** | `apps/ai_action_platform/tests/` | P1 | `[ ]` R029 |
+
+### Phase F — Module Page Context Declarations
+
+| Task | File(s) | Priority | Status |
+|------|---------|----------|--------|
+| **Declare `aiPageContexts` for users module** | `lib/modules/users/ai-page-contexts.ts` | P2 | `[ ]` |
+| **Declare `aiPageContexts` for organizations module** | `lib/modules/organizations/ai-page-contexts.ts` | P2 | `[ ]` |
+| **Declare `aiPageContexts` for helpdesk module** | `lib/modules/helpdesk/ai-page-contexts.ts` | P2 | `[ ]` |
+| **Update `AI_READINESS.md` for each module when page contexts declared** | `docs/modules/<key>/AI_READINESS.md` | P2 | `[ ]` |
+
+---
+
 ## Runtime Deployment Architecture (R041-Infra — doc complete, implementation tasks pending)
 
 _Reference: `docs/system-upgrade/53-runtime-deployment-architecture.md`_
