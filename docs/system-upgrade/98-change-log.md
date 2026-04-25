@@ -3,6 +3,30 @@
 _Running log of what changed in each update round._
 _Newest entry at the top._
 
+## R040 Migrations Applied — 2026-04-26 — DB schema live
+
+**Action:** Applied all 7 R040 migrations to EKS DB via localhost:15432 port-forward
+**Scope:** 5 tables created (pre-existing via earlier rounds), 2 column-add migrations run, 5 revisions stamped
+**G-ModuleDB gate:** ✅ Active
+
+### Tables now live
+- `module_versions` — system version catalog
+- `org_modules` — per-org module state
+- `module_dependencies` — inter-module dependency graph
+- `module_licenses` — org-level license tracking
+- `org_module_settings` — per-org per-module settings
+
+### Columns added
+- `modules.system_status` (VARCHAR 30, server_default 'active') — fixes startup WARN
+- `module_logs.org_id/user_id/module_key` — nullable compat FKs
+
+### Rounds unblocked
+- R042 ModuleRegistry + CompatLayer
+- R043 AI Service Routing Matrix
+- R045 Feature Flags + Settings Engine
+
+---
+
 ## R040-Control follow-up — 2026-04-26 — Doc accuracy fixes
 
 **Commit:** TBD (platform-ui, main)

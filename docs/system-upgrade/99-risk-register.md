@@ -205,8 +205,8 @@
 | **Mitigation** | Run `python scripts/migrations/run_migration.py` for each file in order; requires EKS port-forward on localhost:5444 |
 | **Blocking** | R042, R043, R044, R045 |
 | **Owner/Area** | DB operations; platformengineer |
-| **Next Review** | Immediately before R042 starts |
-| **Status** | 🔴 Active — pending manual action |
+| **Next Review** | N/A — resolved |
+| **Status** | 🟢 [RESOLVED 2026-04-26] — All 7 migrations applied. 5 tables + 4 columns live. G-ModuleDB gate ✅ |
 
 ---
 

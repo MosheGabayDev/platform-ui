@@ -64,8 +64,10 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 
 | Blocker | Blocks | Action Required |
 |---------|--------|----------------|
-| R040 migrations not applied to EKS DB | R042, R043, R044, R045 | **Pending approval.** Migration gate report provided. Apply after user approval. |
-| `modules.system_status` missing from DB | Module auto-registration at startup fails (WARN) | First migration to apply: `20260425_add_module_system_status` |
+| R042 ModuleRegistry.sync_from_manifests() not implemented | R043, R044 | Start R042 (R040 migrations now live) |
+| R045 FeatureFlagService not implemented | R046, R047 | Start R045 (R040 migrations now live) |
+
+> R040 migrations applied 2026-04-26 — G-ModuleDB gate ✅. R042, R043, R045 unblocked.
 
 ---
 
@@ -79,7 +81,7 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 | G-Audit | record_activity() called on all state changes | 🟡 In progress |
 | G-LLM | No direct LLM imports outside apps/ai_providers/ | 🔴 55+ violations (R048) |
 | G-Billing | AIUsageLog written for all LLM calls | 🟡 Gateway exists, calls not wired |
-| G-ModuleDB | R040 migrations applied, OrgModule tables live | 🔴 Not applied |
+| G-ModuleDB | R040 migrations applied, OrgModule tables live | ✅ Applied 2026-04-26 |
 | G-ModuleSync | ModuleRegistry.sync_from_manifests() operational | 🔴 R042 not started |
 | G-NavAPI | Navigation driven by DB state (not hardcoded) | 🔴 R044 not started |
 | G-FeatureFlags | FeatureFlagService operational | 🔴 R045 not started |

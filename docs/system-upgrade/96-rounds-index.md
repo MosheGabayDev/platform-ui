@@ -796,6 +796,11 @@ Establish a lightweight but strict governance system so every future round is sc
 ### Tests
 No tests required — governance/process round.
 
+### Post-Round Migration Note (2026-04-26)
+R040 migrations applied to EKS DB 2026-04-26. All 7 revisions stamped or run. G-ModuleDB gate ✅.
+5 tables live: `module_versions`, `org_modules`, `module_dependencies`, `module_licenses`, `org_module_settings`
+4 columns added: `modules.system_status`, `module_logs.org_id/user_id/module_key`
+
 ### Next Recommended Round
-R041: CI enforcement + ActionButton extraction (ready to start)
-Pre-requisite: apply R040 migrations to EKS DB before R042/R043/R045
+R041A: CI enforcement (ready to start) | R041B: ActionButton extraction (ready to start, runs in parallel)
+R042: ModuleRegistry + CompatLayer (now unblocked)
