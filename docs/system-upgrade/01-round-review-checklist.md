@@ -233,6 +233,8 @@ A round may not be marked Done until all `[!]` items are resolved or explicitly 
 
 **If any item is missing without a documented exception:** the round is **blocked** until the AI/voice readiness declaration or exception is added.
 
+> **Global capability metadata**: If this round implements new user-facing module functionality, also check that `capability_metadata` column is updated in `03-module-migration-progress.md` per `55-ai-system-capability-knowledge-base.md §6.1`.
+
 ---
 
 ## Round Summary Template

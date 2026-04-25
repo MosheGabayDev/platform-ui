@@ -263,6 +263,27 @@ Full module contract: `54-ai-assistant-runtime.md §10`
 Full readiness level spec: `54-ai-assistant-runtime.md §14`
 Required tests: `54-ai-assistant-runtime.md §11`
 
+### §6.9 Global Capability Metadata Required
+
+Every module must declare global capability metadata per `55-ai-system-capability-knowledge-base.md §6.1`. This is tracked in `03-module-migration-progress.md` column `capability_metadata`.
+
+Fields required:
+- `capability_summary`
+- `business_use_cases`
+- `target_users`
+- `required_setup`
+- `required_permissions`
+- `ai_supported_explanations`
+- `ai_supported_actions` (with `voice_supported_actions` subset)
+- `recommended_dashboard_widgets`
+- `related_data_sources`
+- `related_integrations`
+- `plan_or_license_requirements`
+- `limitations`
+- `security_notes`
+
+A module cannot be marked `capability_metadata = complete` without all fields declared.
+
 ---
 
 ## 7. i18n Rules

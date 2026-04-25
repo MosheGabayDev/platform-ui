@@ -24,6 +24,19 @@
 >
 > Full readiness level spec: `54-ai-assistant-runtime.md §14`
 
+### Global AI Knowledge Status Columns
+
+| Column | Values | Description |
+|--------|--------|-------------|
+| `capability_metadata` | `not_started` / `partial` / `complete` | Has capability summary + business use cases + target users declared per doc 55 §6.1 |
+| `global_ai_knowledge` | `not_started` / `partial` / `complete` | Registered in SystemCapability registry or docs equivalent |
+| `solution_template_coverage` | `none` / `partial` / `template_exists` | Covered by at least one SolutionTemplate |
+| `advisory_tested` | `not_started` / `passing` | Knowledge completeness + advisory behavior tests written and passing |
+| `user_capability_context` | `not_started` / `partial` / `integrated` | Module contributes to runtime user capability context |
+
+> A module cannot be marked `capability_metadata = complete` without all §6.1 fields of `55-ai-system-capability-knowledge-base.md` declared.
+> A module cannot be marked `global_ai_knowledge = complete` without being registered in the capability registry (or docs equivalent).
+
 ---
 
 ## Legend

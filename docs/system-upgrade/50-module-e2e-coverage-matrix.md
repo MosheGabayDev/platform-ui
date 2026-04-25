@@ -237,3 +237,25 @@ A "scaffolded" spec with `test.skip()` does NOT count as evidence — it is plan
 | module_key | E2E_COVERAGE.md | base_flows_planned | base_flows_passing | module_flows_planned | module_flows_passing | last_updated |
 |-----------|----------------|-------------------|--------------------|---------------------|---------------------|-------------|
 | _(none created yet)_ | — | 0 | 0 | 0 | 0 | — |
+
+---
+
+## AI Knowledge E2E Flows (Required for all modules in Advisory Mode)
+
+| Flow ID | Test | P0 | Level Required |
+|---------|------|----|----------------|
+| KB-01 | User asks "what can I do?" — returns page capabilities from registry | P0 | Level 1+ |
+| KB-02 | User asks "how can this platform help?" — returns SystemCapabilities | | Advisory |
+| KB-03 | Org-admin asks recommended setup — returns SolutionTemplate | | Advisory |
+| KB-04 | Viewer asks admin-only capability — safe referral, no data leaked | P0 | All |
+| KB-05 | Available-but-not-installed module recommended — distinguishes "not enabled" | | Advisory |
+| KB-06 | Assistant refuses to describe action schema user cannot access | P0 | All |
+| KB-07 | Advisory mode confirmed — zero action execution | P0 | Advisory |
+| KB-08 | Guided mode — page fields and actions explained | | Level 1+ |
+| KB-09 | Delegated action — audit + usage rows created | P0 | Level 3+ |
+| KB-10 | Delegated action denied — AIActionInvocation.status=denied | P0 | Level 3+ |
+| KB-11 | Unlicensed capability — license requirement explained | | Advisory |
+| KB-12 | Admin escalation — user gets "ask your admin to enable X" | | All |
+| KB-13 | Confirmation-required action — not executed until confirm | P0 | Level 4+ |
+| KB-14 | Tenant isolation denial — 403/404 | P0 | Level 3+ |
+| KB-15 | Audit and usage rows created per delegated action and LLM call | P0 | Level 3+ |

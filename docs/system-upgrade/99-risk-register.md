@@ -408,3 +408,18 @@
 | **Owner/Area** | All voice-capable modules (Level 5+) |
 | **Next Review** | Phase E implementation (voice agent) |
 | **Status** | 🟡 Active — safety rules defined; voice Phase E not yet implemented |
+
+---
+
+## R25 — AI Capability Knowledge Drift
+
+| Field | Value |
+|-------|-------|
+| **Description** | The Global System Capability Knowledge (doc 55) becomes stale or incomplete as new modules and capabilities are added without updating the capability registry or module metadata declarations. |
+| **Impact** | H — the assistant gives incorrect advice, recommends unavailable capabilities, or fails to mention available capabilities. Erodes user trust in advisory mode. |
+| **Likelihood** | M — metadata tends to be skipped when developers focus on functionality. |
+| **Mitigation** | §6.1 of doc 55 requires capability metadata for every module; `03-module-migration-progress.md` tracks `capability_metadata` column; KB-01–KB-15 E2E tests verify advisory accuracy; `01-round-review-checklist.md §14` requires capability_metadata check. |
+| **Blocking** | Advisory Mode accuracy. Does not block execution or runtime authorization. |
+| **Owner/Area** | All user-facing modules; enforced via `01-round-review-checklist.md §14` |
+| **Next Review** | First module with CAPABILITY_METADATA.md created |
+| **Status** | 🟡 Active — standard defined; no modules have metadata yet |

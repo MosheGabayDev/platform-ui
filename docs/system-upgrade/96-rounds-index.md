@@ -1299,3 +1299,45 @@ None — governance/standards round.
 
 Start R041A (CI enforcement — LLM import gate in GitHub Actions). No blockers.
 Create worktree: `git worktree add "..\worktrees\platformengineer-r041a-ci" -b feat/r041a-ci-enforcement main`
+
+---
+
+## R041-AI-Knowledge — Global System Capability Knowledge Base
+
+| Field | Value |
+|-------|-------|
+| **Round** | R041-AI-Knowledge |
+| **Date** | 2026-04-26 |
+| **Branch** | main |
+| **Repo** | platform-ui |
+| **Status** | Complete |
+
+**Mission:** Define the global AI system knowledge layer so the Chat AI and Voice Agent can advise users on platform capabilities — separate from runtime authorization. Establish the assistant as a governed in-platform operational assistant (not just a documentation chatbot).
+
+**Files created/updated:**
+
+| File | Action | Summary |
+|------|--------|---------|
+| `55-ai-system-capability-knowledge-base.md` | Created | Full global knowledge model: §1 product role + 3 modes, §2 global vs runtime distinction, §3 data models (SystemCapability/SolutionTemplate/CapabilityRecommendation), §4 knowledge sources, §5 advisory flow, §6 module contract, §7 relationships, §8 tests (KB-01–KB-15), §9 tracker columns, §10 ADR, §11 enforcement |
+| `54-ai-assistant-runtime.md` | Updated | Added §16 cross-reference to doc 55; updated header cross-refs |
+| `36-ai-action-platform.md` | Updated | Added doc 55 relationship note |
+| `02-development-rules.md` | Updated | Added §6.9 global capability metadata requirement |
+| `48-testing-and-evidence-standard.md` | Updated | Added §2.9 AI knowledge/advisory tests + KB patterns |
+| `50-module-e2e-coverage-matrix.md` | Updated | Added KB-01–KB-15 E2E flow table |
+| `03-module-migration-progress.md` | Updated | Added 5 global AI knowledge tracking columns |
+| `15-action-backlog.md` | Updated | Added AI knowledge base per-module tasks |
+| `35-platform-capabilities-build-order.md` | Updated | Added doc 55 reference |
+| `97-source-of-truth.md` | Updated | Added global AI capability knowledge row |
+| `01-round-review-checklist.md` | Updated | Added capability metadata check note to §14 |
+| `99-risk-register.md` | Updated | Added R25 (AI capability knowledge drift) |
+| `96-rounds-index.md` | Updated | This entry |
+| `98-change-log.md` | Updated | Entry prepended |
+
+**Key decisions:**
+- Assistant is governed in-platform operational assistant (not documentation chatbot) with 3 modes: Advisory, Guided Operation, Delegated Action
+- Global knowledge does NOT grant execution permission — the distinction is explicit and enforced
+- Knowledge sources are structured (manifests, registries, catalogs) — not hardcoded prompts
+- Every module must declare capability metadata (§6.1 of doc 55)
+- KB-01–KB-15 E2E tests required for advisory mode verification
+
+**Handoff:** R041A (CI enforcement) or R042 (ModuleRegistry) are next. Per-module CAPABILITY_METADATA.md creation tracked in backlog.

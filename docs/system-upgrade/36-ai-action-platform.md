@@ -9,6 +9,8 @@ _Status: Design complete. Implementation not started._
 
 > **The AI is not read-only.** The AI may execute CREATE, UPDATE, DELETE_SOFT, CONFIGURE, APPROVE, EXECUTE, BULK, and SYSTEM operations — wherever the authenticated human user is authorized to do the same. The constraint is the user's permission set, not the channel. See §33.
 
+> **Relationship to doc 55:** `55-ai-system-capability-knowledge-base.md` defines the global knowledge layer (what the platform can do). This doc (36) defines the action execution layer (what can be executed). Knowledge does not grant execution permission. The runtime user capability context (per doc 54 §6) is the authorization gate between advisory and execution.
+
 ---
 
 ## §01 — Overview and Motivation

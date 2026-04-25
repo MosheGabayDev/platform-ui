@@ -9,6 +9,7 @@
 > - `38-floating-ai-assistant.md` — UI shell: drawer, lazy loading, route change behavior, session state
 > - `39-ai-architecture-consistency-pass.md` — canonical terms: `AIActionDescriptor` v1, `voice_eligible`, capability levels
 > - `40-ai-provider-gateway-billing.md` — gateway pipeline, `AIUsageLog`, billing metering
+> - `55-ai-system-capability-knowledge-base.md` — global knowledge model, SystemCapability registry, SolutionTemplates, advisory flows, KB-01–KB-15 E2E tests
 >
 > **This doc (54)** is the runtime contract: how the chat assistant and voice agent behave end-to-end, from page load to executed action to audit row. When there is a conflict between this doc and docs 36/38/39/40, this doc wins for runtime behavior. Design rationale stays in those earlier docs.
 
@@ -742,3 +743,19 @@ apps/tests/ai_readiness/
 Build the harness after Phase D (dangerous action confirmations + audit). Requires at least 3 modules with complete AI/Voice declarations before the harness has enough coverage to be useful.
 
 **Tracking:** `docs/system-upgrade/15-action-backlog.md §AI Assistant Test Harness`
+
+---
+
+## 16. Relationship to Global System Capability Knowledge Base (doc 55)
+
+The assistant runtime (this doc) handles the **execution side**: page context, action proposal flow, backend re-check, confirmation, audit, billing.
+
+Doc 55 (`55-ai-system-capability-knowledge-base.md`) handles the **knowledge side**: what the platform can do, how to advise users, what to recommend.
+
+**Integration rules:**
+1. Advisory Mode uses doc 55 knowledge sources. No LLM execution in Advisory Mode.
+2. Guided Operation Mode uses AIPageContextRegistry (§5 of this doc). Doc 55 provides module-level context.
+3. Delegated Action Mode uses AIActionRegistry + runtime context (§6–§9 of this doc). Doc 55 identifies which actions exist; this doc governs execution.
+4. When a user asks "what can I do?" — Advisory Mode answers using doc 55.
+5. When a user asks to execute something — Delegated Action Mode applies this doc's re-check rules.
+6. The distinction between global knowledge and runtime context (doc 55 §2) is enforced here: the backend never trusts what the model says it knows — it re-checks from DB/auth.

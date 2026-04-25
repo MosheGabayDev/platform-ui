@@ -291,7 +291,42 @@ def test_stale_context_rejected(client, admin_token, bump_context_version):
     assert resp.json["error"] == "context_stale"
 ```
 
-### 2.9 Data Sources / MCP / DB Connection Tests
+### 2.9 AI Knowledge and Advisory Tests
+
+For every user-facing module, assert:
+
+1. **KB-completeness:** Module has `capability_summary` + `business_use_cases` + `target_users` declared (from `55-ai-system-capability-knowledge-base.md §6.1`)
+2. **KB-advisory-mode:** Assistant in Advisory Mode returns correct capabilities for a sample org profile — no action execution
+3. **KB-guided-mode:** Assistant in Guided Operation Mode explains current page fields and actions from AIPageContextRegistry
+4. **KB-delegated-allowed:** Allowed delegated action executes + `AIActionInvocation.status == "success"` + `AIUsageLog` row created
+5. **KB-delegated-denied:** Denied action returns 403 + `AIActionInvocation.status == "denied"` — no execution
+6. **KB-unavailable-unlicensed:** Assistant explains license requirement and refers to admin — no data exposed
+7. **KB-tenant-isolation:** Cross-tenant resource access → 403/404 — advisory knowledge does not bypass tenant scope
+8. **KB-admin-escalation:** User without permission gets safe referral, not raw error
+
+Evidence required: test file at `tests/ai_knowledge/test_<module_key>_advisory.py`
+
+**Test patterns:**
+```python
+def test_advisory_mode_no_execution(client, user_token, org_profile):
+    # Advisory mode must not trigger any action execution
+    resp = client.post("/api/ai/advisory", json={"mode": "advisory", "query": "what can I do?"})
+    assert resp.status_code == 200
+    assert resp.json.get("actions_executed") == []
+
+def test_guided_mode_page_context(client, user_token, page_id):
+    resp = client.post("/api/ai/context", json={"page_id": page_id})
+    assert resp.status_code == 200
+    assert "available_actions" in resp.json["data"]
+
+def test_unlicensed_capability_referral(client, basic_plan_token, capability_id):
+    resp = client.post("/api/ai/advisory", json={"capability_id": capability_id})
+    assert resp.status_code == 200
+    assert resp.json["data"]["status"] == "unlicensed"
+    assert "admin" in resp.json["data"]["message"].lower()
+```
+
+### 2.10 Data Sources / MCP / DB Connection Tests
 
 For future Data Sources Hub:
 
@@ -303,7 +338,7 @@ For future Data Sources Hub:
 - Destructive MCP tools require AI Action Platform rules
 - Secrets are never returned to the frontend
 
-### 2.9 Billing / Quota Tests
+### 2.11 Billing / Quota Tests
 
 For billable capabilities:
 

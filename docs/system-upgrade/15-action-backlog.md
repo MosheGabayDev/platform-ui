@@ -1225,6 +1225,26 @@ _Reference: `docs/system-upgrade/53-runtime-deployment-architecture.md`_
 
 ---
 
+---
+
+## AI Knowledge Base — Per-Module Capability Metadata
+
+| Task | Priority | Depends On |
+|------|----------|------------|
+| Create `CAPABILITY_METADATA.md` for helpdesk module | High | R041-AI-Knowledge complete |
+| Create `CAPABILITY_METADATA.md` for users module | High | R041-AI-Knowledge complete |
+| Create `CAPABILITY_METADATA.md` for admin module | High | R041-AI-Knowledge complete |
+| Create `CAPABILITY_METADATA.md` for ala module | High | R041-AI-Knowledge complete |
+| Create `CAPABILITY_METADATA.md` for floating_assistant module | High | R041-AI-Knowledge complete |
+| Create `CAPABILITY_METADATA.md` for ai_providers module | Medium | R041-AI-Knowledge complete |
+| Create `CAPABILITY_METADATA.md` for authentication module | Medium | R041-AI-Knowledge complete |
+| Implement SystemCapability registry (`apps/ai_assistant/capability_registry.py`) | Medium | R042+ |
+| Implement SolutionTemplate registry (`apps/ai_assistant/solution_templates.py`) | Medium | R042+ |
+| Build advisory query handler (`POST /api/ai/advisory`) | Low | SystemCapability registry |
+| Wire KB-01–KB-15 E2E tests for first 3 modules | Low | Capability metadata complete |
+
+---
+
 ## Backlog Conventions
 
 - **Now**: Will be worked on this week or is actively blocking other work

@@ -1,7 +1,9 @@
 # 35 — Platform Capabilities Build Order
 
-_Created: 2026-04-24 | R023 | Updated R024 (AI Action Platform) | R025 (AI Capability Context) | R026 (capability levels, viability checks, delete policy) | R041-Test (security test mandate added) | R041-Gov (legacy preservation + module inventory mandate added)_
+_Created: 2026-04-24 | R023 | Updated R024 (AI Action Platform) | R025 (AI Capability Context) | R026 (capability levels, viability checks, delete policy) | R041-Test (security test mandate added) | R041-Gov (legacy preservation + module inventory mandate added) | R041-AI-Knowledge (AI knowledge layer reference added)_
 _Owner: platform-ui build sequencing_
+
+> **AI Knowledge Layer:** For the global capability knowledge base (SystemCapability, SolutionTemplate, CapabilityRecommendation models, knowledge sources, advisory flows), see `55-ai-system-capability-knowledge-base.md`.
 
 ---
 

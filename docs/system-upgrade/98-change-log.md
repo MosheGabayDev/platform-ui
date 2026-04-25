@@ -3,6 +3,30 @@
 _Running log of what changed in each update round._
 _Newest entry at the top._
 
+## R041-AI-Knowledge — 2026-04-26
+
+**Scope:** Global AI system capability knowledge base — governance and architecture documentation only. No runtime code.
+
+**What changed:**
+1. Created `55-ai-system-capability-knowledge-base.md` — full global knowledge model for Chat AI and Voice Agent advisors
+2. Defined AI Operational Assistant Product Role: 3 modes (Advisory, Guided Operation, Delegated Action)
+3. Defined core distinction: Global System Capability Knowledge vs User Runtime Capability Context
+4. Defined data models: SystemCapability, SolutionTemplate, CapabilityRecommendation
+5. Defined 14 knowledge sources (module manifests, action registry, billing catalog, etc.)
+6. Defined full advisory flow (8-step including execution path)
+7. Defined module contract: global capability metadata required (§6.1, 13 fields)
+8. Defined KB-01–KB-15 E2E test requirements
+9. Added 5 new progress tracker columns to doc 03
+10. Added R25 risk: AI capability knowledge drift
+11. Added §6.9 to dev rules: global capability metadata requirement
+12. Added §2.9 to testing standard: advisory and knowledge tests
+13. Added §16 to doc 54: integration with doc 55
+14. Added global AI capability knowledge row to source-of-truth registry
+
+**Key rule enforced:** "The assistant may describe global capabilities freely. It may only execute actions or access tenant data according to the runtime user capability context. Global knowledge does not grant execution permission."
+
+---
+
 ## R041-AI-Assist Governance — 2026-04-26 — Mandatory Chat AI + Voice Agent Readiness for Every Module
 
 **Scope:** Architecture/governance documentation — AI/voice readiness mandatory gate for all modules
