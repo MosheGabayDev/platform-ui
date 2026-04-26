@@ -13,7 +13,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
-import { User, Mail, Building2, Shield, Clock, CheckCircle, Key, Pencil, UserX, UserCheck, LogIn, UserCog, Lock, ShieldCheck, Tag, Bot, Globe, MapPin, FileText } from "lucide-react";
+import { User, Mail, Building2, Shield, Clock, CheckCircle, Key, Pencil, UserX, UserCheck, LogIn, UserCog, Lock, ShieldCheck, Tag, Bot, Globe, MapPin, FileText, Phone, Briefcase, Bell, AlertTriangle, Newspaper } from "lucide-react";
 import { PlatformTimeline } from "@/components/shared/timeline";
 import type { TimelineEvent } from "@/components/shared/timeline";
 import { Separator } from "@/components/ui/separator";
@@ -203,12 +203,22 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
 
             <DetailSection title="פרטי חשבון">
               {(user.first_name || user.last_name) && (
-                <InfoRow icon={User} label="שם פרטי" value={[user.first_name, user.last_name].filter(Boolean).join(" ")} />
+                <InfoRow icon={User} label="שם" value={[user.first_name, user.last_name].filter(Boolean).join(" ")} />
               )}
+              {user.display_name && <InfoRow icon={User} label="שם תצוגה" value={user.display_name} />}
               <InfoRow icon={User} label="שם משתמש" value={user.username} />
               <InfoRow icon={Mail} label="אימייל" value={user.email} />
+              {user.phone && (
+                <InfoRow icon={Phone} label="טלפון" value={
+                  <span className="flex items-center gap-1.5">
+                    {user.phone}
+                    {user.phone_verified && <CheckCircle className="size-3 text-emerald-500" />}
+                  </span>
+                } />
+              )}
               <InfoRow icon={Building2} label="ארגון" value={`#${user.org_id}`} />
               {user.role && <InfoRow icon={Tag} label="תפקיד" value={user.role} />}
+              {user.job_title && <InfoRow icon={Briefcase} label="כותרת תפקיד" value={user.job_title} />}
               {user.bio && <InfoRow icon={FileText} label="ביוגרפיה" value={user.bio} />}
               {user.preferred_language && <InfoRow icon={Globe} label="שפה מועדפת" value={user.preferred_language} />}
               {user.timezone && <InfoRow icon={MapPin} label="אזור זמן" value={user.timezone} />}
@@ -231,6 +241,12 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
               <InfoRow icon={Shield} label="מנהל" value={<BoolBadge value={user.is_manager} />} />
               <InfoRow icon={Shield} label="מנהל מערכת" value={<BoolBadge value={user.is_system_admin} />} />
               <InfoRow icon={Bot} label="סוכן AI" value={<BoolBadge value={user.is_ai_agent} />} />
+            </DetailSection>
+
+            <DetailSection title="הגדרות התראות">
+              <InfoRow icon={Bell} label="התראות במייל" value={<BoolBadge value={user.email_notifications} />} />
+              <InfoRow icon={AlertTriangle} label="התראות אבטחה" value={<BoolBadge value={user.security_alerts} />} />
+              <InfoRow icon={Newspaper} label="עדכוני מערכת" value={<BoolBadge value={user.system_updates} />} />
             </DetailSection>
 
             {user.permissions.length > 0 && (
