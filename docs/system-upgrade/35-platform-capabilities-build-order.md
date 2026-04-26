@@ -215,7 +215,7 @@ GDPR / Enterprise
 | P1 | `PlatformNotifications` UI (§12) | Notification bell + drawer for any module's events | 3 hr | R024 |
 
 **After cap 08 + cap 17 (R023):** Helpdesk Phase A (ticket list + route shell) can start as the first specialized module consumer.
-**After cap 08 + cap 09 + cap 12 (R024):** Helpdesk Phase B (ticket detail + approvals) can start.
+**After cap 08 + cap 09 + cap 12 + cap 02 (R024):** Helpdesk Phase B (ticket detail + approvals) can start.
 **Helpdesk Phase A is the first specialized module consumer of this foundation — the foundation is not built for Helpdesk specifically.**
 
 ---
@@ -228,7 +228,7 @@ GDPR / Enterprise
 |-----------|-----------|-------|
 | `PlatformRealtime` (§23) | Investigation status stream | R029 |
 | `PlatformJobRunner` (§14) | Investigation progress display | R030 |
-| `PlatformApprovalFlow` UI (generic) | AI-triggered action approval — built as platform capability, consumed by AI Agents and Helpdesk alike | R024+ |
+| `PlatformApprovalFlow` UI (generic) | AI-triggered action approval — built as platform capability, consumed by AI Agents and Helpdesk alike | R028 |
 
 ---
 
