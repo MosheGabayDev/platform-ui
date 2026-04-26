@@ -14,7 +14,7 @@ _Last updated: 2026-04-26 (Code-First Schema Rule added; R040 schema adoption do
 
 ---
 
-## Phase 0 — Stabilization (✅ Complete — R005–R022)
+## Phase 0 — Stabilization (✅ Complete except deferred hardening — R005–R022)
 
 **Goal**: Make platform-ui usable with real data before migrating any features.
 
@@ -31,8 +31,10 @@ _Last updated: 2026-04-26 (Code-First Schema Rule added; R040 schema adoption do
 - [x] Roles module: list + detail + create/edit (R018)
 - [x] Dangerous actions: `useDangerousAction` + `ConfirmActionDialog` (R020)
 - [x] Security hardening: JWT, RBAC, audit trail, PII restriction (R021–R022)
-- [ ] Delete dead code: `api_auth_OLD_BACKUP.py` + other `*_OLD_*` files — still pending
-- [ ] Playwright: 3 smoke tests — still pending
+- [ ] Delete dead code: `api_auth_OLD_BACKUP.py` + other `*_OLD_*` files — **deferred to Phase 1 hardening**
+- [ ] Playwright: 3 smoke tests — **deferred to Phase 1 hardening**
+
+> **Deferred hardening note:** These two items do not block Phase 1 work but must be completed before Phase 0 is considered fully closed. They are tracked in `15-action-backlog.md`.
 
 **Dependencies**: None — platform-ui + Flask both available
 

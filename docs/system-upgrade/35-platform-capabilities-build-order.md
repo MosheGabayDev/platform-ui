@@ -3,6 +3,8 @@
 _Created: 2026-04-24 | R023 | Updated R024 (AI Action Platform) | R025 (AI Capability Context) | R026 (capability levels, viability checks, delete policy) | R041-Test (security test mandate added) | R041-Gov (legacy preservation + module inventory mandate added) | R041-AI-Knowledge (AI knowledge layer reference added)_
 _Owner: platform-ui build sequencing_
 
+> **Round numbering note:** Round numbers R023–R033 in this document are **historical identifiers** from the original build sequencing plan. The active implementation rounds use the R040+ numbering (R041A, R041B, R042, etc.) as tracked in `00-implementation-control-center.md`. When this doc says "R023", it refers to the capability work described there — not a current active round. Use the control center for current sequencing.
+
 > **AI Knowledge Layer:** For the global capability knowledge base (SystemCapability, SolutionTemplate, CapabilityRecommendation models, knowledge sources, advisory flows), see `55-ai-system-capability-knowledge-base.md`.
 
 ---

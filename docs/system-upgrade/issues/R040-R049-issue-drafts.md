@@ -99,7 +99,7 @@
 
 ## R042 — ModuleRegistry.sync_from_manifests() + ModuleCompatLayer
 
-**Status:** `[ ] blocked — R040 migrations must be applied to EKS DB first`
+**Status:** `[ ] ready (code work); data ingestion blocked until 3 drift-fix migrations run (20260426_fix_r040_fk_cascade, _server_defaults, _indexes)`
 **Repo:** platformengineer
 **Dependencies:** R040 migrations live in DB, R041 complete
 

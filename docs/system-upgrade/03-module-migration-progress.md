@@ -26,13 +26,15 @@
 
 ### Global AI Knowledge Status Columns
 
-| Column | Values | Description |
-|--------|--------|-------------|
-| `capability_metadata` | `not_started` / `partial` / `complete` | Has capability summary + business use cases + target users declared per doc 55 §6.1 |
-| `global_ai_knowledge` | `not_started` / `partial` / `complete` | Registered in SystemCapability registry or docs equivalent |
-| `solution_template_coverage` | `none` / `partial` / `template_exists` | Covered by at least one SolutionTemplate |
-| `advisory_tested` | `not_started` / `passing` | Knowledge completeness + advisory behavior tests written and passing |
-| `user_capability_context` | `not_started` / `partial` / `integrated` | Module contributes to runtime user capability context |
+> **Tracking:** These columns are defined here for reference. Until the Module Registry table is wide enough to accommodate them (deferred — table already has 19 columns), each module's AI knowledge status is tracked in `docs/modules/<module_key>/CAPABILITY_METADATA.md`. The table below will be extended to include these columns when the first 3 modules have complete capability metadata.
+
+| Column | Values | Description | Where tracked |
+|--------|--------|-------------|---------------|
+| `capability_metadata` | `not_started` / `partial` / `complete` | Has capability summary + business use cases + target users declared per doc 55 §6.1 | `docs/modules/<key>/CAPABILITY_METADATA.md` |
+| `global_ai_knowledge` | `not_started` / `partial` / `complete` | Registered in SystemCapability registry or docs equivalent | `docs/modules/<key>/CAPABILITY_METADATA.md` |
+| `solution_template_coverage` | `none` / `partial` / `template_exists` | Covered by at least one SolutionTemplate | `docs/modules/<key>/CAPABILITY_METADATA.md` |
+| `advisory_tested` | `not_started` / `passing` | Knowledge completeness + advisory behavior tests written and passing | `docs/modules/<key>/CAPABILITY_METADATA.md` |
+| `user_capability_context` | `not_started` / `partial` / `integrated` | Module contributes to runtime user capability context | `docs/modules/<key>/CAPABILITY_METADATA.md` |
 
 > A module cannot be marked `capability_metadata = complete` without all §6.1 fields of `55-ai-system-capability-knowledge-base.md` declared.
 > A module cannot be marked `global_ai_knowledge = complete` without being registered in the capability registry (or docs equivalent).

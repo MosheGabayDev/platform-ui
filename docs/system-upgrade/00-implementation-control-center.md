@@ -1,7 +1,7 @@
 # 00 — Implementation Control Center
 
 > **This is the first doc to read after `CLAUDE.md`.** Every implementation round starts here.
-> _Last updated: 2026-04-26 (R041-AI-Assist Governance — AI/Voice readiness mandatory gate added to all module rounds)_
+> _Last updated: 2026-04-26 (R041-docs-reconciliation — Control Center drift corrected)_
 
 ---
 
@@ -23,22 +23,30 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 
 ---
 
-## Current Active Round
+## Recommended Next Round
 
-| Field | Value |
-|-------|-------|
-| **Round** | R040-Control — Implementation Governance Setup |
-| **Status** | ✅ Complete (2026-04-25) |
-| **Commit (platform-ui)** | `202d45a678745d5d5046e60644751175d3e01340` |
-| **Commit (platformengineer)** | `ed72d27913dc581e6553cace8186b3ea58ecefd5` |
-| **Branch** | main (both repos) |
-| **Purpose** | Establish governance system — no product features, no schema, no UI |
+> No round is currently in progress. The next agent should start one of the rounds below.
 
-**Previous completed (most recent):** R041-AI-Knowledge — Global System Capability Knowledge Base (2026-04-26)
-**Before that:** R041-AI-Assist Governance — Mandatory Chat AI + Voice Agent Readiness (2026-04-26)
-**Before that:** R041-Gov Worktree Addendum — Parallel Worktree Agent Workflow (2026-04-26)
-**Before that:** R041-AI — AI Assistant Runtime Contract (2026-04-26)
-**Before that:** R040 — Module Manager Additive Schema Foundation (`abdf3bc38985dcf1152a390ea81f3d1675103140`)
+| Candidate | Title | Status | Notes |
+|-----------|-------|--------|-------|
+| **R041A** | CI Enforcement (LLM import gate) | `[ ] ready` | No blockers. platformengineer only. Script exists. |
+| **R041B** | ActionButton Extraction | `[ ] ready` | No blockers. Both repos. Can run parallel to R041A. |
+| **R042** | ModuleRegistry + ModuleCompatLayer | `[ ] ready (code)` | Code work unblocked. **3 drift-fix migrations must run before data ingestion** (see §Code-First Schema Rule below). |
+
+---
+
+## Recent Rounds (most recent first)
+
+| Round | Title | Date | Commit |
+|-------|-------|------|--------|
+| R041-AI-Knowledge | Global System Capability Knowledge Base | 2026-04-26 | `5ea0ba4` (platform-ui) |
+| R041-AI-Assist | Mandatory Chat AI + Voice Agent Readiness | 2026-04-26 | `b1da1a3` (platform-ui) |
+| R041-WT | Worktree Addendum — Parallel Agent Workflow | 2026-04-26 | platform-ui |
+| R041-Gov | Governance Addendum — Legacy Preservation + Agent Handoff | 2026-04-26 | platform-ui |
+| R041-AI | AI Assistant Runtime Contract | 2026-04-26 | platform-ui |
+| R041-Test | Security/Multi-Tenant Test Standard | 2026-04-26 | platform-ui |
+| R040-Control | Implementation Governance Setup | 2026-04-25 | `202d45a6` (platform-ui) / `ed72d279` (platformengineer) |
+| R040 | Module Manager Additive Schema Foundation | 2026-04-26 | `abdf3bc3` (platformengineer) |
 
 ---
 
@@ -49,16 +57,16 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 | R041-Test | Security/Multi-Tenant Test Standard | `[x] complete 2026-04-26` | R040 merged | platform-ui |
 | R041-Gov | Governance Addendum — Legacy Preservation + Agent Handoff | `[x] complete 2026-04-26` | R041-Test | platform-ui |
 | R041-WT | Worktree Addendum — Parallel Agent Workflow | `[x] complete 2026-04-26` | R041-Gov | platform-ui |
-| R041A | CI Enforcement (LLM import gate in GitHub Actions) | `[ ] ready` | R040 merged | platformengineer |
-| R041B | ActionButton Extraction to shared component | `[ ] ready` | R040 merged | platform-ui + platformengineer |
-| R042 | ModuleRegistry.sync_from_manifests() + ModuleCompatLayer | `[ ] blocked` | R040 migrations in DB | platformengineer |
-| R043 | AI Service Routing Matrix Backend | `[ ] blocked` | R040 OrgModule tables live | platformengineer |
+| R041A | CI Enforcement (LLM import gate in GitHub Actions) | `[ ] ready` | R040 merged ✅ | platformengineer |
+| R041B | ActionButton Extraction to shared component | `[ ] ready` | R040 merged ✅ | platform-ui + platformengineer |
+| R042 | ModuleRegistry.sync_from_manifests() + ModuleCompatLayer | `[ ] ready (code); data-ingestion blocked until drift migrations run` | R040 migrations live ✅; drift-fix migrations pending | platformengineer |
+| R043 | AI Service Routing Matrix Backend | `[ ] ready` | R040 OrgModule tables live ✅ | platformengineer |
 | R044 | Navigation API + JWT Route Audit | `[ ] blocked` | R042 CompatLayer | platformengineer |
-| R045 | Feature Flags + Settings Engine | `[ ] blocked` | R040 in DB | platformengineer |
+| R045 | Feature Flags + Settings Engine | `[ ] ready` | R040 in DB ✅ | platformengineer |
 | R046 | AuditLog + Notifications Foundation | `[ ] blocked` | R045 | platformengineer |
-| R047 | API Keys + Secrets Manager Backend | `[ ] blocked` | R040, R046 | platformengineer |
+| R047 | API Keys + Secrets Manager Backend | `[ ] blocked` | R040 ✅, R046 | platformengineer |
 | R048 | P0 LLM Direct Import Cleanup | `[ ] partial-ready` | Simple gateway migrations: no extra dep. Full cleanup: R043 preferred | platformengineer |
-| R049 | Data Sources Hub Backend Foundation | `[ ] blocked` | R047, R046, R040 | platformengineer |
+| R049 | Data Sources Hub Backend Foundation | `[ ] blocked` | R047, R046, R040 ✅ | platformengineer |
 
 > **R041A/B note:** CI enforcement (R041A) is platformengineer only. ActionButton extraction (R041B) requires changes in both platform-ui (component) and platformengineer (shared Python equivalent if any). They can run in parallel.
 > **R048 note:** Modules that only need simple `AIProviderGateway.call()` substitution (no service routing needed) can be migrated immediately — start with fitness_nutrition, ala, ai_coach. Full service-routing-aware migration requires R043 routing matrix first.
@@ -71,10 +79,11 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 
 | Blocker | Blocks | Action Required |
 |---------|--------|----------------|
-| R042 ModuleRegistry.sync_from_manifests() not implemented | R043, R044 | Start R042 (R040 migrations now live) |
-| R045 FeatureFlagService not implemented | R046, R047 | Start R045 (R040 migrations now live) |
+| 3 drift-fix migrations not yet run (`fk_cascade`, `server_defaults`, `indexes`) | R042 data ingestion / seed | Run migrations before R042 data layer work |
+| R042 ModuleRegistry not implemented | R043, R044 | Start R042 — code work unblocked |
+| R045 FeatureFlagService not implemented | R046, R047 | Start R045 — unblocked |
 
-> R040 migrations applied 2026-04-26 — G-ModuleDB gate ✅. R042, R043, R045 unblocked.
+> R040 migrations applied 2026-04-26 — G-ModuleDB-SchemaPresent ✅. R042/R043/R045 code work unblocked. G-ModuleDB-DriftFixed 🔴 — 3 drift-fix migrations still pending.
 
 ---
 
@@ -88,7 +97,8 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 | G-Audit | record_activity() called on all state changes | 🟡 In progress |
 | G-LLM | No direct LLM imports outside apps/ai_providers/ | 🔴 55+ violations (R048) |
 | G-Billing | AIUsageLog written for all LLM calls | 🟡 Gateway exists, calls not wired |
-| G-ModuleDB | R040 migrations applied, OrgModule tables live | ✅ Applied 2026-04-26 |
+| G-ModuleDB-SchemaPresent | R040 migrations applied, OrgModule tables live | ✅ Applied 2026-04-26 |
+| G-ModuleDB-DriftFixed | 3 drift-fix migrations run (FK cascade, server_defaults, indexes) | 🔴 Required before R042 data ingestion |
 | G-ModuleSync | ModuleRegistry.sync_from_manifests() operational | 🔴 R042 not started |
 | G-NavAPI | Navigation driven by DB state (not hardcoded) | 🔴 R044 not started |
 | G-FeatureFlags | FeatureFlagService operational | 🔴 R045 not started |
