@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
 import { Building2, Hash, FileText, Users, Clock, CheckCircle, Pencil, PowerOff, Power } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ActionButton } from "@/components/shared/action-button";
 import { OrgStatusBadge } from "@/components/modules/organizations/org-status-badge";
 import { OrgEditSheet } from "@/components/modules/organizations/organization-form";
 import {
@@ -73,27 +74,27 @@ export default function OrgDetailPage({ params }: { params: Promise<{ id: string
           <div className="flex items-center gap-2">
             {isSystemAdmin && org && (
               org.is_active ? (
-                <Button
+                <ActionButton
                   variant="outline"
                   size="sm"
                   onClick={deactivate.trigger}
-                  disabled={deactivate.isPending}
+                  isLoading={deactivate.isPending}
                   className="text-orange-600 border-orange-300 hover:bg-orange-50 dark:text-orange-400 dark:border-orange-700 dark:hover:bg-orange-950"
                 >
                   <PowerOff className="size-3.5 me-1.5" />
                   השבת ארגון
-                </Button>
+                </ActionButton>
               ) : (
-                <Button
+                <ActionButton
                   variant="outline"
                   size="sm"
                   onClick={reactivate.trigger}
-                  disabled={reactivate.isPending}
+                  isLoading={reactivate.isPending}
                   className="text-blue-600 border-blue-300 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-700 dark:hover:bg-blue-950"
                 >
                   <Power className="size-3.5 me-1.5" />
                   הפעל ארגון
-                </Button>
+                </ActionButton>
               )
             )}
             {isSystemAdmin && org && (
