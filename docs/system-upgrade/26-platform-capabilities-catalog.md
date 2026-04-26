@@ -46,7 +46,7 @@ This rule is enforced by code review and CI. Reviewers must reject PRs that dupl
 | 09 | [PlatformTimeline](#09-platformtimeline) | **now** | ✅ Implemented | R041E | — |
 | 10 | [PlatformAuditLog](#10-platformauditlog) | **next** | ⬜ Pending | — | R026 |
 | 11 | [PlatformSearch / Command Palette](#11-platformsearch--command-palette) | **next** | ⬜ Pending | — | R032 |
-| 12 | [PlatformNotifications](#12-platformnotifications) | **now** | ⬜ Pending | — | R024 |
+| 12 | [PlatformNotifications](#12-platformnotifications) | **now** | ✅ Implemented \| R042 | — | R024 |
 | 13 | [PlatformApprovalFlow](#13-platformapprovalflow) | **now** | ⬜ Pending | — | R028 |
 | 14 | [PlatformJobRunner](#14-platformjobrunner) | **next** | ⬜ Pending | — | R031 |
 | 15 | [PlatformWizard](#15-platformwizard) | **later** | ⬜ Pending | — | Phase 3 |
@@ -350,7 +350,7 @@ Build when Audit Log module (13) is started. `AuditLogTable` is the primary deli
 
 ## 12 — PlatformNotifications
 
-**Status:** ⬜ Pending | **Priority:** now
+**Status:** ✅ Implemented (R042) | **Priority:** now
 
 **Purpose:** Notification bell in the app header, real-time badge count, notification drawer/popover with unread items. Notifications include: approval requests, completed AI investigations, session escalations, billing alerts.
 
@@ -358,11 +358,12 @@ Build when Audit Log module (13) is started. `AuditLogTable` is the primary deli
 
 **Libraries:** `sonner` (toast — already installed), `@radix-ui/react-popover` via shadcn, custom SSE hook (see PlatformRealtime §23)
 
-**Canonical files (to build):**
-- `components/shell/notification-bell.tsx` — `NotificationBell` (header icon with badge count)
-- `components/shell/notification-drawer.tsx` — `NotificationDrawer` (popover with unread list)
-- `lib/hooks/use-notifications.ts` — polling or SSE-based notification fetch + Zustand state
-- `lib/api/notifications.ts` — `fetchNotifications()`, `markRead(id)`
+**Canonical files:**
+- `components/shell/notification-bell.tsx` — `NotificationBell` (header icon with badge count) ✅
+- `components/shell/notification-drawer.tsx` — `NotificationDrawer` (popover with unread list) ✅
+- `lib/hooks/use-notifications.ts` — 30s polling + mark-read mutations ✅
+- `lib/api/notifications.ts` — `fetchNotifications()`, `markNotificationRead(id)`, `markAllNotificationsRead()` ✅
+- `lib/modules/notifications/types.ts` — `Notification`, `NotificationType`, response envelopes ✅
 
 **First implementation scope:**
 1. Polling-based (30s interval) unread count badge on header bell

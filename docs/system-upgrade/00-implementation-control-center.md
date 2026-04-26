@@ -1,7 +1,7 @@
 # 00 — Implementation Control Center
 
 > **This is the first doc to read after `CLAUDE.md`.** Every implementation round starts here.
-> _Last updated: 2026-04-26 (R041E — PlatformTimeline cap 09 implemented; PR #6 opened)_
+> _Last updated: 2026-04-26 (R042 — PlatformNotifications cap 12 implemented; PR #7 opened)_
 
 ---
 
@@ -26,6 +26,8 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 ## Recommended Next Round
 
 > No round is currently in progress. The next agent should start one of the rounds below.
+
+**R042 ✅ (platform-ui PR #7 opened 2026-04-26, SHA `943ca4b`).**
 
 **R041B ✅ (PR #2 merged 2026-04-26, SHA `5532102`). R041C ✅ (docs, 2026-04-26). R041D ✅ (platformengineer PR #9 opened 2026-04-26, pending merge). R041E ✅ (platform-ui PR #6 opened 2026-04-26).**
 
@@ -59,6 +61,7 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 
 | Round | Title | Date | Commit |
 |-------|-------|------|--------|
+| R042 | PlatformNotifications bell + drawer — PR #7 | 2026-04-26 | `943ca4b` (platform-ui) |
 | R041E | PlatformTimeline shared component — PR #6 | 2026-04-26 | `1b1853b` (platform-ui) |
 | R041D | Secrets Gate Baseline Cleanup — PR #9 | 2026-04-26 | `09b0234c` (platformengineer) |
 | R041C | Generic Foundation Roadmap Realignment (docs) | 2026-04-26 | platform-ui (docs only) |

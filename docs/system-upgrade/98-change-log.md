@@ -3,6 +3,38 @@
 _Running log of what changed in each update round._
 _Newest entry at the top._
 
+## R042 — PlatformNotifications Shared Component — 2026-04-26
+
+**Scope:** platform-ui — Track A generic foundation capability (cap 12). No platformengineer changes. No schema changes.
+
+**What changed (platform-ui):**
+
+1. `components/shell/notification-bell.tsx` — **new**: `NotificationBell` — Popover trigger with unread badge count; badge hidden when 0; `99+` overflow guard; RTL `-end-0.5` badge position; 58 lines (≤60 spec)
+2. `components/shell/notification-drawer.tsx` — **new**: `NotificationDrawer` — popover body; `NOTIFICATION_META` map for type → icon/colour (no per-type JSX conditionals); loading skeleton (3 rows), error state (BellOff), empty state (Bell), populated list; mark-all-read button; 104 lines (≤120 spec)
+3. `lib/hooks/use-notifications.ts` — **new**: `useNotifications()` — 30s polling (`refetchInterval: 30_000`, `staleTime: 0`); `markRead(id)` + `markAllRead()` mutations with `queryKeys.notifications.all()` invalidation
+4. `lib/api/notifications.ts` — **new**: `fetchNotifications()`, `markNotificationRead(id)`, `markAllNotificationsRead()` — all via `/api/proxy/notifications/*`
+5. `lib/modules/notifications/types.ts` — **new**: `Notification` interface, `NotificationType` discriminated union, `NotificationsListResponse`, `MarkReadResponse`
+6. `lib/api/query-keys.ts` — `notifications.all()` + `notifications.list()` keys added
+7. `components/shell/topbar.tsx` — placeholder `<Bell>` button + `toast.info` replaced with `<NotificationBell />`
+8. `docs/system-upgrade/26-platform-capabilities-catalog.md` — cap 09 + cap 12 status: `⬜ Pending` → `✅ Implemented | R041E / R042`; cap 12 canonical files updated
+9. `docs/system-upgrade/43-shared-services-enforcement.md` — PlatformTimeline + NotificationBell + NotificationDrawer + useNotifications() rows added to canonical paths table
+
+**Key facts:**
+
+- All RTL rules followed: `-end-0.5` badge, `ps-`/`pe-` spacing, logical properties throughout
+- No hardcoded colors — all CSS variables via Tailwind
+- No `fetch()` in components — all via `lib/api/notifications.ts`
+- No inline query key strings — `queryKeys.notifications.*`
+- Build: `✓ Compiled successfully` — zero errors
+- platform-ui PR #7 opened on `feat/r042-notifications` (SHA `943ca4b`)
+
+**Next recommended:**
+
+Track A: Cap 13 PlatformApprovalFlow or cap 14 PlatformJobRunner — next generic foundation capability.
+Track B: R041A (CI Enforcement — LLM import gate), now unblocked.
+
+---
+
 ## R041E — PlatformTimeline Shared Component — 2026-04-26
 
 **Scope:** platform-ui — Track A generic foundation capability (cap 09). No platformengineer changes. No schema changes.

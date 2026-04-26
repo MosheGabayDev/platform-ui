@@ -1650,3 +1650,65 @@ PlatformTimeline (cap 09) fully implemented. First consumer will be Helpdesk tic
 
 **Track A:** Cap 12 PlatformNotifications (notification bell + feed) — next generic foundation capability. P1, ~3h, no backend dependency for UI shell.
 **Track B:** R041A — CI Enforcement (LLM import gate), now unblocked.
+
+---
+
+## R042 — PlatformNotifications Shared Component (Cap 12)
+
+| Field | Value |
+|-------|-------|
+| **Round** | R042 — PlatformNotifications bell + drawer |
+| **Date** | 2026-04-26 |
+| **Branch** | `feat/r042-notifications` |
+| **Repo** | platform-ui |
+| **Type** | Rewrite — shared capability (platform-ui only) |
+| **Status** | PR #7 opened ✅ |
+| **PR** | [#7](https://github.com/MosheGabayDev/platform-ui/pull/7) |
+| **Commit** | `943ca4b` |
+
+### Mission
+Implement cap 12 — PlatformNotifications. Notification bell in the app header with real-time unread badge (30s polling), notification drawer/popover with unread list, mark-read and mark-all-read actions. No backend dependency — pure UI shell with mock-ready API layer.
+
+### Files Created
+
+| File | Purpose |
+|------|---------|
+| `components/shell/notification-bell.tsx` | `NotificationBell` — Popover trigger, unread badge, 58 lines (≤60 spec) |
+| `components/shell/notification-drawer.tsx` | `NotificationDrawer` — popover body, NOTIFICATION_META map, loading/error/empty/list states, 104 lines (≤120 spec) |
+| `lib/hooks/use-notifications.ts` | `useNotifications()` — 30s polling, markRead(id), markAllRead(), cache invalidation |
+| `lib/api/notifications.ts` | `fetchNotifications()`, `markNotificationRead(id)`, `markAllNotificationsRead()` — all via `/api/proxy/notifications/*` |
+| `lib/modules/notifications/types.ts` | `Notification`, `NotificationType` discriminated union, `NotificationsListResponse`, `MarkReadResponse` |
+
+### Files Updated
+
+| File | Change |
+|------|--------|
+| `lib/api/query-keys.ts` | `notifications.all()` + `notifications.list()` keys added |
+| `components/shell/topbar.tsx` | Placeholder `<Bell>` button + `toast.info` replaced with `<NotificationBell />` |
+| `docs/system-upgrade/26-platform-capabilities-catalog.md` | Cap 09 + Cap 12 status: `⬜ Pending` → `✅ Implemented \| R041E / R042`; cap 12 canonical files updated |
+| `docs/system-upgrade/43-shared-services-enforcement.md` | PlatformTimeline + NotificationBell + NotificationDrawer + useNotifications() rows added to canonical paths table |
+
+### Implementation Notes
+
+- **Polling:** `refetchInterval: 30_000` + `staleTime: 0` — background refetch on every focus
+- **Type discrimination:** `NOTIFICATION_META` map (`approval_request`, `investigation_done`, `billing_alert`, `service_down`, `info`) drives icon + colour. Zero per-type JSX conditionals.
+- **Badge overflow:** `unreadCount > 99` renders `"99+"` — never overflows the badge circle
+- **States:** Loading (3 skeleton rows), error (BellOff icon), empty (Bell icon), populated list
+- **Mark-all-read:** Button visible only when `unreadCount > 0`
+- **RTL-safe:** All logical properties (`-end-0.5`, `ps-`, `pe-`, `ms-`, `me-`). Zero physical direction classes.
+- **No hardcoded colors:** All CSS variables via Tailwind
+- **Build:** `✓ Compiled successfully` — zero errors
+- **TypeScript:** Zero errors in new files (pre-existing `@playwright/test` errors in test files unchanged)
+
+### Capability Status
+
+PlatformNotifications (cap 12) fully implemented. First consumers will be Helpdesk (04) approval requests and AI Agents (05) investigation complete notifications.
+
+### SSE Upgrade Path
+
+Phase 1 (this round): 30s polling. Phase 2: Replace `refetchInterval` in `use-notifications.ts` with an SSE `EventSource` when `PlatformRealtime` (cap 23) is built. No component changes required — the hook is the only integration point.
+
+### Next Recommended Action
+
+**Track A:** Cap 13 PlatformApprovalFlow (approval queue + modal) — next generic foundation capability. Requires Helpdesk module context. Or cap 14 PlatformJobRunner (background job progress UI).
+**Track B:** R041A — CI Enforcement (LLM import gate), now unblocked.
