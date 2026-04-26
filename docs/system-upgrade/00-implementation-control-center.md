@@ -1,7 +1,7 @@
 # 00 — Implementation Control Center
 
 > **This is the first doc to read after `CLAUDE.md`.** Every implementation round starts here.
-> _Last updated: 2026-04-26 (R041-docs-reconciliation — Control Center drift corrected)_
+> _Last updated: 2026-04-26 (R040-post-apply-reconciliation — R040-Fix DB apply complete; R042 unblocked)_
 
 ---
 
@@ -31,7 +31,7 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 |-----------|-------|--------|-------|
 | **R041A** | CI Enforcement (LLM import gate) | `[ ] ready` | No blockers. platformengineer only. Script exists. |
 | **R041B** | ActionButton Extraction | `[ ] ready` | No blockers. Both repos. Can run parallel to R041A. |
-| **R042** | ModuleRegistry + ModuleCompatLayer | `[ ] ready (code)` | Code work unblocked. **3 drift-fix migrations must run before data ingestion** (see §Code-First Schema Rule below). |
+| **R042** | ModuleRegistry + ModuleCompatLayer | `[ ] ready` | Code work + data ingestion unblocked. Drift-fix migrations applied 2026-04-26. Start after R041D is tracked. |
 
 ---
 
@@ -39,6 +39,8 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 
 | Round | Title | Date | Commit |
 |-------|-------|------|--------|
+| R040-Fix-Post-Apply | Post-Apply Reconciliation (planning/control docs) | 2026-04-26 | `c974aad` (platform-ui) |
+| R040-Fix | Schema Drift Fixes — DB Apply Complete | 2026-04-26 | `cc6c9001` (platformengineer) |
 | R041-AI-Knowledge | Global System Capability Knowledge Base | 2026-04-26 | `5ea0ba4` (platform-ui) |
 | R041-AI-Assist | Mandatory Chat AI + Voice Agent Readiness | 2026-04-26 | `b1da1a3` (platform-ui) |
 | R041-WT | Worktree Addendum — Parallel Agent Workflow | 2026-04-26 | platform-ui |
@@ -59,7 +61,7 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 | R041-WT | Worktree Addendum — Parallel Agent Workflow | `[x] complete 2026-04-26` | R041-Gov | platform-ui |
 | R041A | CI Enforcement (LLM import gate in GitHub Actions) | `[ ] ready` | R040 merged ✅ | platformengineer |
 | R041B | ActionButton Extraction to shared component | `[ ] ready` | R040 merged ✅ | platform-ui + platformengineer |
-| R042 | ModuleRegistry.sync_from_manifests() + ModuleCompatLayer | `[ ] ready (code); data-ingestion blocked until drift migrations run` | R040 migrations live ✅; drift-fix migrations pending | platformengineer |
+| R042 | ModuleRegistry.sync_from_manifests() + ModuleCompatLayer | `[ ] ready` | R040 migrations ✅; R040-Fix drift migrations ✅ 2026-04-26; start after R041D tracked | platformengineer |
 | R043 | AI Service Routing Matrix Backend | `[ ] ready` | R040 OrgModule tables live ✅ | platformengineer |
 | R044 | Navigation API + JWT Route Audit | `[ ] blocked` | R042 CompatLayer | platformengineer |
 | R045 | Feature Flags + Settings Engine | `[ ] ready` | R040 in DB ✅ | platformengineer |
@@ -79,11 +81,11 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 
 | Blocker | Blocks | Action Required |
 |---------|--------|----------------|
-| 3 drift-fix migrations not yet run (`fk_cascade`, `server_defaults`, `indexes`) | R042 data ingestion / seed | Run migrations before R042 data layer work |
 | R042 ModuleRegistry not implemented | R043, R044 | Start R042 — code work unblocked |
 | R045 FeatureFlagService not implemented | R046, R047 | Start R045 — unblocked |
+| R041D Secrets Gate baseline failures (D-005) degrade CI trust | R041A full enforcement | Create R041D tracked issue (done in this round); do soon |
 
-> R040 migrations applied 2026-04-26 — G-ModuleDB-SchemaPresent ✅. R042/R043/R045 code work unblocked. G-ModuleDB-DriftFixed 🔴 — 3 drift-fix migrations still pending.
+> R040-Fix DB apply complete 2026-04-26 — final revision `20260426_fix_r040_indexes`, backend main SHA `cc6c9001c90bc3317a17e1603762564ab23747c7`. G-ModuleDB-DriftFixed ✅. R042 is technically unblocked. Do not start broad module work until planning docs reflect R040-Fix and R041D is at least a tracked issue.
 
 ---
 
@@ -98,12 +100,12 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 | G-LLM | No direct LLM imports outside apps/ai_providers/ | 🔴 55+ violations (R048) |
 | G-Billing | AIUsageLog written for all LLM calls | 🟡 Gateway exists, calls not wired |
 | G-ModuleDB-SchemaPresent | R040 migrations applied, OrgModule tables live | ✅ Applied 2026-04-26 |
-| G-ModuleDB-DriftFixed | 3 drift-fix migrations run (FK cascade, server_defaults, indexes) | 🔴 Required before R042 data ingestion |
+| G-ModuleDB-DriftFixed | 3 drift-fix migrations run (FK cascade, server_defaults, indexes) | ✅ Applied 2026-04-26 — final revision `20260426_fix_r040_indexes` |
 | G-ModuleSync | ModuleRegistry.sync_from_manifests() operational | 🔴 R042 not started |
 | G-NavAPI | Navigation driven by DB state (not hardcoded) | 🔴 R044 not started |
 | G-FeatureFlags | FeatureFlagService operational | 🔴 R045 not started |
 | G-Governance | All rounds documented + issue-linked | ✅ R040-Control |
-| G-SecretScan | No hardcoded secrets in codebase | ✅ bandit-baseline.json + CI gate |
+| G-SecretScan | No hardcoded secrets in codebase | 🔴 D-005 baseline failures (pre-existing test secrets / Redis defaults) — R41D tracks cleanup |
 
 ---
 
@@ -114,10 +116,14 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 
 **Known violation:** R040 tables created by `db.create_all()` at app startup (`apps/__init__.py:1487`), not migrations. Schema adoption completed 2026-04-26 with drift documented in `99-risk-register.md §R15`.
 
-**Action required before R042 data ingestion:**
-- [ ] `20260426_fix_r040_fk_cascade.py` — add CASCADE to 3 FKs
-- [ ] `20260426_fix_r040_server_defaults.py` — add 9 missing server_defaults
-- [ ] `20260426_fix_r040_indexes.py` — create 2 missing migration-named indexes
+**R040-Fix drift migrations applied 2026-04-26 (all 3):**
+- [x] `20260426_fix_r040_fk_cascade.py` — CASCADE added to 3 FKs ✅
+- [x] `20260426_fix_r040_server_defaults.py` — 9 server_defaults applied ✅
+- [x] `20260426_fix_r040_indexes.py` — 2 migration-named indexes created ✅ (final revision)
+
+**Backend main SHA after merge:** `cc6c9001c90bc3317a17e1603762564ab23747c7`
+**Test evidence:** `test_r040_fix.py` 33/33 ✅ | `test_r040_schema.py` 43/43 ✅
+**R042 data ingestion is now unblocked at DB level.**
 
 ---
 

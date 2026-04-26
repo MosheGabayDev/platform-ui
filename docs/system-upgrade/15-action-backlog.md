@@ -1,6 +1,37 @@
 # 15 — Action Backlog
 
-_Last updated: 2026-04-26 (R041-AI-Assist Governance — AI test harness + mandatory readiness tasks added)_
+_Last updated: 2026-04-26 (R040-post-apply-reconciliation — R040-Fix DB apply marked complete; R041D added)_
+
+---
+
+## R040-Fix — DB Apply Status
+
+| Item | Status |
+|------|--------|
+| R040-Fix migrations applied to EKS DB | `[x] 2026-04-26` — 3/3 migrations applied. Final revision: `20260426_fix_r040_indexes`. |
+| PR #7 merged to platformengineer/main | `[x] 2026-04-26` — SHA `cc6c9001c90bc3317a17e1603762564ab23747c7` |
+| `test_r040_fix.py` 33/33 pass | `[x] 2026-04-26` |
+| `test_r040_schema.py` 43/43 pass | `[x] 2026-04-26` |
+| Post-apply reconciliation in platform-ui | `[x] 2026-04-26` — this round |
+
+---
+
+## R041D — Secrets Gate Baseline Cleanup / Allowlist Policy (P0 — do before R041A full enforcement)
+
+> Issue draft: `docs/system-upgrade/issues/R041D-secrets-gate-baseline-cleanup.md`
+> Risk: R27 in `99-risk-register.md`
+
+| Task | Scope | Priority | Status |
+|------|-------|----------|--------|
+| **Run D-005 scanner against platformengineer/main** | Capture full output; baseline findings list | P1 | `[ ]` |
+| **Classify every finding** | Real secret / test fixture / safe local default / legacy dead code / false positive | P1 | `[ ]` |
+| **Remediate real secrets** | Remove or rotate any genuine credential in tracked code | P0 | `[ ]` |
+| **Replace test secrets with fixtures/env injection** | Where practical — `os.environ.get(...)` or pytest fixtures | P1 | `[ ]` |
+| **Document allowlist entries with justification** | Per-finding rationale; owner; reviewer | P1 | `[ ]` |
+| **Update scanner policy / config if needed** | Exclude patterns with justification | P1 | `[ ]` |
+| **Verify D-005 green on main** | Or clearly reduced to justified allowlist | P1 | `[ ]` |
+| **Ensure future PRs fail only on new findings** | Baseline anchored; no pre-existing noise | P1 | `[ ]` |
+| **Move R27 from OPEN to MITIGATED/RESOLVED** | When D-005 green or clearly allowlisted | P1 | `[ ]` |
 
 ---
 

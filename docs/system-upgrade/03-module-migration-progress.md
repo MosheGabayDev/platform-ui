@@ -1,7 +1,7 @@
 # 03 — Module Migration Progress Tracker
 
 > Central tracker for the platform rewrite. Updated after every module-related round.
-> _Last updated: 2026-04-26 (R041-AI-Assist Governance — ai_chat/voice_agent status values formalized)_
+> _Last updated: 2026-04-26 (R040-post-apply-reconciliation — Module Manager DB foundation complete at DB level; R040-Fix applied)_
 >
 > **Rules:**
 > - This file is updated after every round that touches a module.
@@ -50,6 +50,19 @@
 | ❌ | Not started |
 | 🔴 | Blocked |
 | ➖ | Not applicable |
+
+---
+
+## Global Infrastructure Status
+
+> Updated after foundation-level rounds. Does not mark any module rewrite complete.
+
+| Item | Status | Notes |
+|------|--------|-------|
+| Module Manager DB foundation (R040) | ✅ Complete | `org_modules`, `module_versions`, `org_module_settings`, `module_licenses`, `module_dependencies` live in EKS DB |
+| R040-Fix drift migrations (R040-Fix) | ✅ Applied 2026-04-26 | FK CASCADE, server_defaults, named indexes — final revision `20260426_fix_r040_indexes` |
+| R042 data ingestion unblocked | ✅ DB level | Code work + data ingestion can proceed; plan docs must reflect R040-Fix first (done this round) |
+| R041D Secrets Gate baseline | 🔴 Pending | D-005 has pre-existing baseline failures; R041D issue created to clean up |
 
 ---
 

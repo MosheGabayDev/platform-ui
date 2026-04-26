@@ -1,7 +1,7 @@
 # 01 — Round Review Checklist
 
 > Reviewer runs this checklist before approving any implementation round.
-> _Last updated: 2026-04-26 (R041-AI-Assist Governance — §14 AI/Voice Readiness Gate added)_
+> _Last updated: 2026-04-26 (R040-post-apply-reconciliation — §1 CI baseline failure policy added)_
 
 ---
 
@@ -19,6 +19,20 @@ A round may not be marked Done until all `[!]` items are resolved or explicitly 
 - [ ] The out-of-scope list was respected
 - [ ] Do-Not-Start-Yet items from `00-implementation-control-center.md` were not touched
 - [ ] If scope changed during implementation: a scope change note was added to the round entry in `96-rounds-index.md`
+
+### 1.1 CI Baseline Failure Policy
+
+> **Do not normalize ignoring CI failures.**
+
+A CI gate may be failing on the baseline (pre-existing failures) only when ALL of the following are true:
+
+- [ ] The PR description explicitly documents which gates are failing and why (pre-existing)
+- [ ] The failure is logged as a risk in `99-risk-register.md` with owner and mitigation round
+- [ ] The scope of the PR does not worsen the pre-existing failure (no new violations)
+- [ ] A follow-up round (e.g. R041D) is created to clean up the baseline
+- [ ] No expansion of scope is introduced on the basis of the accepted failure
+
+Baseline CI failures **may not** be accepted silently, and they **do not** make the gate meaningless for new code. If D-005 (Secrets Gate) is red at baseline, every new PR must still be reviewed for new secrets — the reviewer cannot wave it off because "it was already failing."
 
 ---
 

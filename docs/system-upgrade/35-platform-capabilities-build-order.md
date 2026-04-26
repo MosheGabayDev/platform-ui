@@ -741,3 +741,25 @@ Each page registers `PageAIContext` via `useRegisterPageContext()`. Priority ord
 | **PR Template** — 9-section governance checklist | `.github/pull_request_template.md` | R040-Control ✅ |
 | **Issue Drafts R040–R049** — full bodies for all 10 rounds | `docs/system-upgrade/issues/R040-R049-issue-drafts.md` | R040-Control ✅ |
 | **Agent Contract** — 10-rule implementation governance in CLAUDE.md | `CLAUDE.md §Implementation Governance` (platformengineer) | R040-Control ✅ |
+
+---
+
+## R040-Fix — Schema Drift Fixes Applied (2026-04-26)
+
+| Artifact | Notes | Round |
+|----------|-------|-------|
+| **3 drift-fix migrations applied to EKS DB** | `20260426_fix_r040_fk_cascade`, `20260426_fix_r040_server_defaults`, `20260426_fix_r040_indexes` (final revision) | R040-Fix ✅ |
+| **PR #7 merged to platformengineer/main** | SHA `cc6c9001c90bc3317a17e1603762564ab23747c7` | R040-Fix ✅ |
+| **G-ModuleDB-DriftFixed** | Gate now ✅ — R042 data ingestion unblocked | R040-Fix ✅ |
+| **R15 risk resolved** | All 3 drift categories fixed — server_defaults, FK cascade, named indexes | R040-Fix ✅ |
+| **R27 risk added** | D-005 Secrets Gate baseline failures — pre-existing test secrets; R041D tracks cleanup | R040-Fix reconciliation |
+| **R041D issue draft** | `docs/system-upgrade/issues/R041D-secrets-gate-baseline-cleanup.md` | R040-Fix reconciliation |
+
+**Recommended next execution order (do not start in this round):**
+1. R041D — Secrets Gate Baseline Cleanup / Allowlist Policy (restore CI gate trust)
+2. R041A — CI Enforcement (LLM import gate; full value only after R041D cleans baseline)
+3. R041B — ActionButton shared component (runs in parallel with R041A)
+4. R042 — ModuleRegistry sync + CompatLayer (now technically unblocked)
+5. R043 — AI Service Routing Matrix backend
+6. R044 — Navigation API + JWT audit fix
+7. R045 — Feature Flags + Settings Engine
