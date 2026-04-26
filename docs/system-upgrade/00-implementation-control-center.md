@@ -29,21 +29,21 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 
 **R041B is complete ✅ (PR #2 merged 2026-04-26, SHA `5532102`).**
 
-These two tracks are independent — neither blocks the other. Start the next round on whichever track is explicitly instructed.
-
-**Track A — platform-ui rewrite (next candidate)**
+**Track A — platform-ui rewrite (default path)**
 
 | Candidate | Title | Status | Notes |
 |-----------|-------|--------|-------|
-| **Cap 08** | PlatformDetailView extraction | `[ ] ready` | Extract `DetailView` shared components to `components/shared/detail-view/`. Needed before Helpdesk ticket detail. |
-| **R042 UI side** | ModuleRegistry UI — platform-ui | `[ ] not yet scoped` | Only after platformengineer backend/core side complete and dependency explicitly declared. Not auto-next after R041B. |
+| **Cap 08** | PlatformDetailView extraction | `[ ] ready` | Extract `DetailView` shared components to `components/shared/detail-view/`. Next platform-ui rewrite candidate. |
+| **R042 UI side** | ModuleRegistry UI — platform-ui | `[ ] not yet scoped` | Only after platformengineer backend/core side complete and dependency explicitly declared. Requires explicit scoping. Not auto-next. |
 
-**Track B — platformengineer maintenance (independent)**
+**Track B — platformengineer legacy maintenance (exception-only — requires explicit user authorization)**
+
+> **platformengineer is read-only reference** during platform-ui rewrite rounds. Agents must not modify platformengineer unless the user explicitly authorizes a legacy maintenance exception in the prompt.
 
 | Candidate | Title | Status | Notes |
 |-----------|-------|--------|-------|
-| **R041D** | Secrets Gate Baseline Cleanup | `[ ] ready` | platformengineer only. Restore D-005 CI gate trust before R041A full enforcement. |
-| **R041A** | CI Enforcement (LLM import gate) | `[ ] ready` | platformengineer only. Start after R041D tracked. |
+| **R041D** | Secrets Gate Baseline Cleanup | `[ ] not started` | platformengineer only. Legacy maintenance exception. Requires explicit start instruction. |
+| **R041A** | CI Enforcement (LLM import gate) | `[ ] not started` | platformengineer only. Legacy maintenance exception. Start after R041D. Requires explicit start instruction. |
 
 ---
 
@@ -83,7 +83,7 @@ These two tracks are independent — neither blocks the other. Start the next ro
 | R048 | P0 LLM Direct Import Cleanup | `[ ] partial-ready` | Simple gateway migrations: no extra dep. Full cleanup: R043 preferred | platformengineer |
 | R049 | Data Sources Hub Backend Foundation | `[ ] blocked` | R047, R046, R040 ✅ | platformengineer |
 
-> **Repo model reminder:** platform-ui = target rewrite repo. platformengineer = legacy/current baseline and maintenance exceptions only. R041D and R041A are platformengineer maintenance rounds — they are valid but do not block the next platform-ui rewrite capability round. R041B ✅ complete (platform-ui only).
+> **Repo model:** platform-ui = target rewrite repo (all implementation happens here). platformengineer = read-only legacy reference for capability mapping and no-feature-loss validation only. Agents must not modify platformengineer during platform-ui rewrite rounds. R041D and R041A are legacy maintenance exceptions requiring explicit user authorization. R041B ✅ complete (platform-ui only — no platformengineer changes).
 > **R048 note:** Modules that only need simple `AIProviderGateway.call()` substitution (no service routing needed) can be migrated immediately — start with fitness_nutrition, ala, ai_coach. Full service-routing-aware migration requires R043 routing matrix first.
 
 > Full dependency graph: [`35-platform-capabilities-build-order.md`](35-platform-capabilities-build-order.md)
@@ -96,7 +96,7 @@ These two tracks are independent — neither blocks the other. Start the next ro
 |---------|--------|----------------|
 | R042 ModuleRegistry not implemented | R043, R044 | Start R042 — code work unblocked |
 | R045 FeatureFlagService not implemented | R046, R047 | Start R045 — unblocked |
-| R041D Secrets Gate baseline failures (D-005) degrade CI trust | R041A full enforcement | Create R041D tracked issue (done in this round); do soon |
+| R041D Secrets Gate baseline failures (D-005) degrade CI trust | R041A full enforcement | Issue tracked. Start only when user explicitly authorizes a platformengineer maintenance round. |
 
 > R040-Fix DB apply complete 2026-04-26 — final revision `20260426_fix_r040_indexes`, backend main SHA `cc6c9001c90bc3317a17e1603762564ab23747c7`. G-ModuleDB-DriftFixed ✅. R042 is technically unblocked. Do not start broad module work until planning docs reflect R040-Fix and R041D is at least a tracked issue.
 

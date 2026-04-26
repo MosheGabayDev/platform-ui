@@ -1482,13 +1482,13 @@ Prop precedence fix commit `72d1e25` — `{...props}` moved before enforced prop
 
 ### Next Recommended Action
 
-These two tracks are independent — neither blocks the other. Start whichever is explicitly instructed.
-
-**Track A — platform-ui rewrite:**
-- Next candidate: PlatformDetailView extraction (cap 08), or another explicitly scoped platform-ui capability round
+**Track A — platform-ui rewrite (default path):**
+- Default next: PlatformDetailView extraction (cap 08), or another explicitly scoped platform-ui capability round
+- platformengineer is read-only reference for capability mapping and no-feature-loss validation only
 - R042 UI side: only after platformengineer backend/core complete and dependency explicitly declared; not auto-next
 
-**Track B — platformengineer maintenance:**
-- R041D: Secrets Gate Baseline Cleanup (restore D-005 CI trust)
+**Track B — platformengineer legacy maintenance (exception-only):**
+- Requires explicit user authorization. Agents must not modify platformengineer during platform-ui rewrite rounds without it.
+- R041D: Secrets Gate Baseline Cleanup
 - R041A: CI Enforcement / LLM import gate (after R041D)
-- R041D and R041A do not block Track A
+- Track B does not block Track A and is not the default next step.

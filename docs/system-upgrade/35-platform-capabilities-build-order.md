@@ -755,17 +755,15 @@ Each page registers `PageAIContext` via `useRegisterPageContext()`. Priority ord
 | **R27 risk added** | D-005 Secrets Gate baseline failures — pre-existing test secrets; R041D tracks cleanup | R040-Fix reconciliation |
 | **R041D issue draft** | `docs/system-upgrade/issues/R041D-secrets-gate-baseline-cleanup.md` | R040-Fix reconciliation |
 
-**Next execution — two independent tracks (neither blocks the other):**
-
-Track A — platform-ui rewrite:
+**Track A — platform-ui rewrite (default path):**
 1. ~~R041B~~ ✅ Done — ActionButton merged 2026-04-26
-2. Cap 08 — PlatformDetailView extraction (next platform-ui capability round, if explicitly scoped)
+2. Cap 08 — PlatformDetailView extraction (next platform-ui capability round)
 3. R042 UI side — only after platformengineer backend/core complete and dependency explicitly declared
 
-Track B — platformengineer maintenance:
-1. R041D — Secrets Gate Baseline Cleanup (restore D-005 CI gate trust)
+> platformengineer is read-only reference during platform-ui rewrite rounds. Agents must not modify it without explicit user authorization.
+
+**Track B — platformengineer legacy maintenance exceptions (not default — requires explicit user authorization):**
+1. R041D — Secrets Gate Baseline Cleanup
 2. R041A — CI Enforcement (LLM import gate; after R041D)
-3. R042 core — ModuleRegistry sync + CompatLayer backend (platformengineer)
-4. R043 — AI Service Routing Matrix (platformengineer)
-5. R044 — Navigation API + JWT audit fix (platformengineer)
-6. R045 — Feature Flags + Settings Engine (platformengineer)
+3. R042 core — ModuleRegistry backend (platformengineer)
+4. R043+ — AI Service Routing, Nav API, Feature Flags, etc. (platformengineer)
