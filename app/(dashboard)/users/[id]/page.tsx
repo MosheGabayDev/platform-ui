@@ -13,7 +13,9 @@ import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
-import { User, Mail, Building2, Shield, Clock, CheckCircle, Key, Pencil, UserX, UserCheck } from "lucide-react";
+import { User, Mail, Building2, Shield, Clock, CheckCircle, Key, Pencil, UserX, UserCheck, LogIn, UserCog, Lock, ShieldCheck } from "lucide-react";
+import { PlatformTimeline } from "@/components/shared/timeline";
+import type { TimelineEvent } from "@/components/shared/timeline";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { ActionButton } from "@/components/shared/action-button";
@@ -32,6 +34,54 @@ import { hasRole } from "@/lib/auth/rbac";
 import { useDangerousAction } from "@/lib/hooks/use-dangerous-action";
 import { USER_ACTIONS } from "@/lib/platform/actions";
 import { PAGE_EASE } from "@/lib/ui/motion";
+
+function buildMockTimeline(user: { name: string; created_at?: string; last_login?: string }): TimelineEvent[] {
+  const base = user.created_at ? new Date(user.created_at) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  return [
+    {
+      id: "ev-1",
+      type: "login",
+      timestamp: user.last_login ?? new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+      actor: user.name,
+      description: "התחבר למערכת",
+      icon: LogIn,
+    },
+    {
+      id: "ev-2",
+      type: "profile_update",
+      timestamp: new Date(base.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      actor: "מנהל מערכת",
+      description: "פרופיל המשתמש עודכן",
+      detail: "שם, כתובת דוא\"ל ותפקיד עודכנו על ידי מנהל",
+      icon: UserCog,
+    },
+    {
+      id: "ev-3",
+      type: "mfa_enabled",
+      timestamp: new Date(base.getTime() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+      actor: user.name,
+      description: "אימות דו-שלבי הופעל",
+      icon: ShieldCheck,
+    },
+    {
+      id: "ev-4",
+      type: "password_reset",
+      timestamp: new Date(base.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      actor: user.name,
+      description: "סיסמה אופסה",
+      detail: "בקשת איפוס סיסמה נשלחה ואומתה בהצלחה",
+      icon: Lock,
+    },
+    {
+      id: "ev-5",
+      type: "created",
+      timestamp: base.toISOString(),
+      actor: "מנהל מערכת",
+      description: "חשבון נוצר",
+      icon: User,
+    },
+  ];
+}
 
 export default function UserDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -190,6 +240,12 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
                 </div>
               </DetailSection>
             )}
+
+            <DetailSection title="היסטוריית פעילות">
+              <div className="pt-2">
+                <PlatformTimeline events={buildMockTimeline(user)} />
+              </div>
+            </DetailSection>
           </motion.div>
         )}
 
