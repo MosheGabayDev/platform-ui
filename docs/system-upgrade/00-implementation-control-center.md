@@ -1,7 +1,7 @@
 # 00 — Implementation Control Center
 
 > **This is the first doc to read after `CLAUDE.md`.** Every implementation round starts here.
-> _Last updated: 2026-04-26 (R040-post-apply-reconciliation — R040-Fix DB apply complete; R042 unblocked)_
+> _Last updated: 2026-04-26 (R041B-post-merge-reconciliation — ActionButton merged PR #2; R041B complete)_
 
 ---
 
@@ -29,9 +29,11 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 
 | Candidate | Title | Status | Notes |
 |-----------|-------|--------|-------|
-| **R041A** | CI Enforcement (LLM import gate) | `[ ] ready` | No blockers. platformengineer only. Script exists. |
-| **R041B** | ActionButton Extraction | `[ ] ready` | No blockers. Both repos. Can run parallel to R041A. |
-| **R042** | ModuleRegistry + ModuleCompatLayer | `[ ] ready` | Code work + data ingestion unblocked. Drift-fix migrations applied 2026-04-26. Start after R041D is tracked. |
+| **R041D** | Secrets Gate Baseline Cleanup | `[ ] ready` | platformengineer only. Restore D-005 CI gate trust before R041A full enforcement. |
+| **R041A** | CI Enforcement (LLM import gate) | `[ ] ready` | platformengineer only. Script exists. Start after R041D tracked. |
+| **R042** | ModuleRegistry + ModuleCompatLayer | `[ ] ready` | platformengineer core + platform-ui UI side. Needs explicit scoping before start — not auto-next after R041B. |
+
+> **R041B is complete ✅ (PR #2 merged 2026-04-26, SHA `5532102`).** Next platform-ui rewrite capability round: PlatformDetailView extraction (cap 08) or as explicitly scoped — not automatically R042.
 
 ---
 
@@ -39,6 +41,7 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 
 | Round | Title | Date | Commit |
 |-------|-------|------|--------|
+| R041B | ActionButton shared component — PR #2 | 2026-04-26 | `5532102` (platform-ui) |
 | R040-Fix-Post-Apply | Post-Apply Reconciliation (planning/control docs) | 2026-04-26 | `c974aad` (platform-ui) |
 | R040-Fix | Schema Drift Fixes — DB Apply Complete | 2026-04-26 | `cc6c9001` (platformengineer) |
 | R041-AI-Knowledge | Global System Capability Knowledge Base | 2026-04-26 | `5ea0ba4` (platform-ui) |
@@ -60,7 +63,7 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 | R041-Gov | Governance Addendum — Legacy Preservation + Agent Handoff | `[x] complete 2026-04-26` | R041-Test | platform-ui |
 | R041-WT | Worktree Addendum — Parallel Agent Workflow | `[x] complete 2026-04-26` | R041-Gov | platform-ui |
 | R041A | CI Enforcement (LLM import gate in GitHub Actions) | `[ ] ready` | R040 merged ✅ | platformengineer |
-| R041B | ActionButton Extraction to shared component | `[ ] ready` | R040 merged ✅ | platform-ui + platformengineer |
+| R041B | ActionButton shared component — `components/shared/action-button.tsx` | `[x] complete 2026-04-26` | PR #2 merged ✅ | platform-ui |
 | R042 | ModuleRegistry.sync_from_manifests() + ModuleCompatLayer | `[ ] ready` | R040 migrations ✅; R040-Fix drift migrations ✅ 2026-04-26; start after R041D tracked | platformengineer |
 | R043 | AI Service Routing Matrix Backend | `[ ] ready` | R040 OrgModule tables live ✅ | platformengineer |
 | R044 | Navigation API + JWT Route Audit | `[ ] blocked` | R042 CompatLayer | platformengineer |
@@ -70,7 +73,7 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 | R048 | P0 LLM Direct Import Cleanup | `[ ] partial-ready` | Simple gateway migrations: no extra dep. Full cleanup: R043 preferred | platformengineer |
 | R049 | Data Sources Hub Backend Foundation | `[ ] blocked` | R047, R046, R040 ✅ | platformengineer |
 
-> **R041A/B note:** CI enforcement (R041A) is platformengineer only. ActionButton extraction (R041B) requires changes in both platform-ui (component) and platformengineer (shared Python equivalent if any). They can run in parallel.
+> **R041A/D note:** CI enforcement (R041A) is platformengineer only. R041D (Secrets Gate cleanup) should precede R041A full enforcement to restore D-005 CI trust. R041B (ActionButton) is ✅ complete — platform-ui only; no platformengineer equivalent built.
 > **R048 note:** Modules that only need simple `AIProviderGateway.call()` substitution (no service routing needed) can be migrated immediately — start with fitness_nutrition, ala, ai_coach. Full service-routing-aware migration requires R043 routing matrix first.
 
 > Full dependency graph: [`35-platform-capabilities-build-order.md`](35-platform-capabilities-build-order.md)

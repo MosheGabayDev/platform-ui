@@ -1,6 +1,6 @@
 # 35 — Platform Capabilities Build Order
 
-_Created: 2026-04-24 | R023 | Updated R024 (AI Action Platform) | R025 (AI Capability Context) | R026 (capability levels, viability checks, delete policy) | R041-Test (security test mandate added) | R041-Gov (legacy preservation + module inventory mandate added) | R041-AI-Knowledge (AI knowledge layer reference added)_
+_Created: 2026-04-24 | R023 | Updated R024 (AI Action Platform) | R025 (AI Capability Context) | R026 (capability levels, viability checks, delete policy) | R041-Test (security test mandate added) | R041-Gov (legacy preservation + module inventory mandate added) | R041-AI-Knowledge (AI knowledge layer reference added) | R041B (ActionButton complete — PlatformAction 04 fully implemented)_
 _Owner: platform-ui build sequencing_
 
 > **Round numbering note:** Round numbers R023–R033 in this document are **historical identifiers** from the original build sequencing plan. The active implementation rounds use the R040+ numbering (R041A, R041B, R042, etc.) as tracked in `00-implementation-control-center.md`. When this doc says "R023", it refers to the capability work described there — not a current active round. Use the control center for current sequencing.
@@ -38,19 +38,19 @@ Platform has 30 named capabilities (doc 26). 8 are fully implemented, 5 are part
 | 19 | PlatformTenantContext | R007 | All modules |
 | 21 | PlatformErrorBoundary / ErrorState | R015 | Dashboard layout |
 | 22 | PlatformAPI Client | R008 | All modules |
-| 04 | PlatformAction (partial → see §3) | R017–020 | Users, Orgs dangerous actions |
+| 04 | PlatformAction | R017–020 + R041B | Users, Orgs dangerous actions — ActionButton ✅ R041B |
 
 ---
 
 ## 3. Partial Capabilities (5 incomplete)
 
-### 04 — PlatformAction
+### 04 — PlatformAction ✅ Complete (R041B)
 
-**Done:** `usePlatformMutation`, `ConfirmActionDialog` (full DangerLevel support R020), `useDangerousAction`
+**Done:** `usePlatformMutation`, `ConfirmActionDialog` (full DangerLevel support R020), `useDangerousAction`, `ActionButton` (`components/shared/action-button.tsx` — R041B)
 
-**Missing:** `ActionButton` component (`components/shared/action-button.tsx`) — loading spinner + disabled state during mutation. Currently pages implement inline loading state. **Needed before Helpdesk** (approve/reject actions require it).
+**ActionButton (R041B):** Loading spinner, double-submit prevention (`disabled || isLoading`), `aria-busy` attribute, variant/size/className pass-through. Users and Orgs detail pages migrated off inline `disabled={isPending}`. See `43-shared-services-enforcement.md`.
 
-**Effort:** ~30 min.
+**Remaining:** None. PlatformAction (04) is fully implemented.
 
 ---
 
@@ -138,14 +138,14 @@ Foundation (already done)
 ├── PermissionGate (05) ✅
 ├── PlatformPageShell (07) ✅
 ├── PlatformErrorBoundary (21) ✅
-└── PlatformAction (04) 🔵 → ActionButton missing
+└── PlatformAction (04) ✅ → ActionButton complete (R041B)
     └── PlatformDetailView (08) 🔵 → extraction missing
 
 Pre-Helpdesk Gate
 ├── PlatformFeatureFlags (17) → standalone, no deps
 ├── PlatformNotifications (12) → needs PlatformAPI Client (22) ✅
 ├── PlatformTimeline (09) → needs PlatformAPI Client (22) ✅
-├── PlatformAction (04) complete → ActionButton
+├── PlatformAction (04) ✅ complete → ActionButton done (R041B)
 └── PlatformDetailView (08) complete → extraction
 
 Helpdesk Phase A (ticket list + stats dashboard)
@@ -207,7 +207,7 @@ GDPR / Enterprise
 
 | Priority | Capability | Why Needed | Effort | Round |
 |----------|-----------|-----------|--------|-------|
-| P0 | Complete `ActionButton` (§04) | Approve/reject ticket actions | 30 min | R023 |
+| P0 | `ActionButton` (§04) — ✅ Done (R041B) | Approve/reject ticket actions | Done | R041B |
 | P0 | Extract `DetailView` components (§08) | Ticket detail page re-uses pattern | 45 min | R023 |
 | P0 | `PlatformFeatureFlags` (§17) | Plan-gated Helpdesk features | 1 hr | R023 |
 | P1 | `PlatformTimeline` (§09) | Session/ticket activity timeline | 3 hr | R024 |
@@ -755,11 +755,11 @@ Each page registers `PageAIContext` via `useRegisterPageContext()`. Priority ord
 | **R27 risk added** | D-005 Secrets Gate baseline failures — pre-existing test secrets; R041D tracks cleanup | R040-Fix reconciliation |
 | **R041D issue draft** | `docs/system-upgrade/issues/R041D-secrets-gate-baseline-cleanup.md` | R040-Fix reconciliation |
 
-**Recommended next execution order (do not start in this round):**
-1. R041D — Secrets Gate Baseline Cleanup / Allowlist Policy (restore CI gate trust)
-2. R041A — CI Enforcement (LLM import gate; full value only after R041D cleans baseline)
-3. R041B — ActionButton shared component (runs in parallel with R041A)
-4. R042 — ModuleRegistry sync + CompatLayer (now technically unblocked)
-5. R043 — AI Service Routing Matrix backend
-6. R044 — Navigation API + JWT audit fix
-7. R045 — Feature Flags + Settings Engine
+**Recommended next execution order:**
+1. R041D — Secrets Gate Baseline Cleanup / Allowlist Policy (platformengineer — restore CI gate trust)
+2. R041A — CI Enforcement (LLM import gate; platformengineer — full value only after R041D cleans baseline)
+3. ~~R041B~~ ✅ **Done** — ActionButton shared component merged 2026-04-26 (platform-ui)
+4. R042 — ModuleRegistry sync + CompatLayer (platformengineer core + platform-ui UI side — needs explicit scoping)
+5. R043 — AI Service Routing Matrix backend (platformengineer)
+6. R044 — Navigation API + JWT audit fix (platformengineer)
+7. R045 — Feature Flags + Settings Engine (platformengineer)

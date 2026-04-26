@@ -1,6 +1,6 @@
 # 15 — Action Backlog
 
-_Last updated: 2026-04-26 (R040-post-apply-reconciliation — R040-Fix DB apply marked complete; R041D added)_
+_Last updated: 2026-04-26 (R041B-post-merge-reconciliation — ActionButton complete; worktree tasks updated)_
 
 ---
 
@@ -32,6 +32,21 @@ _Last updated: 2026-04-26 (R040-post-apply-reconciliation — R040-Fix DB apply 
 | **Verify D-005 green on main** | Or clearly reduced to justified allowlist | P1 | `[ ]` |
 | **Ensure future PRs fail only on new findings** | Baseline anchored; no pre-existing noise | P1 | `[ ]` |
 | **Move R27 from OPEN to MITIGATED/RESOLVED** | When D-005 green or clearly allowlisted | P1 | `[ ]` |
+
+---
+
+## R041B — ActionButton Shared Component (Complete ✅ 2026-04-26)
+
+> PR #2 merged to platform-ui/master at `5532102`. Worktree removed. Branch deleted.
+
+| Item | Status |
+|------|--------|
+| `components/shared/action-button.tsx` created | `[x] 2026-04-26` |
+| Users `[id]/page.tsx` — deactivate + reactivate migrated | `[x] 2026-04-26` |
+| Organizations `[id]/page.tsx` — deactivate + reactivate migrated | `[x] 2026-04-26` |
+| `43-shared-services-enforcement.md` marked ✅ Implemented (R041B) | `[x] 2026-04-26` |
+| Prop precedence review fix applied | `[x] 2026-04-26` |
+| TypeScript: 0 new errors in changed files | `[x] 2026-04-26` |
 
 ---
 
@@ -99,9 +114,9 @@ _Last updated: 2026-04-26 (R040-post-apply-reconciliation — R040-Fix DB apply 
 |------|-------|----------|--------|
 | **Create worktrees directory** | `mkdir C:\Users\moshe\OneDrive\Documents\Projects\worktrees` | P1 | `[ ]` |
 | **Create worktree for R041A** | `git worktree add ..\worktrees\platformengineer-r041a-ci -b feat/r041a-ci-enforcement main` | P1 | `[ ]` |
-| **Create worktree for R041B** | `git worktree add ..\worktrees\platform-ui-r041b-actionbutton -b feat/r041b-actionbutton master` | P1 | `[ ]` |
+| **Create worktree for R041B** | `git worktree add ..\worktrees\platform-ui-r041b-actionbutton -b feat/r041b-actionbutton master` | P1 | `[x] 2026-04-26` |
 | **Verify worktree setup before each parallel session** | `git worktree list` + `git branch --show-current` in each worktree | P1 | `[ ]` |
-| **Cleanup worktrees after PR merge** | `git worktree remove` + `git branch -d` + `git worktree prune` | P1 | `[ ]` (after each merged PR) |
+| **Cleanup worktrees after PR merge** | `git worktree remove` + `git branch -d` + `git worktree prune` | P1 | `[x] 2026-04-26 (R041B worktree cleaned up)` |
 
 ---
 
