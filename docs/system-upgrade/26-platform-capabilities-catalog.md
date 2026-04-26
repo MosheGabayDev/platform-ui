@@ -43,7 +43,7 @@ This rule is enforced by code review and CI. Reviewers must reject PRs that dupl
 | 06 | [PlatformImportExport](#06-platformimportexport) | **next** | 🔵 Partial | 012 | R031 (full) |
 | 07 | [PlatformPageShell](#07-platformpageshell) | **now** | ✅ Implemented | 015 | — |
 | 08 | [PlatformDetailView](#08-platformdetailview) | **now** | 🔵 Partial | 015 | R023 (extract) |
-| 09 | [PlatformTimeline](#09-platformtimeline) | **now** | ⬜ Pending | — | R024 |
+| 09 | [PlatformTimeline](#09-platformtimeline) | **now** | ✅ Implemented | R041E | — |
 | 10 | [PlatformAuditLog](#10-platformauditlog) | **next** | ⬜ Pending | — | R026 |
 | 11 | [PlatformSearch / Command Palette](#11-platformsearch--command-palette) | **next** | ⬜ Pending | — | R032 |
 | 12 | [PlatformNotifications](#12-platformnotifications) | **now** | ⬜ Pending | — | R024 |
@@ -275,7 +275,7 @@ Extract from `app/(dashboard)/users/[id]/page.tsx` and `app/(dashboard)/organiza
 
 ## 09 — PlatformTimeline
 
-**Status:** ⬜ Pending | **Priority:** next
+**Status:** ✅ Implemented (R041E) | **Priority:** next
 
 **Purpose:** Vertical event timeline for displaying ordered sequences of events — helpdesk session activity, ticket history, agent investigation steps, user login history, approval chain. Each event has: timestamp, icon, actor, description, optional detail expansion.
 

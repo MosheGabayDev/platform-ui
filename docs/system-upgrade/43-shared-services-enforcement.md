@@ -57,6 +57,7 @@ The platform rewrite uses two categories of shared building blocks:
 | `DetailBackButton` | `components/shared/detail-view/detail-back-button.tsx` | Inline back button | ✅ Implemented |
 | `ConfirmActionDialog` | `components/shared/confirm-action-dialog.tsx` | `window.confirm()` | ✅ Implemented |
 | `ActionButton` | `components/shared/action-button.tsx` | Inline loading button | ✅ Implemented (R041B) |
+| `PlatformTimeline` | `components/shared/timeline/timeline.tsx` | Custom timeline per page | ✅ Implemented (R041E) |
 | `ErrorState` | `components/shared/error-state.tsx` | `null` return / blank on error | ✅ Implemented |
 | `PlatformErrorBoundary` | `components/shared/error-boundary.tsx` | Unhandled render crash | ✅ Implemented |
 | `apiFetch` | `lib/api/client.ts` | `fetch()` in components | ✅ Implemented |
