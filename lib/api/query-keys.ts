@@ -28,4 +28,10 @@ export const queryKeys = {
     detail:      (id: number) => ["roles", "detail", id]          as const,
     permissions: () => ["roles", "permissions"]                    as const,
   },
+
+  // Cap 12: Notifications (shell-level — polling 30s)
+  notifications: {
+    all:  () => ["notifications"]         as const,
+    list: () => ["notifications", "list"] as const,
+  },
 } as const;
