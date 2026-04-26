@@ -1,7 +1,7 @@
 # 00 — Implementation Control Center
 
 > **This is the first doc to read after `CLAUDE.md`.** Every implementation round starts here.
-> _Last updated: 2026-04-26 (R041B-post-merge-reconciliation — ActionButton merged PR #2; R041B complete)_
+> _Last updated: 2026-04-26 (R041D-post-round-reconciliation — R041C + R041D complete; Cap 08 already done R015; R041A unblocked)_
 
 ---
 
@@ -27,14 +27,15 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 
 > No round is currently in progress. The next agent should start one of the rounds below.
 
-**R041B is complete ✅ (PR #2 merged 2026-04-26, SHA `5532102`).**
+**R041B ✅ (PR #2 merged 2026-04-26, SHA `5532102`). R041C ✅ (docs, 2026-04-26). R041D ✅ (platformengineer PR #9 opened 2026-04-26, pending merge).**
 
 **Track A — platform-ui rewrite (default path)**
 
 | Candidate | Title | Status | Notes |
 |-----------|-------|--------|-------|
-| **Cap 08** | PlatformDetailView extraction | `[ ] ready` | Extract `DetailView` shared components to `components/shared/detail-view/`. Next platform-ui rewrite candidate. |
-| **R042 UI side** | ModuleRegistry UI — platform-ui | `[ ] not yet scoped` | Only after platformengineer backend/core side complete and dependency explicitly declared. Requires explicit scoping. Not auto-next. |
+| **Cap 08 / DetailView** | PlatformDetailView extraction | `[x] already done — R015` | `components/shared/detail-view/` was created in R015 with 6 components. No work needed. |
+| **Timeline + ActivityFeed** | Timeline & ActivityFeed generic component | `[ ] ready` | Next generic foundation capability after ActionButton + DetailView. No backend dependency. |
+| **R042 UI side** | ModuleRegistry UI — platform-ui | `[ ] not yet scoped` | Only after platformengineer backend/core side complete and dependency explicitly declared. Not auto-next. |
 
 **Track B — platformengineer legacy maintenance (exception-only — requires explicit user authorization)**
 
@@ -42,8 +43,8 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 
 | Candidate | Title | Status | Notes |
 |-----------|-------|--------|-------|
-| **R041D** | Secrets Gate Baseline Cleanup | `[ ] not started` | platformengineer only. Legacy maintenance exception. Requires explicit start instruction. |
-| **R041A** | CI Enforcement (LLM import gate) | `[ ] not started` | platformengineer only. Legacy maintenance exception. Start after R041D. Requires explicit start instruction. |
+| **R041D** | Secrets Gate Baseline Cleanup | `[x] PR #9 opened 2026-04-26` | platformengineer PR #9 open. Do not merge until issue #8 pending_review findings verified. |
+| **R041A** | CI Enforcement (LLM import gate) | `[ ] ready` | platformengineer only. R041D PR opened — R041A can start. Requires explicit start instruction. |
 
 ---
 
@@ -51,6 +52,8 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 
 | Round | Title | Date | Commit |
 |-------|-------|------|--------|
+| R041D | Secrets Gate Baseline Cleanup — PR #9 | 2026-04-26 | `09b0234c` (platformengineer) |
+| R041C | Generic Foundation Roadmap Realignment (docs) | 2026-04-26 | platform-ui (docs only) |
 | R041B | ActionButton shared component — PR #2 | 2026-04-26 | `5532102` (platform-ui) |
 | R040-Fix-Post-Apply | Post-Apply Reconciliation (planning/control docs) | 2026-04-26 | `c974aad` (platform-ui) |
 | R040-Fix | Schema Drift Fixes — DB Apply Complete | 2026-04-26 | `cc6c9001` (platformengineer) |
@@ -72,7 +75,7 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 | R041-Test | Security/Multi-Tenant Test Standard | `[x] complete 2026-04-26` | R040 merged | platform-ui |
 | R041-Gov | Governance Addendum — Legacy Preservation + Agent Handoff | `[x] complete 2026-04-26` | R041-Test | platform-ui |
 | R041-WT | Worktree Addendum — Parallel Agent Workflow | `[x] complete 2026-04-26` | R041-Gov | platform-ui |
-| R041A | CI Enforcement (LLM import gate in GitHub Actions) | `[ ] ready` | R040 merged ✅ | platformengineer |
+| R041A | CI Enforcement (LLM import gate in GitHub Actions) | `[ ] ready` | R041D PR #9 opened ✅ | platformengineer |
 | R041B | ActionButton shared component — `components/shared/action-button.tsx` | `[x] complete 2026-04-26` | PR #2 merged ✅ | platform-ui |
 | R042 | ModuleRegistry.sync_from_manifests() + ModuleCompatLayer | `[ ] ready` | R040 migrations ✅; R040-Fix drift migrations ✅ 2026-04-26; start after R041D tracked | platformengineer |
 | R043 | AI Service Routing Matrix Backend | `[ ] ready` | R040 OrgModule tables live ✅ | platformengineer |
@@ -96,7 +99,7 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 |---------|--------|----------------|
 | R042 ModuleRegistry not implemented | R043, R044 | Start R042 — code work unblocked |
 | R045 FeatureFlagService not implemented | R046, R047 | Start R045 — unblocked |
-| R041D Secrets Gate baseline failures (D-005) degrade CI trust | R041A full enforcement | Issue tracked. Start only when user explicitly authorizes a platformengineer maintenance round. |
+| R041D PR #9 pending merge — 52 pending_review findings need owner verification (issue #8) | R041A full enforcement | R041D allowlist + baseline in place. Merge PR #9 after issue #8 verified. R041A can start in parallel. |
 
 > R040-Fix DB apply complete 2026-04-26 — final revision `20260426_fix_r040_indexes`, backend main SHA `cc6c9001c90bc3317a17e1603762564ab23747c7`. G-ModuleDB-DriftFixed ✅. R042 is technically unblocked. Do not start broad module work until planning docs reflect R040-Fix and R041D is at least a tracked issue.
 

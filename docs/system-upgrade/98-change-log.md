@@ -3,6 +3,65 @@
 _Running log of what changed in each update round._
 _Newest entry at the top._
 
+## R041D — Secrets Gate Baseline Cleanup — 2026-04-26
+
+**Scope:** platformengineer — legacy maintenance exception (Track B). No platform-ui runtime code changes. No schema changes.
+
+**What changed (platformengineer):**
+
+1. `.gitleaks.toml` — extended: `paths` allowlist for 5 directories (legacy K8s, pdfmake source maps, `_bmad/`, `_bmad-output/`, `.claude/`, evidence files, ec2 log); `stopwords` for 215 classified-safe findings (full list with justification per entry)
+2. `gitleaks-baseline.json` — **new**: 53-finding baseline file; CI step updated with `--baseline-path gitleaks-baseline.json` so pre-existing pending_review items are suppressed
+3. `.gitignore` — `!gitleaks-baseline.json` exception added (was blocked by `*.json` rule)
+4. `.github/workflows/ci-platform.yml` — D-005 gitleaks step: added `args: --baseline-path gitleaks-baseline.json`
+5. `IaC/asterisk-freepbx/etc/default/asterisk` — OpenAI key replaced: `"sk-proj-..."` → `"${OPENAI_API_KEY}"`
+6. `JIRA/jira_mcp_wrapper.py` — Atlassian token + email → `os.environ.get()`
+7. `JIRA/scripts/jira_mcp_wrapper.py` — same fix
+8. `scripts/check_confluence_spaces.py` — same fix
+9. `scripts/create_confluence_standards_page.py` — same fix
+10. `evidence/r041d-findings.md` — **new**: full 302-finding classification table
+11. `scripts/classify_findings.py` — **new**: classifier script
+
+**What changed (platform-ui docs):**
+
+12. `docs/system-upgrade/99-risk-register.md` — R27 updated: 🔴 Active → 🟡 Mitigated
+13. `docs/system-upgrade/96-rounds-index.md` — R041C + R041D entries appended
+14. `docs/system-upgrade/00-implementation-control-center.md` — R041D + R041C added to Recent Rounds; Cap 08 marked done (R015); R041A status updated; blocker updated
+
+**Key facts:**
+
+- Scan: 302 findings, all classified. 5 real credentials removed from code (already rotated by owner).
+- 215 findings allowlisted with justification. 52 pending_review in baseline + issue #8.
+- D-005 gate now functional for new PRs. Risk register R27: 🟡 Mitigated.
+- platformengineer PR #9 opened. Do not merge until issue #8 verified.
+
+**Next recommended:**
+
+Track B: R041A (CI Enforcement — LLM import gate), now unblocked.
+Track A: Timeline + ActivityFeed generic component, or any explicitly scoped platform-ui capability round.
+
+---
+
+## R041C — Generic Foundation Roadmap Realignment — 2026-04-26
+
+**Scope:** platform-ui docs only. No code. No schema.
+
+**What changed (platform-ui docs):**
+
+1. `docs/system-upgrade/35-platform-capabilities-build-order.md` — §6 renamed "Platform-UI Generic Foundation Track"; §7 AI Agents dependency fixed (was "Helpdesk complete" → `PlatformApprovalFlow` generic capability)
+2. `docs/system-upgrade/00-implementation-control-center.md` — Track A expanded to 9-step generic foundation sequence
+3. `docs/system-upgrade/47-generic-platform-foundation-roadmap.md` — §1 ActionButton ✅; §8 item 1.3 reframed; §22 "Platform-UI Frontend Capability Build Order" added (3 subsections)
+4. `docs/system-upgrade/96-rounds-index.md` — R041C round entry
+5. `docs/system-upgrade/98-change-log.md` — this entry
+
+**Key findings:**
+
+- Cap 08 (DetailView) was **already done in R015** — `components/shared/detail-view/` exists with 6 components. No work needed.
+- FeatureFlags UI (PR #5) created but immediately blocked on governance: R041D-UI is invalid round ID + FeatureFlags belongs to R045 in required sequence. PR #5 remains draft.
+
+**Next recommended:** R041D → R041A (Track B). Platform-ui Track A: next generic foundation capability after ActionButton + DetailView.
+
+---
+
 ## R041B — ActionButton Shared Component — 2026-04-26
 
 **Scope:** platform-ui rewrite — shared capability. No platformengineer changes. No runtime auth/API/proxy changes.

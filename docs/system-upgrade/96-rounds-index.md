@@ -1492,3 +1492,108 @@ Prop precedence fix commit `72d1e25` — `{...props}` moved before enforced prop
 - R041D: Secrets Gate Baseline Cleanup
 - R041A: CI Enforcement / LLM import gate (after R041D)
 - Track B does not block Track A and is not the default next step.
+
+---
+
+## R041C — Generic Foundation Roadmap Realignment
+
+| Field | Value |
+|-------|-------|
+| **Round** | R041C — Generic Foundation Roadmap Realignment |
+| **Date** | 2026-04-26 |
+| **Repo** | platform-ui |
+| **Type** | Docs-only — planning realignment |
+| **Status** | Complete ✅ |
+| **Branch** | `docs/generic-foundation-roadmap` |
+| **PR** | #4 — merged |
+
+### Mission
+
+Realign platform-ui planning docs from "Helpdesk first" to "Generic Platform Foundation first." The platform is ResolveAI — a generic multi-tenant AI operating system. Helpdesk is the first specialized consumer of the foundation, not the platform's identity.
+
+### Files Updated
+
+| File | Change |
+|------|--------|
+| `docs/system-upgrade/35-platform-capabilities-build-order.md` | §6 renamed to "Platform-UI Generic Foundation Track"; §7 AI Agents dependency fixed |
+| `docs/system-upgrade/00-implementation-control-center.md` | Track A expanded to 9-step generic sequence |
+| `docs/system-upgrade/47-generic-platform-foundation-roadmap.md` | §1 ActionButton ✅; §22 "Platform-UI Frontend Capability Build Order" added (3 subsections) |
+| `docs/system-upgrade/96-rounds-index.md` | R041C round entry (this entry) |
+| `docs/system-upgrade/98-change-log.md` | R041C entry |
+
+### Key Facts
+
+- Cap 08 (DetailView) found to be **already done in R015** (`components/shared/detail-view/` with 6 components). No work needed.
+- FeatureFlags UI (PR #5) created but immediately blocked: R041D-UI is an invalid round ID (R041D reserved for Secrets Gate), and FeatureFlags belongs to R045 in required sequence. PR #5 remains draft.
+
+### Next Recommended Action
+
+R041D (Secrets Gate Baseline Cleanup, platformengineer) → then R041A (CI Enforcement).
+
+---
+
+## R041D — Secrets Gate Baseline Cleanup
+
+| Field | Value |
+|-------|-------|
+| **Round** | R041D — Secrets Gate Baseline Cleanup |
+| **Date** | 2026-04-26 |
+| **Repo** | platformengineer |
+| **Type** | Legacy maintenance exception — Track B |
+| **Status** | PR #9 opened ✅ — pending merge |
+| **Branch** | `fix/r041d-secrets-gate-baseline` |
+| **PR** | [#9](https://github.com/MosheGabayDev/platformengineer/pull/9) |
+| **Commit** | `09b0234c` |
+
+### Mission
+
+Clean up the D-005 gitleaks gate in platformengineer so future PRs fail only on genuinely new secrets, not pre-existing baseline noise. Classify all 302 existing findings; fix real credentials; allowlist safe findings; suppress pre-existing pending items via baseline JSON.
+
+### Files Created (platformengineer)
+
+| File | Purpose |
+|------|---------|
+| `.gitleaks.toml` (extended) | Allowlist for 215 classified-safe findings (stopwords + paths) |
+| `gitleaks-baseline.json` | 53-finding baseline — suppresses pre-existing pending_review items in CI |
+| `evidence/r041d-findings.md` | Full 302-finding classification table |
+| `scripts/classify_findings.py` | Classifier script used to generate the evidence file |
+
+### Files Modified (platformengineer)
+
+| File | Change |
+|------|--------|
+| `IaC/asterisk-freepbx/etc/default/asterisk` | `OPENAI_API_KEY="sk-proj-..."` → `"${OPENAI_API_KEY}"` |
+| `JIRA/jira_mcp_wrapper.py` | API token + email → `os.environ.get()` |
+| `JIRA/scripts/jira_mcp_wrapper.py` | Same fix |
+| `scripts/check_confluence_spaces.py` | Same fix |
+| `scripts/create_confluence_standards_page.py` | Same fix |
+| `.github/workflows/ci-platform.yml` | D-005 step: added `args: --baseline-path gitleaks-baseline.json` |
+| `.gitignore` | `!gitleaks-baseline.json` exception (was blocked by `*.json` rule) |
+
+### Classification Summary
+
+| Class | Count | Action |
+|-------|-------|--------|
+| real_secret_rotated | 5 | Code fixed — env vars |
+| false_positive | 56 | Allowlisted |
+| safe_local_default | 118 | Allowlisted |
+| test_fixture | 33 | Allowlisted |
+| legacy_dead_code | 8 | Allowlisted (path-based) |
+| pending_review | 52 | Baseline JSON + issue #8 |
+
+### Stop Conditions
+
+Two stop conditions triggered: OpenAI key + Atlassian token found → owner confirmed rotation → resumed. Additional pending credentials (Cloudflare, diagnostic tokens, Google OAuth) → documented in issue #8.
+
+### Risk Register
+
+R27 updated: 🔴 Active → 🟡 Mitigated (`docs/system-upgrade/99-risk-register.md`).
+
+### Do Not Merge
+
+PR #9 awaits verification of 52 pending_review findings by owner (issue #8).
+
+### Next Recommended Action
+
+**Track B:** R041A — CI Enforcement (LLM import gate), now unblocked.
+**Track A:** Timeline + ActivityFeed generic component, or any explicitly scoped platform-ui capability.
