@@ -60,5 +60,9 @@ export function useFeatureFlag(key: FlagKey): UseFlagResult {
     };
   }
 
-  return { enabled: data.enabled, isLoading: false, isError: false, source: "api" };
+  // Coerce to strict boolean — guards against backend contract drift where
+  // enabled might be a truthy non-boolean (e.g. "false" string, 1, null).
+  // Fail-closed: anything that is not exactly `true` is treated as disabled.
+  const enabled = data.enabled === true;
+  return { enabled, isLoading: false, isError: false, source: "api" };
 }
