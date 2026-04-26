@@ -39,13 +39,21 @@ export interface UserSummary {
 export interface UserDetail extends UserSummary {
   first_name: string | null;
   last_name: string | null;
+  display_name: string | null;
   bio: string | null;
+  phone: string | null;
+  phone_verified: boolean;
+  job_title: string | null;
+  profile_image: string | null;
   is_manager: boolean;
   is_system_admin: boolean;
   email_confirmed: boolean;
   mfa_enabled: boolean;
   preferred_language: string | null;
   timezone: string | null;
+  email_notifications: boolean;
+  security_alerts: boolean;
+  system_updates: boolean;
   permissions: string[];
 }
 
@@ -113,6 +121,29 @@ export interface RoleSummary {
 export interface RolesListResponse {
   success: boolean;
   data: { roles: RoleSummary[] };
+}
+
+// ---------------------------------------------------------------------------
+// Activity timeline
+// ---------------------------------------------------------------------------
+
+export type ActivityTypeFilter = "login" | "security" | "profile";
+
+export interface UserActivityEvent {
+  id: string;
+  type: string;
+  timestamp: string;
+  actor?: string;
+  description: string;
+  detail?: string;
+}
+
+export interface UserActivityResponse {
+  success: boolean;
+  data: {
+    events: UserActivityEvent[];
+    total: number;
+  };
 }
 
 // ---------------------------------------------------------------------------

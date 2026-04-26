@@ -1,7 +1,7 @@
 # 52 — Parallel Worktree Agent Workflow
 
-> Official workflow for running multiple AI agents in parallel using Git worktrees.
-> _Last updated: 2026-04-26 (R041-WT follow-up — shared docs reconciliation rule added)_
+> **SUPERSEDED 2026-04-26:** Worktree workflow retired. Project uses plain branch workflow — `git checkout -b feat/r0xx-name` in the main repo directory. Worktrees caused node_modules/.env friction in practice.
+> _Last updated: 2026-04-26 (branch-only workflow adopted by user)_
 >
 > **Read after:** `CLAUDE.md` → `00-implementation-control-center.md` → `51-agent-handoff-protocol.md` → **this file**
 

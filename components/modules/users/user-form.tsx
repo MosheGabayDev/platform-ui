@@ -26,6 +26,7 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { PlatformForm, FormError, FormActions } from "@/components/shared/form";
 import { usePlatformMutation } from "@/lib/hooks/use-platform-mutation";
@@ -367,6 +368,44 @@ export function UserEditSheet({
             </FieldRow>
           </div>
 
+          <FieldRow>
+            <Label htmlFor="edit_display_name">שם תצוגה</Label>
+            <Input id="edit_display_name" {...form.register("display_name")} disabled={isPending} />
+            <FieldError message={errors.display_name?.message} />
+          </FieldRow>
+
+          <FieldRow>
+            <Label htmlFor="edit_phone">טלפון</Label>
+            <Input id="edit_phone" type="tel" {...form.register("phone")} disabled={isPending} />
+            <FieldError message={errors.phone?.message} />
+          </FieldRow>
+
+          <FieldRow>
+            <Label htmlFor="edit_bio">ביוגרפיה</Label>
+            <Textarea id="edit_bio" rows={3} {...form.register("bio")} disabled={isPending} className="resize-none" />
+            <FieldError message={errors.bio?.message} />
+          </FieldRow>
+
+          <div className="grid grid-cols-2 gap-3">
+            <FieldRow>
+              <Label htmlFor="edit_language">שפה מועדפת</Label>
+              <Input id="edit_language" placeholder="he / en / ar" {...form.register("preferred_language")} disabled={isPending} />
+              <FieldError message={errors.preferred_language?.message} />
+            </FieldRow>
+            <FieldRow>
+              <Label htmlFor="edit_timezone">אזור זמן</Label>
+              <Input id="edit_timezone" placeholder="Asia/Jerusalem" {...form.register("timezone")} disabled={isPending} />
+              <FieldError message={errors.timezone?.message} />
+            </FieldRow>
+          </div>
+
+          <div className="space-y-2 pt-1">
+            <Label className="text-xs text-muted-foreground uppercase tracking-wide">התראות</Label>
+            <CheckRow id="edit_email_notifications" label="התראות במייל" checked={form.watch("email_notifications")} onChange={(v) => form.setValue("email_notifications", v)} disabled={isPending} />
+            <CheckRow id="edit_security_alerts" label="התראות אבטחה" checked={form.watch("security_alerts")} onChange={(v) => form.setValue("security_alerts", v)} disabled={isPending} />
+            <CheckRow id="edit_system_updates" label="עדכוני מערכת" checked={form.watch("system_updates")} onChange={(v) => form.setValue("system_updates", v)} disabled={isPending} />
+          </div>
+
           {isAdmin && (
             <>
               <FieldRow>
@@ -379,6 +418,12 @@ export function UserEditSheet({
                 <Label htmlFor="edit_email">אימייל</Label>
                 <Input id="edit_email" type="email" {...form.register("email")} disabled={isPending} />
                 <FieldError message={errors.email?.message} />
+              </FieldRow>
+
+              <FieldRow>
+                <Label htmlFor="edit_job_title">כותרת תפקיד</Label>
+                <Input id="edit_job_title" {...form.register("job_title")} disabled={isPending} />
+                <FieldError message={errors.job_title?.message} />
               </FieldRow>
 
               <FieldRow>
@@ -445,6 +490,15 @@ function buildEditDefaults(user: UserDetail | null): EditUserInput {
     email: user?.email ?? "",
     first_name: user?.first_name ?? "",
     last_name: user?.last_name ?? "",
+    display_name: user?.display_name ?? "",
+    bio: user?.bio ?? "",
+    phone: user?.phone ?? "",
+    job_title: user?.job_title ?? "",
+    preferred_language: user?.preferred_language ?? "",
+    timezone: user?.timezone ?? "",
+    email_notifications: user?.email_notifications ?? true,
+    security_alerts: user?.security_alerts ?? true,
+    system_updates: user?.system_updates ?? true,
     role_id: user?.role_id ?? null,
     is_admin: user?.is_admin ?? false,
     is_manager: user?.is_manager ?? false,
