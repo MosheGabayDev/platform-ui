@@ -1,7 +1,7 @@
 # 00 — Implementation Control Center
 
 > **This is the first doc to read after `CLAUDE.md`.** Every implementation round starts here.
-> _Last updated: 2026-04-26 (R042 — PlatformNotifications cap 12 implemented; PR #7 opened)_
+> _Last updated: 2026-04-26 (R042 — PlatformNotifications cap 12 merged; R041C + R041D-UI + R042 all merged to master; next: Cap 02 StatCard/PlatformDashboard)_
 
 ---
 
@@ -27,9 +27,9 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 
 > No round is currently in progress. The next agent should start one of the rounds below.
 
-**R042 ✅ (platform-ui PR #7 opened 2026-04-26, SHA `943ca4b`).**
+**R042 ✅ (platform-ui PR #7 merged 2026-04-26, SHA `deb32c4`). R041C ✅ (merged 2026-04-26). R041D-UI ✅ (PR #5 merged 2026-04-26). R041E ✅ (PR #6 merged 2026-04-26). R041B ✅ (PR #2 merged 2026-04-26, SHA `5532102`).**
 
-**R041B ✅ (PR #2 merged 2026-04-26, SHA `5532102`). R041C ✅ (docs, 2026-04-26). R041D ✅ (platformengineer PR #9 opened 2026-04-26, pending merge). R041E ✅ (platform-ui PR #6 opened 2026-04-26).**
+**Next: R043 — Cap 02 StatCard / PlatformDashboard (KPI stat cards for any module home page). ~1h, no backend dependency.**
 
 **Track A — platform-ui rewrite (default path)**
 
