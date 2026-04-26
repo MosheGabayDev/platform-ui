@@ -39,7 +39,7 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 
 | Round | Title | Date | Commit |
 |-------|-------|------|--------|
-| R040-Fix-Post-Apply | Post-Apply Reconciliation (planning/control docs) | 2026-04-26 | this commit (platform-ui) |
+| R040-Fix-Post-Apply | Post-Apply Reconciliation (planning/control docs) | 2026-04-26 | `c974aad` (platform-ui) |
 | R040-Fix | Schema Drift Fixes — DB Apply Complete | 2026-04-26 | `cc6c9001` (platformengineer) |
 | R041-AI-Knowledge | Global System Capability Knowledge Base | 2026-04-26 | `5ea0ba4` (platform-ui) |
 | R041-AI-Assist | Mandatory Chat AI + Voice Agent Readiness | 2026-04-26 | `b1da1a3` (platform-ui) |
