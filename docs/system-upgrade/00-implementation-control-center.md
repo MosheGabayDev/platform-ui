@@ -31,13 +31,19 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 
 **Track A — platform-ui rewrite (default path)**
 
-| Candidate | Title | Status | Notes |
-|-----------|-------|--------|-------|
-| **Cap 08 / DetailView** | PlatformDetailView extraction | `[x] already done — R015` | `components/shared/detail-view/` was created in R015 with 6 components. No work needed. |
-| **Cap 09 / Timeline** | PlatformTimeline generic component | `[x] complete — R041E` | `components/shared/timeline/` — 5 files. PR #6 opened. |
-| **Cap 12 / Notifications** | PlatformNotifications bell + feed | `[ ] ready` | Next generic foundation capability. No backend dependency for UI shell. |
-| **R042 UI side** | ModuleRegistry UI — platform-ui | `[ ] not yet scoped` | Only after platformengineer backend/core side complete and dependency explicitly declared. Not auto-next. |
+> Build the **Generic Platform Foundation** first. This is generic infrastructure that serves every entity-management page and every module UI. Helpdesk is the first specialized module consumer of this foundation — it is not the driver. The order below is the definitive sequence.
 
+| Step | Candidate | Title | Status | Notes |
+|------|-----------|-------|--------|-------|
+| 1 | **Cap 08** | `DetailView` extraction | `[x] done — R015` | Extract `DetailView` shared components to `components/shared/detail-view/`. Serves Users, Orgs, Roles, and every future module detail page. |
+| 2 | **Cap 17** | `PlatformFeatureFlags` UI | `[x] complete — R041D-UI` | Plan-gated module surfaces + beta feature rollout. Needed before any module goes to production. |
+| 3 | **Cap 09** | `PlatformTimeline` | `[x] complete — R041E` | Activity history component for any entity (users, orgs, tickets, jobs). |
+| 3 | **Cap 12** | `PlatformNotifications` UI | `[x] complete — R042` | Notification bell + drawer — consumed by every module with async events. |
+| 3 | **Cap 02** | `StatCard` / `PlatformDashboard` | `[ ] ready` | KPI stat cards for any module home page. |
+| 4 | **AI shell** | Global floating chat + voice agent | `[ ] not yet scoped` | Chat overlay + voice agent entry point visible from every page. Requires scoping. |
+| 5 | **Data Sources Hub** | Data Sources Hub UI | `[ ] not yet scoped` | Connector registry, credential vault, sync status. Platform-wide data ingestion layer. |
+| 6 | **Helpdesk Phase A** | Helpdesk ticket list + route shell | `[ ] blocked on step 2+3` | First specialized module consumer of the foundation. Starts after cap 08 + cap 17. |
+| — | **R042 UI side** | ModuleRegistry UI — platform-ui | `[ ] not yet scoped` | Only after platformengineer backend/core side complete and dependency explicitly declared. Not auto-next. |
 **Track B — platformengineer legacy maintenance (exception-only — requires explicit user authorization)**
 
 > **platformengineer is read-only reference** during platform-ui rewrite rounds. Agents must not modify platformengineer unless the user explicitly authorizes a legacy maintenance exception in the prompt.
