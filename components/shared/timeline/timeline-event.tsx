@@ -60,18 +60,21 @@ export function TimelineEventItem({ event, isLast }: TimelineEventProps) {
               {expanded ? "הסתר פרטים" : "הצג פרטים"}
             </button>
 
+            {/* grid-rows animation avoids hard maxHeight cap — content of any length is fully visible */}
             <m.div
               animate={{
-                maxHeight: expanded ? "200px" : "0px",
+                gridTemplateRows: expanded ? "1fr" : "0fr",
                 opacity: expanded ? 1 : 0,
               }}
-              initial={{ maxHeight: "0px", opacity: 0 }}
+              initial={{ gridTemplateRows: "0fr", opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="overflow-hidden"
+              style={{ display: "grid" }}
             >
-              <p className="mt-2 rounded-md bg-muted/50 p-2 text-xs text-muted-foreground">
-                {event.detail}
-              </p>
+              <div className="overflow-hidden">
+                <p className="mt-2 rounded-md bg-muted/50 p-2 text-xs text-muted-foreground whitespace-pre-wrap break-words">
+                  {event.detail}
+                </p>
+              </div>
             </m.div>
           </div>
         )}
