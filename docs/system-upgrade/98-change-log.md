@@ -87,7 +87,6 @@ Track A: Timeline + ActivityFeed generic component, or any explicitly scoped pla
 - FeatureFlags UI (PR #5) created but immediately blocked on governance: R041D-UI is invalid round ID + FeatureFlags belongs to R045 in required sequence. PR #5 remains draft.
 
 **Next recommended:** R041D → R041A (Track B). Platform-ui Track A: next generic foundation capability after ActionButton + DetailView.
-
 ---
 
 ## R041B — ActionButton Shared Component — 2026-04-26

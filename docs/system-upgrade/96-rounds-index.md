@@ -1510,7 +1510,6 @@ Prop precedence fix commit `72d1e25` — `{...props}` moved before enforced prop
 ### Mission
 
 Realign platform-ui planning docs from "Helpdesk first" to "Generic Platform Foundation first." The platform is ResolveAI — a generic multi-tenant AI operating system. Helpdesk is the first specialized consumer of the foundation, not the platform's identity.
-
 ### Files Updated
 
 | File | Change |

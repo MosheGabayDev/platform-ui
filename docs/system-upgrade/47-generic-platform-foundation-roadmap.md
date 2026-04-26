@@ -7,7 +7,7 @@
 
 ## 1. Executive Summary
 
-- **What exists:** Auth/RBAC (JWT complete), AI Provider Gateway (new files, not yet wired universally), partial UI shared capabilities (PlatformDataGrid, PlatformForm, partial ActionButton), Module Manager redesign spec (R038B schema migrations pending), AIUsageLog billing scaffold, partial OrgFeatureFlag.
+- **What exists:** Auth/RBAC (JWT complete), AI Provider Gateway (new files, not yet wired universally), partial UI shared capabilities (PlatformDataGrid, PlatformForm, ActionButton ✅ R041B), Module Manager redesign spec (R038B schema migrations pending), AIUsageLog billing scaffold, partial OrgFeatureFlag.
 - **What's needed:** Before any new feature module can be safely built at scale, 12 P0 foundation gates must be completed: per-org module state (OrgModule), feature flags engine, audit log platform service, notifications foundation, API key management, settings engine, LLM import cleanup, navigation API, CI enforcement, and the generic Data Sources Hub backend.
 - **What's blocked:** Broad multi-tenant module development is blocked on missing OrgModule schema (blocks per-org feature gating), missing Settings Engine (blocks all org/user preferences), missing AuditLog service (blocks RBAC audit completeness), and 55+ direct LLM import violations that bypass the billing/governance layer.
 - **The plan:** Complete 5 platform foundation phases across R040–R060+. Phase 1 (R040–R048) closes all P0 gates. Phase 2 (R048–R058) builds generic shared hubs. Phase 3 builds AI/automation platform. Phase 4 adds marketplace/enterprise. Phase 5 hardens DevOps/infrastructure.
@@ -336,7 +336,7 @@ Each pillar defines a domain of platform responsibility. No module may own these
 | Design System (component library) | partial | P0 | R041 | Tailwind + shadcn; missing key patterns |
 | PlatformDataGrid | implemented | P0 | — | R012 complete |
 | PlatformForm | implemented | P0 | — | R015-019 complete |
-| ActionButton | partial | P0 | R041 | Spec done; not extracted to shared/ |
+| ActionButton | ✅ implemented | P0 | R041B | `components/shared/action-button.tsx` — merged PR #2 2026-04-26 |
 | DetailView | partial | P0 | R041 | Pattern used; not fully extracted |
 | Dashboard Builder | missing | P2 | R055 | Custom widget layouts |
 | Custom Widgets | missing | P2 | R055 | Org-configurable dashboard tiles |
@@ -464,7 +464,7 @@ These deliverables are prerequisites for all multi-tenant module development.
 |---|------------|-------|--------|
 | 1.1 | OrgModule + ModuleVersion + ModuleLicense schema migrations (R038B) | R040 | Per-org module state everywhere |
 | 1.2 | CI enforcement gate (LLM import check in PR CI + ADR-028 check) | R041 | Governance regression |
-| 1.3 | ActionButton extraction + DetailView extraction (complete partials) | R041 | UI consistency; Helpdesk forms |
+| 1.3 | ActionButton ✅ R041B (done) + DetailView extraction (pending) | R041–R041C | Generic UI consistency for all entity-management pages and module UIs |
 | 1.4 | ModuleRegistry.sync_from_manifests() + ModuleCompatLayer | R042 | All module callers |
 | 1.5 | AI Service-to-Provider Routing Matrix backend (AIServiceDefinition + AIServiceProviderRoute) | R043 | Feature-level AI routing |
 | 1.6 | Navigation API (GET /api/org/modules/navigation + sidebar wiring) | R044 | Module-aware nav |
@@ -839,7 +839,7 @@ Required before merging any PR:
 | # | Round ID | Title | Size | Gate | Blocked By |
 |---|----------|-------|------|------|-----------|
 | 1 | R040 | R038B — Module Manager additive schema migrations | Medium | OQ-01–OQ-07 answered (done), FK targets confirmed, acceptance criteria in doc 46; **storage constraint: `platform_managed_shared_db` only, no BYODB, additive migrations only, all tables org_id-scoped, no hardcoded connection strings** | Nothing — UNBLOCKED |
-| 2 | R041 | CI enforcement + ActionButton + shared UI gates | Small | CI gate added to CD workflow; ActionButton extracted; DetailView fully extracted | R040 preferred first but R041 is independent |
+| 2 | R041 | CI enforcement + shared UI gates (Generic Platform Foundation) | Small | CI gate added to CD workflow; ActionButton ✅ R041B complete; DetailView extraction next (R041C+); generic foundation before specialized modules | R040 preferred first but R041 is independent |
 | 3 | R042 | R038C — ModuleRegistry sync + CompatLayer | Medium | ModuleRegistry.sync_from_manifests() + ModuleCompatLayer + module_key identity migration | R040 (OrgModule tables must exist) |
 | 4 | R043 | AI Service Routing Matrix backend | Medium | AIServiceDefinition + AIServiceProviderRoute tables + 9-step resolver + 27-service seed | R040 (tables need org_id scoping via OrgModule) |
 | 5 | R044 | R038D — Navigation API + JWT route audit | Medium | GET /api/org/modules/navigation + sidebar wired + /api/modules/enabled-menu @jwt_required fix | R042 (ModuleCompatLayer must exist) |
@@ -1313,3 +1313,42 @@ These are two distinct but related systems:
 |---------|------|--------|-------|
 | v1.0 | 2026-04-25 | R039 | Initial creation — full platform roadmap |
 | v1.1 | 2026-04-25 | R039 addendum | Added §21: Data Ownership, Artifacts & Tenant Storage Strategy; ADR-036 |
+| v1.2 | 2026-04-26 | R041C | Generic Foundation First: ActionButton ✅ R041B; §1/§8/pillar 8/§16 updated; §22 Platform-UI Frontend Capability Build Order added |
+
+---
+
+## 22. Platform-UI Frontend Capability Build Order
+
+> Added: R041C, 2026-04-26. Defines the definitive build order for platform-ui generic foundation capabilities.
+
+**Core principle:** Build generic platform infrastructure first. Every capability below serves all entity-management pages and all module UIs. Helpdesk is the first specialized module consumer of this foundation — it does not drive the build order.
+
+### 22.1 Generic Foundation Track (default path — Track A)
+
+| Step | Capability | Status | Generic Value | Notes |
+|------|-----------|--------|---------------|-------|
+| 1 | `ActionButton` (Cap 04) | ✅ Done — R041B | Mutation trigger buttons across all modules | `components/shared/action-button.tsx` |
+| 2 | `DetailView` extraction (Cap 08) | `[ ] ready` | Entity-detail layout for Users, Orgs, Roles, and every future module detail page | Extract to `components/shared/detail-view/` |
+| 3 | `PlatformFeatureFlags` UI (Cap 17) | `[ ] ready` | Plan-gated module surfaces + beta feature rollout | Required before any module goes to production |
+| 4 | `PlatformTimeline` (Cap 09) | `[ ] ready` | Activity history for any entity (users, orgs, tickets, jobs) | |
+| 4 | `PlatformNotifications` UI (Cap 12) | `[ ] ready` | Notification bell + drawer for any module's async events | |
+| 4 | `StatCard` / `PlatformDashboard` (Cap 02) | `[ ] ready` | KPI stat cards for any module home page | |
+| 5 | Global floating chat + voice agent shell | `[ ] not yet scoped` | AI assistant overlay visible from every page | Requires explicit scoping before start |
+| 6 | Data Sources Hub UI | `[ ] not yet scoped` | Connector registry, credential vault, sync status | Platform-wide data ingestion layer |
+| 7 | Helpdesk Phase A | `[ ] blocked on step 2+3` | First specialized module consumer | Ticket list + route shell; NOT the foundation driver |
+
+### 22.2 Sequencing Gates
+
+- **After step 2 + step 3:** Helpdesk Phase A can start as the first specialized module consumer.
+- **After step 2 + step 4 (all three caps):** Helpdesk Phase B (ticket detail + approvals) can start.
+- **No specialized module work before steps 2 and 3.** Steps 2 and 3 are the minimum generic foundation for any module.
+
+### 22.3 Track Separation
+
+**Track A (default — all platform-ui rewrite work happens here):**
+- Generic foundation capabilities above
+- No dependency on platformengineer maintenance rounds
+
+**Track B (exception-only — requires explicit user authorization):**
+- platformengineer legacy maintenance (R041D, R041A)
+- Agents must not modify platformengineer during Track A rounds unless the user explicitly authorizes a legacy maintenance exception in the prompt
