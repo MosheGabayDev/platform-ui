@@ -124,6 +124,29 @@ export interface RolesListResponse {
 }
 
 // ---------------------------------------------------------------------------
+// Activity timeline
+// ---------------------------------------------------------------------------
+
+export type ActivityTypeFilter = "login" | "security" | "profile";
+
+export interface UserActivityEvent {
+  id: string;
+  type: string;
+  timestamp: string;
+  actor?: string;
+  description: string;
+  detail?: string;
+}
+
+export interface UserActivityResponse {
+  success: boolean;
+  data: {
+    events: UserActivityEvent[];
+    total: number;
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Mutation response types
 // ---------------------------------------------------------------------------
 

@@ -5,6 +5,7 @@
  *
  * Auth: protected by middleware.ts.
  * Data: via useQuery → fetchUser(id) → /api/proxy/users/<id> → Flask /api/users/<id>.
+ *       Activity: via useUserActivity(id) → /api/proxy/users/<id>/activity → Flask /api/users/<id>/activity.
  * Mutations: PATCH /api/users/<id> via UserEditSheet, PATCH /api/users/<id>/active via danger actions.
  */
 
@@ -13,9 +14,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
-import { User, Mail, Building2, Shield, Clock, CheckCircle, Key, Pencil, UserX, UserCheck, LogIn, UserCog, Lock, ShieldCheck, Tag, Bot, Globe, MapPin, FileText, Phone, Briefcase, Bell, AlertTriangle, Newspaper } from "lucide-react";
+import { User, Mail, Building2, Shield, Clock, CheckCircle, Key, Pencil, UserX, UserCheck, Tag, Bot, Globe, MapPin, FileText, Phone, Briefcase, Bell, AlertTriangle, Newspaper } from "lucide-react";
 import { PlatformTimeline } from "@/components/shared/timeline";
-import type { TimelineEvent } from "@/components/shared/timeline";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { ActionButton } from "@/components/shared/action-button";
@@ -34,54 +34,8 @@ import { hasRole } from "@/lib/auth/rbac";
 import { useDangerousAction } from "@/lib/hooks/use-dangerous-action";
 import { USER_ACTIONS } from "@/lib/platform/actions";
 import { PAGE_EASE } from "@/lib/ui/motion";
-
-function buildMockTimeline(user: { name: string; created_at?: string; last_login?: string }): TimelineEvent[] {
-  const base = user.created_at ? new Date(user.created_at) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-  return [
-    {
-      id: "ev-1",
-      type: "login",
-      timestamp: user.last_login ?? new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-      actor: user.name,
-      description: "התחבר למערכת",
-      icon: LogIn,
-    },
-    {
-      id: "ev-2",
-      type: "profile_update",
-      timestamp: new Date(base.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-      actor: "מנהל מערכת",
-      description: "פרופיל המשתמש עודכן",
-      detail: "שם, כתובת דוא\"ל ותפקיד עודכנו על ידי מנהל",
-      icon: UserCog,
-    },
-    {
-      id: "ev-3",
-      type: "mfa_enabled",
-      timestamp: new Date(base.getTime() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-      actor: user.name,
-      description: "אימות דו-שלבי הופעל",
-      icon: ShieldCheck,
-    },
-    {
-      id: "ev-4",
-      type: "password_reset",
-      timestamp: new Date(base.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
-      actor: user.name,
-      description: "סיסמה אופסה",
-      detail: "בקשת איפוס סיסמה נשלחה ואומתה בהצלחה",
-      icon: Lock,
-    },
-    {
-      id: "ev-5",
-      type: "created",
-      timestamp: base.toISOString(),
-      actor: "מנהל מערכת",
-      description: "חשבון נוצר",
-      icon: User,
-    },
-  ];
-}
+import { useUserActivity } from "@/lib/modules/users/hooks";
+import type { ActivityTypeFilter } from "@/lib/modules/users/types";
 
 export default function UserDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -89,6 +43,7 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
   const { data: session } = useSession();
   const isAdmin = hasRole(session, "admin", "system_admin");
   const [editOpen, setEditOpen] = useState(false);
+  const [activityType, setActivityType] = useState<ActivityTypeFilter | undefined>(undefined);
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: queryKeys.users.detail(userId),
@@ -98,6 +53,11 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
   });
 
   const user = data?.data?.user;
+
+  const { events: activityEvents, isLoading: activityLoading } = useUserActivity(
+    user ? userId : null,
+    { type: activityType },
+  );
   const isSelf = session?.user?.id === user?.id;
   const canEdit = isAdmin || isSelf;
 
@@ -267,9 +227,23 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
             )}
 
             <DetailSection title="היסטוריית פעילות">
-              <div className="pt-2">
-                <PlatformTimeline events={buildMockTimeline(user)} />
+              <div className="flex gap-1.5 pb-3 flex-wrap">
+                {([undefined, "login", "security", "profile"] as const).map((t) => (
+                  <button
+                    key={t ?? "all"}
+                    type="button"
+                    onClick={() => setActivityType(t)}
+                    className={`rounded-full px-3 py-1 text-xs font-medium transition-colors border ${
+                      activityType === t
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-transparent text-muted-foreground border-border hover:text-foreground"
+                    }`}
+                  >
+                    {t === undefined ? "הכל" : t === "login" ? "כניסה" : t === "security" ? "אבטחה" : "פרופיל"}
+                  </button>
+                ))}
               </div>
+              <PlatformTimeline events={activityEvents} isLoading={activityLoading} />
             </DetailSection>
           </motion.div>
         )}
