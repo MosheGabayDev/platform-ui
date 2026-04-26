@@ -40,12 +40,12 @@ export function ActionButton({
 }: ActionButtonProps) {
   return (
     <Button
+      {...props}
       variant={variant}
       size={size}
       disabled={disabled || isLoading}
       className={className}
       aria-busy={isLoading || undefined}
-      {...props}
     >
       {isLoading && (
         <span
