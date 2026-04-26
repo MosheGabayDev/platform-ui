@@ -27,13 +27,23 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 
 > No round is currently in progress. The next agent should start one of the rounds below.
 
+**R041B is complete ✅ (PR #2 merged 2026-04-26, SHA `5532102`).**
+
+These two tracks are independent — neither blocks the other. Start the next round on whichever track is explicitly instructed.
+
+**Track A — platform-ui rewrite (next candidate)**
+
+| Candidate | Title | Status | Notes |
+|-----------|-------|--------|-------|
+| **Cap 08** | PlatformDetailView extraction | `[ ] ready` | Extract `DetailView` shared components to `components/shared/detail-view/`. Needed before Helpdesk ticket detail. |
+| **R042 UI side** | ModuleRegistry UI — platform-ui | `[ ] not yet scoped` | Only after platformengineer backend/core side complete and dependency explicitly declared. Not auto-next after R041B. |
+
+**Track B — platformengineer maintenance (independent)**
+
 | Candidate | Title | Status | Notes |
 |-----------|-------|--------|-------|
 | **R041D** | Secrets Gate Baseline Cleanup | `[ ] ready` | platformengineer only. Restore D-005 CI gate trust before R041A full enforcement. |
-| **R041A** | CI Enforcement (LLM import gate) | `[ ] ready` | platformengineer only. Script exists. Start after R041D tracked. |
-| **R042** | ModuleRegistry + ModuleCompatLayer | `[ ] ready` | platformengineer core + platform-ui UI side. Needs explicit scoping before start — not auto-next after R041B. |
-
-> **R041B is complete ✅ (PR #2 merged 2026-04-26, SHA `5532102`).** Next platform-ui rewrite capability round: PlatformDetailView extraction (cap 08) or as explicitly scoped — not automatically R042.
+| **R041A** | CI Enforcement (LLM import gate) | `[ ] ready` | platformengineer only. Start after R041D tracked. |
 
 ---
 
@@ -73,7 +83,7 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 | R048 | P0 LLM Direct Import Cleanup | `[ ] partial-ready` | Simple gateway migrations: no extra dep. Full cleanup: R043 preferred | platformengineer |
 | R049 | Data Sources Hub Backend Foundation | `[ ] blocked` | R047, R046, R040 ✅ | platformengineer |
 
-> **R041A/D note:** CI enforcement (R041A) is platformengineer only. R041D (Secrets Gate cleanup) should precede R041A full enforcement to restore D-005 CI trust. R041B (ActionButton) is ✅ complete — platform-ui only; no platformengineer equivalent built.
+> **Repo model reminder:** platform-ui = target rewrite repo. platformengineer = legacy/current baseline and maintenance exceptions only. R041D and R041A are platformengineer maintenance rounds — they are valid but do not block the next platform-ui rewrite capability round. R041B ✅ complete (platform-ui only).
 > **R048 note:** Modules that only need simple `AIProviderGateway.call()` substitution (no service routing needed) can be migrated immediately — start with fitness_nutrition, ala, ai_coach. Full service-routing-aware migration requires R043 routing matrix first.
 
 > Full dependency graph: [`35-platform-capabilities-build-order.md`](35-platform-capabilities-build-order.md)

@@ -755,11 +755,17 @@ Each page registers `PageAIContext` via `useRegisterPageContext()`. Priority ord
 | **R27 risk added** | D-005 Secrets Gate baseline failures — pre-existing test secrets; R041D tracks cleanup | R040-Fix reconciliation |
 | **R041D issue draft** | `docs/system-upgrade/issues/R041D-secrets-gate-baseline-cleanup.md` | R040-Fix reconciliation |
 
-**Recommended next execution order:**
-1. R041D — Secrets Gate Baseline Cleanup / Allowlist Policy (platformengineer — restore CI gate trust)
-2. R041A — CI Enforcement (LLM import gate; platformengineer — full value only after R041D cleans baseline)
-3. ~~R041B~~ ✅ **Done** — ActionButton shared component merged 2026-04-26 (platform-ui)
-4. R042 — ModuleRegistry sync + CompatLayer (platformengineer core + platform-ui UI side — needs explicit scoping)
-5. R043 — AI Service Routing Matrix backend (platformengineer)
-6. R044 — Navigation API + JWT audit fix (platformengineer)
-7. R045 — Feature Flags + Settings Engine (platformengineer)
+**Next execution — two independent tracks (neither blocks the other):**
+
+Track A — platform-ui rewrite:
+1. ~~R041B~~ ✅ Done — ActionButton merged 2026-04-26
+2. Cap 08 — PlatformDetailView extraction (next platform-ui capability round, if explicitly scoped)
+3. R042 UI side — only after platformengineer backend/core complete and dependency explicitly declared
+
+Track B — platformengineer maintenance:
+1. R041D — Secrets Gate Baseline Cleanup (restore D-005 CI gate trust)
+2. R041A — CI Enforcement (LLM import gate; after R041D)
+3. R042 core — ModuleRegistry sync + CompatLayer backend (platformengineer)
+4. R043 — AI Service Routing Matrix (platformengineer)
+5. R044 — Navigation API + JWT audit fix (platformengineer)
+6. R045 — Feature Flags + Settings Engine (platformengineer)

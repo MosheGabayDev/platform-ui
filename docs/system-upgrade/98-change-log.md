@@ -28,10 +28,11 @@ _Newest entry at the top._
 - TypeScript: 0 new errors in changed files. Full clean check limited by missing `node_modules` in worktree (pre-existing condition).
 - Prop precedence review fix applied in separate commit `72d1e25` before merge.
 
-**Next recommended:**
-1. R041D — platformengineer Secrets Gate Baseline Cleanup
-2. R041A — platformengineer CI Enforcement
-3. Next platform-ui capability round — PlatformDetailView extraction (cap 08) or as explicitly scoped
+**Next recommended (two independent tracks — neither blocks the other):**
+
+Track A — platform-ui rewrite: PlatformDetailView extraction (cap 08) or another explicitly scoped platform-ui capability round. R042 UI side only after platformengineer backend/core complete and explicitly scoped.
+
+Track B — platformengineer maintenance: R041D (Secrets Gate cleanup) → R041A (CI enforcement). These do not block Track A.
 
 ---
 
