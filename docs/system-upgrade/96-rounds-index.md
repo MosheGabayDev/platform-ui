@@ -1422,3 +1422,73 @@ Prepare recommended next execution order. Create R041D issue draft.
 5. **R043** — AI Service Routing Matrix backend
 6. **R044** — Navigation API + JWT audit fix
 7. **R045** — Feature Flags + Settings Engine
+
+---
+
+## R041B — ActionButton Shared Component
+
+| Field | Value |
+|-------|-------|
+| **Round** | R041B — ActionButton shared component |
+| **Date** | 2026-04-26 |
+| **Branch** | `feat/r041b-actionbutton` |
+| **Repo** | platform-ui |
+| **Type** | Rewrite — shared capability (platform-ui only) |
+| **Status** | Complete ✅ |
+| **PR** | [#2](https://github.com/MosheGabayDev/platform-ui/pull/2) — merged `5532102` |
+| **Worktree** | `platform-ui-r041b-actionbutton` — removed after merge |
+
+### Mission
+
+Implement `components/shared/action-button.tsx` — a thin wrapper over shadcn `Button` that shows a loading spinner and prevents double-submit while a mutation is pending. Migrate the two safest existing consumers (users and orgs detail pages) off the inline `disabled={isPending}` pattern.
+
+### Files Created
+
+| File | Purpose |
+|------|---------|
+| `components/shared/action-button.tsx` | New shared component — `isLoading`, `loadingText`, spinner, `disabled \|\| isLoading` guard, `aria-busy` |
+
+### Files Updated
+
+| File | Change |
+|------|--------|
+| `app/(dashboard)/users/[id]/page.tsx` | Deactivate + reactivate buttons → `ActionButton isLoading={*.isPending}` |
+| `app/(dashboard)/organizations/[id]/page.tsx` | Deactivate + reactivate buttons → `ActionButton isLoading={*.isPending}` |
+| `docs/system-upgrade/43-shared-services-enforcement.md` | ActionButton status → ✅ Implemented (R041B) |
+
+### ActionButton API
+
+```tsx
+type ActionButtonProps = React.ComponentProps<"button"> &
+  VariantProps<typeof buttonVariants> & {
+    isLoading?: boolean;
+    loadingText?: string;
+  };
+```
+
+Prop precedence: `{...props}` spreads first; `disabled`, `aria-busy` always win — callers cannot override double-submit guard.
+
+### Capability Status
+
+PlatformAction (cap 04) is now fully implemented. `ActionButton` was the only remaining missing piece.
+
+### TypeScript
+
+`type &` intersection used (not `interface extends`) — matches existing `Button` component pattern. 0 new errors in changed files. Full clean TS check not possible in worktree (no `node_modules`); pre-existing errors unchanged.
+
+### Review Fix Applied
+
+Prop precedence fix commit `72d1e25` — `{...props}` moved before enforced props after PR review.
+
+### Next Recommended Action
+
+**Track A — platform-ui rewrite (default path):**
+- Default next: PlatformDetailView extraction (cap 08), or another explicitly scoped platform-ui capability round
+- platformengineer is read-only reference for capability mapping and no-feature-loss validation only
+- R042 UI side: only after platformengineer backend/core complete and dependency explicitly declared; not auto-next
+
+**Track B — platformengineer legacy maintenance (exception-only):**
+- Requires explicit user authorization. Agents must not modify platformengineer during platform-ui rewrite rounds without it.
+- R041D: Secrets Gate Baseline Cleanup
+- R041A: CI Enforcement / LLM import gate (after R041D)
+- Track B does not block Track A and is not the default next step.

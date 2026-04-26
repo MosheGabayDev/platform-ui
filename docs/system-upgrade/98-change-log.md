@@ -3,6 +3,39 @@
 _Running log of what changed in each update round._
 _Newest entry at the top._
 
+## R041B — ActionButton Shared Component — 2026-04-26
+
+**Scope:** platform-ui rewrite — shared capability. No platformengineer changes. No runtime auth/API/proxy changes.
+
+**What changed (platform-ui):**
+
+1. `components/shared/action-button.tsx` — **new** — `ActionButton` wrapper over shadcn `Button`: `isLoading`, `loadingText`, spinner, double-submit guard, `aria-busy`. `type &` intersection props (not `interface extends`). `{...props}` spreads before enforced props — callers cannot override `disabled` or `aria-busy`. Shared services enforcement doc (`43`) marks it ✅ Implemented (R041B).
+2. `app/(dashboard)/users/[id]/page.tsx` — deactivate + reactivate buttons migrated from `<Button disabled={*.isPending}>` to `<ActionButton isLoading={*.isPending}>`
+3. `app/(dashboard)/organizations/[id]/page.tsx` — same migration as users page
+4. `docs/system-upgrade/43-shared-services-enforcement.md` — ActionButton status `⬜ Pending (R034)` → `✅ Implemented (R041B)`
+
+**Post-merge reconciliation docs (this PR):**
+
+5. `00-implementation-control-center.md` — R041B marked complete; Recent Rounds updated; Recommended Next updated; repo model corrected (platform-ui only, not both repos)
+6. `15-action-backlog.md` — R041B completed section added; worktree tasks marked done
+7. `35-platform-capabilities-build-order.md` — PlatformAction (04) fully complete; dependency graph updated; pre-Helpdesk table updated
+8. `96-rounds-index.md` — R041B round entry appended
+9. `98-change-log.md` — this entry
+
+**Key facts:**
+- PR #2 merged to platform-ui/master. Merge SHA: `5532102`.
+- No platformengineer files changed in any R041B commit.
+- TypeScript: 0 new errors in changed files. Full clean check limited by missing `node_modules` in worktree (pre-existing condition).
+- Prop precedence review fix applied in separate commit `72d1e25` before merge.
+
+**Next recommended:**
+
+Track A — platform-ui rewrite (default): PlatformDetailView extraction (cap 08) or another explicitly scoped platform-ui capability round. platformengineer is read-only reference. R042 UI side only after platformengineer backend/core complete and explicitly scoped.
+
+Track B — platformengineer legacy maintenance (exception-only, requires explicit user authorization): R041D → R041A. Agents must not modify platformengineer during platform-ui rewrite rounds without explicit authorization.
+
+---
+
 ## R040-Fix-Post-Apply-Reconciliation — 2026-04-26
 
 **Scope:** Planning/control docs only. No runtime code. No schema. No UI.

@@ -1,7 +1,7 @@
 # 00 — Implementation Control Center
 
 > **This is the first doc to read after `CLAUDE.md`.** Every implementation round starts here.
-> _Last updated: 2026-04-26 (R040-post-apply-reconciliation — R040-Fix DB apply complete; R042 unblocked)_
+> _Last updated: 2026-04-26 (R041B-post-merge-reconciliation — ActionButton merged PR #2; R041B complete)_
 
 ---
 
@@ -27,11 +27,23 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 
 > No round is currently in progress. The next agent should start one of the rounds below.
 
+**R041B is complete ✅ (PR #2 merged 2026-04-26, SHA `5532102`).**
+
+**Track A — platform-ui rewrite (default path)**
+
 | Candidate | Title | Status | Notes |
 |-----------|-------|--------|-------|
-| **R041A** | CI Enforcement (LLM import gate) | `[ ] ready` | No blockers. platformengineer only. Script exists. |
-| **R041B** | ActionButton Extraction | `[ ] ready` | No blockers. Both repos. Can run parallel to R041A. |
-| **R042** | ModuleRegistry + ModuleCompatLayer | `[ ] ready` | Code work + data ingestion unblocked. Drift-fix migrations applied 2026-04-26. Start after R041D is tracked. |
+| **Cap 08** | PlatformDetailView extraction | `[ ] ready` | Extract `DetailView` shared components to `components/shared/detail-view/`. Next platform-ui rewrite candidate. |
+| **R042 UI side** | ModuleRegistry UI — platform-ui | `[ ] not yet scoped` | Only after platformengineer backend/core side complete and dependency explicitly declared. Requires explicit scoping. Not auto-next. |
+
+**Track B — platformengineer legacy maintenance (exception-only — requires explicit user authorization)**
+
+> **platformengineer is read-only reference** during platform-ui rewrite rounds. Agents must not modify platformengineer unless the user explicitly authorizes a legacy maintenance exception in the prompt.
+
+| Candidate | Title | Status | Notes |
+|-----------|-------|--------|-------|
+| **R041D** | Secrets Gate Baseline Cleanup | `[ ] not started` | platformengineer only. Legacy maintenance exception. Requires explicit start instruction. |
+| **R041A** | CI Enforcement (LLM import gate) | `[ ] not started` | platformengineer only. Legacy maintenance exception. Start after R041D. Requires explicit start instruction. |
 
 ---
 
@@ -39,6 +51,7 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 
 | Round | Title | Date | Commit |
 |-------|-------|------|--------|
+| R041B | ActionButton shared component — PR #2 | 2026-04-26 | `5532102` (platform-ui) |
 | R040-Fix-Post-Apply | Post-Apply Reconciliation (planning/control docs) | 2026-04-26 | `c974aad` (platform-ui) |
 | R040-Fix | Schema Drift Fixes — DB Apply Complete | 2026-04-26 | `cc6c9001` (platformengineer) |
 | R041-AI-Knowledge | Global System Capability Knowledge Base | 2026-04-26 | `5ea0ba4` (platform-ui) |
@@ -60,7 +73,7 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 | R041-Gov | Governance Addendum — Legacy Preservation + Agent Handoff | `[x] complete 2026-04-26` | R041-Test | platform-ui |
 | R041-WT | Worktree Addendum — Parallel Agent Workflow | `[x] complete 2026-04-26` | R041-Gov | platform-ui |
 | R041A | CI Enforcement (LLM import gate in GitHub Actions) | `[ ] ready` | R040 merged ✅ | platformengineer |
-| R041B | ActionButton Extraction to shared component | `[ ] ready` | R040 merged ✅ | platform-ui + platformengineer |
+| R041B | ActionButton shared component — `components/shared/action-button.tsx` | `[x] complete 2026-04-26` | PR #2 merged ✅ | platform-ui |
 | R042 | ModuleRegistry.sync_from_manifests() + ModuleCompatLayer | `[ ] ready` | R040 migrations ✅; R040-Fix drift migrations ✅ 2026-04-26; start after R041D tracked | platformengineer |
 | R043 | AI Service Routing Matrix Backend | `[ ] ready` | R040 OrgModule tables live ✅ | platformengineer |
 | R044 | Navigation API + JWT Route Audit | `[ ] blocked` | R042 CompatLayer | platformengineer |
@@ -70,7 +83,7 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 | R048 | P0 LLM Direct Import Cleanup | `[ ] partial-ready` | Simple gateway migrations: no extra dep. Full cleanup: R043 preferred | platformengineer |
 | R049 | Data Sources Hub Backend Foundation | `[ ] blocked` | R047, R046, R040 ✅ | platformengineer |
 
-> **R041A/B note:** CI enforcement (R041A) is platformengineer only. ActionButton extraction (R041B) requires changes in both platform-ui (component) and platformengineer (shared Python equivalent if any). They can run in parallel.
+> **Repo model:** platform-ui = target rewrite repo (all implementation happens here). platformengineer = read-only legacy reference for capability mapping and no-feature-loss validation only. Agents must not modify platformengineer during platform-ui rewrite rounds. R041D and R041A are legacy maintenance exceptions requiring explicit user authorization. R041B ✅ complete (platform-ui only — no platformengineer changes).
 > **R048 note:** Modules that only need simple `AIProviderGateway.call()` substitution (no service routing needed) can be migrated immediately — start with fitness_nutrition, ala, ai_coach. Full service-routing-aware migration requires R043 routing matrix first.
 
 > Full dependency graph: [`35-platform-capabilities-build-order.md`](35-platform-capabilities-build-order.md)
@@ -83,7 +96,7 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 |---------|--------|----------------|
 | R042 ModuleRegistry not implemented | R043, R044 | Start R042 — code work unblocked |
 | R045 FeatureFlagService not implemented | R046, R047 | Start R045 — unblocked |
-| R041D Secrets Gate baseline failures (D-005) degrade CI trust | R041A full enforcement | Create R041D tracked issue (done in this round); do soon |
+| R041D Secrets Gate baseline failures (D-005) degrade CI trust | R041A full enforcement | Issue tracked. Start only when user explicitly authorizes a platformengineer maintenance round. |
 
 > R040-Fix DB apply complete 2026-04-26 — final revision `20260426_fix_r040_indexes`, backend main SHA `cc6c9001c90bc3317a17e1603762564ab23747c7`. G-ModuleDB-DriftFixed ✅. R042 is technically unblocked. Do not start broad module work until planning docs reflect R040-Fix and R041D is at least a tracked issue.
 
