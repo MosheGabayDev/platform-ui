@@ -1,7 +1,7 @@
 # 99 — Risk Register
 
 > Active platform risks with mitigations and blocking status.
-> _Last updated: 2026-04-26 (R041-AI-Assist Governance — R22–R24 added)_
+> _Last updated: 2026-04-26 (R040-post-apply-reconciliation — R15 resolved; R27 added)_
 > _Review: update after every round that changes risk status._
 
 ---
@@ -236,7 +236,7 @@
 | **Blocking** | No — tables are empty; functional correctness unaffected for now |
 | **Owner/Area** | DB operations; platformengineer |
 | **Next Review** | Before R042 seeds any OrgModule data |
-| **Status** | 🟡 Documented — low immediate risk, fix required before data ingestion |
+| **Status** | 🟢 [RESOLVED 2026-04-26] — All 3 drift-fix migrations applied via PR #7 (platformengineer). Final revision: `20260426_fix_r040_indexes`. `test_r040_fix.py` 33/33 ✅, `test_r040_schema.py` 43/43 ✅. R042 data ingestion unblocked. |
 
 **Drift inventory (all 5 tables, identified 2026-04-26):**
 
@@ -423,3 +423,28 @@
 | **Owner/Area** | All user-facing modules; enforced via `01-round-review-checklist.md §14` |
 | **Next Review** | First module with CAPABILITY_METADATA.md created |
 | **Status** | 🟡 Active — standard defined; no modules have metadata yet |
+
+---
+
+## R26 — (Reserved / Not Assigned)
+
+> R26 was not assigned in any round prior to R040-Fix reconciliation. Reserved to maintain sequential numbering integrity.
+
+| Field | Value |
+|-------|-------|
+| **Status** | Reserved — not assigned |
+
+---
+
+## R27 — Secrets Gate (D-005) Baseline Failures on main
+
+| Field | Value |
+|-------|-------|
+| **Description** | D-005 Secrets Gate scanner finds hardcoded values on `platformengineer/main`. These are pre-existing: test secrets in fixture files, Redis default passwords in local config, and similar non-production values in unrelated files. The failures were accepted as a temporary exception for PR #7 (R040-Fix) only, documented via PR comment. The gate is now unreliable for detecting new real-secret violations. |
+| **Impact** | H — if the gate fails on every PR due to pre-existing baseline noise, developers will ignore it or bypass it. A real new secret could ship undetected. Erodes the entire D-005 control. |
+| **Likelihood** | H — baseline is currently red; any new PR will also show red even if it introduces no new secrets |
+| **Mitigation** | R041D — Secrets Gate Baseline Cleanup / Allowlist Policy. Classify every current finding, remediate real secrets, replace test fixtures where practical, document allowlist with justification, verify D-005 green on main. |
+| **Blocking** | R041A CI enforcement cannot be fully trusted until D-005 baseline is clean. Not a hard blocker on other rounds, but degrades CI trust. |
+| **Owner/Area** | `platformengineer/` — all files flagged by D-005 scanner |
+| **Next Review** | R041D completion |
+| **Status** | 🔴 Active — baseline failures accepted for PR #7 only; cleanup required |

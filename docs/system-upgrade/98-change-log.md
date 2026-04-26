@@ -3,6 +3,33 @@
 _Running log of what changed in each update round._
 _Newest entry at the top._
 
+## R040-Fix-Post-Apply-Reconciliation — 2026-04-26
+
+**Scope:** Planning/control docs only. No runtime code. No schema. No UI.
+
+**Backend context:** PR #7 merged to platformengineer/main on 2026-04-26.
+3 drift-fix migrations applied to EKS DB. Final revision: `20260426_fix_r040_indexes`.
+Backend main SHA: `cc6c9001c90bc3317a17e1603762564ab23747c7`.
+Tests: `test_r040_fix.py` 33/33 ✅, `test_r040_schema.py` 43/43 ✅.
+
+**What changed (platform-ui docs):**
+
+1. `00-implementation-control-center.md` — G-ModuleDB-DriftFixed updated to ✅; G-SecretScan updated to 🔴 (D-005 baseline failures); blocker for 3 drift migrations removed; Code-First Schema Rule section updated with completion evidence; R040-Fix and reconciliation rounds added to Recent Rounds
+2. `99-risk-register.md` — R15 marked RESOLVED; R26 reserved; R27 added (Secrets Gate baseline failures)
+3. `15-action-backlog.md` — R040-Fix DB apply status table added; R041D task section added
+4. `35-platform-capabilities-build-order.md` — R040-Fix gate summary section added with recommended next execution order
+5. `96-rounds-index.md` — R040-Fix + post-apply reconciliation round entry appended
+6. `01-round-review-checklist.md` — CI baseline failure acceptance policy note added
+7. `03-module-migration-progress.md` — global blocker note updated (Module Manager DB foundation complete at DB level)
+8. `issues/R041D-secrets-gate-baseline-cleanup.md` — new issue draft created
+
+**Key decisions:**
+- R042 is technically unblocked but should not start until R041D is at least tracked
+- R041D should be done before R041A to restore D-005 CI gate trust
+- R26 is reserved (gap in sequence); R27 is the Secrets Gate risk
+
+---
+
 ## R041-AI-Knowledge — 2026-04-26
 
 **Scope:** Global AI system capability knowledge base — governance and architecture documentation only. No runtime code.

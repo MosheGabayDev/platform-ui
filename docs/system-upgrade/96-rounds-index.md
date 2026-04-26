@@ -1341,3 +1341,84 @@ Create worktree: `git worktree add "..\worktrees\platformengineer-r041a-ci" -b f
 - KB-01–KB-15 E2E tests required for advisory mode verification
 
 **Handoff:** R041A (CI enforcement) or R042 (ModuleRegistry) are next. Per-module CAPABILITY_METADATA.md creation tracked in backlog.
+
+---
+
+## R040-Fix — Schema Drift Fixes + Post-Apply Reconciliation
+
+| Field | Value |
+|-------|-------|
+| **Round** | R040-Fix + R040-Fix-Post-Apply-Reconciliation |
+| **Date** | 2026-04-26 |
+| **Repo (code)** | platformengineer — PR #7, branch `fix/r040-schema-drift` |
+| **Repo (docs)** | platform-ui — this branch `docs/r040-post-apply-reconciliation` |
+| **Status** | Complete ✅ |
+
+### Mission (platformengineer — R040-Fix)
+
+Apply the 3 R040-Fix drift migrations to the live EKS PostgreSQL database to bring
+the DB schema to the state specified in the migration files (FK CASCADE, server_defaults,
+named indexes). Merge fix to platformengineer/main.
+
+### Evidence
+
+| Item | Result |
+|------|--------|
+| PR #7 merged to platformengineer/main | ✅ SHA `cc6c9001c90bc3317a17e1603762564ab23747c7` |
+| Final DB revision | `20260426_fix_r040_indexes` |
+| `test_r040_fix.py` | ✅ 33/33 passed |
+| `test_r040_schema.py` | ✅ 43/43 passed |
+| FK CASCADE — 3 FKs fixed | ✅ |
+| Server defaults — 9 columns fixed | ✅ |
+| Named indexes — 2 created | ✅ |
+| Row counts (5 R040 tables) | ✅ 0 before and after — no data at risk |
+| Evidence folder | `platformengineer/evidence/r040-fix/` |
+
+### Gate Changes
+
+| Gate | Before | After |
+|------|--------|-------|
+| G-ModuleDB-DriftFixed | 🔴 3 migrations pending | ✅ All applied |
+| G-SecretScan (D-005) | ✅ | 🔴 Baseline failures accepted for PR #7 only — R041D tracks cleanup |
+
+### Risk Changes
+
+| Risk | Before | After |
+|------|--------|-------|
+| R15 — DB Schema Drift | 🟡 Documented, fix pending | 🟢 RESOLVED 2026-04-26 |
+| R27 — Secrets Gate Baseline Failures | N/A | 🔴 Added — R041D tracks |
+
+### Mission (platform-ui — Post-Apply Reconciliation)
+
+Update all planning/control docs in platform-ui to reflect R040-Fix completion.
+Prepare recommended next execution order. Create R041D issue draft.
+
+### Files Updated (platform-ui)
+
+| File | Change |
+|------|--------|
+| `00-implementation-control-center.md` | R040-Fix complete; G-ModuleDB-DriftFixed ✅; G-SecretScan 🔴; blockers updated; Code-First Schema Rule section updated |
+| `99-risk-register.md` | R15 resolved; R26 reserved; R27 added |
+| `15-action-backlog.md` | R040-Fix DB apply status table; R041D task section added |
+| `35-platform-capabilities-build-order.md` | R040-Fix gate summary table added; recommended next execution order |
+| `96-rounds-index.md` | This entry |
+| `98-change-log.md` | Entry prepended |
+| `01-round-review-checklist.md` | CI baseline failure policy note added |
+| `03-module-migration-progress.md` | Global blocker note: Module Manager DB foundation complete at DB level |
+| `issues/R041D-secrets-gate-baseline-cleanup.md` | New issue draft created |
+
+### Follow-ups / Not Completed (out of scope)
+
+- [ ] Post-apply reconciliation PR for platformengineer (close R15 in issue tracker)
+- [ ] Create GitHub issue for R041D (when GH CLI available)
+- [ ] Start R041D implementation — scanner triage, secret remediation, allowlist policy
+
+### Recommended Next Rounds
+
+1. **R041D** — Secrets Gate Baseline Cleanup (restore D-005 CI trust)
+2. **R041A** — CI Enforcement (LLM import gate)
+3. **R041B** — ActionButton shared component (parallel with R041A)
+4. **R042** — ModuleRegistry sync + CompatLayer (technically unblocked; wait for R041D issue)
+5. **R043** — AI Service Routing Matrix backend
+6. **R044** — Navigation API + JWT audit fix
+7. **R045** — Feature Flags + Settings Engine
