@@ -1,15 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bell, Search, SidebarIcon, Command, Moon, Sun } from "lucide-react";
+import { Search, SidebarIcon, Command, Moon, Sun } from "lucide-react";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
 import { AccentPicker } from "./accent-picker";
 import { ConnectionIndicator } from "./connection-indicator";
-import { toast } from "sonner";
+import { NotificationBell } from "./notification-bell";
 
 export function Topbar() {
   const { toggleSidebar } = useSidebar();
@@ -69,20 +68,8 @@ export function Topbar() {
         {/* Accent color picker */}
         <AccentPicker />
 
-        {/* Notifications */}
-        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-8 relative hover:bg-accent/80"
-            onClick={() => toast.info("3 התראות חדשות", { description: "לחץ לצפייה בכולן" })}
-          >
-            <Bell className="size-4" />
-            <span className="absolute -top-0.5 -end-0.5 size-4 rounded-full bg-primary text-[10px] text-primary-foreground flex items-center justify-center font-bold shadow-sm shadow-primary/50">
-              3
-            </span>
-          </Button>
-        </motion.div>
+        {/* Notifications — cap 12 */}
+        <NotificationBell />
       </div>
     </motion.header>
   );

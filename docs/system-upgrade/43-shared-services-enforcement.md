@@ -65,6 +65,10 @@ The platform rewrite uses two categories of shared building blocks:
 | `PlatformErrorBoundary` | `components/shared/error-boundary.tsx` | Unhandled render crash | ✅ Implemented |
 | `apiFetch` | `lib/api/client.ts` | `fetch()` in components | ✅ Implemented |
 | `queryKeys` | `lib/api/query-keys.ts` | Inline `["users"]` arrays | ✅ Implemented |
+| `PlatformTimeline` | `components/shared/timeline/` | Custom per-page timeline | ✅ Implemented (R041E) |
+| `NotificationBell` | `components/shell/notification-bell.tsx` | Inline Bell button with toast | ✅ Implemented (R042) |
+| `NotificationDrawer` | `components/shell/notification-drawer.tsx` | Per-page notification list | ✅ Implemented (R042) |
+| `useNotifications()` | `lib/hooks/use-notifications.ts` | Inline `useQuery` + fetch in component | ✅ Implemented (R042) |
 | `AIProviderGateway` (BE) | `apps/ai_providers/gateway.py` | `import openai` / direct SDK | ✅ Implemented |
 | `record_activity` (BE) | `apps/authentication/jwt_auth.py` | `print()` / no audit | ✅ Implemented |
 | `@jwt_required` (BE) | `apps/authentication/jwt_auth.py` | `@login_required` on JSON routes | ✅ Implemented |
