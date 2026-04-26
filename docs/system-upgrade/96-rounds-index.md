@@ -1597,3 +1597,57 @@ PR #9 awaits verification of 52 pending_review findings by owner (issue #8).
 
 **Track B:** R041A — CI Enforcement (LLM import gate), now unblocked.
 **Track A:** Timeline + ActivityFeed generic component, or any explicitly scoped platform-ui capability.
+
+---
+
+## R041E — PlatformTimeline Shared Component
+
+| Field | Value |
+|-------|-------|
+| **Round** | R041E — PlatformTimeline shared component |
+| **Date** | 2026-04-26 |
+| **Branch** | `feat/r041e-timeline` |
+| **Worktree** | `platform-ui-r041e-timeline` |
+| **Repo** | platform-ui |
+| **Type** | Rewrite — shared capability (platform-ui only) |
+| **Status** | PR #6 opened ✅ |
+| **PR** | [#6](https://github.com/MosheGabayDev/platform-ui/pull/6) |
+| **Commit** | `1b1853b` |
+
+### Mission
+
+Implement `components/shared/timeline/` — the generic vertical event timeline component (cap 09). Accepts `TimelineEvent[]`, renders stagger-animated list, expandable detail per event, loading skeleton, empty state. No backend dependency — pure UI.
+
+### Files Created
+
+| File | Purpose |
+|------|---------|
+| `components/shared/timeline/types.ts` | `TimelineEvent` interface |
+| `components/shared/timeline/timeline-event.tsx` | `TimelineEventItem` — connector line, icon dot, actor/description/time, expandable detail |
+| `components/shared/timeline/timeline-skeleton.tsx` | Pulse skeleton, configurable `rows` |
+| `components/shared/timeline/timeline.tsx` | `PlatformTimeline` — loading/empty/events states, `LazyMotion domAnimation` wrapper |
+| `components/shared/timeline/index.ts` | Barrel export |
+
+### Files Updated
+
+| File | Change |
+|------|--------|
+| `docs/system-upgrade/26-platform-capabilities-catalog.md` | Cap 09 status: `⬜ Pending` → `✅ Implemented \| R041E` |
+| `docs/system-upgrade/43-shared-services-enforcement.md` | PlatformTimeline canonical path + forbidden pattern added |
+
+### Implementation Notes
+
+- Connector line: `absolute start-[15px] top-8 bottom-0 w-px bg-border` — RTL logical property
+- Expand/collapse: `maxHeight` animation (`"0px"` ↔ `"200px"`) — never `height`, per CLAUDE.md
+- Motion: `LazyMotion features={domAnimation}`, `m` import (not `motion`), max 0.2s duration
+- Stagger: `delay: i * 0.04` on each event row
+- EmptyState reuses `components/shared/empty-state` — no new duplication
+
+### Capability Status
+
+PlatformTimeline (cap 09) fully implemented. First consumer will be Helpdesk ticket detail page.
+
+### Next Recommended Action
+
+**Track A:** Cap 12 PlatformNotifications (notification bell + feed) — next generic foundation capability. P1, ~3h, no backend dependency for UI shell.
+**Track B:** R041A — CI Enforcement (LLM import gate), now unblocked.

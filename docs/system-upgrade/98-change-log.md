@@ -3,6 +3,34 @@
 _Running log of what changed in each update round._
 _Newest entry at the top._
 
+## R041E — PlatformTimeline Shared Component — 2026-04-26
+
+**Scope:** platform-ui — Track A generic foundation capability (cap 09). No platformengineer changes. No schema changes.
+
+**What changed (platform-ui):**
+
+1. `components/shared/timeline/types.ts` — **new**: `TimelineEvent` interface (`id`, `type`, `timestamp`, `actor?`, `description`, `detail?`, `icon?`)
+2. `components/shared/timeline/timeline-event.tsx` — **new**: `TimelineEventItem` — connector line (`start-[15px]` RTL logical), icon dot, actor + description + `formatRelativeTime`, expandable detail via `maxHeight` animation
+3. `components/shared/timeline/timeline-skeleton.tsx` — **new**: pulse skeleton with configurable `rows` prop (default 4)
+4. `components/shared/timeline/timeline.tsx` — **new**: `PlatformTimeline` — loading → skeleton, empty → `EmptyState`, events → stagger `m.div` inside `LazyMotion domAnimation`
+5. `components/shared/timeline/index.ts` — **new**: barrel export
+6. `docs/system-upgrade/26-platform-capabilities-catalog.md` — cap 09 status: `⬜ Pending` → `✅ Implemented | R041E`
+7. `docs/system-upgrade/43-shared-services-enforcement.md` — PlatformTimeline row added
+
+**Key facts:**
+
+- All Framer Motion rules followed: `LazyMotion domAnimation`, `m` not `motion`, `maxHeight` not `height`, max 0.2s content animations
+- All RTL rules followed: `start-[15px]` logical connector line, `ps-`/`pe-` spacing throughout
+- Loading, empty, and populated states all handled
+- platform-ui PR #6 opened on `feat/r041e-timeline`
+
+**Next recommended:**
+
+Track A: Cap 12 PlatformNotifications (notification bell + feed) — next generic foundation capability, no backend dependency.
+Track B: R041A (CI Enforcement — LLM import gate), now unblocked.
+
+---
+
 ## R041D — Secrets Gate Baseline Cleanup — 2026-04-26
 
 **Scope:** platformengineer — legacy maintenance exception (Track B). No platform-ui runtime code changes. No schema changes.

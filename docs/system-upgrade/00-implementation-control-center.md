@@ -1,7 +1,7 @@
 # 00 — Implementation Control Center
 
 > **This is the first doc to read after `CLAUDE.md`.** Every implementation round starts here.
-> _Last updated: 2026-04-26 (R041D-post-round-reconciliation — R041C + R041D complete; Cap 08 already done R015; R041A unblocked)_
+> _Last updated: 2026-04-26 (R041E — PlatformTimeline cap 09 implemented; PR #6 opened)_
 
 ---
 
@@ -27,14 +27,15 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 
 > No round is currently in progress. The next agent should start one of the rounds below.
 
-**R041B ✅ (PR #2 merged 2026-04-26, SHA `5532102`). R041C ✅ (docs, 2026-04-26). R041D ✅ (platformengineer PR #9 opened 2026-04-26, pending merge).**
+**R041B ✅ (PR #2 merged 2026-04-26, SHA `5532102`). R041C ✅ (docs, 2026-04-26). R041D ✅ (platformengineer PR #9 opened 2026-04-26, pending merge). R041E ✅ (platform-ui PR #6 opened 2026-04-26).**
 
 **Track A — platform-ui rewrite (default path)**
 
 | Candidate | Title | Status | Notes |
 |-----------|-------|--------|-------|
 | **Cap 08 / DetailView** | PlatformDetailView extraction | `[x] already done — R015` | `components/shared/detail-view/` was created in R015 with 6 components. No work needed. |
-| **Timeline + ActivityFeed** | Timeline & ActivityFeed generic component | `[ ] ready` | Next generic foundation capability after ActionButton + DetailView. No backend dependency. |
+| **Cap 09 / Timeline** | PlatformTimeline generic component | `[x] complete — R041E` | `components/shared/timeline/` — 5 files. PR #6 opened. |
+| **Cap 12 / Notifications** | PlatformNotifications bell + feed | `[ ] ready` | Next generic foundation capability. No backend dependency for UI shell. |
 | **R042 UI side** | ModuleRegistry UI — platform-ui | `[ ] not yet scoped` | Only after platformengineer backend/core side complete and dependency explicitly declared. Not auto-next. |
 
 **Track B — platformengineer legacy maintenance (exception-only — requires explicit user authorization)**
@@ -52,6 +53,7 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 
 | Round | Title | Date | Commit |
 |-------|-------|------|--------|
+| R041E | PlatformTimeline shared component — PR #6 | 2026-04-26 | `1b1853b` (platform-ui) |
 | R041D | Secrets Gate Baseline Cleanup — PR #9 | 2026-04-26 | `09b0234c` (platformengineer) |
 | R041C | Generic Foundation Roadmap Realignment (docs) | 2026-04-26 | platform-ui (docs only) |
 | R041B | ActionButton shared component — PR #2 | 2026-04-26 | `5532102` (platform-ui) |
