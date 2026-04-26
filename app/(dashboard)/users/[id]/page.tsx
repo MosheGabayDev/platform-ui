@@ -13,7 +13,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
-import { User, Mail, Building2, Shield, Clock, CheckCircle, Key, Pencil, UserX, UserCheck, LogIn, UserCog, Lock, ShieldCheck } from "lucide-react";
+import { User, Mail, Building2, Shield, Clock, CheckCircle, Key, Pencil, UserX, UserCheck, LogIn, UserCog, Lock, ShieldCheck, Tag, Bot, Globe, MapPin, FileText } from "lucide-react";
 import { PlatformTimeline } from "@/components/shared/timeline";
 import type { TimelineEvent } from "@/components/shared/timeline";
 import { Separator } from "@/components/ui/separator";
@@ -202,9 +202,16 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
             />
 
             <DetailSection title="פרטי חשבון">
+              {(user.first_name || user.last_name) && (
+                <InfoRow icon={User} label="שם פרטי" value={[user.first_name, user.last_name].filter(Boolean).join(" ")} />
+              )}
               <InfoRow icon={User} label="שם משתמש" value={user.username} />
               <InfoRow icon={Mail} label="אימייל" value={user.email} />
               <InfoRow icon={Building2} label="ארגון" value={`#${user.org_id}`} />
+              {user.role && <InfoRow icon={Tag} label="תפקיד" value={user.role} />}
+              {user.bio && <InfoRow icon={FileText} label="ביוגרפיה" value={user.bio} />}
+              {user.preferred_language && <InfoRow icon={Globe} label="שפה מועדפת" value={user.preferred_language} />}
+              {user.timezone && <InfoRow icon={MapPin} label="אזור זמן" value={user.timezone} />}
               <InfoRow
                 icon={Clock}
                 label="כניסה אחרונה"
@@ -222,6 +229,8 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
               <InfoRow icon={Shield} label="MFA" value={<BoolBadge value={user.mfa_enabled} />} />
               <InfoRow icon={Shield} label="אדמין" value={<BoolBadge value={user.is_admin} />} />
               <InfoRow icon={Shield} label="מנהל" value={<BoolBadge value={user.is_manager} />} />
+              <InfoRow icon={Shield} label="מנהל מערכת" value={<BoolBadge value={user.is_system_admin} />} />
+              <InfoRow icon={Bot} label="סוכן AI" value={<BoolBadge value={user.is_ai_agent} />} />
             </DetailSection>
 
             {user.permissions.length > 0 && (
