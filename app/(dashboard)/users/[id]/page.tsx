@@ -16,6 +16,7 @@ import { motion, LazyMotion, domAnimation } from "framer-motion";
 import { User, Mail, Building2, Shield, Clock, CheckCircle, Key, Pencil, UserX, UserCheck } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import { ActionButton } from "@/components/shared/action-button";
 import { UserStatusBadge } from "@/components/modules/users/user-status-badge";
 import { UserRoleBadge } from "@/components/modules/users/user-role-badge";
 import { UserEditSheet } from "@/components/modules/users/user-form";
@@ -75,27 +76,27 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
           <div className="flex items-center gap-2">
             {isAdmin && user && (
               user.is_active ? (
-                <Button
+                <ActionButton
                   variant="outline"
                   size="sm"
                   onClick={deactivate.trigger}
-                  disabled={deactivate.isPending}
+                  isLoading={deactivate.isPending}
                   className="text-amber-600 border-amber-300 hover:bg-amber-50 dark:text-amber-400 dark:border-amber-700 dark:hover:bg-amber-950"
                 >
                   <UserX className="size-3.5 me-1.5" />
                   השבת
-                </Button>
+                </ActionButton>
               ) : (
-                <Button
+                <ActionButton
                   variant="outline"
                   size="sm"
                   onClick={reactivate.trigger}
-                  disabled={reactivate.isPending}
+                  isLoading={reactivate.isPending}
                   className="text-blue-600 border-blue-300 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-700 dark:hover:bg-blue-950"
                 >
                   <UserCheck className="size-3.5 me-1.5" />
                   הפעל מחדש
-                </Button>
+                </ActionButton>
               )
             )}
             {canEdit && user && (
