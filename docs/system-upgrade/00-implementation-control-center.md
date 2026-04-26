@@ -31,7 +31,7 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 |-----------|-------|--------|-------|
 | **R041A** | CI Enforcement (LLM import gate) | `[ ] ready` | No blockers. platformengineer only. Script exists. |
 | **R041B** | ActionButton Extraction | `[ ] ready` | No blockers. Both repos. Can run parallel to R041A. |
-| **R042** | ModuleRegistry + ModuleCompatLayer | `[ ] ready (code)` | Code work unblocked. **3 drift-fix migrations must run before data ingestion** (see §Code-First Schema Rule below). |
+| **R042** | ModuleRegistry + ModuleCompatLayer | `[ ] ready` | Code work + data ingestion unblocked. Drift-fix migrations applied 2026-04-26. Start after R041D is tracked. |
 
 ---
 
@@ -61,7 +61,7 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 | R041-WT | Worktree Addendum — Parallel Agent Workflow | `[x] complete 2026-04-26` | R041-Gov | platform-ui |
 | R041A | CI Enforcement (LLM import gate in GitHub Actions) | `[ ] ready` | R040 merged ✅ | platformengineer |
 | R041B | ActionButton Extraction to shared component | `[ ] ready` | R040 merged ✅ | platform-ui + platformengineer |
-| R042 | ModuleRegistry.sync_from_manifests() + ModuleCompatLayer | `[ ] ready (code); data-ingestion blocked until drift migrations run` | R040 migrations live ✅; drift-fix migrations pending | platformengineer |
+| R042 | ModuleRegistry.sync_from_manifests() + ModuleCompatLayer | `[ ] ready` | R040 migrations ✅; R040-Fix drift migrations ✅ 2026-04-26; start after R041D tracked | platformengineer |
 | R043 | AI Service Routing Matrix Backend | `[ ] ready` | R040 OrgModule tables live ✅ | platformengineer |
 | R044 | Navigation API + JWT Route Audit | `[ ] blocked` | R042 CompatLayer | platformengineer |
 | R045 | Feature Flags + Settings Engine | `[ ] ready` | R040 in DB ✅ | platformengineer |
