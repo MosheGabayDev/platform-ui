@@ -24,6 +24,7 @@ The platform rewrite uses two categories of shared building blocks:
 
 | Need | Forbidden old way | Required new way |
 |------|-------------------|-----------------|
+| Feature/capability gate | Inline `if (flag)` / hardcoded boolean | `FeatureGate` + `useFeatureFlag()` — fail-closed; unknown flags are disabled |
 | Table | Custom HTML `<table>` / per-page table shell | `DataTable<T>` from `components/shared/data-table/` |
 | Form | Inline RHF/Zod in page component | `PlatformForm` + Zod in `lib/modules/<module>/schemas.ts` |
 | Mutation | `useState(loading)` + `catch` + `toast.error` | `usePlatformMutation` from `lib/hooks/use-platform-mutation.ts` |
@@ -58,6 +59,8 @@ The platform rewrite uses two categories of shared building blocks:
 | `ConfirmActionDialog` | `components/shared/confirm-action-dialog.tsx` | `window.confirm()` | ✅ Implemented |
 | `ActionButton` | `components/shared/action-button.tsx` | Inline loading button | ✅ Implemented (R041B) |
 | `PlatformTimeline` | `components/shared/timeline/timeline.tsx` | Custom timeline per page | ✅ Implemented (R041E) |
+| `FeatureGate` | `components/shared/feature-gate.tsx` | Hardcoded `if (enabled)` in page | ✅ Implemented (R041D-UI) — fail-closed |
+| `useFeatureFlag()` | `lib/hooks/use-feature-flag.ts` | Direct flag boolean in component | ✅ Implemented (R041D-UI) — returns false while loading/errored |
 | `ErrorState` | `components/shared/error-state.tsx` | `null` return / blank on error | ✅ Implemented |
 | `PlatformErrorBoundary` | `components/shared/error-boundary.tsx` | Unhandled render crash | ✅ Implemented |
 | `apiFetch` | `lib/api/client.ts` | `fetch()` in components | ✅ Implemented |
