@@ -66,15 +66,11 @@ Platform has 30 named capabilities (doc 26). 8 are fully implemented, 5 are part
 
 ---
 
-### 02 — PlatformDashboard
+### 02 — PlatformDashboard ✅ Complete (R041G)
 
-**Done:** Dashboard page exists with stat chips (inline `StatCard`-like pattern).
+**Done:** Shared `StatCard` (compact chip — used by Orgs page) and `KpiCard` (rich card with count-up + trend + sparkline) live in `components/shared/stats/`. Dashboard page (`app/(dashboard)/page.tsx`) migrated off the inline `StatCard` definition to use shared `KpiCard`.
 
-**Missing:** Shared `StatCard`, `ChartCard` components. Currently each page implements its own stat display.
-
-**Needed before:** Helpdesk dashboard (KPI stat cards). Not blocking Phase A (list/table). **Needed before Helpdesk Phase A dashboard stats view.**
-
-**Effort:** ~1 hour.
+**Remaining:** None. Future Helpdesk and AI Agents dashboards consume `KpiCard` directly. A `ChartCard` wrapper for the activity chart is deferred — current dashboard uses `recharts` directly with no duplication across pages.
 
 ---
 

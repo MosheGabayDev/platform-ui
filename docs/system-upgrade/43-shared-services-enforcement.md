@@ -46,6 +46,8 @@ The platform rewrite uses two categories of shared building blocks:
 | Capability | Canonical path | Legacy / forbidden path | Status |
 |-----------|---------------|------------------------|--------|
 | `DataTable<T>` | `components/shared/data-table/data-table.tsx` | Custom `<table>` shell in page | ✅ Implemented |
+| `StatCard` | `components/shared/stats/stat-card.tsx` | Inline value+label chip | ✅ Implemented |
+| `KpiCard` | `components/shared/stats/kpi-card.tsx` | Inline count-up + sparkline card | ✅ Implemented (R041G) |
 | `PlatformForm` | `components/shared/form/platform-form.tsx` | Inline RHF form in page | ✅ Implemented |
 | `usePlatformMutation` | `lib/hooks/use-platform-mutation.ts` | `useState(loading)` + `toast` | ✅ Implemented |
 | `PermissionGate` | `components/shared/permission-gate.tsx` | `session.user.role ===` inline | ✅ Implemented |
