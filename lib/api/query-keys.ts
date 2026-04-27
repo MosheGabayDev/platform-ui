@@ -6,11 +6,12 @@ export const queryKeys = {
 
   // Module 01: Users
   users: {
-    all:     () => ["users"]                                    as const,
-    stats:   () => ["users", "stats"]                          as const,
-    list:    (params?: object) => ["users", "list", params]    as const,
-    detail:  (id: number) => ["users", "detail", id]          as const,
-    pending: () => ["users", "pending"]                        as const,
+    all:      () => ["users"]                                    as const,
+    stats:    () => ["users", "stats"]                          as const,
+    list:     (params?: object) => ["users", "list", params]    as const,
+    detail:   (id: number) => ["users", "detail", id]          as const,
+    pending:  () => ["users", "pending"]                        as const,
+    activity: (id: number, params?: object) => ["users", "activity", id, params] as const,
   },
 
   // Module 02: Organizations

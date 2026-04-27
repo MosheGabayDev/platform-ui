@@ -15,6 +15,8 @@ import type {
   PendingUsersResponse,
   RolesListResponse,
   UserMutationResponse,
+  UserActivityResponse,
+  ActivityTypeFilter,
 } from "@/lib/modules/users/types";
 import type { CreateUserInput, EditUserInput } from "@/lib/modules/users/schemas";
 
@@ -86,6 +88,19 @@ export function updateUser(id: number, input: EditUserInput): Promise<UserMutati
     method: "PATCH",
     body: JSON.stringify(input),
   });
+}
+
+/** Fetch activity timeline for a user. Self or admin. */
+export function fetchUserActivity(
+  id: number,
+  params: { limit?: number; offset?: number; type?: ActivityTypeFilter } = {},
+): Promise<UserActivityResponse> {
+  const qs = new URLSearchParams();
+  if (params.limit) qs.set("limit", String(params.limit));
+  if (params.offset) qs.set("offset", String(params.offset));
+  if (params.type) qs.set("type", params.type);
+  const query = qs.toString() ? `?${qs}` : "";
+  return apiFetch<UserActivityResponse>(`/${id}/activity${query}`);
 }
 
 /** Activate or deactivate a user. Admin only. */

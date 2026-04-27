@@ -4,20 +4,9 @@
  */
 
 import { useQuery } from "@tanstack/react-query";
-import type { UserActivityResponse, ActivityTypeFilter } from "./types";
-
-async function fetchUserActivity(
-  userId: number,
-  limit: number,
-  offset: number,
-  type?: ActivityTypeFilter,
-): Promise<UserActivityResponse> {
-  const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
-  if (type) params.set("type", type);
-  const res = await fetch(`/api/proxy/users/${userId}/activity?${params}`);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
-}
+import { fetchUserActivity } from "@/lib/api/users";
+import { queryKeys } from "@/lib/api/query-keys";
+import type { ActivityTypeFilter } from "./types";
 
 /**
  * Fetch activity timeline for a user.
@@ -32,8 +21,8 @@ export function useUserActivity(
   const { limit = 20, offset = 0, type } = opts;
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["users", "activity", userId, limit, offset, type],
-    queryFn: () => fetchUserActivity(userId!, limit, offset, type),
+    queryKey: queryKeys.users.activity(userId ?? -1, { limit, offset, type }),
+    queryFn: () => fetchUserActivity(userId!, { limit, offset, type }),
     enabled: userId != null && !isNaN(userId),
     staleTime: 30_000,
   });
