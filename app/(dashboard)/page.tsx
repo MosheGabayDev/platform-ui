@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
 import {
-  Users, HeadphonesIcon, Bot, Activity, TrendingUp, TrendingDown,
+  Users, HeadphonesIcon, Bot, Activity,
   AlertCircle, CheckCircle2, Zap, Shield, Database,
   Cpu, Globe, Server, Radio, RefreshCw,
 } from "lucide-react";
@@ -14,8 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCountUp } from "@/lib/hooks/use-count-up";
-import { TiltCard } from "@/components/shared/tilt-card";
-import { CursorGlow } from "@/components/shared/cursor-glow";
+import { KpiCard } from "@/components/shared/stats";
 import { StatCardSkeleton, FeedItemSkeleton, ServiceRowSkeleton } from "@/components/shared/skeleton-card";
 import { fetchDashboardStats, fetchTimeSeries, fetchServiceHealth } from "@/lib/api/client";
 import { queryKeys } from "@/lib/api/query-keys";
@@ -28,14 +27,6 @@ const fadeUp = {
   show: (i: number) => ({
     opacity: 1, y: 0,
     transition: { delay: i * 0.07, duration: 0.45, ease },
-  }),
-};
-
-const scaleIn = {
-  hidden: { opacity: 0, scale: 0.92 },
-  show: (i: number) => ({
-    opacity: 1, scale: 1,
-    transition: { delay: i * 0.06, duration: 0.4, ease },
   }),
 };
 
@@ -56,59 +47,6 @@ function AnimatedStatItem({ label, value, suffix, icon: Icon, delay }: {
         </p>
       </div>
     </div>
-  );
-}
-
-/* ─── Stat Card ──────────────────────────────────────────────── */
-function StatCard({ title, numericValue, suffix = "", change, up, icon: Icon, color, accent, border, spark, sparkColor, index }: {
-  title: string; numericValue: number; suffix?: string;
-  change: string; up: boolean; icon: React.ElementType;
-  color: string; accent: string; border: string;
-  spark: { v: number; i: number }[]; sparkColor: string; index: number;
-}) {
-  const count = useCountUp(numericValue, 1400, index * 120);
-  return (
-    <motion.div custom={index} variants={scaleIn} initial="hidden" animate="show">
-      <TiltCard>
-        <CursorGlow>
-          <Card className={`relative overflow-hidden border ${border} bg-gradient-to-br ${color} cursor-default`}>
-            <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent pointer-events-none" />
-            <CardHeader className="flex flex-row items-center justify-between pb-1 pt-4 px-4">
-              <CardTitle className="text-xs font-medium text-muted-foreground">{title}</CardTitle>
-              <div className={`size-7 rounded-lg bg-gradient-to-br ${color} flex items-center justify-center border ${border}`}>
-                <Icon className={`size-3.5 ${accent}`} />
-              </div>
-            </CardHeader>
-            <CardContent className="px-4 pb-0">
-              <div className={`text-3xl font-bold tracking-tight tabular-nums ${accent}`}>
-                {numericValue > 100 ? count.toLocaleString("he") : count}{suffix}
-              </div>
-              <div className="flex items-center gap-1 mt-1">
-                {up ? <TrendingUp className="size-3 text-emerald-400" /> : <TrendingDown className="size-3 text-red-400" />}
-                <span className={`text-xs font-medium ${up ? "text-emerald-400" : "text-red-400"}`}>{change}</span>
-                <span className="text-xs text-muted-foreground">משבוע שעבר</span>
-              </div>
-            </CardContent>
-            <div className="h-12 mt-1">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={spark} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id={`sg-${index}`} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={sparkColor} stopOpacity={0.3} />
-                      <stop offset="95%" stopColor={sparkColor} stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <Area type="monotone" dataKey="v" stroke={sparkColor} strokeWidth={1.5}
-                    fill={`url(#sg-${index})`} dot={false} isAnimationActive
-                    animationDuration={1200} animationEasing="ease-out"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </Card>
-        </CursorGlow>
-      </TiltCard>
-    </motion.div>
   );
 }
 
@@ -210,19 +148,19 @@ export default function DashboardPage() {
             Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} index={i} />)
           ) : (
             <>
-              <StatCard title="שיחות AI — סה״כ" numericValue={sessionsTotal}
+              <KpiCard title="שיחות AI — סה״כ" numericValue={sessionsTotal}
                 change={`+${sessions24h} היום`} up icon={Bot}
                 color="from-blue-500/20 to-blue-600/5" accent="text-blue-400" border="border-blue-500/20"
                 spark={sparkSessions} sparkColor="#60a5fa" index={0} />
-              <StatCard title="פעולות AI" numericValue={actionsTotal}
+              <KpiCard title="פעולות AI" numericValue={actionsTotal}
                 change={`${errorRate}% שגיאות`} up={errorRate < 5} icon={HeadphonesIcon}
                 color="from-amber-500/20 to-amber-600/5" accent="text-amber-400" border="border-amber-500/20"
                 spark={sparkActions} sparkColor="#fbbf24" index={1} />
-              <StatCard title="פרופילים פעילים" numericValue={profilesActive}
+              <KpiCard title="פרופילים פעילים" numericValue={profilesActive}
                 change="+1 השבוע" up icon={Users}
                 color="from-purple-500/20 to-purple-600/5" accent="text-purple-400" border="border-purple-500/20"
                 spark={sparkSessions.map(s => ({ ...s, v: Math.max(1, s.v % 15) }))} sparkColor="#c084fc" index={2} />
-              <StatCard title="שיחות 7 ימים" numericValue={stats?.sessions.last_7d ?? 0}
+              <KpiCard title="שיחות 7 ימים" numericValue={stats?.sessions.last_7d ?? 0}
                 change={`${stats?.knowledge.ready ?? 0} מקורות RAG`} up icon={Zap}
                 color="from-emerald-500/20 to-emerald-600/5" accent="text-emerald-400" border="border-emerald-500/20"
                 spark={sparkActions.map(s => ({ ...s, v: Math.max(1, s.v % 20) }))} sparkColor="#34d399" index={3} />

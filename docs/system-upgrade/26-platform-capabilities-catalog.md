@@ -36,7 +36,7 @@ This rule is enforced by code review and CI. Reviewers must reject PRs that dupl
 | # | Capability | Priority | Status | Round | Build-Order Round |
 |---|-----------|----------|--------|-------|------------------|
 | 01 | [PlatformDataGrid](#01-platformdatagrid) | **now** | ✅ Implemented | 012 | — |
-| 02 | [PlatformDashboard](#02-platformdashboard) | **now** | 🔵 Partial | 015 | R024 (StatCard) |
+| 02 | [PlatformDashboard](#02-platformdashboard) | **now** | ✅ Implemented | 015 | R041G (KpiCard) |
 | 03 | [PlatformForm](#03-platformform) | **now** | ✅ Implemented | 017 | — |
 | 04 | [PlatformAction](#04-platformaction) | **now** | 🔵 Partial | 017 | R023 (ActionButton) |
 | 05 | [PermissionGate / Access Control UI](#05-permissiongate--access-control-ui) | **now** | ✅ Implemented | 012 | — |
