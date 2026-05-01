@@ -11,6 +11,7 @@ import { usePathname } from "next/navigation";
 import { ShortcutsDialog } from "@/components/shell/shortcuts-dialog";
 import { useKeyboardShortcuts } from "@/lib/hooks/use-keyboard-shortcuts";
 import { FloatingAIButton } from "@/components/shell/ai-assistant/floating-button";
+import { AIDrawer } from "@/components/shell/ai-assistant/drawer";
 
 const ease = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
@@ -53,6 +54,7 @@ export default function DashboardLayout({
         <BottomNav />
         <ShortcutsDialog />
         <FloatingAIButton />
+        <AIDrawer />
       </SidebarProvider>
     </LazyMotion>
   );
