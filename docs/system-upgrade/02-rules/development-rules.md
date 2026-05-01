@@ -128,10 +128,17 @@ A module round cannot be marked Done without:
 - **No module without security tests.** 401 + 403 tests for every protected endpoint.
 - **No module without tenant isolation tests.** Org A cannot access Org B data — proven with tests.
 - **No module without E2E evidence.** Playwright spec exists, or blocker documented with issue reference.
+- **No UI feature without a UI smoke spec.** Every page, drawer, dialog, or interactive widget that a user can see MUST have a Playwright spec under `tests/e2e/modules/<module>/` that:
+  1. Imports `test`/`expect` from `tests/e2e/fixtures/base.ts` (inherits session + flag mocks + browser-error capture).
+  2. Exercises golden path + at least one error/empty/loading state.
+  3. Asserts no `page-error`, no unexpected `console-error`, and no 5xx — captured automatically by the base fixture.
+  4. For RTL audiences: asserts `dir="rtl"` and that no element overflows the viewport at 320×568 (mobile S).
+- **No UI feature done without an error-report read.** Run `node scripts/aggregate-e2e-errors.mjs` after the spec passes; the developer must read the output and either (a) fix the captured browser errors or (b) document each as an open question.
 - **No fake passing tests.** Tests must actually exercise the behavior being asserted.
 - **Skipped tests require documented blocker.** `test.skip()` / `pytest.mark.skip()` with reason string pointing to an issue or this file.
 - Full standard: `../02-rules/testing-standard.md`.
 - Evidence matrix required per module: see `../02-rules/testing-standard.md §7`.
+- Test infra layout + base fixture conventions: see `tests/e2e/README.md`.
 
 ---
 

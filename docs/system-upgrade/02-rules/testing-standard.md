@@ -430,6 +430,85 @@ These tests are scaffolded/skipped until the Phase A–B implementation is compl
 
 ---
 
+### 3.5 UI Smoke Tests — mandatory for every UI feature
+
+Every page, drawer, dialog, or interactive widget that a user can see MUST
+have a Playwright UI smoke spec. This is the source-of-truth contract for
+"a feature works in the browser."
+
+**Where the spec goes:**
+
+```text
+tests/e2e/
+  fixtures/base.ts              ← extended Playwright `test` (do not import @playwright/test directly)
+  helpers/
+    auth.ts                     ← real Flask login (use when RBAC must be live)
+    mock-session.ts             ← mints NextAuth JWE locally (offline mock-mode runs)
+    error-capture.ts            ← console + pageerror + 4xx/5xx capture
+  modules/<module>/             ← per-module specs live here
+    <feature>.spec.ts
+  smoke/                        ← cross-cutting golden-path specs only
+  security/                     ← RBAC + tenant isolation
+```
+
+**Every spec must:**
+
+1. Import from the base fixture:
+   ```ts
+   import { test, expect } from "../../fixtures/base";
+   //                          ^^^^^^^^^^^^^^^^^^^^^
+   //                          NOT "@playwright/test"
+   ```
+2. Exercise the **golden path** (the most common successful flow).
+3. Exercise at least one of: empty state, error state, loading state.
+4. Assert no `page-error`, no unexpected `console-error` (use the base
+   fixture's `errorCapture.errors` list — the run is allowed to capture
+   warnings, but a `page-error` fails the gate).
+5. For destructive actions: assert `ConfirmActionDialog` is shown and
+   the action does NOT fire until confirmed.
+6. For RTL audiences: assert `<html dir="rtl">` and that the page renders
+   without overflow at 320×568 (mobile S).
+
+**Every PR that adds or modifies UI must:**
+
+1. Add or update at least one spec under `tests/e2e/modules/<module>/`.
+2. Run `node scripts/aggregate-e2e-errors.mjs` after the spec passes.
+3. Read the generated `planning-artifacts/reviews/<date>-e2e-error-report.md`.
+4. For each captured browser error: either fix it, or open a question in
+   `docs/system-upgrade/08-decisions/open-questions.md` with a triage label.
+
+**The base fixture intentionally provides:**
+
+- A pre-authenticated mock admin session (no Flask login required for
+  MOCK_MODE clients).
+- All feature flags open by default; override per-test via
+  `flagOverrides` fixture.
+- Auto-attached `ErrorCapture` — every captured browser error is
+  persisted to `test-results/error-capture/<test>.json` and attached to
+  the HTML report.
+
+**The base fixture intentionally does NOT provide:**
+
+- Real Flask login (use `helpers/auth.ts` `login()` directly when needed).
+- Database seeding (per-module setup, or use Flask seed scripts for live
+  integration runs).
+- Performance assertions (use `tests/e2e/performance/` once budgets exist).
+
+**Skip rules:**
+
+- A spec that depends on a non-existent backend route may `test.skip()`
+  with a `// REASON: blocked on R<round>-BE-<task>` comment. The
+  blocker must be tracked in the round's epic.
+- A spec that requires real Flask login when Flask is unavailable must
+  use `getAdminCredentials()` from `helpers/auth.ts` and skip if null.
+  Never silently green-pass.
+
+**Reference implementation:** `tests/e2e/smoke/golden-path.spec.ts` — covers
+shell, AI drawer, page-context registration, helpdesk dashboard/list/detail,
+command palette, and mobile viewport in 8 steps.
+
+---
+
 ## 4. Backend Security Test Helpers
 
 ### 4.1 Required Helper Patterns
