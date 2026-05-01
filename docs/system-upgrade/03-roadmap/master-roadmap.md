@@ -115,18 +115,26 @@ Authoritative round sequence. Each row is a single round; epic + atomic tasks li
 | R041F | E2E Playwright foundation (smoke + users) | platform-ui | — | ✅ done 2026-05-01 |
 | R041G | KpiCard / PlatformDashboard | platform-ui | R041C | ✅ done 2026-05-01 |
 | R042 | PlatformNotifications bell + drawer | platform-ui | R041G | ✅ done |
-| R042-BE | ModuleRegistry.sync_from_manifests() + CompatLayer | platformengineer | R040-Fix | 🔴 ready |
-| R043 | AI Service Routing Matrix backend | platformengineer | R040 ✅ | 🔴 ready |
-| R044 | Navigation API + JWT route audit | platformengineer | R042-BE | 🔴 blocked |
-| R045 | Feature Flags + Settings Engine | platformengineer | R040 ✅ | 🔴 ready |
-| R046 | AuditLog + Notifications platform service | platformengineer | R045 | 🔴 blocked |
+| **R-OPS-01** | **Compensating controls + coverage gate** (ADR-037, ADR-042) | both | R041F ✅ | ⬜ ready |
+| **R042-BE-min** | ModuleRegistry sync — Helpdesk-validating subset (T01-T03 of R042-BE) | platformengineer | R040-Fix ✅, R-OPS-01 | ⬜ ready |
+| **R044-min** | Navigation API for already-built routes only | platformengineer | R042-BE-min | 🔴 blocked |
+| **R045-min** | Feature Flags only (one flag: `helpdesk.enabled`) | platformengineer | R040 ✅ | ⬜ ready |
+| **R046-min** | One Helpdesk notification flow + Helpdesk audit | platformengineer | R045-min | 🔴 blocked |
+| **Helpdesk Phase A** | Ticket list + KPI dashboard (validates -min foundation) | platform-ui | R042-BE-min, R044-min, R045-min, R046-min | 🔴 blocked |
+| **P1-Exit Gate** | All 8 ADR-041 criteria pass | review-only | Helpdesk Phase A | 🔴 blocked |
+| R042-BE | ModuleRegistry full (T04-T07: CompatLayer, enforcement, startup, ≥20 tests) | platformengineer | Helpdesk Phase A | 🔴 blocked |
+| R043 | AI Service Routing Matrix backend | platformengineer | R040 ✅ | 🔴 blocked on Helpdesk validation |
+| R044 | Navigation API full (manifest-driven) + JWT route audit | platformengineer | Helpdesk Phase A | 🔴 blocked |
+| R045 | Settings Engine (Feature Flags split out as R045-min) | platformengineer | Helpdesk Phase A | 🔴 blocked |
+| R046 | AuditLog + Notifications full | platformengineer | Helpdesk Phase A | 🔴 blocked |
 | R047 | API Keys + Secrets Manager backend | platformengineer | R046 | 🔴 blocked |
-| R048 | P0 LLM direct import cleanup | platformengineer | R043 (full) | 🟡 partial-ready |
+| R048 | P0 LLM direct import cleanup | platformengineer | R043 | 🟡 partial-ready |
+| **R049.5** | **AI demo slice — minimal "Ask the Dashboard"** (ADR-038) | platform-ui | R048 (warn-only ≥7 days) | 🔴 blocked |
 | R049 | Data Sources Hub backend foundation | platformengineer | R047, R046 | 🔴 blocked |
 
-> **Repo model:** platform-ui is the active rewrite repo. platformengineer is read-only legacy reference during platform-ui rewrite rounds; modifications require explicit user authorization (legacy maintenance exception).
+> **Repo model (UPDATED per ADR-039):** During P1 (R040–R048) both repos are in active joint development. After P1-Exit Gate, platformengineer reverts to read-only.
 
-> **Round sub-letter convention:** A/B/C/D/E/F/G suffixes mark parallel sub-rounds within a numeric round (e.g. R041A=CI, R041B=ActionButton). Sub-letters are scheduling labels, not phase labels.
+> **Round sub-letter convention:** A/B/C/D/E/F/G suffixes mark parallel sub-rounds within a numeric round. The `-min` / `-full` split (per ADR-040) is a slicing convention: `-min` ships first as a Helpdesk-validating subset, `-full` completes after Helpdesk Phase A validates the slice.
 
 ---
 

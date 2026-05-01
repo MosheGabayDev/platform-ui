@@ -1,10 +1,12 @@
-# R042-BE — ModuleRegistry sync + ModuleCompatLayer
+# R042-BE — ModuleRegistry sync + ModuleCompatLayer (FULL — runs after R042-BE-min + Helpdesk Phase A)
 
-**Phase:** P1 — Foundation Gates
-**Track:** platformengineer (legacy maintenance — requires explicit user authorization)
-**Status:** ⬜ ready
-**Depends on:** R040 ✅, R040-Fix ✅
-**Estimate:** ~6 hours
+**Phase:** P1 — Foundation Gates (full slice — sliced per ADR-040)
+**Track:** platformengineer (joint-repo phase per ADR-039)
+**Status:** 🔴 blocked on Helpdesk Phase A
+**Depends on:** R042-BE-min ✅ + Helpdesk Phase A
+**Estimate:** ~3.5 hours (T04-T07; T01-T03 ran in R042-BE-min)
+
+> **Slicing note (ADR-040):** T01-T03 of this round have been sliced into `../R042-BE-min-module-registry-min/epic.md` and run BEFORE Helpdesk Phase A. T04-T07 below run AFTER Helpdesk Phase A validates the min subset.
 
 ## Scope
 - `ModuleRegistry.sync_from_manifests()` — bridge 75 manifest files → DB catalog (R040 tables)
