@@ -43,6 +43,23 @@ export interface Message {
   timestamp: number;
 }
 
+/**
+ * Page-AI context payload registered by `useRegisterPageContext()`.
+ *
+ * Note on `dataSamples`: callers are responsible for redacting PII before
+ * passing values here. The store does not transform or filter the payload.
+ */
+export interface PageContext {
+  pageKey: string;
+  route: string;
+  entityType?: string;
+  entityId?: string;
+  summary: string;
+  availableActions: string[];
+  dataSamples?: Record<string, unknown>;
+  voiceEligible?: boolean;
+}
+
 export interface AssistantSessionStore {
   // State
   state: AssistantState;
@@ -50,6 +67,7 @@ export interface AssistantSessionStore {
   transcript: Message[];
   inFlightDraft: string;
   pendingConfirmationTokenId: string | null;
+  currentPageContext: PageContext | null;
 
   // Idle-path actions (Story 1.1)
   openDrawer: () => void;
@@ -59,6 +77,10 @@ export interface AssistantSessionStore {
   appendMessage: (message: Message) => void;
   clearTranscript: () => void;
   setDraft: (draft: string) => void;
+
+  // Page context actions (Story 1.2)
+  setPageContext: (context: PageContext) => void;
+  clearPageContext: () => void;
 
   // TODO(AI-shell-B): sendMessage, receiveResponse
   // TODO(AI-shell-C): proposeAction, confirmAction, rejectAction, expireConfirmation
@@ -74,6 +96,7 @@ export const useAssistantSession = create<AssistantSessionStore>()((set) => ({
   transcript: [],
   inFlightDraft: "",
   pendingConfirmationTokenId: null,
+  currentPageContext: null,
 
   openDrawer: () =>
     set((s) => {
@@ -116,4 +139,8 @@ export const useAssistantSession = create<AssistantSessionStore>()((set) => ({
   clearTranscript: () => set((s) => ({ ...s, transcript: [] })),
 
   setDraft: (draft) => set((s) => ({ ...s, inFlightDraft: draft })),
+
+  setPageContext: (context) => set((s) => ({ ...s, currentPageContext: context })),
+
+  clearPageContext: () => set((s) => ({ ...s, currentPageContext: null })),
 }));

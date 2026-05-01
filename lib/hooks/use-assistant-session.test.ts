@@ -9,6 +9,7 @@ const resetStore = () =>
     transcript: [],
     inFlightDraft: "",
     pendingConfirmationTokenId: null,
+    currentPageContext: null,
   });
 
 describe("useAssistantSession — initial state (AC #1)", () => {
@@ -21,6 +22,7 @@ describe("useAssistantSession — initial state (AC #1)", () => {
     expect(s.transcript).toEqual([]);
     expect(s.inFlightDraft).toBe("");
     expect(s.pendingConfirmationTokenId).toBeNull();
+    expect(s.currentPageContext).toBeNull();
   });
 });
 
@@ -56,6 +58,7 @@ describe("useAssistantSession — close transition (AC #3)", () => {
       ],
       inFlightDraft: "draft text",
       pendingConfirmationTokenId: null,
+      currentPageContext: null,
     });
     useAssistantSession.getState().closeDrawer();
     const s = useAssistantSession.getState();
@@ -72,6 +75,7 @@ describe("useAssistantSession — close transition (AC #3)", () => {
       transcript: [],
       inFlightDraft: "",
       pendingConfirmationTokenId: "tok-abc-123",
+      currentPageContext: null,
     });
     useAssistantSession.getState().closeDrawer();
     expect(useAssistantSession.getState().pendingConfirmationTokenId).toBe("tok-abc-123");

@@ -18,11 +18,11 @@
       "note": "ADR-042 target (security-critical) — currently no tests"
     },
     "lib/hooks/": {
-      "lines": 11.43,
-      "branches": 9.83,
-      "functions": 26.66,
+      "lines": 21.38,
+      "branches": 13.84,
+      "functions": 37.14,
       "target_floor": 80,
-      "note": "Story 1.1 (useAssistantSession) raised baseline from 0% to 11.43% lines (2026-05-01)"
+      "note": "Story 1.2 (useRegisterPageContext) raised from 11.43% to 21.38% lines (2026-05-01)"
     },
     "lib/modules/": {
       "lines": 0,
