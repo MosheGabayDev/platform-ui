@@ -34,4 +34,12 @@ export const queryKeys = {
     all:  () => ["notifications"]         as const,
     list: () => ["notifications", "list"] as const,
   },
+
+  // Module 04: Helpdesk (Phase A — list + KPI dashboard)
+  helpdesk: {
+    all:     () => ["helpdesk"]                                    as const,
+    stats:   () => ["helpdesk", "stats"]                          as const,
+    tickets: (params?: object) => ["helpdesk", "tickets", params] as const,
+    ticket:  (id: number) => ["helpdesk", "ticket", id]          as const,
+  },
 } as const;

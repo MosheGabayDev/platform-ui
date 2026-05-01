@@ -22,7 +22,8 @@ export type FlagKey =
   | "global_assistant.enabled"
   | "voice_agent.enabled"
   | "integrations.enabled"
-  | "settings.capabilities.enabled";
+  | "settings.capabilities.enabled"
+  | "helpdesk.enabled";
 
 /** Shape of the response from GET /api/proxy/feature-flags/<key>. */
 export interface FlagResponse {
@@ -44,6 +45,7 @@ export const STATIC_FLAG_DEFAULTS: Record<FlagKey, false> = {
   "voice_agent.enabled": false,
   "integrations.enabled": false,
   "settings.capabilities.enabled": false,
+  "helpdesk.enabled": false,
 };
 
 export async function fetchFeatureFlag(key: FlagKey): Promise<FlagResponse> {

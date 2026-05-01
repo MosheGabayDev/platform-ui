@@ -4,11 +4,11 @@
   "_run": "vitest run --coverage (1 test file: lib/utils.test.ts)",
   "layers": {
     "lib/api/": {
-      "lines": 9.24,
-      "branches": 6.66,
-      "functions": 8.19,
+      "lines": 19.74,
+      "branches": 14.14,
+      "functions": 17.56,
       "target_floor": 90,
-      "note": "AI-shell-B Story 2.2 (ai.ts mock client) raised from 0% to 9.24% lines (2026-05-01)"
+      "note": "Helpdesk mock client (helpdesk.ts) raised from 9.24% to 19.74% lines (2026-05-01)"
     },
     "lib/auth/": {
       "lines": 0,
