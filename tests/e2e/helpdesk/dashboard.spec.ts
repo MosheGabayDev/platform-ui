@@ -56,7 +56,7 @@ test.describe("Helpdesk Phase A", () => {
 
     // Direct nav to a known mock ticket
     await page.goto("/helpdesk/tickets/1001");
-    await expect(page.getByText(/Ticket #1001/i)).toBeVisible();
+    await expect(page.getByText(/TKT-2026-01001/i)).toBeVisible();
     await expect(page.getByText(/Timeline/i)).toBeVisible();
     await expect(page.getByText(/Description/i)).toBeVisible();
   });
