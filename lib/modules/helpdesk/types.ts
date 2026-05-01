@@ -62,3 +62,31 @@ export interface HelpdeskStatsResponse {
   success: boolean;
   data: HelpdeskStats;
 }
+
+export type TicketEventType =
+  | "created"
+  | "assigned"
+  | "status_changed"
+  | "comment_added"
+  | "priority_changed"
+  | "resolved"
+  | "closed"
+  | "reopened";
+
+export interface TicketEvent {
+  id: number;
+  type: TicketEventType;
+  timestamp: string;
+  actor_id: number | null;
+  actor_name: string | null;
+  description: string;
+  detail?: string;
+}
+
+export interface TicketDetailResponse {
+  success: boolean;
+  data: {
+    ticket: TicketDetail;
+    events: TicketEvent[];
+  };
+}

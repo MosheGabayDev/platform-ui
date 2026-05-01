@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { fetchHelpdeskStats, fetchTickets, MOCK_MODE } from "./helpdesk";
+import { fetchHelpdeskStats, fetchTickets, fetchTicket, MOCK_MODE } from "./helpdesk";
 
 describe("helpdesk client (mock mode)", () => {
   it("MOCK_MODE is enabled until R042-BE-min + R044-min + R045-min + R046-min land", () => {
@@ -40,5 +40,24 @@ describe("helpdesk client (mock mode)", () => {
   it("fetchTickets pagination respects per_page", async () => {
     const res = await fetchTickets({ page: 1, per_page: 2 });
     expect(res.data.tickets.length).toBeLessThanOrEqual(2);
+  });
+
+  it("fetchTicket returns full ticket + events for a known id", async () => {
+    const res = await fetchTicket(1001);
+    expect(res.success).toBe(true);
+    expect(res.data.ticket.id).toBe(1001);
+    expect(res.data.ticket.description.length).toBeGreaterThan(0);
+    expect(Array.isArray(res.data.events)).toBe(true);
+    expect(res.data.events.length).toBeGreaterThan(0);
+  });
+
+  it("fetchTicket throws 404 for unknown id", async () => {
+    await expect(fetchTicket(99999)).rejects.toThrow(/404/);
+  });
+
+  it("fetchTicket events include actor_name where applicable", async () => {
+    const res = await fetchTicket(1004);
+    const created = res.data.events.find((e) => e.type === "created");
+    expect(created?.actor_name).toBe("Monitoring Bot");
   });
 });

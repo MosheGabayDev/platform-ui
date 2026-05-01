@@ -4,11 +4,11 @@
   "_run": "vitest run --coverage (1 test file: lib/utils.test.ts)",
   "layers": {
     "lib/api/": {
-      "lines": 19.74,
-      "branches": 14.14,
-      "functions": 17.56,
+      "lines": 24.11,
+      "branches": 17.43,
+      "functions": 20.77,
       "target_floor": 90,
-      "note": "Helpdesk mock client (helpdesk.ts) raised from 9.24% to 19.74% lines (2026-05-01)"
+      "note": "Ticket detail fetchTicket added — raised from 19.74% to 24.11% lines (2026-05-01)"
     },
     "lib/auth/": {
       "lines": 0,
