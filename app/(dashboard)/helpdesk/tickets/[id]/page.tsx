@@ -25,6 +25,7 @@ import {
   Clock,
   Calendar,
   Eye,
+  Tag,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { FeatureGate } from "@/components/shared/feature-gate";
@@ -96,7 +97,7 @@ function TicketDetailInner({ id }: TicketDetailInnerProps) {
     entityType: "ticket",
     entityId: id,
     summary: ticket
-      ? `Ticket #${ticket.id}: ${ticket.title}. Status: ${ticket.status}. Priority: ${ticket.priority}. SLA: ${ticket.sla_breached ? "BREACHED" : "on track"}.`
+      ? `Ticket ${ticket.ticket_number}: ${ticket.title}. Status: ${ticket.status}. Priority: ${ticket.priority}. SLA: ${ticket.sla_breached ? "BREACHED" : "on track"}.`
       : `Ticket detail page (loading ticket #${id}).`,
     availableActions: ticket
       ? ticket.status === "resolved" || ticket.status === "closed"
@@ -138,7 +139,7 @@ function TicketDetailInner({ id }: TicketDetailInnerProps) {
     <LazyMotion features={domAnimation}>
       <PageShell
         icon={HeadphonesIcon}
-        title={`Ticket #${ticket.id}`}
+        title={`Ticket ${ticket.ticket_number}`}
         subtitle={ticket.title}
       >
         <motion.div
@@ -150,7 +151,7 @@ function TicketDetailInner({ id }: TicketDetailInnerProps) {
 
           <DetailHeaderCard
             title={ticket.title}
-            subtitle={`#${ticket.id} • opened ${formatDate(ticket.created_at)}`}
+            subtitle={`${ticket.ticket_number} • opened ${formatDate(ticket.created_at)}`}
             badges={
               <div className="flex flex-wrap gap-2">
                 <TicketStatusBadge status={ticket.status} />
@@ -188,11 +189,38 @@ function TicketDetailInner({ id }: TicketDetailInnerProps) {
               <InfoRow icon={Clock} label="Last update" value={formatDate(ticket.updated_at)} />
               <InfoRow
                 icon={AlertTriangle}
-                label="SLA deadline"
-                value={ticket.sla_breach_at ? formatDate(ticket.sla_breach_at) : "—"}
+                label="Response SLA"
+                value={
+                  ticket.response_due_at
+                    ? `${formatDate(ticket.response_due_at)}${ticket.sla_response_breached ? " (BREACHED)" : ""}`
+                    : "—"
+                }
+              />
+              <InfoRow
+                icon={AlertTriangle}
+                label="Resolution SLA"
+                value={
+                  ticket.resolution_due_at
+                    ? `${formatDate(ticket.resolution_due_at)}${ticket.sla_resolution_breached ? " (BREACHED)" : ""}`
+                    : "—"
+                }
+              />
+              <InfoRow
+                icon={Tag}
+                label="Category"
+                value={
+                  ticket.category
+                    ? ticket.subcategory
+                      ? `${ticket.category} / ${ticket.subcategory}`
+                      : ticket.category
+                    : "—"
+                }
               />
               <InfoRow icon={MessageSquare} label="Comments" value={ticket.comment_count} />
               <InfoRow icon={Eye} label="Watchers" value={ticket.watchers.length} />
+              {ticket.tags.length > 0 && (
+                <InfoRow icon={Tag} label="Tags" value={ticket.tags.join(", ")} />
+              )}
             </div>
           </DetailSection>
 

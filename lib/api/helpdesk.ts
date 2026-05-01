@@ -5,7 +5,14 @@
  * land per ADR-040 Helpdesk-validated foundation slicing. The proxy path
  * `/api/proxy/helpdesk/*` is reserved; flip MOCK_MODE to false once live.
  *
+ * **Schema mapping (post-review 2026-05-01):**
+ * Frontend types use semantic names (title, assignee_id, priority enum); Flask
+ * uses different conventions (subject, assigned_to, P1-P4). Translation lives
+ * in `transformFlaskTicket()` below — this is the single source of truth for
+ * the boundary mapping until backend serializers move into the new shape.
+ *
  * Spec: docs/modules/04-helpdesk/{PLAN,LEGACY_INVENTORY,E2E_COVERAGE,AI_READINESS}.md
+ * Decision log: docs/system-upgrade/08-decisions/open-questions.md (Q-HD-1, Q-HD-2)
  */
 import type {
   TicketsListParams,
@@ -16,12 +23,91 @@ import type {
   TicketDetail,
   TicketDetailResponse,
   TicketEvent,
+  TicketPriority,
+  FlaskPriorityCode,
 } from "@/lib/modules/helpdesk/types";
 
 export const MOCK_MODE = true;
 
 // ---------------------------------------------------------------------------
-// Mock fixtures
+// Schema mapping — Flask ↔ Frontend boundary
+// ---------------------------------------------------------------------------
+
+/** Flask Ticket.to_dict() shape (subset — only fields we currently use). */
+interface FlaskTicket {
+  id: number;
+  ticket_number: string;
+  subject: string;
+  status: TicketSummary["status"];
+  priority: FlaskPriorityCode;
+  assigned_to: number | null;
+  requester_user_id: number;
+  requester_email: string | null;
+  created_at: string;
+  updated_at: string;
+  response_due_at: string | null;
+  resolution_due_at: string | null;
+  sla_response_breached: boolean;
+  sla_resolution_breached: boolean;
+}
+
+interface FlaskTicketDetail extends FlaskTicket {
+  description: string;
+  watchers: number[];
+  comment_count: number;
+  category: string | null;
+  subcategory: string | null;
+  tags: string[];
+}
+
+const FLASK_TO_SEMANTIC_PRIORITY: Record<FlaskPriorityCode, TicketPriority> = {
+  P1: "critical",
+  P2: "high",
+  P3: "medium",
+  P4: "low",
+};
+
+const SEMANTIC_TO_FLASK_PRIORITY: Record<TicketPriority, FlaskPriorityCode> = {
+  critical: "P1",
+  high: "P2",
+  medium: "P3",
+  low: "P4",
+};
+
+export function transformFlaskTicket(raw: FlaskTicket): TicketSummary {
+  return {
+    id: raw.id,
+    ticket_number: raw.ticket_number,
+    title: raw.subject,
+    status: raw.status,
+    priority: FLASK_TO_SEMANTIC_PRIORITY[raw.priority],
+    assignee_id: raw.assigned_to,
+    requester_id: raw.requester_user_id,
+    requester_email: raw.requester_email,
+    created_at: raw.created_at,
+    updated_at: raw.updated_at,
+    response_due_at: raw.response_due_at,
+    resolution_due_at: raw.resolution_due_at,
+    sla_response_breached: raw.sla_response_breached,
+    sla_resolution_breached: raw.sla_resolution_breached,
+    sla_breached: raw.sla_response_breached || raw.sla_resolution_breached,
+  };
+}
+
+export function transformFlaskTicketDetail(raw: FlaskTicketDetail): TicketDetail {
+  return {
+    ...transformFlaskTicket(raw),
+    description: raw.description,
+    watchers: raw.watchers,
+    comment_count: raw.comment_count,
+    category: raw.category,
+    subcategory: raw.subcategory,
+    tags: raw.tags,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Mock fixtures (in frontend shape — the transform applies only to live data)
 // ---------------------------------------------------------------------------
 
 const MOCK_STATS: HelpdeskStats = {
@@ -34,62 +120,87 @@ const MOCK_STATS: HelpdeskStats = {
 const MOCK_TICKETS: TicketSummary[] = [
   {
     id: 1001,
+    ticket_number: "TKT-2026-01001",
     title: "VPN connection drops every 30 minutes",
     status: "in_progress",
     priority: "high",
     assignee_id: 7,
     requester_id: 42,
+    requester_email: null, // PII redacted in fixture
     created_at: "2026-04-30T09:15:00Z",
     updated_at: "2026-05-01T08:00:00Z",
-    sla_breach_at: "2026-05-01T15:15:00Z",
+    response_due_at: "2026-04-30T10:15:00Z",
+    resolution_due_at: "2026-05-01T15:15:00Z",
+    sla_response_breached: false,
+    sla_resolution_breached: false,
     sla_breached: false,
   },
   {
     id: 1002,
+    ticket_number: "TKT-2026-01002",
     title: "Cannot access shared drive on new laptop",
     status: "new",
     priority: "medium",
     assignee_id: null,
     requester_id: 15,
+    requester_email: null,
     created_at: "2026-05-01T07:30:00Z",
     updated_at: "2026-05-01T07:30:00Z",
-    sla_breach_at: "2026-05-01T19:30:00Z",
+    response_due_at: "2026-05-01T11:30:00Z",
+    resolution_due_at: "2026-05-01T19:30:00Z",
+    sla_response_breached: false,
+    sla_resolution_breached: false,
     sla_breached: false,
   },
   {
     id: 1003,
+    ticket_number: "TKT-2026-01003",
     title: "Email signature missing company logo",
     status: "resolved",
     priority: "low",
     assignee_id: 7,
     requester_id: 23,
+    requester_email: null,
     created_at: "2026-04-29T14:00:00Z",
     updated_at: "2026-04-30T10:00:00Z",
-    sla_breach_at: null,
+    response_due_at: null,
+    resolution_due_at: null,
+    sla_response_breached: false,
+    sla_resolution_breached: false,
     sla_breached: false,
   },
   {
     id: 1004,
+    ticket_number: "TKT-2026-01004",
     title: "Server CPU at 95% on prod-app-02",
     status: "in_progress",
     priority: "critical",
     assignee_id: 3,
     requester_id: 1,
+    requester_email: null,
     created_at: "2026-05-01T06:00:00Z",
     updated_at: "2026-05-01T06:30:00Z",
-    sla_breach_at: "2026-05-01T08:00:00Z",
+    response_due_at: "2026-05-01T06:30:00Z",
+    resolution_due_at: "2026-05-01T08:00:00Z",
+    sla_response_breached: false,
+    sla_resolution_breached: true,
     sla_breached: true,
   },
   {
     id: 1005,
+    ticket_number: "TKT-2026-01005",
     title: "New employee onboarding — laptop setup",
     status: "new",
     priority: "medium",
     assignee_id: null,
     requester_id: 8,
+    requester_email: null,
     created_at: "2026-05-01T05:00:00Z",
     updated_at: "2026-05-01T05:00:00Z",
-    sla_breach_at: null,
+    response_due_at: null,
+    resolution_due_at: null,
+    sla_response_breached: false,
+    sla_resolution_breached: false,
     sla_breached: false,
   },
 ];
@@ -106,13 +217,17 @@ function applyFilters(
   }
   if (params.search) {
     const q = params.search.toLowerCase();
-    filtered = filtered.filter((t) => t.title.toLowerCase().includes(q));
+    filtered = filtered.filter(
+      (t) =>
+        t.title.toLowerCase().includes(q) ||
+        t.ticket_number.toLowerCase().includes(q),
+    );
   }
   return filtered;
 }
 
 // ---------------------------------------------------------------------------
-// Public API
+// Public API — fetch* functions
 // ---------------------------------------------------------------------------
 
 export async function fetchHelpdeskStats(): Promise<HelpdeskStatsResponse> {
@@ -149,13 +264,24 @@ export async function fetchTickets(
   qs.set("page", String(params.page));
   qs.set("per_page", String(params.per_page));
   if (params.status) qs.set("status", params.status);
-  if (params.priority) qs.set("priority", params.priority);
+  // Translate semantic priority back to Flask P-codes when calling backend
+  if (params.priority) qs.set("priority", SEMANTIC_TO_FLASK_PRIORITY[params.priority]);
   if (params.assignee_id !== undefined) qs.set("assignee_id", String(params.assignee_id));
   if (params.search) qs.set("search", params.search);
 
   const res = await fetch(`/api/proxy/helpdesk/api/tickets?${qs.toString()}`);
   if (!res.ok) throw new Error(`fetchTickets failed: ${res.status}`);
-  return res.json();
+  const raw = (await res.json()) as {
+    success: boolean;
+    data: { tickets: FlaskTicket[]; page: number; per_page: number; total: number };
+  };
+  return {
+    success: raw.success,
+    data: {
+      ...raw.data,
+      tickets: raw.data.tickets.map(transformFlaskTicket),
+    },
+  };
 }
 
 const MOCK_EVENTS_BY_TICKET: Record<number, TicketEvent[]> = {
@@ -184,31 +310,54 @@ const MOCK_EVENTS_BY_TICKET: Record<number, TicketEvent[]> = {
   ],
 };
 
-const MOCK_DETAILS: Record<number, Pick<TicketDetail, "description" | "watchers" | "comment_count">> = {
+const MOCK_DETAILS: Record<
+  number,
+  Pick<TicketDetail, "description" | "watchers" | "comment_count" | "category" | "subcategory" | "tags">
+> = {
   1001: {
-    description: "User reports the corporate VPN client disconnects every ~30 minutes when working from home. Issue persists across multiple networks. Reconnection is automatic but breaks long-running SSH sessions.",
+    description:
+      "User reports the corporate VPN client disconnects every ~30 minutes when working from home. Issue persists across multiple networks. Reconnection is automatic but breaks long-running SSH sessions.",
     watchers: [42, 7],
     comment_count: 1,
+    category: "Network",
+    subcategory: "VPN",
+    tags: ["vpn", "remote-work"],
   },
   1002: {
-    description: "Newly issued laptop cannot reach the shared drive at \\\\fileserver\\common. Other resources (Wi-Fi, email, SSO) all work. Suspect missing AD group membership or DNS cache.",
+    description:
+      "Newly issued laptop cannot reach the shared drive at \\\\fileserver\\common. Other resources (Wi-Fi, email, SSO) all work. Suspect missing AD group membership or DNS cache.",
     watchers: [15],
     comment_count: 0,
+    category: "Access",
+    subcategory: "File share",
+    tags: ["onboarding", "ad"],
   },
   1003: {
-    description: "Email signature does not show the new company logo after the rebrand. Affects all outgoing mail from this user. Other users on the same template look correct.",
+    description:
+      "Email signature does not show the new company logo after the rebrand. Affects all outgoing mail from this user. Other users on the same template look correct.",
     watchers: [23, 7],
     comment_count: 0,
+    category: "Email",
+    subcategory: "Signature",
+    tags: ["rebrand"],
   },
   1004: {
-    description: "Production application server prod-app-02 is sustained at 95%+ CPU usage. User-facing latency degrading. Auto-paged via Prometheus alert.",
+    description:
+      "Production application server prod-app-02 is sustained at 95%+ CPU usage. User-facing latency degrading. Auto-paged via Prometheus alert.",
     watchers: [1, 3],
     comment_count: 0,
+    category: "Infrastructure",
+    subcategory: "Performance",
+    tags: ["prod", "alert", "p1-incident"],
   },
   1005: {
-    description: "New employee starting Monday — needs laptop, email account, slack invite, and standard onboarding documentation. Please complete by EOD Friday.",
+    description:
+      "New employee starting Monday — needs laptop, email account, slack invite, and standard onboarding documentation. Please complete by EOD Friday.",
     watchers: [8],
     comment_count: 0,
+    category: "Onboarding",
+    subcategory: "New hire",
+    tags: ["onboarding"],
   },
 };
 
@@ -223,6 +372,9 @@ export async function fetchTicket(id: number): Promise<TicketDetailResponse> {
       description: "(no description available)",
       watchers: [],
       comment_count: 0,
+      category: null,
+      subcategory: null,
+      tags: [],
     };
     const events = MOCK_EVENTS_BY_TICKET[id] ?? [];
     return {
@@ -236,5 +388,15 @@ export async function fetchTicket(id: number): Promise<TicketDetailResponse> {
 
   const res = await fetch(`/api/proxy/helpdesk/api/tickets/${id}`);
   if (!res.ok) throw new Error(`fetchTicket failed: ${res.status}`);
-  return res.json();
+  const raw = (await res.json()) as {
+    success: boolean;
+    data: { ticket: FlaskTicketDetail; events: TicketEvent[] };
+  };
+  return {
+    success: raw.success,
+    data: {
+      ticket: transformFlaskTicketDetail(raw.data.ticket),
+      events: raw.data.events,
+    },
+  };
 }

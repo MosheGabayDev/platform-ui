@@ -91,9 +91,11 @@ function TicketsListInner() {
   const columns = useMemo<ColumnDef<TicketSummary>[]>(
     () => [
       {
-        accessorKey: "id",
-        header: "ID",
-        cell: ({ row }) => <span className="font-mono text-xs">#{row.original.id}</span>,
+        accessorKey: "ticket_number",
+        header: "Ticket #",
+        cell: ({ row }) => (
+          <span className="font-mono text-xs">{row.original.ticket_number}</span>
+        ),
       },
       {
         accessorKey: "title",
