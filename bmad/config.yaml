@@ -7,7 +7,7 @@ communication_language: Hebrew
 document_output_language: English
 planning_artifacts: ./planning-artifacts
 implementation_artifacts: ./implementation-artifacts
-project_knowledge: ./docs
+project_knowledge: ./docs/bmad-scan
 notes: |
   Brownfield project — pre-existing comprehensive plan in docs/system-upgrade/.
   Master roadmap (SSOT): docs/system-upgrade/03-roadmap/master-roadmap.md
