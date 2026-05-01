@@ -725,4 +725,150 @@ Error case:
 
 ---
 
+## ADR-037 — Single-Trunk Workflow on Master with Compensating Controls (2026-05-01)
+
+- **Status:** Accepted (responds to adversarial review C-01).
+- **Context:** Project operates as single-trunk on `master` (CLAUDE.md §Workflow Rules) — no feature branches, no PRs, no worktrees. The plan is Level 4 (40+ stories, multi-tenant, billing-affecting code, DB migrations). Adversarial review C-01 flagged the workflow as inconsistent with the risk profile: a single bad commit goes straight to production CI; no asynchronous quality gate exists.
+- **Decision:** **Accept** the single-trunk workflow. The user has explicitly chosen it for productivity reasons (`memory/feedback_main_only_workflow.md`). However, **introduce compensating controls** to address the risk asymmetry.
+- **Compensating controls (mandatory):**
+  1. **High-risk file allowlist** — any commit touching `apps/authentication/`, `apps/ai_providers/`, `lib/auth/`, files in `02-rules/shared-services.md` blacklist, OR any DB migration MUST include in the same commit a file `commits/<sha>-checklist.md` confirming: tests run, security review self-checklist passed, rollback plan exists. CI gate (planned, not yet built) blocks push if file missing.
+  2. **Pre-commit hook** that runs `npm run typecheck` + `npm run lint` + `npm run test:e2e` (smoke subset). Hook is opt-out only via `--no-verify` which is reserved for emergency.
+  3. **Daily smoke check** — automated cron (planned: GitHub Actions schedule) that runs the full E2E suite against production every morning and pages on regression.
+  4. **Rollback drill once per quarter** — documented procedure in `09-history/rollback-drill-log.md` (to be created); each drill simulates a bad master commit, measures time-to-revert, validates SSM secret rotation, and exercises the K8s rollback. Schedule the first drill within 30 days of accepting this ADR.
+  5. **Post-mortem on every revert** — any `git revert` to master triggers a 1-page post-mortem in `09-history/post-mortems/`.
+- **Alternatives considered:**
+  - Reintroduce PR gate for high-risk files only — rejected: user explicitly does not want PR friction; workflow rule already in CLAUDE.md.
+  - Branch-per-feature with self-merge — rejected: indistinguishable from branch workflow user is avoiding.
+  - Status quo with no compensating controls — rejected: review C-01 is correct that the bare workflow is unsafe at Level 4.
+- **Consequences:** Velocity preserved. Risk surface reduced via the 5 controls. The first 3 controls (allowlist, pre-commit, daily smoke) are added in the next round (R-OPS-01, to be created). Drill + post-mortem procedures are documented but exercised only when triggered.
+- **Reviews this ADR responds to:** `planning-artifacts/reviews/2026-05-01-adversarial-master-roadmap.md` C-01.
+
+---
+
+## ADR-038 — AI Delivery Phasing: Foundation Then Surface (2026-05-01)
+
+- **Status:** Accepted (responds to adversarial review C-02).
+- **Context:** Master roadmap §1 declares "AI is the primary interaction layer." Build order in §5 schedules zero AI surface during P1 (R040–R048); first AI feature lands in P2 R051. Review C-02 flagged the gap between thesis and delivery — 6+ months of foundation work before users see anything AI-native.
+- **Decision:** **Reframe** the public narrative without changing the underlying technical sequence. The platform IS AI-native in its foundation (every API governed by AIProviderGateway, every action audit-able for AI consumption, every module declares AI capabilities) but the user-visible AI experience is delivered in phases:
+  - **P1 deliverable:** "AI-Ready Platform" — backend governance complete, gateway routes all calls, billing accurate, audit complete. No new user-facing AI surface.
+  - **P2 demonstration slice:** During P2, ship a **minimal floating "Ask the Dashboard"** capability (read-only, single page context, one AI provider, no actions) using existing R048-cleaned gateway. This validates the foundation with real users before the full AI Action Platform lands.
+  - **P2 full:** AI Action Platform R051 — write actions with confirmation tokens.
+  - **P3:** Floating Assistant full + voice + actions across all modules.
+- **Action items from this ADR:**
+  - Update `master-roadmap §1` Vision text to distinguish "AI-ready foundation" from "AI-native experience" with explicit phase mapping.
+  - Add new round `R049.5-AI-demo-slice` to `master-roadmap §5` between R049 and R051 — tasks: minimal chat overlay, gateway integration, single page context.
+  - Update `00-control-center.md` Track A so the next-up scoping is for the demo slice, not the full assistant.
+- **Alternatives considered:**
+  - Bring forward the full Floating Assistant — rejected: depends on R045 Settings, R046 Audit, R049 Data Sources for full functionality; pulling it forward duplicates work.
+  - Accept the gap silently — rejected: review C-02 is right that the headline-vs-schedule mismatch will be questioned.
+- **Consequences:** Adds ~2 weeks of P2 work for the demo slice. In exchange, P2 delivers visible AI value, validates the gateway end-to-end with real traffic, and de-risks the full R051 build. Public narrative stays honest.
+- **Reviews this ADR responds to:** C-02.
+
+---
+
+## ADR-039 — Joint-Repo Phase for P1 Foundation Work (2026-05-01)
+
+- **Status:** Accepted (responds to adversarial review C-03).
+- **Context:** `00-control-center.md` and `master-roadmap §5` declare `platformengineer` read-only during the platform-ui rewrite. R042-BE through R049 are ALL backend work in `platformengineer` — exactly the work the read-only rule blocks. Each round currently requires "explicit user authorization in the prompt" to proceed. Review C-03 flagged this as a structural contradiction guaranteed to cause scheduling pain.
+- **Decision:** **Lift the read-only restriction on `platformengineer` for the duration of P1 (R040–R048).** During this window, `platformengineer` is in active joint-repo development with platform-ui. After P1 closes (all 12 P0 gates green), reinstate read-only mode for the platformengineer repo and treat all subsequent backend changes as exception-only.
+- **Operational rules during the joint-repo phase:**
+  1. Each backend round still requires its `epic.md` in `10-tasks/` (in this repo, even when work is in platformengineer).
+  2. Commits in platformengineer reference the round ID in the commit message footer (e.g. `Round: R042-BE`).
+  3. Cross-repo coordination: when a platformengineer change requires a platform-ui follow-up (or vice versa), both commits land within 24h; the second commit message references the first SHA.
+  4. CI/CD pipeline `cd-deploy-dual.yml` (platformengineer) coordinates dual-deploys — no need for stricter coordination.
+  5. The "single-trunk on master" rule applies to BOTH repos during this window — no PR review on either side.
+- **Alternatives considered:**
+  - Reimplement ModuleRegistry in `platform-ui` (or a new `platform-api` service) — rejected: the data already lives in platformengineer's DB; duplicating it would create sync hell.
+  - Keep read-only and continue per-round authorization friction — rejected: drives delivery slower than necessary; review C-03 is correct.
+  - Migrate the entire platformengineer codebase into a monorepo with platform-ui — rejected: out of scope for P1, ADR-002 already chose separate repos.
+- **Consequences:** Platformengineer becomes a normal active repo until P1 closes. No more per-round authorization friction. After P1, the read-only rule resumes for all rounds R051+. The transition is documented in `00-control-center.md`.
+- **Reviews this ADR responds to:** C-03.
+
+---
+
+## ADR-040 — Helpdesk-Validated Foundation Slicing (2026-05-01)
+
+- **Status:** Accepted (responds to adversarial review C-04).
+- **Context:** Master-roadmap §11 anti-overengineering rule #1: "No capability without a confirmed consumer." The R042-BE through R049 foundation rounds claim Helpdesk as the consumer but Helpdesk Phase A is blocked behind all of them — the foundation is being built fully before the consumer validates it. Review C-04 flagged this as the plan violating its own rule.
+- **Decision:** **Slice each foundation round to deliver the Helpdesk-validating subset first**, ship that subset, validate end-to-end with a Helpdesk page, then iterate. Do NOT build the full R042-BE / R044 / R045 / R046 pyramid before Helpdesk Phase A starts.
+- **New round structure:**
+  - **R042-BE-min** — `is_module_available("helpdesk")` + minimal `OrgModule` enable/disable for org_id=1 (the bootstrap org). T01-T03 only from current epic.
+  - **R044-min** — Navigation API returns ONLY helpdesk + already-built routes (users, orgs, roles). No manifest-driven nav yet.
+  - **R045-min** — Feature Flags ONLY (Settings deferred to R045-full). One flag: `helpdesk.enabled`.
+  - **R046-min** — Notification dedupe + delivery for ONE notification type from Helpdesk. Audit log for Helpdesk write actions only.
+  - **Helpdesk Phase A** runs IMMEDIATELY after the four "-min" rounds. Validates the minimal foundation against a real consumer.
+  - **R042-BE-full / R044-full / R045-full / R046-full** are then completed AFTER Helpdesk Phase A — informed by what the validation revealed.
+- **Action items from this ADR:**
+  - Update `10-tasks/R042-BE-module-registry/epic.md` — mark T01-T03 as the "min" subset, T04-T07 as "full" deferred.
+  - Add corresponding `-min` epic stubs for R044, R045, R046 in `10-tasks/`.
+  - Renumber/relabel `master-roadmap §5` rounds.
+- **Alternatives considered:**
+  - Continue the full-foundation-first plan — rejected: violates the anti-overengineering rule and creates 6+ weeks of unvalidated foundation.
+  - Build only Helpdesk-specific implementations and extract later — rejected: still creates the dual-pattern problem H-02 warns about.
+- **Consequences:** Foundation rounds become smaller and faster individually. Helpdesk ships at end of P1 instead of beginning of P2. Total work likely UP by ~10% (re-extraction effort) but project risk DOWN substantially. Each foundation slice has a confirmed consumer at landing time.
+- **Reviews this ADR responds to:** C-04.
+
+---
+
+## ADR-041 — P1 Exit Gate: Helpdesk in Production (2026-05-01)
+
+- **Status:** Accepted (responds to adversarial review C-05).
+- **Context:** Master-roadmap §3 lists 12 P0 gates with no exit criterion for P1 itself. Review C-05 flagged this: P1 can drift indefinitely with no concrete stopping point. Six rounds × 4-10h estimates each + normal slippage = unbounded duration with no observable user value.
+- **Decision:** **Define an explicit P1 EXIT GATE.** P1 is complete when ALL of the following hold:
+  1. `/helpdesk` and `/helpdesk/tickets` routes are live in production (TEST environment minimum, PROD preferred).
+  2. The routes are gated by `FeatureGate flag="helpdesk.enabled"` and the flag is served by the platform Feature Flag Service (not a stub).
+  3. The Helpdesk nav item is served by the Navigation API (not hardcoded `nav-items.ts`).
+  4. At least one notification flow goes from a Helpdesk event → platform Notification Service → user's notification bell.
+  5. At least one Helpdesk action is auditable via the platform AuditLog Service with org_id, actor_id, and resource fields populated.
+  6. Cross-tenant isolation test passes: org A user cannot see org B Helpdesk data.
+  7. CI gate `check_no_direct_llm_imports.py` is in warn-only mode AND the count of warnings is non-increasing for 7 consecutive days.
+  8. AI demo slice (per ADR-038) is in development (epic.md exists, ≥2 tasks complete).
+- **Until P1 EXIT GATE passes:** No new module work begins (per ADR-040 slicing). No new shared capabilities are built (per master-roadmap §11 rule #1). Round selection is constrained to "what's needed to close the gate."
+- **Action items from this ADR:**
+  - Add this gate as a checklist to `00-control-center.md §Foundation Gates`.
+  - Add a row in `master-roadmap §5` titled "P1-Exit" with status `🔴 not started`.
+  - Add `09-history/rounds-index.md` entry as P1 closes documenting the eight gate items + evidence.
+- **Alternatives considered:**
+  - No exit gate (status quo) — rejected: review C-05 is correct that this leads to drift.
+  - Stricter gate (full Settings + full Audit) — rejected: bigger gate = longer drift; this gate is the minimum that proves the foundation works.
+  - Gate based purely on internal metrics (gates 1–6 only, no production verification) — rejected: production verification IS the validation; without it, the gate is theatrical.
+- **Consequences:** P1 has a definition of "done" that everyone can see. Round-selection has a clear filter. The eight items map cleanly to the per-round DoDs already required.
+- **Reviews this ADR responds to:** C-05.
+
+---
+
+## ADR-042 — Project-Wide Test Coverage Gate (2026-05-01)
+
+- **Status:** Accepted (responds to adversarial review C-06).
+- **Context:** Master-roadmap §10 DoD requires per-round "X passed / Y total" test counts. There is no project-wide coverage threshold and no Vitest unit test setup yet. Review C-06 flagged that round-level counts can pass while project coverage trends downward.
+- **Decision:** **Adopt project-wide coverage gates with floor enforcement.** Coverage cannot drop below baseline; baseline rises only by deliberate ADR.
+- **Targets (per layer) — the floor as of acceptance of this ADR:**
+  - `lib/api/` — 90% line coverage
+  - `lib/hooks/` — 80%
+  - `lib/auth/` — 95% (security-critical)
+  - `lib/modules/<key>/` — 70%
+  - `components/shared/` — 70%
+  - `components/shell/` — 50%
+  - `app/api/proxy/` — 90%
+  - `apps/platform/` (platformengineer) — 85%
+  - `apps/authentication/` (platformengineer) — 95%
+- **Tooling:**
+  - Frontend: Vitest + `c8` for line/branch coverage, configured in next round (R-OPS-01).
+  - Backend: existing `pytest --cov` already produces coverage; CI publishes the report.
+  - Baseline file `tests/.coverage-baseline.json` checked into the repo.
+  - CI gate fails if any layer drops below baseline by >1pp.
+- **Evidence enforcement (also responds to H-06):** Per-task DoD changes from "paste test counts" to "Tests-CI: <github-actions-run-url>" — the URL is a verifiable link to the green CI run that closed the task. CI gate ensures the URL exists in the closing commit's trailer.
+- **Action items from this ADR:**
+  - Add R-OPS-01 round to `10-tasks/`: "Vitest + coverage baseline + CI gate." Estimated 2h. Must complete before any P1-Exit gate items.
+  - Update `master-roadmap §10` DoD wording.
+  - Update `_template/tasks/T01-example.md` evidence section.
+- **Alternatives considered:**
+  - Round-level only (status quo) — rejected: review C-06 correctly identifies the drift risk.
+  - Single project-wide threshold — rejected: layers have legitimately different testability; one number masks bad ratios.
+  - Coverage exempt from CI gates — rejected: coverage that's not gated is documentation, not enforcement.
+- **Consequences:** Coverage becomes a first-class quality signal. Drops are visible immediately, not at P5 hardening. Some velocity cost initially as agents must add tests for new code; this cost decreases as the testing pattern stabilizes.
+- **Reviews this ADR responds to:** C-06 (and partially H-06).
+
+---
+
 _Add new ADRs here as decisions are made during implementation._

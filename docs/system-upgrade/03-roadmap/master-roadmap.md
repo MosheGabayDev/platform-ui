@@ -16,6 +16,17 @@ Three non-negotiables:
 2. **Every cross-module concern is a platform service.** Auth, RBAC, billing, audit, notifications, file storage, search, AI gateway — built once, consumed by every module.
 3. **Modules extend, never fork the core.** A module registers AI actions, data sources, nav items, settings, audit events. It cannot modify auth, billing, tenant isolation, or data ownership.
 
+### AI delivery phasing (per ADR-038)
+
+The platform is "AI-native" architecturally from day one — every API call routes through the governed `AIProviderGateway`, every action is audit-able for AI consumption, every module declares its AI capabilities. The user-visible AI experience, however, lands in phases:
+
+- **P1 — AI-Ready Platform** (current): backend governance complete, gateway routes all calls, billing accurate. No new user-facing AI surface.
+- **P2 demo slice (R049.5)** — minimal floating "Ask the Dashboard" overlay (read-only, single page context). Validates the foundation with real users.
+- **P2 full (R051)** — AI Action Platform with write actions + confirmation tokens.
+- **P3** — Full Floating Assistant + voice + cross-module actions.
+
+This phasing is honest about delivery while preserving the AI-native architectural commitment.
+
 ### Target users
 
 Owner · System Administrator · Org Administrator · Manager · Technician/Operator · Regular Employee · External Customer · AI Agent · Developer/Integration Admin.

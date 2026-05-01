@@ -97,7 +97,7 @@ Full vision: [`03-roadmap/master-roadmap.md §2`](03-roadmap/master-roadmap.md)
 | R048 | P0 LLM Direct Import Cleanup | `[ ] partial-ready` | Simple gateway migrations: no extra dep. Full cleanup: R043 preferred | platformengineer |
 | R049 | Data Sources Hub Backend Foundation | `[ ] blocked` | R047, R046, R040 ✅ | platformengineer |
 
-> **Repo model:** platform-ui = target rewrite repo (all implementation happens here). platformengineer = read-only legacy reference for capability mapping and no-feature-loss validation only. Agents must not modify platformengineer during platform-ui rewrite rounds. R041D and R041A are legacy maintenance exceptions requiring explicit user authorization. R041B ✅ complete (platform-ui only — no platformengineer changes).
+> **Repo model (UPDATED per ADR-039 — 2026-05-01):** During **P1 (R040–R048)** both repos are in active joint development. The "platformengineer read-only" rule is **lifted** for P1 backend foundation work. Each backend round still requires its `epic.md` in `10-tasks/`. Cross-repo commits land within 24h and reference each other's SHA. After P1 closes (P1-Exit gate per ADR-041), platformengineer reverts to read-only for all subsequent rounds. **Single-trunk rule applies to BOTH repos during this window.**
 > **R048 note:** Modules that only need simple `AIProviderGateway.call()` substitution (no service routing needed) can be migrated immediately — start with fitness_nutrition, ala, ai_coach. Full service-routing-aware migration requires R043 routing matrix first.
 
 > Full dependency graph: [`03-roadmap/master-roadmap.md §6`](03-roadmap/master-roadmap.md)
@@ -133,6 +133,21 @@ Full vision: [`03-roadmap/master-roadmap.md §2`](03-roadmap/master-roadmap.md)
 | G-FeatureFlags | FeatureFlagService operational | 🔴 R045 not started |
 | G-Governance | All rounds documented + issue-linked | ✅ R040-Control |
 | G-SecretScan | No hardcoded secrets in codebase | 🔴 D-005 baseline failures (pre-existing test secrets / Redis defaults) — R41D tracks cleanup |
+
+### P1 Exit Gate (per ADR-041) — must ALL pass to declare P1 complete
+
+| # | Gate item | Status |
+|---|---|--------|
+| 1 | `/helpdesk` + `/helpdesk/tickets` routes live (TEST min, PROD preferred) | 🔴 |
+| 2 | Routes gated by real `FeatureGate flag="helpdesk.enabled"` (not stub) | 🔴 |
+| 3 | Helpdesk nav served by Navigation API (not hardcoded `nav-items.ts`) | 🔴 |
+| 4 | One Helpdesk event → platform Notification Service → user bell | 🔴 |
+| 5 | One Helpdesk action audited via platform AuditLog Service | 🔴 |
+| 6 | Cross-tenant test passes: org A cannot see org B Helpdesk data | 🔴 |
+| 7 | `check_no_direct_llm_imports.py` warn-only AND non-increasing 7 days | 🔴 |
+| 8 | AI demo slice (ADR-038) in development (epic + ≥2 tasks complete) | 🔴 |
+
+> Until ALL 8 pass: no new module work, no new shared capabilities. Round selection constrained to gate items only.
 
 ---
 
