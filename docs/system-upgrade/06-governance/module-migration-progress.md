@@ -10,7 +10,9 @@
 > - A module may not be marked `migrated` until all evidence columns are green.
 > - **AI/Voice readiness is mandatory.** A module cannot be marked `migrated` until `ai_chat != "not_started"`. `exception_approved` counts if documented.
 >
-> **Status values (overall):** `not_started` | `inventory_in_progress` | `inventory_complete` | `api_in_progress` | `ui_in_progress` | `tests_in_progress` | `blocked` | `ready_for_review` | `migrated` | `deprecated` | `intentionally_removed`
+> **Status values (overall):** `not_started` | `inventory_in_progress` | `inventory_complete` | `frontend_scaffold_mock` | `api_in_progress` | `ui_in_progress` | `tests_in_progress` | `blocked` | `ready_for_review` | `migrated` | `deprecated` | `intentionally_removed`
+>
+> `frontend_scaffold_mock` (added 2026-05-01): platform-ui pages built and wired to a MOCK_MODE client; flips to real data on a single config toggle once backend lands. See `lib/api/<module>.ts MOCK_MODE` flag.
 >
 > **Status values (`ai_chat` / `voice_agent` columns):**
 > - `not_started` — no AI metadata declared (Level 0)
@@ -95,7 +97,7 @@
 | module_key | display_name | legacy_location | legacy_inventory | backend_api | platform_ui | shared_caps | security_tests | tenant_tests | e2e_tests | i18n | ai_chat | voice_agent | data_contract | module_manifest | docs | last_round | overall_status |
 |-----------|-------------|----------------|-----------------|-------------|-------------|------------|---------------|-------------|----------|------|--------|------------|--------------|---------------|------|-----------|---------------|
 | `ai_providers` | AI Provider Gateway | `apps/ai_providers/` | ❌ | 🟡 | ❌ | ✅ gateway | ❌ | ❌ | ❌ | ➖ | ➖ | ➖ | ❌ | ❌ | ❌ | R031 | `api_in_progress` |
-| `helpdesk` | IT Helpdesk | `apps/helpdesk/` | ❌ | 🟡 | ❌ | 🟡 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | R040 | `api_in_progress` |
+| `helpdesk` | IT Helpdesk | `apps/helpdesk/` | ✅ | 🟡 | 🟡 (mock) | 🟡 | ❌ | ❌ | ❌ | ❌ | 🟡 (page contexts) | ❌ | ❌ | ❌ | ✅ (3 docs) | Phase A scaffold | `frontend_scaffold_mock` |
 | `ala` | ALA Voice Agent | `apps/ala/` | ❌ | 🟡 | ❌ | 🟡 | ❌ | ❌ | ❌ | ❌ | ❌ | 🟡 | ❌ | ❌ | ❌ | R040 | `api_in_progress` |
 | `ai_agents` | AI Agents Platform | `apps/ai_agents/` | ❌ | 🟡 | ❌ | 🟡 | ❌ | ❌ | ❌ | ❌ | ❌ | ➖ | ❌ | ❌ | ❌ | Sprint4 | `api_in_progress` |
 | `floating_assistant` | Floating AI Assistant | `apps/floating_assistant/` | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | — | `not_started` |
