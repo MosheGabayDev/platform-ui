@@ -2,7 +2,7 @@
 
 **Phase:** P1 — runs in parallel with foundation slices (no backend dependency)
 **Track:** platform-ui
-**Status:** ⬜ ready (post-AI-shell-scoping)
+**Status:** ✅ done 2026-05-01
 **Depends on:** AI-shell-scoping ✅
 **Estimate:** ~4 hours
 
@@ -29,15 +29,15 @@ First slice of the global floating AI assistant. ZERO LLM wiring. Validates layo
 Per ADR-038, the platform is "AI-ready" architecturally during P1; the UI shell can land alongside the foundation work. AI-shell-A has NO backend dependency, runs parallel to R-OPS-01 / R042-BE-min etc. without blocking them.
 
 ## Tasks (to be split when this round is next-up)
-- [ ] T01 — Zustand store `useAssistantSession` with 9 states, transitions for idle paths only (~45 min)
-- [ ] T02 — `useRegisterPageContext()` hook + `PageContext` type definition (~30 min)
-- [ ] T03 — `FloatingAIButton` component (RTL-aware, accessible, animation) (~45 min)
-- [ ] T04 — `AIDrawer` component (RTL slide-in, backdrop, focus trap, escape close) (~60 min)
-- [ ] T05 — Mount FAB+Drawer in `app/(dashboard)/layout.tsx` (~15 min)
-- [ ] T06 — Wire `useRegisterPageContext()` on the 5 first-wave pages (~30 min)
-- [ ] T07 — `ContextDebugPanel` (dev-mode only, behind `process.env.NODE_ENV === 'development'`) (~30 min)
-- [ ] T08 — Tests: unit (Vitest) for store transitions; E2E (Playwright) for FAB visible / open-close / nav-persistence (~45 min)
-- [ ] T09 — Mobile + RTL manual smoke (verify FAB doesn't collide with bottom-nav, drawer opens from start-side correctly) (~15 min)
+- [x] T01 — Zustand store `useAssistantSession` with 9 states, transitions for idle paths only (~45 min)
+- [x] T02 — `useRegisterPageContext()` hook + `PageContext` type definition (~30 min)
+- [x] T03 — `FloatingAIButton` component (RTL-aware, accessible, animation) (~45 min)
+- [x] T04 — `AIDrawer` component (RTL slide-in, backdrop, focus trap, escape close) (~60 min)
+- [x] T05 — Mount FAB+Drawer in `app/(dashboard)/layout.tsx` (~15 min)
+- [x] T06 — Wire `useRegisterPageContext()` on the 5 first-wave pages (~30 min)
+- [x] T07 — `ContextDebugPanel` (dev-mode only, behind `process.env.NODE_ENV === 'development'`) (~30 min)
+- [x] T08 — Tests: unit (Vitest) for store transitions; E2E (Playwright) for FAB visible / open-close / nav-persistence (~45 min)
+- [x] T09 — Mobile + RTL manual smoke (verify FAB doesn't collide with bottom-nav, drawer opens from start-side correctly) (~15 min)
 
 ## Acceptance Criteria
 - [ ] FAB renders on `/dashboard`, `/users`, `/users/<id>`, `/organizations`, `/roles` — clicking opens the drawer
