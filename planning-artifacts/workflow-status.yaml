@@ -1,0 +1,41 @@
+project: platform-ui
+level: 4
+last_updated: 2026-05-01
+adoption_mode: brownfield
+
+# This project pre-dates BMAD adoption. The existing plan lives in
+# docs/system-upgrade/ — see ./brownfield-context.md (created by
+# bmad-document-project) for the mapping between existing artifacts
+# and BMAD phases.
+
+phases:
+  analysis:
+    product-brief: pre-existing  # docs/system-upgrade/03-roadmap/master-roadmap.md §1 Vision
+    research: pre-existing       # docs/system-upgrade/01-foundations/
+
+  planning:
+    prd: pre-existing             # docs/system-upgrade/03-roadmap/master-roadmap.md
+    tech-spec: pre-existing       # docs/system-upgrade/04-capabilities/, 05-ai/
+    ux-design: pre-existing       # docs/design/
+
+  solutioning:
+    architecture: pre-existing    # docs/ARCHITECTURE.md + 01-foundations/10-architecture-target.md
+    epics-stories: in-progress    # docs/system-upgrade/10-tasks/ (9 epics, 2 split to tasks)
+
+  implementation:
+    sprint-planning: not-started
+    current-sprint: null
+    current-story: null
+
+# Pipeline goal — full BMAD pipeline starting AI-shell-A
+target_pipeline:
+  - bmad-document-project
+  - bmad-review-adversarial-general
+  - bmad-check-implementation-readiness
+  - bmad-create-epics-and-stories
+  - bmad-create-story
+  - bmad-dev-story
+  - bmad-code-review
+
+current_step: bmad-document-project
+first_target_epic: AI-shell-A

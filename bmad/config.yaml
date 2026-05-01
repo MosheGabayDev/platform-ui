@@ -1,0 +1,15 @@
+project_name: platform-ui
+project_type: web-app
+project_level: 4
+user_name: Moshe Gabay
+user_skill_level: intermediate
+communication_language: Hebrew
+document_output_language: English
+planning_artifacts: ./planning-artifacts
+implementation_artifacts: ./implementation-artifacts
+project_knowledge: ./docs
+notes: |
+  Brownfield project — pre-existing comprehensive plan in docs/system-upgrade/.
+  Master roadmap (SSOT): docs/system-upgrade/03-roadmap/master-roadmap.md
+  Workflow: single-trunk on master (CLAUDE.md §Workflow Rules) — no PRs, no feature branches.
+  BMAD adopted 2026-05-01 as the review + implementation framework on top of the existing plan.
