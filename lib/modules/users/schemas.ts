@@ -44,6 +44,12 @@ export const editUserSchema = z.object({
   is_admin: z.boolean(),
   is_manager: z.boolean(),
   is_active: z.boolean(),
+  is_approved: z.boolean(),
+  mfa_enabled: z.boolean(),
+  mfa_exempt: z.boolean(),
+  email_confirmed: z.boolean(),
+  is_system_admin: z.boolean(),
+  auto_approve_commands: z.boolean(),
 });
 
 export type CreateUserInput = z.infer<typeof createUserSchema>;

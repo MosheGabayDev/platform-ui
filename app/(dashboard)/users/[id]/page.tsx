@@ -42,6 +42,7 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
   const userId = parseInt(id, 10);
   const { data: session } = useSession();
   const isAdmin = hasRole(session, "admin", "system_admin");
+  const isSystemAdmin = hasRole(session, "system_admin");
   const [editOpen, setEditOpen] = useState(false);
   const [activityType, setActivityType] = useState<ActivityTypeFilter | undefined>(undefined);
 
@@ -255,6 +256,7 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
             onOpenChange={setEditOpen}
             isAdmin={isAdmin}
             isSelf={isSelf}
+            isSystemAdmin={isSystemAdmin}
             onSuccess={() => { setEditOpen(false); refetch(); }}
           />
         )}

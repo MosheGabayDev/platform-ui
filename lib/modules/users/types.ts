@@ -49,6 +49,8 @@ export interface UserDetail extends UserSummary {
   is_system_admin: boolean;
   email_confirmed: boolean;
   mfa_enabled: boolean;
+  mfa_exempt: boolean;
+  auto_approve_commands: boolean;
   preferred_language: string | null;
   timezone: string | null;
   email_notifications: boolean;
