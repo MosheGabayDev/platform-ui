@@ -1,0 +1,42 @@
+name: Daily smoke
+
+on:
+  schedule:
+    # 06:00 UTC daily (≈ 09:00 Israel time)
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+jobs:
+  e2e-smoke:
+    name: Playwright smoke against TEST environment
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PLAYWRIGHT_BASE_URL: ${{ secrets.PLAYWRIGHT_TEST_URL }}
+      PLAYWRIGHT_USER: ${{ secrets.PLAYWRIGHT_TEST_USER }}
+      PLAYWRIGHT_PASS: ${{ secrets.PLAYWRIGHT_TEST_PASS }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run smoke tests
+        run: npx playwright test tests/e2e/smoke/ tests/e2e/auth/
+
+      - name: Upload trace on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: test-results/
+          retention-days: 7

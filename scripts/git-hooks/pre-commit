@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Pre-commit hook (ADR-037 — compensating control #2).
+# Runs typecheck + lint on staged TS/TSX changes. Vitest + E2E run in CI, not locally
+# (too slow for a commit hook). Use --no-verify only in emergency.
+set -euo pipefail
+
+# Only check staged files; skip if no JS/TS changes.
+STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx|js|jsx)$' || true)
+
+if [ -z "$STAGED" ]; then
+  exit 0
+fi
+
+echo "[pre-commit] typecheck..."
+npm run typecheck --silent
+
+echo "[pre-commit] lint..."
+npm run lint --silent
+
+echo "[pre-commit] OK."

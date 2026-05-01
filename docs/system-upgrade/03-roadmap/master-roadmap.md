@@ -247,7 +247,7 @@ The existing `platformengineer` PostgreSQL DB is the migration base. The platfor
 ### Definition of Done
 - [ ] Every acceptance criterion passes
 - [ ] Out-of-scope not touched
-- [ ] Tests run and documented (X passed / Y total)
+- [ ] Tests run, evidence linked: `Tests-CI: <github-actions-run-url>` in closing commit (per ADR-042)
 - [ ] No legacy patterns introduced (no raw `org_id` from request, no `import openai`, no `render_template` in `/api/*`)
 - [ ] Security checks passed
 - [ ] Tenant isolation: every new DB query scoped by `org_id`

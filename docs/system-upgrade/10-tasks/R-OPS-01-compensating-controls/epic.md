@@ -30,14 +30,14 @@ ADR-037 + ADR-042 are accepted but unenforced. Until enforcement is live, every 
 Tooling-first (Vitest + coverage), then policy enforcement (pre-commit + CI gates), then automation (daily smoke). Each task independent.
 
 ## Tasks
-- [ ] T01 — Install Vitest + c8 + write smoke unit test for `lib/utils.ts cn()`
-- [ ] T02 — Generate initial coverage baseline + check `tests/.coverage-baseline.json` into repo
-- [ ] T03 — GitHub Actions: add `coverage-gate` job to existing CI (fail if layer drops >1pp)
-- [ ] T04 — Pre-commit hook (Husky or simple `.git/hooks/pre-commit`) — typecheck + lint + smoke E2E
-- [ ] T05 — High-risk allowlist detector script: `scripts/check-high-risk-commit.sh` + CI step
-- [ ] T06 — Daily smoke GitHub Actions cron workflow (`.github/workflows/daily-smoke.yml`)
-- [ ] T07 — Update `10-tasks/_template/tasks/T01-example.md` Evidence section per ADR-042
-- [ ] T08 — Update `master-roadmap §10` DoD wording to reference Tests-CI URL
+- [x] T01 — Vitest + @vitest/coverage-v8 installed; `vitest.config.ts` + `lib/utils.test.ts` (5/5 pass) + scripts (test, test:watch, test:cov)
+- [x] T02 — `tests/.coverage-baseline.json` checked in with current per-layer numbers + ADR-042 target floors
+- [x] T03 — `.github/workflows/ci.yml` runs typecheck + lint + test:cov + coverage gate + high-risk gate + build
+- [x] T04 — `scripts/git-hooks/pre-commit` (typecheck + lint on staged TS) + `scripts/install-git-hooks.sh` installer
+- [x] T05 — `scripts/check-high-risk-commit.mjs` — wired into CI (`ci.yml`)
+- [x] T06 — `.github/workflows/daily-smoke.yml` cron (06:00 UTC) runs Playwright smoke + auth specs
+- [x] T07 — `10-tasks/_template/tasks/T01-example.md` Evidence section updated per ADR-042
+- [x] T08 — `master-roadmap §10` DoD wording updated to require `Tests-CI: <url>` in commit trailer
 
 ## Acceptance Criteria
 - [ ] `npm run test` runs Vitest, exits 0

@@ -20,7 +20,7 @@
 - Unit: <which file, what cases>
 - Integration: <which flow>
 - Manual: <browser steps>
-- Evidence: <X passed / Y total>
+- Evidence: `Tests-CI: <github-actions-run-url>` (per ADR-042 — replaces "paste counts")
 
 ## Definition of Done
 - [ ] All AC checked
