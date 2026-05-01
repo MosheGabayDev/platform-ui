@@ -18,6 +18,7 @@ const resetStore = () =>
     inFlightDraft: "",
     pendingConfirmationTokenId: null,
     currentPageContext: null,
+      pendingProposal: null,
   });
 
 beforeEach(resetStore);

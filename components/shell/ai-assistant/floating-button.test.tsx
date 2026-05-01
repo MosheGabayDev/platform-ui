@@ -11,6 +11,7 @@ const resetStore = () =>
     inFlightDraft: "",
     pendingConfirmationTokenId: null,
     currentPageContext: null,
+      pendingProposal: null,
   });
 
 beforeEach(resetStore);
@@ -39,6 +40,7 @@ describe("FloatingAIButton (Story 1.3)", () => {
       inFlightDraft: "",
       pendingConfirmationTokenId: null,
       currentPageContext: null,
+      pendingProposal: null,
     });
     const { container } = render(<FloatingAIButton />);
     expect(container.firstChild).toBeNull();

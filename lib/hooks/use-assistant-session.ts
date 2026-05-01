@@ -60,6 +60,28 @@ export interface PageContext {
   voiceEligible?: boolean;
 }
 
+/**
+ * AIActionDescriptor v1 minimal shape (per 05-ai/canonical-terms.md).
+ * Backend wires the full schema in AI-shell-C live mode (R051).
+ */
+export type CapabilityLevel = "READ" | "WRITE_LOW" | "WRITE_HIGH" | "DESTRUCTIVE";
+
+export interface ActionProposal {
+  /** Server-issued confirmation token; mock uses a UUID-ish string. */
+  tokenId: string;
+  /** Stable action identifier — e.g. "users.deactivate". */
+  actionId: string;
+  /** Human-readable action label for the preview card. */
+  label: string;
+  /** What entity the action targets (free-form summary). */
+  targetSummary: string;
+  capabilityLevel: CapabilityLevel;
+  /** Absolute token expiry time (ms epoch). */
+  expiresAt: number;
+  /** Parameters echoed back to the user for confirmation. */
+  params: Record<string, unknown>;
+}
+
 export interface AssistantSessionStore {
   // State
   state: AssistantState;
@@ -87,7 +109,15 @@ export interface AssistantSessionStore {
   receiveResponse: (text: string) => void;
   failChat: (subtype: ErrorSubtype) => void;
 
-  // TODO(AI-shell-C): proposeAction, confirmAction, rejectAction, expireConfirmation
+  // Active action proposal (AI-shell-C scaffold) — null when no proposal pending
+  pendingProposal: ActionProposal | null;
+
+  // Action proposal flow (AI-shell-C scaffold) — mock until R051 AIActionRegistry lands
+  proposeAction: (proposal: ActionProposal) => void;
+  confirmAction: (tokenId: string) => void;
+  rejectAction: (tokenId: string, reason?: string) => void;
+  expireConfirmation: () => void;
+
   // TODO(AI-shell-D): startVoiceListening, voiceTranscriptReceived, etc.
 }
 
@@ -101,6 +131,7 @@ export const useAssistantSession = create<AssistantSessionStore>()((set) => ({
   inFlightDraft: "",
   pendingConfirmationTokenId: null,
   currentPageContext: null,
+  pendingProposal: null,
 
   openDrawer: () =>
     set((s) => {
@@ -193,5 +224,52 @@ export const useAssistantSession = create<AssistantSessionStore>()((set) => ({
     set((s) => {
       if (s.state.kind !== "chatting_sending") return s;
       return { ...s, state: { kind: "error", subtype } };
+    }),
+
+  proposeAction: (proposal) =>
+    set((s) => {
+      // Accepts proposals from chatting_sending (LLM responded with an action)
+      // or chatting_idle (test/programmatic injection).
+      if (s.state.kind !== "chatting_sending" && s.state.kind !== "chatting_idle") return s;
+      return {
+        ...s,
+        state: {
+          kind: "awaiting_action_confirmation",
+          tokenId: proposal.tokenId,
+          expiresAt: proposal.expiresAt,
+        },
+        pendingProposal: proposal,
+        pendingConfirmationTokenId: proposal.tokenId,
+      };
+    }),
+
+  confirmAction: (tokenId) =>
+    set((s) => {
+      if (s.state.kind !== "awaiting_action_confirmation") return s;
+      if (s.state.tokenId !== tokenId) return s;
+      return { ...s, state: { kind: "executing_action" } };
+    }),
+
+  rejectAction: (tokenId) =>
+    set((s) => {
+      if (s.state.kind !== "awaiting_action_confirmation") return s;
+      if (s.state.tokenId !== tokenId) return s;
+      return {
+        ...s,
+        state: { kind: "chatting_idle" },
+        pendingProposal: null,
+        pendingConfirmationTokenId: null,
+      };
+    }),
+
+  expireConfirmation: () =>
+    set((s) => {
+      if (s.state.kind !== "awaiting_action_confirmation") return s;
+      return {
+        ...s,
+        state: { kind: "error", subtype: "confirmation_expired" },
+        pendingProposal: null,
+        pendingConfirmationTokenId: null,
+      };
     }),
 }));

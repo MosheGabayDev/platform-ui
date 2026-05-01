@@ -10,6 +10,7 @@ const resetStore = () =>
     inFlightDraft: "",
     pendingConfirmationTokenId: null,
     currentPageContext: null,
+      pendingProposal: null,
   });
 
 describe("useAssistantSession — initial state (AC #1)", () => {
@@ -59,6 +60,7 @@ describe("useAssistantSession — close transition (AC #3)", () => {
       inFlightDraft: "draft text",
       pendingConfirmationTokenId: null,
       currentPageContext: null,
+      pendingProposal: null,
     });
     useAssistantSession.getState().closeDrawer();
     const s = useAssistantSession.getState();
@@ -76,6 +78,7 @@ describe("useAssistantSession — close transition (AC #3)", () => {
       inFlightDraft: "",
       pendingConfirmationTokenId: "tok-abc-123",
       currentPageContext: null,
+      pendingProposal: null,
     });
     useAssistantSession.getState().closeDrawer();
     expect(useAssistantSession.getState().pendingConfirmationTokenId).toBe("tok-abc-123");
@@ -217,16 +220,76 @@ describe("useAssistantSession — draft + persistence (AC #6 partial)", () => {
   // route changes by design (no per-route reset).
 });
 
-describe("useAssistantSession — AI-shell-C/D transitions NOT yet wired", () => {
-  it("store does not expose proposeAction / voice actions", () => {
+describe("useAssistantSession — AI-shell-D transitions NOT yet wired", () => {
+  it("store does not expose voice actions yet", () => {
     const actions = useAssistantSession.getState();
-    // sendMessage/receiveResponse/failChat ARE now wired (AI-shell-B Story 2.1).
-    // proposeAction et al. land in AI-shell-C; voice in AI-shell-D.
-    expect((actions as unknown as Record<string, unknown>).proposeAction).toBeUndefined();
-    expect((actions as unknown as Record<string, unknown>).confirmAction).toBeUndefined();
-    expect((actions as unknown as Record<string, unknown>).rejectAction).toBeUndefined();
-    expect((actions as unknown as Record<string, unknown>).expireConfirmation).toBeUndefined();
+    // sendMessage/receiveResponse/failChat (AI-shell-B Story 2.1) AND
+    // proposeAction/confirmAction/rejectAction/expireConfirmation
+    // (AI-shell-C scaffold) are now wired. Voice actions land in AI-shell-D.
     expect((actions as unknown as Record<string, unknown>).startVoiceListening).toBeUndefined();
+    expect((actions as unknown as Record<string, unknown>).voiceTranscriptReceived).toBeUndefined();
+  });
+});
+
+describe("useAssistantSession — action proposal flow (AI-shell-C scaffold)", () => {
+  beforeEach(resetStore);
+
+  const makeProposal = (tokenId = "tok-test-1") => ({
+    tokenId,
+    actionId: "users.deactivate",
+    label: "Deactivate user",
+    targetSummary: "user@example.com (id 42)",
+    capabilityLevel: "WRITE_HIGH" as const,
+    expiresAt: Date.now() + 30_000,
+    params: { user_id: 42 },
+  });
+
+  it("proposeAction from chatting_idle → awaiting_action_confirmation", () => {
+    useAssistantSession.getState().openDrawer();
+    useAssistantSession.getState().proposeAction(makeProposal());
+    const s = useAssistantSession.getState();
+    expect(s.state.kind).toBe("awaiting_action_confirmation");
+    expect(s.pendingProposal?.actionId).toBe("users.deactivate");
+    expect(s.pendingConfirmationTokenId).toBe("tok-test-1");
+  });
+
+  it("confirmAction matching tokenId → executing_action", () => {
+    useAssistantSession.getState().openDrawer();
+    useAssistantSession.getState().proposeAction(makeProposal("tok-A"));
+    useAssistantSession.getState().confirmAction("tok-A");
+    expect(useAssistantSession.getState().state.kind).toBe("executing_action");
+  });
+
+  it("confirmAction with wrong tokenId is no-op", () => {
+    useAssistantSession.getState().openDrawer();
+    useAssistantSession.getState().proposeAction(makeProposal("tok-A"));
+    useAssistantSession.getState().confirmAction("tok-WRONG");
+    expect(useAssistantSession.getState().state.kind).toBe("awaiting_action_confirmation");
+  });
+
+  it("rejectAction matching tokenId → chatting_idle, clears proposal", () => {
+    useAssistantSession.getState().openDrawer();
+    useAssistantSession.getState().proposeAction(makeProposal("tok-B"));
+    useAssistantSession.getState().rejectAction("tok-B", "not now");
+    const s = useAssistantSession.getState();
+    expect(s.state.kind).toBe("chatting_idle");
+    expect(s.pendingProposal).toBeNull();
+    expect(s.pendingConfirmationTokenId).toBeNull();
+  });
+
+  it("expireConfirmation → error[confirmation_expired]", () => {
+    useAssistantSession.getState().openDrawer();
+    useAssistantSession.getState().proposeAction(makeProposal());
+    useAssistantSession.getState().expireConfirmation();
+    const s = useAssistantSession.getState();
+    expect(s.state).toEqual({ kind: "error", subtype: "confirmation_expired" });
+    expect(s.pendingProposal).toBeNull();
+  });
+
+  it("expireConfirmation no-op when not awaiting confirmation", () => {
+    useAssistantSession.getState().openDrawer();
+    useAssistantSession.getState().expireConfirmation();
+    expect(useAssistantSession.getState().state.kind).toBe("chatting_idle");
   });
 });
 

@@ -24,6 +24,7 @@ import { useAssistantSession } from "@/lib/hooks/use-assistant-session";
 import { ContextDebugPanel } from "./context-debug";
 import { ChatTranscript } from "./chat-transcript";
 import { MessageInput } from "./message-input";
+import { ActionPreviewCard } from "./action-preview-card";
 
 export function AIDrawer() {
   const drawerOpen = useAssistantSession((s) => s.drawerOpen);
@@ -67,6 +68,7 @@ export function AIDrawer() {
             </div>
           )}
           <ChatTranscript />
+          <ActionPreviewCard />
           <ContextDebugPanel />
         </div>
 

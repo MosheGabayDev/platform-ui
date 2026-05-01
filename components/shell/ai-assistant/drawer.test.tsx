@@ -11,6 +11,7 @@ const resetStore = () =>
     inFlightDraft: "",
     pendingConfirmationTokenId: null,
     currentPageContext: null,
+      pendingProposal: null,
   });
 
 beforeEach(resetStore);
@@ -31,6 +32,7 @@ describe("AIDrawer (Story 1.4)", () => {
       inFlightDraft: "",
       pendingConfirmationTokenId: null,
       currentPageContext: null,
+      pendingProposal: null,
     });
     render(<AIDrawer />);
     expect(screen.getByText("AI Assistant")).toBeTruthy();
@@ -45,6 +47,7 @@ describe("AIDrawer (Story 1.4)", () => {
       inFlightDraft: "",
       pendingConfirmationTokenId: null,
       currentPageContext: null,
+      pendingProposal: null,
     });
     const { rerender } = render(<AIDrawer />);
 
@@ -66,6 +69,7 @@ describe("AIDrawer (Story 1.4)", () => {
       inFlightDraft: "",
       pendingConfirmationTokenId: null,
       currentPageContext: null,
+      pendingProposal: null,
     });
     render(<AIDrawer />);
     const dialog = screen.getByRole("dialog");
