@@ -173,17 +173,66 @@ describe("useAssistantSession — draft + persistence (AC #6 partial)", () => {
   // route changes by design (no per-route reset).
 });
 
-describe("useAssistantSession — AI-shell-B/C transitions NOT yet wired (AC #7)", () => {
-  it("store does not expose sendMessage / proposeAction / voice actions", () => {
+describe("useAssistantSession — AI-shell-C/D transitions NOT yet wired", () => {
+  it("store does not expose proposeAction / voice actions", () => {
     const actions = useAssistantSession.getState();
-    // These actions land in subsequent rounds. Asserting their absence
-    // protects against accidental over-eager implementation.
-    expect((actions as unknown as Record<string, unknown>).sendMessage).toBeUndefined();
-    expect((actions as unknown as Record<string, unknown>).receiveResponse).toBeUndefined();
+    // sendMessage/receiveResponse/failChat ARE now wired (AI-shell-B Story 2.1).
+    // proposeAction et al. land in AI-shell-C; voice in AI-shell-D.
     expect((actions as unknown as Record<string, unknown>).proposeAction).toBeUndefined();
     expect((actions as unknown as Record<string, unknown>).confirmAction).toBeUndefined();
     expect((actions as unknown as Record<string, unknown>).rejectAction).toBeUndefined();
     expect((actions as unknown as Record<string, unknown>).expireConfirmation).toBeUndefined();
     expect((actions as unknown as Record<string, unknown>).startVoiceListening).toBeUndefined();
+  });
+});
+
+describe("useAssistantSession — chat actions (AI-shell-B Story 2.1)", () => {
+  beforeEach(resetStore);
+
+  it("sendMessage from chatting_idle → chatting_sending + appends user message", () => {
+    useAssistantSession.getState().openDrawer();
+    useAssistantSession.getState().sendMessage("hello");
+    const s = useAssistantSession.getState();
+    expect(s.state).toEqual({ kind: "chatting_sending" });
+    expect(s.transcript).toHaveLength(1);
+    expect(s.transcript[0].role).toBe("user");
+    expect(s.transcript[0].content).toBe("hello");
+    expect(s.inFlightDraft).toBe("");
+  });
+
+  it("sendMessage no-op from non-chatting_idle (e.g. closed)", () => {
+    const before = useAssistantSession.getState();
+    useAssistantSession.getState().sendMessage("hello");
+    const after = useAssistantSession.getState();
+    expect(after.state).toEqual(before.state);
+    expect(after.transcript).toHaveLength(0);
+  });
+
+  it("receiveResponse from chatting_sending → chatting_idle + appends assistant message", () => {
+    useAssistantSession.getState().openDrawer();
+    useAssistantSession.getState().sendMessage("hi");
+    useAssistantSession.getState().receiveResponse("response text");
+    const s = useAssistantSession.getState();
+    expect(s.state).toEqual({ kind: "chatting_idle" });
+    expect(s.transcript).toHaveLength(2);
+    expect(s.transcript[1].role).toBe("assistant");
+    expect(s.transcript[1].content).toBe("response text");
+  });
+
+  it("receiveResponse no-op when not in chatting_sending", () => {
+    useAssistantSession.getState().openDrawer();
+    useAssistantSession.getState().receiveResponse("stray response");
+    const s = useAssistantSession.getState();
+    expect(s.state).toEqual({ kind: "chatting_idle" });
+    expect(s.transcript).toHaveLength(0);
+  });
+
+  it("failChat from chatting_sending → error[subtype]", () => {
+    useAssistantSession.getState().openDrawer();
+    useAssistantSession.getState().sendMessage("hi");
+    useAssistantSession.getState().failChat("network");
+    const s = useAssistantSession.getState();
+    expect(s.state).toEqual({ kind: "error", subtype: "network" });
+    expect(s.transcript).toHaveLength(1); // user msg retained
   });
 });

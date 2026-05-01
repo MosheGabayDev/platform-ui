@@ -82,7 +82,11 @@ export interface AssistantSessionStore {
   setPageContext: (context: PageContext) => void;
   clearPageContext: () => void;
 
-  // TODO(AI-shell-B): sendMessage, receiveResponse
+  // Chat actions (AI-shell-B Story 2.1) — wired to mock client until R048 partial completes
+  sendMessage: (text: string) => void;
+  receiveResponse: (text: string) => void;
+  failChat: (subtype: ErrorSubtype) => void;
+
   // TODO(AI-shell-C): proposeAction, confirmAction, rejectAction, expireConfirmation
   // TODO(AI-shell-D): startVoiceListening, voiceTranscriptReceived, etc.
 }
@@ -143,4 +147,44 @@ export const useAssistantSession = create<AssistantSessionStore>()((set) => ({
   setPageContext: (context) => set((s) => ({ ...s, currentPageContext: context })),
 
   clearPageContext: () => set((s) => ({ ...s, currentPageContext: null })),
+
+  sendMessage: (text) =>
+    set((s) => {
+      // Only valid from a chat-idle state (open, ready to send)
+      if (s.state.kind !== "chatting_idle") return s;
+      const userMsg: Message = {
+        id: `u-${Date.now()}`,
+        role: "user",
+        content: text,
+        timestamp: Date.now(),
+      };
+      return {
+        ...s,
+        state: { kind: "chatting_sending" },
+        transcript: [...s.transcript, userMsg].slice(-50),
+        inFlightDraft: "",
+      };
+    }),
+
+  receiveResponse: (text) =>
+    set((s) => {
+      if (s.state.kind !== "chatting_sending") return s;
+      const assistantMsg: Message = {
+        id: `a-${Date.now()}`,
+        role: "assistant",
+        content: text,
+        timestamp: Date.now(),
+      };
+      return {
+        ...s,
+        state: { kind: "chatting_idle" },
+        transcript: [...s.transcript, assistantMsg].slice(-50),
+      };
+    }),
+
+  failChat: (subtype) =>
+    set((s) => {
+      if (s.state.kind !== "chatting_sending") return s;
+      return { ...s, state: { kind: "error", subtype } };
+    }),
 }));

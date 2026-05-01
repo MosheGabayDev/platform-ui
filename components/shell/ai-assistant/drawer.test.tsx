@@ -34,7 +34,7 @@ describe("AIDrawer (Story 1.4)", () => {
     });
     render(<AIDrawer />);
     expect(screen.getByText("AI Assistant")).toBeTruthy();
-    expect(screen.getByText(/AI assistant coming soon/i)).toBeTruthy();
+    expect(screen.getByText(/Type below to start a conversation/i)).toBeTruthy();
   });
 
   it("calls closeDrawer when sheet closes (escape, backdrop, X button)", () => {

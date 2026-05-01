@@ -9,11 +9,13 @@
  * Spec: implementation-artifacts/stories/AI-shell-A-1.{3,4,5}.md
  */
 import { test, expect } from "@playwright/test";
-import { signIn } from "../helpers/auth";
+import { getAdminCredentials, login } from "../helpers/auth";
 
 test.describe("AI shell — FAB + drawer", () => {
   test.beforeEach(async ({ page }) => {
-    await signIn(page);
+    const creds = getAdminCredentials();
+    test.skip(creds === null, "E2E_ADMIN_EMAIL/PASSWORD not set");
+    if (creds) await login(page, creds);
   });
 
   test("FAB renders on dashboard, users, orgs, roles", async ({ page }) => {
