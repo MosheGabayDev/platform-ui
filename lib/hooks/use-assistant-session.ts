@@ -122,6 +122,13 @@ export const useAssistantSession = create<AssistantSessionStore>()((set) => ({
       // pendingConfirmationTokenId preserved across close — used by AI-shell-C
     })),
 
+  /**
+   * Transition to `error[subtype]` from any non-error state.
+   *
+   * **First-error-wins:** if already in `error`, this is a no-op. The caller
+   * must `dismissError()` before a new error can surface. Documented in tests
+   * (use-assistant-session.test.ts "preserves existing error").
+   */
   setError: (subtype) =>
     set((s) => {
       if (s.state.kind === "error") return s; // already in error

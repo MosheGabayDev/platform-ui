@@ -120,7 +120,7 @@ Authoritative round sequence. Each row is a single round; epic + atomic tasks li
 | **R044-min** | Navigation API for already-built routes only | platformengineer | R042-BE-min | 🔴 blocked |
 | **R045-min** | Feature Flags only (one flag: `helpdesk.enabled`) | platformengineer | R040 ✅ | ⬜ ready |
 | **R046-min** | One Helpdesk notification flow + Helpdesk audit | platformengineer | R045-min | 🔴 blocked |
-| **Helpdesk Phase A** | Ticket list + KPI dashboard (validates -min foundation) | platform-ui | R042-BE-min, R044-min, R045-min, R046-min | 🔴 blocked |
+| **Helpdesk Phase A** | Ticket list + KPI dashboard (validates -min foundation) | platform-ui | R042-BE-min, R044-min, R045-min, R046-min | 🟡 frontend scaffolded (mock); waits on -min rounds for live data |
 | **P1-Exit Gate** | All 8 ADR-041 criteria pass | review-only | Helpdesk Phase A | 🔴 blocked |
 | R042-BE | ModuleRegistry full (T04-T07: CompatLayer, enforcement, startup, ≥20 tests) | platformengineer | Helpdesk Phase A | 🔴 blocked |
 | R043 | AI Service Routing Matrix backend | platformengineer | R040 ✅ | 🔴 blocked on Helpdesk validation |
