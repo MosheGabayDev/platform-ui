@@ -14,6 +14,7 @@
  * Module Manager, etc.) without duplicating count-up / sparkline code.
  */
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { AreaChart, Area, ResponsiveContainer } from "recharts";
@@ -89,6 +90,15 @@ export function KpiCard({
   const count = useCountUp(numericValue, 1400, index * 120);
   const display = numericValue > 100 ? count.toLocaleString("he") : count;
   const sparkId = `kpi-spark-${index}`;
+  // Defer sparkline render until after first paint so ResponsiveContainer
+  // measures a non-zero parent width (Recharts emits width(-1)/height(-1)
+  // warnings during the initial 0×0 layout window — see Q30 in
+  // docs/system-upgrade/08-decisions/open-questions.md).
+  const [sparkReady, setSparkReady] = useState(false);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setSparkReady(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
 
   return (
     <motion.div custom={index} variants={scaleIn} initial="hidden" animate="show">
@@ -136,9 +146,10 @@ export function KpiCard({
               )}
             </CardContent>
             {spark && sparkColor && (
-              <div className="h-12 mt-1">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={spark} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+              <div className="h-12 mt-1 min-w-[40px]">
+                {sparkReady && (
+                  <ResponsiveContainer width="100%" height="100%" minWidth={40}>
+                    <AreaChart data={spark} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id={sparkId} x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor={sparkColor} stopOpacity={0.3} />
@@ -156,8 +167,9 @@ export function KpiCard({
                       animationDuration={1200}
                       animationEasing="ease-out"
                     />
-                  </AreaChart>
-                </ResponsiveContainer>
+                    </AreaChart>
+                  </ResponsiveContainer>
+                )}
               </div>
             )}
           </Card>
