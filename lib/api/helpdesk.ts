@@ -361,6 +361,150 @@ const MOCK_DETAILS: Record<
   },
 };
 
+// ---------------------------------------------------------------------------
+// Phase B mutations (mock — actual writes need R046-min audit + notifications)
+// ---------------------------------------------------------------------------
+
+export interface TicketActionResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface TakeTicketInput {
+  ticketId: number;
+}
+
+export interface ResolveTicketInput {
+  ticketId: number;
+  resolution: string;
+}
+
+export interface ReassignTicketInput {
+  ticketId: number;
+  assigneeId: number;
+  reason?: string;
+}
+
+export interface CommentTicketInput {
+  ticketId: number;
+  content: string;
+}
+
+/** In-mock-mode mutation tracker so detail page re-renders after a take/resolve. */
+function applyMockTransition(id: number, change: Partial<TicketSummary>): void {
+  const idx = MOCK_TICKETS.findIndex((t) => t.id === id);
+  if (idx >= 0) {
+    MOCK_TICKETS[idx] = {
+      ...MOCK_TICKETS[idx],
+      ...change,
+      updated_at: new Date().toISOString(),
+    };
+  }
+}
+
+function appendMockEvent(id: number, event: Omit<TicketEvent, "id">): void {
+  const events = MOCK_EVENTS_BY_TICKET[id] ?? [];
+  const nextId = (events[events.length - 1]?.id ?? 0) + 1;
+  MOCK_EVENTS_BY_TICKET[id] = [...events, { ...event, id: nextId }];
+}
+
+export async function takeTicket(input: TakeTicketInput): Promise<TicketActionResponse> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 200));
+    applyMockTransition(input.ticketId, { assignee_id: 7, status: "in_progress" });
+    appendMockEvent(input.ticketId, {
+      type: "assigned",
+      timestamp: new Date().toISOString(),
+      actor_id: 7,
+      actor_name: "Tech Tim",
+      description: "Assigned to Tech Tim (self)",
+    });
+    return { success: true, message: "(mock) Ticket assigned to you." };
+  }
+  const res = await fetch(`/api/proxy/helpdesk/api/tickets/${input.ticketId}/take`, {
+    method: "POST",
+    credentials: "include",
+  });
+  if (!res.ok) throw new Error(`takeTicket failed: ${res.status}`);
+  return res.json();
+}
+
+export async function resolveTicket(input: ResolveTicketInput): Promise<TicketActionResponse> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 250));
+    applyMockTransition(input.ticketId, { status: "resolved" });
+    appendMockEvent(input.ticketId, {
+      type: "resolved",
+      timestamp: new Date().toISOString(),
+      actor_id: 7,
+      actor_name: "Tech Tim",
+      description: `Resolved: ${input.resolution}`,
+    });
+    return { success: true, message: "(mock) Ticket resolved." };
+  }
+  const res = await fetch(`/api/proxy/helpdesk/api/tickets/${input.ticketId}/resolve`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ resolution: input.resolution }),
+  });
+  if (!res.ok) throw new Error(`resolveTicket failed: ${res.status}`);
+  return res.json();
+}
+
+export async function reassignTicket(input: ReassignTicketInput): Promise<TicketActionResponse> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 200));
+    applyMockTransition(input.ticketId, {
+      assignee_id: input.assigneeId,
+      status: "in_progress",
+    });
+    appendMockEvent(input.ticketId, {
+      type: "assigned",
+      timestamp: new Date().toISOString(),
+      actor_id: 1,
+      actor_name: "Manager Bot",
+      description: `Reassigned to user #${input.assigneeId}`,
+      detail: input.reason,
+    });
+    return { success: true, message: "(mock) Ticket reassigned." };
+  }
+  const res = await fetch(`/api/proxy/helpdesk/api/tickets/${input.ticketId}/reassign`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ assignee_id: input.assigneeId, reason: input.reason }),
+  });
+  if (!res.ok) throw new Error(`reassignTicket failed: ${res.status}`);
+  return res.json();
+}
+
+export async function commentOnTicket(
+  input: CommentTicketInput,
+): Promise<TicketActionResponse> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 150));
+    appendMockEvent(input.ticketId, {
+      type: "comment_added",
+      timestamp: new Date().toISOString(),
+      actor_id: 7,
+      actor_name: "Tech Tim",
+      description: input.content,
+    });
+    return { success: true, message: "(mock) Comment added." };
+  }
+  const res = await fetch(`/api/proxy/helpdesk/api/tickets/${input.ticketId}/comments`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ content: input.content }),
+  });
+  if (!res.ok) throw new Error(`commentOnTicket failed: ${res.status}`);
+  return res.json();
+}
+
+// ---------------------------------------------------------------------------
+
 export async function fetchTicket(id: number): Promise<TicketDetailResponse> {
   if (MOCK_MODE) {
     await new Promise((r) => setTimeout(r, 200));

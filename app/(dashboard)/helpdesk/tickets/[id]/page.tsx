@@ -46,6 +46,9 @@ import { TicketPriorityBadge } from "@/components/modules/helpdesk/ticket-priori
 import { fetchTicket } from "@/lib/api/helpdesk";
 import { queryKeys } from "@/lib/api/query-keys";
 import { useRegisterPageContext } from "@/lib/hooks/use-register-page-context";
+import { useSession } from "next-auth/react";
+import { hasRole } from "@/lib/auth/rbac";
+import { TicketActions } from "@/components/modules/helpdesk/ticket-actions";
 import { PAGE_EASE } from "@/lib/ui/motion";
 import type { TicketEvent, TicketEventType } from "@/lib/modules/helpdesk/types";
 
@@ -82,6 +85,8 @@ interface TicketDetailInnerProps {
 
 function TicketDetailInner({ id }: TicketDetailInnerProps) {
   const ticketId = Number(id);
+  const { data: session } = useSession();
+  const isAdmin = hasRole(session, "admin", "system_admin", "manager");
   const { data, isLoading, error } = useQuery({
     queryKey: queryKeys.helpdesk.ticket(ticketId),
     queryFn: () => fetchTicket(ticketId),
@@ -233,10 +238,7 @@ function TicketDetailInner({ id }: TicketDetailInnerProps) {
           </DetailSection>
 
           <DetailSection title="Actions">
-            <p className="text-sm text-muted-foreground">
-              Action buttons (take, resolve, reassign, comment) ship in Phase B
-              once R046-min audit + notifications backend lands.
-            </p>
+            <TicketActions ticket={ticket} canManage={isAdmin} />
           </DetailSection>
         </motion.div>
       </PageShell>
