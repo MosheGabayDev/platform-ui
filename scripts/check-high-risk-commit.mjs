@@ -15,18 +15,27 @@
 import { execSync } from "node:child_process";
 
 const HIGH_RISK_PATTERNS = [
+  // Authentication + AI billing/governance (cross-platform)
   /^apps\/authentication\//,
   /^apps\/ai_providers\//,
   /^lib\/auth\//,
   /^app\/api\/auth\//,
+  // App factory + module registry (Flask-side global blast radius)
+  /^apps\/__init__\.py$/,
+  /^apps\/module_manager\/models\.py$/,
   // DB migrations
   /^scripts\/migrations\//,
   /^migrations\/.*\.py$/,
   /^.*alembic.*\.py$/i,
+  // Next.js auth + proxy (frontend cross-cutting)
+  /^middleware\.ts$/,
+  /^app\/api\/proxy\/\[\.\.\.path\]\/route\.ts$/,
   // Shared services blacklist (per docs/system-upgrade/02-rules/shared-services.md)
   /^lib\/api\/(client|query-keys)\.ts$/,
   /^components\/shared\/(action-button|confirm-action-dialog|permission-gate|feature-gate)\.tsx$/,
   /^lib\/hooks\/(use-platform-mutation|use-permission|use-feature-flag|use-dangerous-action)\.ts$/,
+  // Read-only shadcn primitives — modification is anti-pattern
+  /^components\/ui\//,
 ];
 
 function git(cmd) {

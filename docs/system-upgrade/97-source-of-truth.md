@@ -123,11 +123,20 @@
 |----------|------|
 | AI agent project instructions | `../../CLAUDE.md` |
 | Next.js architecture blueprint | `../ARCHITECTURE.md` |
+| Deep upgrade roadmap (5-tier upgrade plan, quick wins, dependency order, risk register) | `../UPGRADE_ROADMAP.md` |
 | Design system | `../design/DESIGN_SYSTEM.md` |
 | Design tokens | `../design/TOKENS.md` |
 | Animation library | `../design/ANIMATIONS.md` |
 | Component patterns | `../design/COMPONENTS.md` |
 | Mobile/PWA rules | `../design/MOBILE.md` |
+| Auth bridge readme | `../auth/README.md` |
+
+### Issue drafts (round contracts)
+
+| Category | Path |
+|----------|------|
+| Round R040–R049 issue bodies (until GitHub issues created) | `issues/R040-R049-issue-drafts.md` |
+| Round-specific issue drafts (e.g. R041D secrets gate) | `issues/R041D-secrets-gate-baseline-cleanup.md`, `issues/<round>-<slug>.md` |
 
 ---
 

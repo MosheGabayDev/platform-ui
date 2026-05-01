@@ -12,5 +12,14 @@ from new docs.
 
 For current authoritative plan: see `../master-roadmap.md`.
 
-These files may be deleted in a future cleanup once their full content is verified to be reflected
-in the SSOT or in supplementary capability/AI specs.
+## Retention decision (verified 2026-05-01)
+
+**Keep indefinitely — do NOT delete.** Per the coverage audit
+(`../../planning-artifacts/reorg-coverage-audit-2026-05-01.md`), these files
+contain deep prose that has no equivalent elsewhere:
+
+- Doc 12: section-level explanations of each phase's deliverables (master-roadmap is a summary table).
+- Doc 35: per-capability paragraphs explaining each dependency edge in the graph.
+- Doc 47: §4 capability inventory by domain (11 domains × ~10 capabilities each), §9 Data Sources schema spec, §13 risks register, §17 open questions.
+
+The master-roadmap is the SSOT for **plan-level** decisions; this archive is the SSOT for **deep capability/pillar prose**. Both are valid reads, used for different depths of inquiry.
