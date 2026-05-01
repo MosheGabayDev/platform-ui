@@ -89,3 +89,30 @@ These questions cannot be reliably answered from the codebase alone. Each needs 
 | Q18 | Is there any load balancer or autoscaling for the web-api pods? Or truly single-pod? | Determines real production reliability | `kubectl get hpa -n platform` |
 | Q19 | How is the RAG DB populated today? Manual? Automated pipeline? | Determines if a KB ingestion UI is needed in platform-ui | Read `apps/knowledge_ingestion/` |
 | Q20 | Is Redis in a persistent mode or ephemeral? If Redis restarts, what happens to in-flight Celery tasks? | Determines reliability of async task pipeline | K8s config + Redis config |
+
+---
+
+## Frontend — browser-side defects from E2E smoke run 2026-05-01
+
+Source: `planning-artifacts/reviews/2026-05-01-e2e-error-report.md`
+
+| # | Question | Why It Matters | How to Answer |
+|---|----------|---------------|---------------|
+| Q29 | `CommandDialog` in `components/ui/command.tsx` places `<DialogHeader>` as a sibling of `<DialogContent>` instead of inside it. Radix complains `DialogContent requires a DialogTitle`, and a `Cannot read properties of undefined (reading 'subscribe')` page-error fires in cmdk on Ctrl+K. CLAUDE.md forbids modifying `components/ui/`. Pick: (a) carve exception for primitive bugs, (b) ship corrected `CommandDialogV2` wrapper, or (c) re-init shadcn at newer version. | Page-errors crash error tracking and pollute Sentry. A11y warning blocks future a11y baseline. | Decide policy; pick a/b/c. |
+| Q30 | Recharts emits `width(-1) and height(-1) of chart should be greater than 0` × 10 — sparkline container measures 0×0 before parent layout settles. Add `minWidth/minHeight`, wrap in `ResponsiveContainer` with explicit aspect, or guard render until layout? | Charts may flash blank on first paint, regress dashboard UX. | Reproduce, find offending sparkline, set explicit dimensions. |
+| Q31 | Mock NextAuth bypasses Flask login but pages still call `/api/proxy/notifications`, `/api/proxy/monitoring/health`, `/api/proxy/ai-settings/*`, `/api/proxy/users`, `/api/proxy/organizations`, `/api/proxy/roles`. Backend-down these all return 401/404 and dominate the e2e error report. Pick: (a) MSW-mock in base fixture, (b) explicit MOCK_MODE flag per client (like helpdesk/ai), or (c) accept noise. | Without a pattern the report drowns in expected backend-down noise; real bugs get buried. | Decide; if (b), apply to notifications/monitoring/ai-settings/users/orgs/roles clients. |
+
+---
+
+## Helpdesk schema + RBAC (added 2026-05-01 — review-driven)
+
+Source: `planning-artifacts/reviews/2026-05-01-comprehensive-code-review.md` §4.1, §6, §4.4
+
+| # | Question | Why It Matters | How to Answer |
+|---|----------|---------------|---------------|
+| Q-HD-1 | **Priority enum: where does P1-P4 ↔ low/medium/high/critical mapping live?** Frontend currently maps in `lib/api/helpdesk.ts transformFlaskTicket()`. Is this temporary or canonical? | Two mappings (frontend + backend) is fragile. Whoever writes the next consumer (e.g. AI agent reading priority) needs to know the canonical enum. | Decide: (a) keep dual mapping, frontend-side as canonical UI display; (b) migrate Flask serializer to emit semantic + accept either on write; (c) frontend adopts P1-P4 internally. **Recommendation: (a)** — semantic on the wire when JSON-serializing for platform-ui, P1-P4 stays in DB. |
+| Q-HD-2 | **SLA tracking: confirm UI shows both response + resolution tracks.** Frontend types now expose `sla_response_breached`, `sla_resolution_breached`, plus computed `sla_breached`. Tickets list shows the computed flag; detail page shows both. | Two SLA tracks are real product state in legacy. Collapsing them in UI was the original drift bug. | Confirm: detail view shows both (current state ✅), list collapses to OR-combined for at-a-glance (current state ✅). Document the rule. |
+| Q-HD-3 | **`availableActions` RBAC validation flow.** Page-context declares actions branched by client-side `isAdmin`. Backend MUST re-check on invocation. Should `availableActions` itself be authoritative? | Affects whether `availableActions` is a security signal or just UX hint. If LLM reads denied actions, it could propose them. | Decide: (a) UX hint only, backend re-checks (current model); (b) authoritative client-side filter, AND backend re-checks (defense in depth). **Recommendation: (b)**. Capture as gate item before AI-shell-C live mode. |
+| Q-HD-4 | **`/api/ai/chat` request/response contract on Flask side.** Frontend sends `{message, context, contextVersion}`, expects `{text, contextVersion, actionProposal}`. Flask doesn't have this endpoint yet. | When R048 partial cleanup adds the endpoint, it MUST match frontend. Otherwise MOCK_MODE flip breaks. | Capture in `docs/system-upgrade/05-ai/provider-gateway.md` as the chat-surface contract. Reference Pydantic model when defined. |
+| Q-HD-5 | **`ticket_number` uniqueness scope: global or per-org?** Mock fixture uses `TKT-2026-01001`. Flask — is this org-prefixed or globally sequential? | If org A and org B both have `TKT-2026-01001`, displaying ticket_number alone is ambiguous in admin views. | Read `platformengineer/apps/helpdesk/models.py` Ticket model + the sequence/trigger that mints `ticket_number`. |
+| Q-HD-6 | **PII handling for `requester_email`.** Frontend type has it as `string \| null`; mock stores `null` to avoid fake-PII. Real Flask returns the email. Where is masking enforced? | Tickets list could leak email to non-admin viewers. AI assistant `dataSamples` could include it accidentally. | Decide: (a) Flask serializer redacts unless caller has `helpdesk.view_pii`; (b) frontend redacts unconditionally for non-admins; (c) both. **Recommendation: (a)+(b)** defense in depth. |
