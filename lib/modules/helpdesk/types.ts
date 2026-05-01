@@ -151,3 +151,50 @@ export interface TicketDetailResponse {
     events: TicketEvent[];
   };
 }
+
+/**
+ * TechnicianProfile — mirrors platformengineer/apps/helpdesk/models.py
+ * TechnicianProfile.to_dict(). user_id joins to the Users module for name+email.
+ */
+export interface TechnicianProfile {
+  id: number;
+  org_id: number;
+  user_id: number;
+  /** Display fields joined from Users module (mock includes them inline). */
+  name: string;
+  email: string;
+  skills: string[];
+  is_available: boolean;
+  max_concurrent: number;
+  active_tickets: number;
+  shift_start: string | null;
+  shift_end: string | null;
+  shift_days: number[];
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface TechniciansListResponse {
+  success: boolean;
+  data: {
+    technicians: TechnicianProfile[];
+    total: number;
+  };
+}
+
+export interface TechnicianUtilization {
+  user_id: number;
+  name: string;
+  active_tickets: number;
+  max_concurrent: number;
+  utilization_pct: number;
+  is_available: boolean;
+}
+
+export interface TechnicianUtilizationResponse {
+  success: boolean;
+  data: {
+    technicians: TechnicianUtilization[];
+    avg_utilization_pct: number;
+  };
+}

@@ -37,9 +37,11 @@ export const queryKeys = {
 
   // Module 04: Helpdesk (Phase A — list + KPI dashboard)
   helpdesk: {
-    all:     () => ["helpdesk"]                                    as const,
-    stats:   () => ["helpdesk", "stats"]                          as const,
-    tickets: (params?: object) => ["helpdesk", "tickets", params] as const,
-    ticket:  (id: number) => ["helpdesk", "ticket", id]          as const,
+    all:         () => ["helpdesk"]                                    as const,
+    stats:       () => ["helpdesk", "stats"]                          as const,
+    tickets:     (params?: object) => ["helpdesk", "tickets", params] as const,
+    ticket:      (id: number) => ["helpdesk", "ticket", id]          as const,
+    technicians: (availableOnly?: boolean) => ["helpdesk", "technicians", { availableOnly }] as const,
+    technicianUtilization: () => ["helpdesk", "technicians", "utilization"]      as const,
   },
 } as const;

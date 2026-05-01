@@ -1,5 +1,15 @@
 import { describe, it, expect } from "vitest";
-import { fetchHelpdeskStats, fetchTickets, fetchTicket, MOCK_MODE } from "./helpdesk";
+import {
+  fetchHelpdeskStats,
+  fetchTickets,
+  fetchTicket,
+  takeTicket,
+  resolveTicket,
+  commentOnTicket,
+  fetchTechnicians,
+  fetchTechnicianUtilization,
+  MOCK_MODE,
+} from "./helpdesk";
 
 describe("helpdesk client (mock mode)", () => {
   it("MOCK_MODE is enabled until R042-BE-min + R044-min + R045-min + R046-min land", () => {
@@ -59,5 +69,58 @@ describe("helpdesk client (mock mode)", () => {
     const res = await fetchTicket(1004);
     const created = res.data.events.find((e) => e.type === "created");
     expect(created?.actor_name).toBe("Monitoring Bot");
+  });
+
+  // -------------------------------------------------------------------------
+  // Phase B mutations + technicians
+  // -------------------------------------------------------------------------
+
+  it("takeTicket transitions ticket to in_progress + appends assigned event", async () => {
+    const res = await takeTicket({ ticketId: 1002 });
+    expect(res.success).toBe(true);
+    const detail = await fetchTicket(1002);
+    expect(detail.data.ticket.status).toBe("in_progress");
+    expect(detail.data.ticket.assignee_id).toBe(7);
+    expect(detail.data.events.some((e) => e.type === "assigned")).toBe(true);
+  });
+
+  it("resolveTicket transitions ticket to resolved + appends resolution event", async () => {
+    const res = await resolveTicket({ ticketId: 1002, resolution: "Fixed by reset" });
+    expect(res.success).toBe(true);
+    const detail = await fetchTicket(1002);
+    expect(detail.data.ticket.status).toBe("resolved");
+    const resolved = detail.data.events.find((e) => e.type === "resolved");
+    expect(resolved?.description).toContain("Fixed by reset");
+  });
+
+  it("commentOnTicket appends a comment event", async () => {
+    const before = await fetchTicket(1005);
+    const beforeCount = before.data.events.length;
+    await commentOnTicket({ ticketId: 1005, content: "Looking into this" });
+    const after = await fetchTicket(1005);
+    expect(after.data.events.length).toBe(beforeCount + 1);
+    expect(after.data.events[after.data.events.length - 1].type).toBe("comment_added");
+  });
+
+  it("fetchTechnicians returns 3 mock technicians", async () => {
+    const res = await fetchTechnicians();
+    expect(res.success).toBe(true);
+    expect(res.data.technicians.length).toBe(3);
+    expect(res.data.technicians[0].name).toBe("Tech Tim");
+  });
+
+  it("fetchTechnicians availableOnly filters off-shift", async () => {
+    const res = await fetchTechnicians(true);
+    expect(res.data.technicians.every((t) => t.is_available)).toBe(true);
+    expect(res.data.technicians.length).toBeLessThan(3);
+  });
+
+  it("fetchTechnicianUtilization computes per-tech and avg utilization", async () => {
+    const res = await fetchTechnicianUtilization();
+    expect(res.success).toBe(true);
+    expect(
+      res.data.technicians.every((t) => t.utilization_pct >= 0 && t.utilization_pct <= 100),
+    ).toBe(true);
+    expect(res.data.avg_utilization_pct).toBeGreaterThanOrEqual(0);
   });
 });

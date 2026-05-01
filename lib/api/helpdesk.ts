@@ -25,6 +25,9 @@ import type {
   TicketEvent,
   TicketPriority,
   FlaskPriorityCode,
+  TechnicianProfile,
+  TechniciansListResponse,
+  TechnicianUtilizationResponse,
 } from "@/lib/modules/helpdesk/types";
 
 export const MOCK_MODE = true;
@@ -543,4 +546,105 @@ export async function fetchTicket(id: number): Promise<TicketDetailResponse> {
       events: raw.data.events,
     },
   };
+}
+
+// ---------------------------------------------------------------------------
+// Technicians (Phase B)
+// ---------------------------------------------------------------------------
+
+const MOCK_TECHNICIANS: TechnicianProfile[] = [
+  {
+    id: 1,
+    org_id: 1,
+    user_id: 7,
+    name: "Tech Tim",
+    email: "tim@platform.local",
+    skills: ["VPN", "Network", "Linux", "Active Directory"],
+    is_available: true,
+    max_concurrent: 8,
+    active_tickets: 3,
+    shift_start: "08:00",
+    shift_end: "17:00",
+    shift_days: [0, 1, 2, 3, 4],
+    created_at: "2026-02-01T00:00:00Z",
+    updated_at: "2026-05-01T07:15:00Z",
+  },
+  {
+    id: 2,
+    org_id: 1,
+    user_id: 3,
+    name: "OnCall Olivia",
+    email: "olivia@platform.local",
+    skills: ["Infrastructure", "Performance", "Kubernetes", "Incident Response"],
+    is_available: true,
+    max_concurrent: 6,
+    active_tickets: 5,
+    shift_start: "00:00",
+    shift_end: "23:59",
+    shift_days: [0, 1, 2, 3, 4, 5, 6],
+    created_at: "2026-01-15T00:00:00Z",
+    updated_at: "2026-05-01T06:30:00Z",
+  },
+  {
+    id: 3,
+    org_id: 1,
+    user_id: 12,
+    name: "Help Hilda",
+    email: "hilda@platform.local",
+    skills: ["Email", "Office", "Endpoint"],
+    is_available: false,
+    max_concurrent: 5,
+    active_tickets: 0,
+    shift_start: "09:00",
+    shift_end: "18:00",
+    shift_days: [0, 1, 2, 3, 4],
+    created_at: "2026-03-01T00:00:00Z",
+    updated_at: "2026-04-29T18:00:00Z",
+  },
+];
+
+export async function fetchTechnicians(
+  availableOnly = false,
+): Promise<TechniciansListResponse> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 150));
+    const filtered = availableOnly
+      ? MOCK_TECHNICIANS.filter((t) => t.is_available)
+      : MOCK_TECHNICIANS;
+    return { success: true, data: { technicians: filtered, total: filtered.length } };
+  }
+  const qs = availableOnly ? "?available=true" : "";
+  const res = await fetch(`/api/proxy/helpdesk/api/technicians${qs}`);
+  if (!res.ok) throw new Error(`fetchTechnicians failed: ${res.status}`);
+  return res.json();
+}
+
+export async function fetchTechnicianUtilization(): Promise<TechnicianUtilizationResponse> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 100));
+    const technicians = MOCK_TECHNICIANS.map((t) => ({
+      user_id: t.user_id,
+      name: t.name,
+      active_tickets: t.active_tickets,
+      max_concurrent: t.max_concurrent,
+      utilization_pct:
+        t.max_concurrent > 0
+          ? Math.round((t.active_tickets / t.max_concurrent) * 1000) / 10
+          : 0,
+      is_available: t.is_available,
+    }));
+    const avg =
+      technicians.reduce((sum, t) => sum + t.utilization_pct, 0) /
+      Math.max(1, technicians.length);
+    return {
+      success: true,
+      data: {
+        technicians,
+        avg_utilization_pct: Math.round(avg * 10) / 10,
+      },
+    };
+  }
+  const res = await fetch("/api/proxy/helpdesk/api/technicians/utilization");
+  if (!res.ok) throw new Error(`fetchTechnicianUtilization failed: ${res.status}`);
+  return res.json();
 }
