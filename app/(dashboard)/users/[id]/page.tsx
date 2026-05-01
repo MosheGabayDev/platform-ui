@@ -32,6 +32,7 @@ import { fetchUser, setUserActive } from "@/lib/api/users";
 import { queryKeys } from "@/lib/api/query-keys";
 import { hasRole } from "@/lib/auth/rbac";
 import { useDangerousAction } from "@/lib/hooks/use-dangerous-action";
+import { useRegisterPageContext } from "@/lib/hooks/use-register-page-context";
 import { USER_ACTIONS } from "@/lib/platform/actions";
 import { PAGE_EASE } from "@/lib/ui/motion";
 import { useUserActivity } from "@/lib/modules/users/hooks";
@@ -54,6 +55,20 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
   });
 
   const user = data?.data?.user;
+  useRegisterPageContext({
+    pageKey: "users.detail",
+    route: `/users/${id}`,
+    entityType: "user",
+    entityId: id,
+    summary: user
+      ? `User detail: ${user.first_name ?? ""} ${user.last_name ?? ""} (${user.email}). Status: ${user.is_active ? "active" : "inactive"}.`
+      : `User detail page (loading user #${id}).`,
+    availableActions: isAdmin
+      ? user?.is_active
+        ? ["users.update", "users.deactivate"]
+        : ["users.update", "users.reactivate"]
+      : [],
+  });
 
   const { events: activityEvents, isLoading: activityLoading } = useUserActivity(
     user ? userId : null,

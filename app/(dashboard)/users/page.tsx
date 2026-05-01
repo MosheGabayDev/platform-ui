@@ -28,6 +28,7 @@ import { queryKeys } from "@/lib/api/query-keys";
 import { hasRole } from "@/lib/auth/rbac";
 import { PAGE_EASE } from "@/lib/ui/motion";
 import type { UsersListParams } from "@/lib/modules/users/types";
+import { useRegisterPageContext } from "@/lib/hooks/use-register-page-context";
 
 export default function UsersPage() {
   const router = useRouter();
@@ -37,6 +38,14 @@ export default function UsersPage() {
   const [params, setParams] = useState<UsersListParams>({ page: 1, per_page: 25 });
   const [search, setSearch] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
+
+  useRegisterPageContext({
+    pageKey: "users.list",
+    route: "/users",
+    entityType: "user",
+    summary: `Users list${search ? ` filtered by "${search}"` : ""}, page ${params.page}.`,
+    availableActions: isAdmin ? ["users.create", "users.export"] : [],
+  });
 
   const handleSearchChange = useCallback((value: string) => {
     setSearch(value);

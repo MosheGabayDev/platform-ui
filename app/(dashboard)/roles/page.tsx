@@ -27,6 +27,7 @@ import { queryKeys } from "@/lib/api/query-keys";
 import { hasRole } from "@/lib/auth/rbac";
 import { PAGE_EASE } from "@/lib/ui/motion";
 import type { RoleSummary } from "@/lib/modules/roles/types";
+import { useRegisterPageContext } from "@/lib/hooks/use-register-page-context";
 
 export default function RolesPage() {
   const router = useRouter();
@@ -35,6 +36,14 @@ export default function RolesPage() {
 
   const [search, setSearch] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
+
+  useRegisterPageContext({
+    pageKey: "roles.list",
+    route: "/roles",
+    entityType: "role",
+    summary: `Roles & permissions list${search ? ` filtered by "${search}"` : ""}.`,
+    availableActions: isSystemAdmin ? ["roles.create"] : [],
+  });
 
   const handleSearchChange = useCallback((value: string) => {
     setSearch(value);

@@ -26,6 +26,7 @@ import { fetchOrgs, fetchOrgStats } from "@/lib/api/organizations";
 import { queryKeys } from "@/lib/api/query-keys";
 import { PAGE_EASE } from "@/lib/ui/motion";
 import type { OrgsListParams } from "@/lib/modules/organizations/types";
+import { useRegisterPageContext } from "@/lib/hooks/use-register-page-context";
 
 export default function OrganizationsPage() {
   const router = useRouter();
@@ -33,6 +34,14 @@ export default function OrganizationsPage() {
   const [params, setParams] = useState<OrgsListParams>({ page: 1, per_page: 25 });
   const [search, setSearch] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
+
+  useRegisterPageContext({
+    pageKey: "orgs.list",
+    route: "/organizations",
+    entityType: "organization",
+    summary: `Organizations list${search ? ` filtered by "${search}"` : ""}, page ${params.page}.`,
+    availableActions: ["orgs.create"],
+  });
 
   const handleSearchChange = useCallback((value: string) => {
     setSearch(value);

@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCountUp } from "@/lib/hooks/use-count-up";
+import { useRegisterPageContext } from "@/lib/hooks/use-register-page-context";
 import { KpiCard } from "@/components/shared/stats";
 import { StatCardSkeleton, FeedItemSkeleton, ServiceRowSkeleton } from "@/components/shared/skeleton-card";
 import { fetchDashboardStats, fetchTimeSeries, fetchServiceHealth } from "@/lib/api/client";
@@ -80,6 +81,13 @@ function buildSpark(series: TimeSeriesData | undefined, key: "sessions" | "actio
 export default function DashboardPage() {
   const { data: stats, isLoading: statsLoading, error: statsError, refetch: refetchStats } =
     useQuery({ queryKey: queryKeys.dashboardStats, queryFn: fetchDashboardStats, refetchInterval: 60_000 });
+
+  useRegisterPageContext({
+    pageKey: "dashboard.home",
+    route: "/",
+    summary: "Platform dashboard with KPI cards (sessions, actions, profiles, error rate) and an activity timeseries.",
+    availableActions: [],
+  });
 
   const { data: series, isLoading: seriesLoading } =
     useQuery({ queryKey: queryKeys.timeSeries(30), queryFn: () => fetchTimeSeries(30), refetchInterval: 120_000 });
