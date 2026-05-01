@@ -5,9 +5,13 @@
  * Backend: R045 FeatureFlagService (not yet implemented).
  * Endpoint: GET /api/proxy/feature-flags/<key>
  *
- * Until R045 ships, fetchFeatureFlag throws on every call (404/503).
- * useFeatureFlag catches those errors and returns fail-closed defaults.
- * No special stub mode needed — error path IS the stub path.
+ * MOCK MODE is currently true — returns flag values from MOCK_OVERRIDES
+ * below (everything false except `helpdesk.enabled` which is true so the
+ * Helpdesk pages render in mock-mode demos). Flips to false once R045-min
+ * Feature Flag Service backend lands.
+ *
+ * Even in non-mock mode, `useFeatureFlag` catches errors and returns
+ * fail-closed defaults — so an unreachable backend never opens a flag.
  *
  * Allowed flag keys match the platform capability roadmap.
  * All unknown keys default to disabled (fail-closed) in the hook.
@@ -48,7 +52,29 @@ export const STATIC_FLAG_DEFAULTS: Record<FlagKey, false> = {
   "helpdesk.enabled": false,
 };
 
+export const MOCK_MODE = true;
+
+/**
+ * Mock flag values used when MOCK_MODE is true.
+ * Helpdesk is on so the Phase A scaffold pages render with their KPI tiles.
+ * All other capabilities default off — they have no UI yet.
+ */
+const MOCK_OVERRIDES: Record<FlagKey, boolean> = {
+  "data_sources.enabled": false,
+  "ai_agents.enabled": false,
+  "global_assistant.enabled": false,
+  "voice_agent.enabled": false,
+  "integrations.enabled": false,
+  "settings.capabilities.enabled": false,
+  "helpdesk.enabled": true,
+};
+
 export async function fetchFeatureFlag(key: FlagKey): Promise<FlagResponse> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 50));
+    return { key, enabled: MOCK_OVERRIDES[key] ?? false, source: "system" };
+  }
+
   const res = await fetch(`${BASE}/feature-flags/${encodeURIComponent(key)}`, {
     credentials: "include",
   });
