@@ -4,11 +4,11 @@
 > Defines the global knowledge model for the Chat AI and Voice Agent assistants.
 >
 > **Relationship to other AI docs:**
-> - `54-ai-assistant-runtime.md` — runtime contract: page context, action proposal flow, backend re-check, confirmation, audit/billing, AI readiness levels §14, test harness §15
-> - `36-ai-action-platform.md` — AI delegated action design, action registry, permission model, capability levels
-> - `38-floating-ai-assistant.md` — UI shell: drawer, lazy loading, route change behavior, session state
-> - `39-ai-architecture-consistency-pass.md` — canonical terms: AIActionDescriptor v1, voice_eligible, capability levels
-> - `40-ai-provider-gateway-billing.md` — gateway pipeline, AIUsageLog, billing metering
+> - `../05-ai/assistant-runtime.md` — runtime contract: page context, action proposal flow, backend re-check, confirmation, audit/billing, AI readiness levels §14, test harness §15
+> - `../05-ai/action-platform.md` — AI delegated action design, action registry, permission model, capability levels
+> - `../05-ai/floating-assistant.md` — UI shell: drawer, lazy loading, route change behavior, session state
+> - `../05-ai/canonical-terms.md` — canonical terms: AIActionDescriptor v1, voice_eligible, capability levels
+> - `../05-ai/provider-gateway.md` — gateway pipeline, AIUsageLog, billing metering
 
 ---
 
@@ -391,7 +391,7 @@ The assistant must:
 
 ## §9 — Progress Tracker Columns
 
-The following columns must be added to `03-module-migration-progress.md` to track global AI knowledge status:
+The following columns must be added to `../06-governance/module-migration-progress.md` to track global AI knowledge status:
 
 | Column | Values | Description |
 |--------|--------|-------------|
@@ -420,7 +420,7 @@ This knowledge is used for explanation, onboarding, recommendations, and solutio
 
 **Consequences:**
 - Adds per-module capability metadata requirement (§6.1)
-- Adds new progress tracker columns to `03-module-migration-progress.md`
+- Adds new progress tracker columns to `../06-governance/module-migration-progress.md`
 - Adds KB-01–KB-15 E2E test requirements
 - The knowledge base is built incrementally as modules are migrated
 - Initial state: modules that have completed `AI_READINESS.md` contribute their declarations as the seed

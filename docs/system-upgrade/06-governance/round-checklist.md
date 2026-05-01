@@ -17,8 +17,8 @@ A round may not be marked Done until all `[!]` items are resolved or explicitly 
 - [ ] All acceptance criteria from the round definition are met
 - [ ] No features or changes outside defined scope were added
 - [ ] The out-of-scope list was respected
-- [ ] Do-Not-Start-Yet items from `00-implementation-control-center.md` were not touched
-- [ ] If scope changed during implementation: a scope change note was added to the round entry in `96-rounds-index.md`
+- [ ] Do-Not-Start-Yet items from `../00-control-center.md` were not touched
+- [ ] If scope changed during implementation: a scope change note was added to the round entry in `../09-history/rounds-index.md`
 
 ### 1.1 CI Baseline Failure Policy
 
@@ -27,7 +27,7 @@ A round may not be marked Done until all `[!]` items are resolved or explicitly 
 A CI gate may be failing on the baseline (pre-existing failures) only when ALL of the following are true:
 
 - [ ] The PR description explicitly documents which gates are failing and why (pre-existing)
-- [ ] The failure is logged as a risk in `99-risk-register.md` with owner and mitigation round
+- [ ] The failure is logged as a risk in `../09-history/risk-register.md` with owner and mitigation round
 - [ ] The scope of the PR does not worsen the pre-existing failure (no new violations)
 - [ ] A follow-up round (e.g. R041D) is created to clean up the baseline
 - [ ] No expansion of scope is introduced on the basis of the accepted failure
@@ -119,9 +119,9 @@ Baseline CI failures **may not** be accepted silently, and they **do not** make 
 - [ ] Named indexes in migration (`idx_*`) do not duplicate model auto-indexes (`ix_*`) on the same column — or duplication is documented as acceptable
 
 **Runtime / deployment checks (skip if no new service or pod):**
-- [ ] If a new background task added: task runs in `platform-worker` pod, not inline in API request handler (see `53-runtime-deployment-architecture.md §14`)
+- [ ] If a new background task added: task runs in `platform-worker` pod, not inline in API request handler (see `../04-capabilities/runtime-deployment.md §14`)
 - [ ] `db.create_all()` was NOT added or left in production startup path
-- [ ] If a new service introduced: service documented in `53-runtime-deployment-architecture.md §1`
+- [ ] If a new service introduced: service documented in `../04-capabilities/runtime-deployment.md §1`
 - [ ] Health/readiness endpoints defined for any new pod/service
 
 ---
@@ -129,7 +129,7 @@ Baseline CI failures **may not** be accepted silently, and they **do not** make 
 ## 8. Tests
 
 > For security and multi-tenant test requirements, see **§12** below.
-> Full evidence standard: `48-testing-and-evidence-standard.md`.
+> Full evidence standard: `../02-rules/testing-standard.md`.
 
 - [ ] New models: structural tests verify column existence, constraints, and relationships
 - [ ] New routes: at least one test per endpoint (happy path + 401/403)
@@ -145,7 +145,7 @@ Baseline CI failures **may not** be accepted silently, and they **do not** make 
 
 > Before building anything new, verify it doesn't duplicate an existing shared capability.
 
-- [ ] Checked `26-platform-capabilities-catalog.md` — no duplicate capability built
+- [ ] Checked `../04-capabilities/catalog.md` — no duplicate capability built
 - [ ] Auth: uses `@jwt_required` + `g.jwt_user` (not custom token parsing)
 - [ ] RBAC: uses `@role_required` / `@permission_required` from `apps/authentication/rbac.py`
 - [ ] Audit: uses `record_activity()` from shared audit module
@@ -176,14 +176,14 @@ Baseline CI failures **may not** be accepted silently, and they **do not** make 
 - [ ] Diff is ≤500 LOC net (or justified in PR body if larger)
 - [ ] No debug prints, commented-out code blocks, or TODO stubs left in (unless explicitly deferred with an issue)
 - [ ] PR was opened from a **feature branch**, not from `main`/`master` (worktree workflow)
-- [ ] PR body includes handoff summary (see `52-parallel-worktree-agent-workflow.md §9`)
-- [ ] If PR modifies a shared coordination doc (`CLAUDE.md`, `00`, `15`, `35`, `96`, `97`, `98`, `99`): PR body notes potential merge conflicts and confirms no other active PR modifies the same file (see `52-parallel-worktree-agent-workflow.md §6.1`)
+- [ ] PR body includes handoff summary (see `_(deleted: see CLAUDE.md §Workflow Rules)_ §9`)
+- [ ] If PR modifies a shared coordination doc (`CLAUDE.md`, `00`, `15`, `35`, `96`, `97`, `98`, `99`): PR body notes potential merge conflicts and confirms no other active PR modifies the same file (see `_(deleted: see CLAUDE.md §Workflow Rules)_ §6.1`)
 
 ---
 
 ## 12. Security & Multi-Tenant Test Evidence
 
-> **Added R041-Test Addendum (2026-04-26).** Full standard: `48-testing-and-evidence-standard.md`.
+> **Added R041-Test Addendum (2026-04-26).** Full standard: `../02-rules/testing-standard.md`.
 > A round that adds or modifies API routes, DB queries, or UI actions **cannot be marked Done** without the evidence below.
 
 **A reviewer must verify:**
@@ -195,17 +195,17 @@ Baseline CI failures **may not** be accepted silently, and they **do not** make 
 - [ ] Audit: `record_activity()` calls are tested with an assertion that the audit row exists
 - [ ] Safe errors: no `str(exc)`, no stack traces, no SQL errors in error response bodies (tested)
 - [ ] Frontend permission gates have matching backend API denial tests (not just UI-hidden)
-- [ ] E2E denial flow exists or is explicitly blocked with a documented reason in `48-testing-and-evidence-standard.md §Known Gaps`
+- [ ] E2E denial flow exists or is explicitly blocked with a documented reason in `../02-rules/testing-standard.md §Known Gaps`
 - [ ] AI features: `AIProviderGateway.call()` used; `AIUsageLog` row asserted in test
 - [ ] PII / secrets: no sensitive fields leak to non-privileged roles (tested)
 
-**If any item is missing:** the round is **blocked** until evidence is added OR an exception is written into `99-risk-register.md` with a follow-up issue.
+**If any item is missing:** the round is **blocked** until evidence is added OR an exception is written into `../09-history/risk-register.md` with a follow-up issue.
 
 ---
 
 ## 13. Legacy Functionality Preservation
 
-> **Added R041-Governance Addendum (2026-04-26).** Full standard: `02-development-rules.md §No Feature Loss During Rewrite`.
+> **Added R041-Governance Addendum (2026-04-26).** Full standard: `../02-rules/development-rules.md §No Feature Loss During Rewrite`.
 > A round that rewrites or modifies UI/API for an existing module **cannot be marked Done** without the evidence below.
 
 **A reviewer must verify:**
@@ -219,7 +219,7 @@ Baseline CI failures **may not** be accepted silently, and they **do not** make 
 - [ ] AI readiness status declared for module (even if "not_applicable")
 - [ ] i18n readiness status declared for module (even if "deferred")
 - [ ] If new UI pages added: loading/error/empty states exist; RTL layout verified
-- [ ] Agent handoff summary written in `96-rounds-index.md` entry (see `51-agent-handoff-protocol.md §Handoff Summary Template`)
+- [ ] Agent handoff summary written in `../09-history/rounds-index.md` entry (see `../06-governance/handoff-protocol.md §Handoff Summary Template`)
 
 **If any item is missing:** the round is **blocked** until the inventory, E2E plan, or removal documentation is added.
 
@@ -227,7 +227,7 @@ Baseline CI failures **may not** be accepted silently, and they **do not** make 
 
 ## 14. AI/Voice Readiness Gate
 
-> **Added R041-AI-Assist Governance (2026-04-26).** Full standard: `02-development-rules.md §6`, `54-ai-assistant-runtime.md §10–§14`.
+> **Added R041-AI-Assist Governance (2026-04-26).** Full standard: `../02-rules/development-rules.md §6`, `../05-ai/assistant-runtime.md §10–§14`.
 > A round that adds, modifies, or completes any module or user-facing capability **cannot be marked Done** without the evidence below.
 
 **A reviewer must verify:**
@@ -240,20 +240,20 @@ Baseline CI failures **may not** be accepted silently, and they **do not** make 
 - [ ] If Level 4+: backend AI action tests exist — authorized execute, 403 for unauthorized, tenant isolation, audit row, `AIUsageLog`
 - [ ] If Level 5+: voice eligibility declared (`voice_eligible: true/false`) for every action; voice safety tests exist
 - [ ] AI refusal rules documented for the module
-- [ ] `ai_chat` column in `03-module-migration-progress.md` updated to reflect current state
-- [ ] `voice_agent` column in `03-module-migration-progress.md` updated to reflect current state
+- [ ] `ai_chat` column in `../06-governance/module-migration-progress.md` updated to reflect current state
+- [ ] `voice_agent` column in `../06-governance/module-migration-progress.md` updated to reflect current state
 - [ ] If module has new pages: Chat AI E2E flows `AI-01` through `AI-07` are planned in `E2E_COVERAGE.md` (even if skipped with blocker)
 - [ ] If voice-eligible (Level 5+): Voice E2E flows `VOICE-01` through `VOICE-09` are planned in `E2E_COVERAGE.md`
 
 **If any item is missing without a documented exception:** the round is **blocked** until the AI/voice readiness declaration or exception is added.
 
-> **Global capability metadata**: If this round implements new user-facing module functionality, also check that `capability_metadata` column is updated in `03-module-migration-progress.md` per `55-ai-system-capability-knowledge-base.md §6.1`.
+> **Global capability metadata**: If this round implements new user-facing module functionality, also check that `capability_metadata` column is updated in `../06-governance/module-migration-progress.md` per `../05-ai/capability-kb.md §6.1`.
 
 ---
 
 ## Round Summary Template
 
-Copy this into the `96-rounds-index.md` entry:
+Copy this into the `../09-history/rounds-index.md` entry:
 
 ```markdown
 | Field | Value |

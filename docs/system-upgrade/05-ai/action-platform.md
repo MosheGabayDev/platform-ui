@@ -3,13 +3,13 @@
 _Round 024 — 2026-04-24 | Updated Round 026 (§33–§40) | Updated Round 027 (§41) | Updated Round 028 (consistency pass — deprecated sections marked) | Updated R041-AI (cross-reference to 54)_
 _Status: Design complete. Implementation not started._
 
-> **Runtime contract:** `54-ai-assistant-runtime.md` is the canonical source for end-to-end runtime behavior (page context registry, capability context lifecycle, action proposal flow, backend re-check, confirmation policy, audit/billing requirements, voice safety limits, module contract, implementation phases). When this doc and doc 54 conflict on runtime behavior, doc 54 wins. This doc retains the action platform design rationale and action registry schema.
+> **Runtime contract:** `../05-ai/assistant-runtime.md` is the canonical source for end-to-end runtime behavior (page context registry, capability context lifecycle, action proposal flow, backend re-check, confirmation policy, audit/billing requirements, voice safety limits, module contract, implementation phases). When this doc and doc 54 conflict on runtime behavior, doc 54 wins. This doc retains the action platform design rationale and action registry schema.
 
 > **Consistency note (Round 028):** Sections §05 (old AIActionDescriptor), §06 (old permission check), §09 (old voice rules), and §11/§23 (`voiceInvocable`) contain pre-v1 drafts that conflict with the canonical definitions in `docs/system-upgrade/39-ai-architecture-consistency-pass.md`. The deprecated sections are marked below. Implementers must follow doc 39, not the deprecated sections.
 
 > **The AI is not read-only.** The AI may execute CREATE, UPDATE, DELETE_SOFT, CONFIGURE, APPROVE, EXECUTE, BULK, and SYSTEM operations — wherever the authenticated human user is authorized to do the same. The constraint is the user's permission set, not the channel. See §33.
 
-> **Relationship to doc 55:** `55-ai-system-capability-knowledge-base.md` defines the global knowledge layer (what the platform can do). This doc (36) defines the action execution layer (what can be executed). Knowledge does not grant execution permission. The runtime user capability context (per doc 54 §6) is the authorization gate between advisory and execution.
+> **Relationship to doc 55:** `../05-ai/capability-kb.md` defines the global knowledge layer (what the platform can do). This doc (36) defines the action execution layer (what can be executed). Knowledge does not grant execution permission. The runtime user capability context (per doc 54 §6) is the authorization gate between advisory and execution.
 
 ---
 

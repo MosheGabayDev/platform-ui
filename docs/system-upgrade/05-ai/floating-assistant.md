@@ -3,7 +3,7 @@
 _Round 027 — 2026-04-24 | Updated R041-AI (cross-reference to 54)_
 _Status: Architecture design complete. Implementation not started._
 
-> **Runtime contract:** `54-ai-assistant-runtime.md §1` is the canonical source for the chat assistant lifecycle (page load → icon render → user open → context load → message flow → route change behavior). This doc retains the UI shell design: `FloatingAIButton`, `AIAssistantDrawer`, `AIAssistantChat`, `PageContextDiff`, session Zustand store design, and implementation phase breakdown (R032–R035).
+> **Runtime contract:** `../05-ai/assistant-runtime.md §1` is the canonical source for the chat assistant lifecycle (page load → icon render → user open → context load → message flow → route change behavior). This doc retains the UI shell design: `FloatingAIButton`, `AIAssistantDrawer`, `AIAssistantChat`, `PageContextDiff`, session Zustand store design, and implementation phase breakdown (R032–R035).
 
 > **Cost-control invariant**: The floating icon is visible everywhere. No LLM call occurs until the user explicitly interacts with the assistant (opens drawer, sends message, confirms action, or continues a workflow). Page navigation never triggers an LLM call by itself.
 

@@ -352,7 +352,7 @@ None added (scope: audit + fixes only per mission fix policy).
 | L3 | LOW | Removed `?token=` query-param fallback from `jwt_required` | `jwt_auth.py` |
 | PII-001 | MEDIUM | Non-admins see only own record in `GET /api/users` | `user_api_routes.py` |
 | M2 | MEDIUM | Added `is_system_admin` to `FlaskUserPayload`, `NormalizedAuthUser`, `normalizeFlaskUser()`; fixed `isSystemAdmin()` | `lib/platform/auth/types.ts`, `lib/auth/options.ts`, `lib/platform/permissions/rbac.ts` |
-| CSP-plan | LOW | Created `31-production-security-headers.md` planning doc | `docs/system-upgrade/31-production-security-headers.md` |
+| CSP-plan | LOW | Created `../07-audits/production-security-headers.md` planning doc | `docs/system-upgrade/31-production-security-headers.md` |
 
 ## 18. Fixes Deferred
 
@@ -368,7 +368,7 @@ None added (scope: audit + fixes only per mission fix policy).
 
 All R021 blockers are now resolved. Remaining open items:
 
-1. **CSP-enforce (MEDIUM)**: Enforce Content-Security-Policy and security headers in Nginx/Next.js. Plan: [31-production-security-headers.md](31-production-security-headers.md).
+1. **CSP-enforce (MEDIUM)**: Enforce Content-Security-Policy and security headers in Nginx/Next.js. Plan: [../07-audits/production-security-headers.md](../07-audits/production-security-headers.md).
 2. **L4 (LOW)**: 15-min window where deactivated user's JWT remains valid — documented, acceptable.
 
 ---

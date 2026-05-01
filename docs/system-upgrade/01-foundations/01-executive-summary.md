@@ -68,7 +68,7 @@ The backend **is a solid foundation** — not trivially, but genuinely. It has:
 The backend does **not** need a rewrite. It needs:
 1. A formal API contract layer (REST or tRPC-style)
 2. An official separation between frontend and backend
-3. Systematic security hardening (see `06-security-assessment.md`)
+3. Systematic security hardening (see `../01-foundations/07-security.md`)
 4. Observability improvements
 5. Test coverage expansion
 

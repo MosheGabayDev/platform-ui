@@ -448,7 +448,7 @@ _Estimated: 4 hours (Gate B complete)_
 | Q1 | `migration_20260424_extend_ai_usage_log.py` — does it work on partitioned table? PostgreSQL DDL on partitioned tables requires running on each partition or the parent. | `scripts/migrations/versions/` | Test on dev DB before running on production. File a test result in the change log. |
 | Q2 | `AIProviderGateway._write_usage_log()` always returns `None` — callers cannot get the `usage_log_id` synchronously. Some future callers (billing reconciliation) may need it. | `gateway.py:296` | Accepted for Phase 1. Phase 2: add sync write path for callers that need the ID. |
 | Q3 | `apps/voice_support/call_manager.py` has module-level `genai` import — this crashes the module at import time if `GEMINI_AI_KEY` is missing. Is it used in production paths? | `apps/voice_support/` | Verify usage before Round 033 migration. If unused, delete instead of migrate. |
-| Q4 | Delegation token (BLK-03): signing key location in SSM? In-memory? Per-org or platform-wide? | `39` §08 | Must be resolved before Gate E. Document in `14-decision-log.md` as ADR-028. |
+| Q4 | Delegation token (BLK-03): signing key location in SSM? In-memory? Per-org or platform-wide? | `39` §08 | Must be resolved before Gate E. Document in `../08-decisions/decision-log.md` as ADR-028. |
 | Q5 | The platform-ui CLAUDE.md says `response.content` for the LLM reply but the actual `GatewayResponse` field is `output_text`. Which is used? | `CLAUDE.md`, `schemas.py` | Fix in Round 032: CLAUDE.md must say `response.output_text`. |
 
 ---

@@ -19,7 +19,7 @@ _Last updated: 2026-04-26 (R041B-post-merge-reconciliation — ActionButton comp
 ## R041D — Secrets Gate Baseline Cleanup / Allowlist Policy (P0 — do before R041A full enforcement)
 
 > Issue draft: `docs/system-upgrade/issues/R041D-secrets-gate-baseline-cleanup.md`
-> Risk: R27 in `99-risk-register.md`
+> Risk: R27 in `../09-history/risk-register.md`
 
 | Task | Scope | Priority | Status |
 |------|-------|----------|--------|
@@ -44,7 +44,7 @@ _Last updated: 2026-04-26 (R041B-post-merge-reconciliation — ActionButton comp
 | `components/shared/action-button.tsx` created | `[x] 2026-04-26` |
 | Users `[id]/page.tsx` — deactivate + reactivate migrated | `[x] 2026-04-26` |
 | Organizations `[id]/page.tsx` — deactivate + reactivate migrated | `[x] 2026-04-26` |
-| `43-shared-services-enforcement.md` marked ✅ Implemented (R041B) | `[x] 2026-04-26` |
+| `../02-rules/shared-services.md` marked ✅ Implemented (R041B) | `[x] 2026-04-26` |
 | Prop precedence review fix applied | `[x] 2026-04-26` |
 | TypeScript: 0 new errors in changed files | `[x] 2026-04-26` |
 
@@ -108,7 +108,7 @@ _Last updated: 2026-04-26 (R041B-post-merge-reconciliation — ActionButton comp
 
 ## Parallel Worktree Workflow (P1 — required before first parallel agent session)
 
-> Standard: `52-parallel-worktree-agent-workflow.md`
+> Standard: `_(deleted: see CLAUDE.md §Workflow Rules)_`
 
 | Task | Scope | Priority | Status |
 |------|-------|----------|--------|
@@ -122,12 +122,12 @@ _Last updated: 2026-04-26 (R041B-post-merge-reconciliation — ActionButton comp
 
 ## Legacy Preservation & Module Readiness (P1 — required before any module rewrite round)
 
-> Standard: `49-legacy-functionality-inventory.md` | Progress tracker: `03-module-migration-progress.md`
-> Enforced by: `01-round-review-checklist.md §13` | Rules: `02-development-rules.md §No Module Rewrite Without Inventory`
+> Standard: `../02-rules/legacy-inventory.md` | Progress tracker: `../06-governance/module-migration-progress.md`
+> Enforced by: `../06-governance/round-checklist.md §13` | Rules: `../02-rules/development-rules.md §No Module Rewrite Without Inventory`
 
 | Task | Scope | Priority | Status |
 |------|-------|----------|--------|
-| **Create per-module `LEGACY_INVENTORY.md` template** | Already defined in `49-legacy-functionality-inventory.md` — create first real inventory when first module round starts | P1 | `[ ]` |
+| **Create per-module `LEGACY_INVENTORY.md` template** | Already defined in `../02-rules/legacy-inventory.md` — create first real inventory when first module round starts | P1 | `[ ]` |
 | **Inventory `users` module** | `docs/modules/users/LEGACY_INVENTORY.md` — pages, routes, capabilities, must-preserve list | P1 | `[ ]` |
 | **Inventory `roles` module** | `docs/modules/roles/LEGACY_INVENTORY.md` | P1 | `[ ]` |
 | **Inventory `admin/orgs` module** | `docs/modules/admin/LEGACY_INVENTORY.md` | P1 | `[ ]` |
@@ -135,7 +135,7 @@ _Last updated: 2026-04-26 (R041B-post-merge-reconciliation — ActionButton comp
 | **Create `E2E_COVERAGE.md` for `users` module** | `docs/modules/users/E2E_COVERAGE.md` — base flows + module-specific flows | P1 | `[ ]` |
 | **Create `E2E_COVERAGE.md` for `roles` module** | `docs/modules/roles/E2E_COVERAGE.md` | P1 | `[ ]` |
 | **Create `E2E_COVERAGE.md` for `helpdesk` module** | `docs/modules/helpdesk/E2E_COVERAGE.md` | P1 | `[ ]` |
-| **Update `03-module-migration-progress.md` after each module round** | Keep status columns current; link to per-module docs as created | P1 | `[~]` (initial table created R041-Gov) |
+| **Update `../06-governance/module-migration-progress.md` after each module round** | Keep status columns current; link to per-module docs as created | P1 | `[~]` (initial table created R041-Gov) |
 | **Declare AI readiness for each module** | `docs/modules/<key>/AI_READINESS.md` — even if "not applicable" | P2 | `[ ]` |
 | **Declare i18n readiness for each module** | `docs/modules/<key>/I18N_READINESS.md` — hardcoded strings inventory | P2 | `[ ]` |
 
@@ -143,7 +143,7 @@ _Last updated: 2026-04-26 (R041B-post-merge-reconciliation — ActionButton comp
 
 ## Security & Multi-Tenant Test Coverage (P1 — required before each module round)
 
-> Standard: `48-testing-and-evidence-standard.md` | Enforced by: `01-round-review-checklist.md §12`
+> Standard: `../02-rules/testing-standard.md` | Enforced by: `../06-governance/round-checklist.md §12`
 
 | Task | Scope | Priority | Status |
 |------|-------|----------|--------|
@@ -1036,7 +1036,7 @@ Backend only. No UI.
 
 ## R039 — Generic Platform Foundation Roadmap (COMPLETE)
 
-- [x] Create `47-generic-platform-foundation-roadmap.md` — 700+ line master platform roadmap
+- [x] Create `../03-roadmap/master-roadmap.md` — 700+ line master platform roadmap
 - [x] Define 10 platform pillars with status and key capabilities
 - [x] Map 11 capability domains (all capabilities inventoried with status, priority, round)
 - [x] Define Data Sources & Knowledge Connections Platform (new domain — ADR-035)
@@ -1045,8 +1045,8 @@ Backend only. No UI.
 - [x] Recommend next 10 rounds (R040–R049) with dependency ordering
 - [x] Update ARCHITECTURE.md §24 (AI-Native Generic Platform pillars)
 - [x] Update 97-source-of-truth.md (4 new registry rows, ADR highest updated to ADR-035)
-- [x] Update 35-platform-capabilities-build-order.md (R039 gate row + next rounds)
-- [x] Update 98-change-log.md, 96-rounds-index.md
+- [x] Update ../03-roadmap/master-roadmap.md (R039 gate row + next rounds)
+- [x] Update ../09-history/change-log.md, ../09-history/rounds-index.md
 
 ## R039 addendum — Data Ownership & Storage Strategy (COMPLETE)
 - [x] Existing DB-First principle documented (ADR-036)
@@ -1256,7 +1256,7 @@ _Reference: `docs/system-upgrade/53-runtime-deployment-architecture.md`_
 ## AI Assistant Test Harness
 
 > Tracks implementation of the automated test harness for verifying AI/voice readiness across all modules.
-> Full spec: `54-ai-assistant-runtime.md §15`.
+> Full spec: `../05-ai/assistant-runtime.md §15`.
 > Build trigger: after Phase D (dangerous action confirmations + audit) AND at least 3 modules with AI_READINESS.md.
 
 | Task | File(s) | Priority | Status |

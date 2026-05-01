@@ -19,7 +19,7 @@ ResolveAI is an **AI-native generic organization platform** — a modular, multi
 
 MSP and IT operations is one supported module family (Helpdesk, ALA, Ops Intelligence, Remote Assist), not the platform's entire identity. The same foundation supports legal, medical, educational, and any other domain that needs AI-powered automation and multi-tenant module management.
 
-Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platform-foundation-roadmap.md)
+Full vision: [`03-roadmap/master-roadmap.md §2`](03-roadmap/master-roadmap.md)
 
 ---
 
@@ -100,7 +100,7 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 > **Repo model:** platform-ui = target rewrite repo (all implementation happens here). platformengineer = read-only legacy reference for capability mapping and no-feature-loss validation only. Agents must not modify platformengineer during platform-ui rewrite rounds. R041D and R041A are legacy maintenance exceptions requiring explicit user authorization. R041B ✅ complete (platform-ui only — no platformengineer changes).
 > **R048 note:** Modules that only need simple `AIProviderGateway.call()` substitution (no service routing needed) can be migrated immediately — start with fitness_nutrition, ala, ai_coach. Full service-routing-aware migration requires R043 routing matrix first.
 
-> Full dependency graph: [`35-platform-capabilities-build-order.md`](35-platform-capabilities-build-order.md)
+> Full dependency graph: [`03-roadmap/master-roadmap.md §6`](03-roadmap/master-roadmap.md)
 
 ---
 
@@ -141,7 +141,7 @@ Full vision: [`47-generic-platform-foundation-roadmap.md §2`](47-generic-platfo
 > The codebase (SQLAlchemy models + Alembic migration files) is the source of truth for DB schema.
 > The live DB must not define tables or columns independently of tracked code.
 
-**Known violation:** R040 tables created by `db.create_all()` at app startup (`apps/__init__.py:1487`), not migrations. Schema adoption completed 2026-04-26 with drift documented in `99-risk-register.md §R15`.
+**Known violation:** R040 tables created by `db.create_all()` at app startup (`apps/__init__.py:1487`), not migrations. Schema adoption completed 2026-04-26 with drift documented in `09-history/risk-register.md §R15`.
 
 **R040-Fix drift migrations applied 2026-04-26 (all 3):**
 - [x] `20260426_fix_r040_fk_cascade.py` — CASCADE added to 3 FKs ✅
@@ -181,18 +181,18 @@ The following are explicitly out of scope until foundation gates are green:
 - [ ] All dependencies from the table above are satisfied
 - [ ] Acceptance criteria are listed (minimum 5 specific, testable criteria)
 - [ ] Required tests are identified
-- [ ] Security checklist reviewed ([`01-round-review-checklist.md`](01-round-review-checklist.md))
+- [ ] Security checklist reviewed ([`06-governance/round-checklist.md`](06-governance/round-checklist.md))
 - [ ] Docs that will need updating are identified
 - [ ] Rollback/compatibility plan exists if DB schema or API contract changes
-- [ ] Previous round is committed and documented in `96-rounds-index.md`
+- [ ] Previous round is committed and documented in `09-history/rounds-index.md`
 - [ ] If round touches a module: `docs/modules/<module_key>/LEGACY_INVENTORY.md` exists (or is being created in this round)
 - [ ] If round touches a module: `docs/modules/<module_key>/E2E_COVERAGE.md` exists (or is being created in this round)
-- [ ] If round touches a module: `docs/modules/<module_key>/AI_READINESS.md` exists (or is being created in this round) — see `02-development-rules.md §6`
+- [ ] If round touches a module: `docs/modules/<module_key>/AI_READINESS.md` exists (or is being created in this round) — see `02-rules/development-rules.md §6`
 
 **Then:**
 1. Read `CLAUDE.md` — confirm no rule changes since last session
 2. Read this file — confirm blockers, current phase, do-not-start list
-3. Read `01-round-review-checklist.md` — know what the reviewer will check
+3. Read `06-governance/round-checklist.md` — know what the reviewer will check
 4. Open/confirm GitHub issue for the round
 5. Implement scope only
 6. Write/run tests before marking done
@@ -210,12 +210,12 @@ The following are explicitly out of scope until foundation gates are green:
 - [ ] Out-of-scope not touched — no "nice to have" items added
 - [ ] Tests run and documented (paste counts: X passed / Y total)
 - [ ] No legacy patterns introduced (no raw `org_id` from request, no `import openai`, no render_template in /api/*)
-- [ ] Security checks passed (see `01-round-review-checklist.md §Security`)
+- [ ] Security checks passed (see `06-governance/round-checklist.md §Security`)
 - [ ] Tenant isolation: every new DB query scoped by `org_id`
-- [ ] Docs updated: `96-rounds-index.md`, `98-change-log.md`, `15-action-backlog.md`, `03-module-migration-progress.md` (if module touched), affected module `INDEX.md`, `AI_READINESS.md` (if module touched)
-- [ ] Risks/follow-ups written as issues or entries in `99-risk-register.md`
+- [ ] Docs updated: `09-history/rounds-index.md`, `09-history/change-log.md`, `03-roadmap/action-backlog.md`, `06-governance/module-migration-progress.md` (if module touched), affected module `INDEX.md`, `AI_READINESS.md` (if module touched)
+- [ ] Risks/follow-ups written as issues or entries in `09-history/risk-register.md`
 - [ ] Commit SHA returned in final response
-- [ ] PR opened or review requested (for changes to shared contracts/models)
+- [ ] Pushed to `origin/master` *(no PR — single-trunk workflow per CLAUDE.md §Workflow Rules)*
 
 ---
 
@@ -223,7 +223,7 @@ The following are explicitly out of scope until foundation gates are green:
 
 | What changed | Reviewer |
 |---|---|
-| DB schema / new table / FK | Architecture review → check `01-round-review-checklist.md §DB` |
+| DB schema / new table / FK | Architecture review → check `06-governance/round-checklist.md §DB` |
 | New API route | Security review → `§Auth/RBAC`, `§Tenant` |
 | LLM / AI call | Billing review → `§AIProviderGateway` |
 | Auth / JWT / RBAC change | Security review + cross-check `apps/authentication/rbac.py` |
@@ -236,26 +236,26 @@ The following are explicitly out of scope until foundation gates are green:
 
 | Doc | Purpose |
 |-----|---------|
-| [`00-implementation-control-center.md`](00-implementation-control-center.md) | This file — start here |
-| [`01-round-review-checklist.md`](01-round-review-checklist.md) | What a reviewer checks before approving a round |
-| [`99-risk-register.md`](99-risk-register.md) | Active risks, mitigations, blocking status |
-| [`47-generic-platform-foundation-roadmap.md`](47-generic-platform-foundation-roadmap.md) | Master platform roadmap |
-| [`35-platform-capabilities-build-order.md`](35-platform-capabilities-build-order.md) | Capability dependency graph + build sequence |
-| [`15-action-backlog.md`](15-action-backlog.md) | Prioritized task backlog |
-| [`96-rounds-index.md`](96-rounds-index.md) | History of every round |
-| [`98-change-log.md`](98-change-log.md) | What changed in each round |
-| [`43-shared-services-enforcement.md`](43-shared-services-enforcement.md) | Mandatory shared services — no legacy patterns |
-| [`48-testing-and-evidence-standard.md`](48-testing-and-evidence-standard.md) | Testing standard — security/multi-tenant/AI governance evidence requirements |
-| [`02-development-rules.md`](02-development-rules.md) | Non-negotiable development rules — product, architecture, security, testing, UX, AI, i18n |
-| [`03-module-migration-progress.md`](03-module-migration-progress.md) | Central module rewrite tracker — per-module status, blockers, evidence links |
-| [`49-legacy-functionality-inventory.md`](49-legacy-functionality-inventory.md) | Standard template for per-module legacy inventory (`docs/modules/<key>/LEGACY_INVENTORY.md`) |
-| [`50-module-e2e-coverage-matrix.md`](50-module-e2e-coverage-matrix.md) | Standard for per-module E2E coverage plans (`docs/modules/<key>/E2E_COVERAGE.md`) |
-| [`51-agent-handoff-protocol.md`](51-agent-handoff-protocol.md) | Protocol for parallel agents and context handoff between sessions |
-| [`52-parallel-worktree-agent-workflow.md`](52-parallel-worktree-agent-workflow.md) | Git worktree workflow — naming, creation, lock list, safe/unsafe parallel tracks, **shared docs reconciliation rule (§6.1)**, PR workflow, cleanup |
-| [`53-runtime-deployment-architecture.md`](53-runtime-deployment-architecture.md) | Runtime pod/service separation, Kubernetes topology, deployment boundaries, failure isolation, health checks, migration job rule |
-| [`54-ai-assistant-runtime.md`](54-ai-assistant-runtime.md) | Global chat AI assistant + voice agent runtime contract — page context, capability context, action proposal flow, backend re-check, confirmation policy, audit/billing, **AI readiness levels §14**, module contract, test harness §15 |
-| [`55-ai-system-capability-knowledge-base.md`](55-ai-system-capability-knowledge-base.md) | Global AI knowledge model — SystemCapability, SolutionTemplate, CapabilityRecommendation, 3 assistant modes (Advisory/Guided/Delegated), advisory flow, module capability metadata contract §6.1, KB-01–KB-15 E2E tests, ADR |
-| [`26-platform-capabilities-catalog.md`](26-platform-capabilities-catalog.md) | Shared capability catalog |
+| [`00-control-center.md`](00-control-center.md) | This file — start here |
+| [`03-roadmap/master-roadmap.md`](03-roadmap/master-roadmap.md) | **Single SSOT plan** — vision, pillars, phases, gates, build order |
+| [`02-rules/development-rules.md`](02-rules/development-rules.md) | Non-negotiable development rules |
+| [`02-rules/shared-services.md`](02-rules/shared-services.md) | Mandatory shared services contract (ADR-028) |
+| [`02-rules/testing-standard.md`](02-rules/testing-standard.md) | Testing + evidence standard |
+| [`02-rules/legacy-inventory.md`](02-rules/legacy-inventory.md) | Per-module legacy inventory template |
+| [`02-rules/e2e-coverage.md`](02-rules/e2e-coverage.md) | Per-module E2E coverage template |
+| [`03-roadmap/action-backlog.md`](03-roadmap/action-backlog.md) | Prioritized cross-cutting task backlog |
+| [`04-capabilities/catalog.md`](04-capabilities/catalog.md) | Shared capability catalog |
+| [`06-governance/round-checklist.md`](06-governance/round-checklist.md) | Reviewer checklist before approving a round |
+| [`06-governance/handoff-protocol.md`](06-governance/handoff-protocol.md) | Agent handoff protocol |
+| [`06-governance/module-migration-progress.md`](06-governance/module-migration-progress.md) | Per-module rewrite tracker |
+| [`08-decisions/decision-log.md`](08-decisions/decision-log.md) | ADRs |
+| [`08-decisions/open-questions.md`](08-decisions/open-questions.md) | Unresolved questions |
+| [`09-history/rounds-index.md`](09-history/rounds-index.md) | History of every round |
+| [`09-history/change-log.md`](09-history/change-log.md) | What changed each round |
+| [`09-history/risk-register.md`](09-history/risk-register.md) | Active risks + mitigations |
+| [`10-tasks/`](10-tasks/) | Atomic ≤2h task breakdown per round |
+| [`97-source-of-truth.md`](97-source-of-truth.md) | Which file owns which concern |
+| [`README.md`](README.md) | Navigation index |
 
 ---
 
@@ -280,8 +280,9 @@ Issue drafts: [`docs/system-upgrade/issues/R040-R049-issue-drafts.md`](issues/R0
 
 ## Links
 
-- Risk register: [`99-risk-register.md`](99-risk-register.md)
-- Shared services contract: [`43-shared-services-enforcement.md`](43-shared-services-enforcement.md)
-- ADR log: [`14-decision-log.md`](14-decision-log.md) / `DOCS/execution/DECISIONS_LOG.md`
-- Security assessment: [`06-security-assessment.md`](06-security-assessment.md)
+- Risk register: [`09-history/risk-register.md`](09-history/risk-register.md)
+- Shared services contract: [`02-rules/shared-services.md`](02-rules/shared-services.md)
+- ADR log: [`08-decisions/decision-log.md`](08-decisions/decision-log.md) / `DOCS/execution/DECISIONS_LOG.md`
+- Security assessment: [`01-foundations/07-security.md`](01-foundations/07-security.md)
 - Source of truth registry: [`97-source-of-truth.md`](97-source-of-truth.md)
+- Master roadmap: [`03-roadmap/master-roadmap.md`](03-roadmap/master-roadmap.md)

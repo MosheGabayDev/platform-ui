@@ -1,62 +1,119 @@
 # System Upgrade Planning Workspace
 
-This directory is the **living source of truth** for the full modernization of the `platformengineer` backend system into the `platform-ui` frontend-first, API-driven product architecture.
+Living source of truth for the modernization of `platformengineer` (Flask backend) into the `platform-ui` (Next.js frontend-first, API-driven) product architecture.
+
+> **Active phase:** P1 — Foundation Gates (R040–R048). See `00-control-center.md`.
 
 ---
 
-## Purpose
+## Where to start
 
-Track, reason about, and guide a complete platform transformation:
-- Reverse-engineer what the current system actually does
-- Map technical debt and architectural weaknesses
-- Define a realistic migration path
-- Document decisions as they are made
-
-This is not a one-time document — it is updated on every investigation round.
+1. **`00-control-center.md`** — what's active, what's blocked, what to start next.
+2. **`03-roadmap/master-roadmap.md`** — single source of truth for the plan: vision, pillars, phases, gates, build order.
+3. **`02-rules/development-rules.md`** — non-negotiable rules every contributor follows.
+4. **`10-tasks/<round>/`** — atomic ≤2h task breakdown per active round.
 
 ---
 
-## File Organization
+## Folder Structure
 
-| File | Type | Purpose |
-|------|------|---------|
-| `00-executive-summary.md` | Source of truth | Overall status, direction, maturity |
-| `01-current-system-analysis.md` | Source of truth | Code-based system analysis |
-| `02-product-needs-inferred.md` | Source of truth | What the product actually needs |
-| `03-technology-inventory.md` | Source of truth | Current tech stack with assessments |
-| `04-architecture-assessment.md` | Source of truth | Architectural strengths and weaknesses |
-| `05-ui-ux-assessment.md` | Source of truth | Frontend condition + redesign rationale |
-| `06-security-assessment.md` | Source of truth | Security findings by severity |
-| `07-scalability-maintainability.md` | Source of truth | Scale and maintenance concerns |
-| `08-technical-debt-register.md` | Working document | Prioritized debt list |
-| `09-modernization-opportunities.md` | Working document | Quick wins → strategic redesigns |
-| `10-target-architecture.md` | Source of truth | Future-state architecture |
-| `11-recommended-tech-stack.md` | Source of truth | Technology recommendations |
-| `12-migration-roadmap.md` | Working document | Phased execution plan |
-| `13-open-questions.md` | Working document | Unknowns that need validation |
-| `14-decision-log.md` | Audit trail | Architecture and product decisions (ADR format) |
-| `15-action-backlog.md` | Working document | Prioritized task list |
+```
+docs/system-upgrade/
+├── README.md                ← this file
+├── 00-control-center.md     ← active round, blockers, gates, do-not-start list
+├── 97-source-of-truth.md    ← which file owns which concern
+│
+├── 01-foundations/          ← assessments and target state
+│   ├── 01-executive-summary.md
+│   ├── 02-current-system.md
+│   ├── 03-product-needs.md
+│   ├── 04-tech-inventory.md
+│   ├── 05-architecture-current.md
+│   ├── 06-ux-assessment.md
+│   ├── 07-security.md
+│   ├── 08-scalability.md
+│   ├── 09-tech-debt.md
+│   ├── 10-architecture-target.md
+│   └── 01-foundations/11-recommended-tech-stack.md
+│
+├── 02-rules/                ← mandatory rules and standards
+│   ├── development-rules.md
+│   ├── shared-services.md          (ADR-028)
+│   ├── testing-standard.md
+│   ├── legacy-inventory.md         (per-module template)
+│   └── e2e-coverage.md             (per-module template)
+│
+├── 03-roadmap/              ← single SSOT plan
+│   ├── master-roadmap.md           ← THE plan
+│   ├── action-backlog.md
+│   ├── modernization-opportunities.md
+│   └── _legacy/                    ← archived 12+35+47 (audit only)
+│
+├── 04-capabilities/         ← shared platform capability specs
+│   ├── catalog.md                  (capability inventory)
+│   ├── module-system.md
+│   ├── module-manager-redesign.md
+│   ├── module-manager-inventory.md
+│   ├── oss-layer.md
+│   ├── runtime-deployment.md
+│   └── auth-bridge.md
+│
+├── 05-ai/                   ← all AI specs in one place
+│   ├── action-platform.md
+│   ├── canonical-terms.md          (consistency-pass)
+│   ├── floating-assistant.md
+│   ├── assistant-runtime.md
+│   ├── capability-kb.md
+│   ├── provider-gateway.md
+│   ├── providers-hub.md
+│   └── llm-migration.md            (direct-import audit)
+│
+├── 06-governance/           ← process, handoff, checklists
+│   ├── round-checklist.md
+│   ├── handoff-protocol.md
+│   ├── module-migration-progress.md
+│   ├── ai-maintainability.md
+│   └── consistency-pass.md
+│
+├── 07-audits/               ← one-off audit reports
+│   ├── cross-platform-structure.md
+│   ├── security-hardening.md
+│   └── production-security-headers.md
+│
+├── 08-decisions/            ← ADRs and open questions
+│   ├── decision-log.md
+│   └── open-questions.md
+│
+├── 09-history/              ← audit trail
+│   ├── rounds-index.md
+│   ├── change-log.md
+│   └── risk-register.md
+│
+├── 10-tasks/                ← atomic ≤2h task breakdowns per round
+│   ├── README.md                   (task structure standard)
+│   └── R{NNN}-<slug>/
+│       ├── epic.md
+│       └── tasks/T01-….md
+│
+└── issues/                  ← GitHub issue drafts
+```
 
 ---
 
-## How to Update
+## Workflow
 
-On each investigation round:
-1. Read every file in this directory first.
-2. Preserve strong existing content — do not rewrite blindly.
-3. Refine weak sections, add new evidence, correct stale conclusions.
-4. Update `14-decision-log.md` when a real decision is made.
-5. Adjust `15-action-backlog.md` priorities based on progress.
-6. Keep all files internally consistent — same terminology throughout.
+- **Single trunk on `master`** — see `../../CLAUDE.md §Workflow Rules`. No feature branches, no worktrees, no PRs.
+- **Atomic tasks** — every round is broken into ≤2h units under `10-tasks/<round>/`. Pick one, complete it, commit, push, next.
+- **Update governance docs after each task:** `09-history/rounds-index.md`, `09-history/change-log.md`, `03-roadmap/action-backlog.md`, `06-governance/module-migration-progress.md` (if module touched).
 
 ---
 
-## What This Is Not
+## What this is not
 
-- Not a task management system (use GitHub Issues or Linear for that)
-- Not a code review document (see PRs)
-- Not an operational runbook (see `DOCS/` in `platformengineer`)
+- Not a task management system — that's GitHub Issues + `10-tasks/`.
+- Not a code review document — that's git history.
+- Not an operational runbook — see `DOCS/` in `platformengineer`.
 
 ---
 
-_First populated: 2026-04-23 — based on deep codebase investigation of `platformengineer`._
+_First populated 2026-04-23. Reorganized 2026-05-01 — flat numeric layout (00–55) merged into themed folders; three overlapping roadmaps consolidated into `03-roadmap/master-roadmap.md`._

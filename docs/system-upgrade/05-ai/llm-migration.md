@@ -592,7 +592,7 @@ Delete when:
 
 This round is complete when:
 
-- [ ] This document (`41-direct-llm-call-audit-and-migration.md`) is reviewed and accepted
+- [ ] This document (`../05-ai/llm-migration.md`) is reviewed and accepted
 - [ ] P0 migration list is assigned to a named implementation round
 - [ ] Phase 1 infrastructure tasks added to backlog with clear owner
 - [ ] CI lint rule design documented and approved (not yet implemented — requires Phase 3 completion before hard failure)

@@ -4,14 +4,14 @@ _Created: 2026-04-26 (R041-Test Addendum) | Updated: 2026-04-26 (R041-AI-Assist 
 _Owner: Platform Engineering_
 
 > **This document is mandatory.** A module or capability is not Done unless it meets the evidence requirements in this standard.
-> Read this before writing any test. Read the round-review checklist (`01-round-review-checklist.md §12`) before marking a round Done.
+> Read this before writing any test. Read the round-review checklist (`../06-governance/round-checklist.md §12`) before marking a round Done.
 >
 > **Cross-references:**
-> - Legacy preservation: `02-development-rules.md §No Feature Loss During Rewrite`
-> - Module migration progress: `03-module-migration-progress.md`
-> - Per-module E2E plans: `docs/modules/<key>/E2E_COVERAGE.md` (standard: `50-module-e2e-coverage-matrix.md`)
+> - Legacy preservation: `../02-rules/development-rules.md §No Feature Loss During Rewrite`
+> - Module migration progress: `../06-governance/module-migration-progress.md`
+> - Per-module E2E plans: `docs/modules/<key>/E2E_COVERAGE.md` (standard: `../02-rules/e2e-coverage.md`)
 > - Per-module testing docs: `docs/modules/<key>/TESTING.md`
-> - Agent handoff: `51-agent-handoff-protocol.md`
+> - Agent handoff: `../06-governance/handoff-protocol.md`
 
 ---
 
@@ -31,7 +31,7 @@ A module or shared capability is **not Done** unless it has documented evidence 
 | E2E permission / denial flow | mandatory if UI exists; or documented blocker if not feasible |
 | AI governance (gateway + billing) | mandatory for every AI/LLM feature |
 
-If any category is missing, the round reviewer blocks the round. An exception requires explicit documentation in `99-risk-register.md` and a follow-up issue.
+If any category is missing, the round reviewer blocks the round. An exception requires explicit documentation in `../09-history/risk-register.md` and a follow-up issue.
 
 ---
 
@@ -295,7 +295,7 @@ def test_stale_context_rejected(client, admin_token, bump_context_version):
 
 For every user-facing module, assert:
 
-1. **KB-completeness:** Module has `capability_summary` + `business_use_cases` + `target_users` declared (from `55-ai-system-capability-knowledge-base.md §6.1`)
+1. **KB-completeness:** Module has `capability_summary` + `business_use_cases` + `target_users` declared (from `../05-ai/capability-kb.md §6.1`)
 2. **KB-advisory-mode:** Assistant in Advisory Mode returns correct capabilities for a sample org profile — no action execution
 3. **KB-guided-mode:** Assistant in Guided Operation Mode explains current page fields and actions from AIPageContextRegistry
 4. **KB-delegated-allowed:** Allowed delegated action executes + `AIActionInvocation.status == "success"` + `AIUsageLog` row created
@@ -660,5 +660,5 @@ Fill this in for each module. Tests must cover each `❌` cell (403 expected).
 | CI gate plan | This document §5 |
 | Evidence matrix | This document §6 |
 | Module TESTING.md template | This document §7 |
-| Round review enforcement | `01-round-review-checklist.md §12` |
-| Active risks | `99-risk-register.md §R16` |
+| Round review enforcement | `../06-governance/round-checklist.md §12` |
+| Active risks | `../09-history/risk-register.md §R16` |

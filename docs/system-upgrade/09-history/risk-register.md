@@ -22,7 +22,7 @@
 | **Description** | Agent or developer implements features outside the round's defined scope, creating untested/undocumented code that diverges from the plan |
 | **Impact** | H — leads to orphaned code, missing tests, doc drift, and broken dependencies in future rounds |
 | **Likelihood** | H — LLM agents are prone to "while I'm here" additions |
-| **Mitigation** | Every round has explicit out-of-scope list; Definition of Done requires scope adherence check; `01-round-review-checklist.md` has scope section |
+| **Mitigation** | Every round has explicit out-of-scope list; Definition of Done requires scope adherence check; `../06-governance/round-checklist.md` has scope section |
 | **Blocking** | No — ongoing control risk |
 | **Owner/Area** | All implementation rounds |
 | **Next Review** | R041 |
@@ -37,7 +37,7 @@
 | **Description** | Docs (backlog, roadmap, index files) fall out of sync with actual code. Agents in future sessions make decisions based on stale docs. |
 | **Impact** | H — wrong architectural assumptions, duplicate work, conflicting implementations |
 | **Likelihood** | M — happens when rounds end without doc updates |
-| **Mitigation** | Definition of Done requires doc updates; `CLAUDE.md` Index Maintenance Protocol is mandatory; `96-rounds-index.md` append-only rule |
+| **Mitigation** | Definition of Done requires doc updates; `CLAUDE.md` Index Maintenance Protocol is mandatory; `../09-history/rounds-index.md` append-only rule |
 | **Blocking** | No — ongoing control risk |
 | **Owner/Area** | All rounds; post-commit step |
 | **Next Review** | R042 |
@@ -67,7 +67,7 @@
 | **Description** | Code directly imports `openai`, `anthropic`, or `google.generativeai` outside `apps/ai_providers/`. Bypasses billing, rate limiting, key rotation, and provider failover. |
 | **Impact** | H — billing leakage, untracked usage, key exposure risk |
 | **Likelihood** | H — 55+ existing violations identified in R031 audit; new code can reintroduce |
-| **Mitigation** | `scripts/check_no_direct_llm_imports.py` enforcement script; `CLAUDE.md` NEVER list; CI gate planned for R041; `43-shared-services-enforcement.md` blacklist |
+| **Mitigation** | `scripts/check_no_direct_llm_imports.py` enforcement script; `CLAUDE.md` NEVER list; CI gate planned for R041; `../02-rules/shared-services.md` blacklist |
 | **Blocking** | R048 addresses this — blocking full billing accuracy |
 | **Owner/Area** | `apps/ai_providers/`, all modules |
 | **Next Review** | R041 (CI gate); R048 (remediation) |
@@ -82,7 +82,7 @@
 | **Description** | A new DB query or route omits `WHERE org_id = g.jwt_user.org_id`, leaking cross-tenant data. |
 | **Impact** | H — critical security incident; regulatory exposure |
 | **Likelihood** | M — pattern is documented but not CI-enforced |
-| **Mitigation** | `CLAUDE.md` checklist item 2; `01-round-review-checklist.md §Tenant`; `@role_required` + org scoping enforced at code review |
+| **Mitigation** | `CLAUDE.md` checklist item 2; `../06-governance/round-checklist.md §Tenant`; `@role_required` + org scoping enforced at code review |
 | **Blocking** | Implicit blocker on every round that adds DB queries |
 | **Owner/Area** | All routes and services |
 | **Next Review** | Every round with new routes |
@@ -97,7 +97,7 @@
 | **Description** | A migration DROPs a column, renames a table, or backfills data without a 30-day transition gate. Breaks existing callers. |
 | **Impact** | H — data loss risk, PROD outage |
 | **Likelihood** | L — ADR-036 additive-migration principle is documented; R040 demonstrates correct pattern |
-| **Mitigation** | ADR-036: additive-only for 30 days; `01-round-review-checklist.md §Migration`; all R040 migrations are additive and verified |
+| **Mitigation** | ADR-036: additive-only for 30 days; `../06-governance/round-checklist.md §Migration`; all R040 migrations are additive and verified |
 | **Blocking** | No |
 | **Owner/Area** | Any round touching DB schema |
 | **Next Review** | Next migration round |
@@ -112,7 +112,7 @@
 | **Description** | TenantDataStore, TenantDataRouter, or BYODB infrastructure is implemented before foundation gates are green, adding complexity that blocks simpler foundations. |
 | **Impact** | M — delays P1 completion; creates untested multi-DB paths |
 | **Likelihood** | M — roadmap mentions BYODB as a P3 goal; agents may implement early |
-| **Mitigation** | ADR-036: platform_managed_shared_db is the ONLY storage mode until explicitly unlocked; Do-Not-Start-Yet list in `00-implementation-control-center.md`; `test_no_byodb_in_seeds` test in R040 |
+| **Mitigation** | ADR-036: platform_managed_shared_db is the ONLY storage mode until explicitly unlocked; Do-Not-Start-Yet list in `../00-control-center.md`; `test_no_byodb_in_seeds` test in R040 |
 | **Blocking** | No — pre-emptively blocked |
 | **Owner/Area** | `apps/module_manager/`, future data ownership rounds |
 | **Next Review** | R049 (Data Sources Hub) |
@@ -142,7 +142,7 @@
 | **Description** | `record_activity()` not called on all create/update/delete/revoke/disable/security operations. Compliance gaps and incident investigation gaps. |
 | **Impact** | M — compliance risk; difficult incident forensics |
 | **Likelihood** | M — R022 added audit to security routes; many business operations still missing |
-| **Mitigation** | `01-round-review-checklist.md §Audit`; `CLAUDE.md` checklist item 4; R046 AuditLog foundation will enforce |
+| **Mitigation** | `../06-governance/round-checklist.md §Audit`; `CLAUDE.md` checklist item 4; R046 AuditLog foundation will enforce |
 | **Blocking** | R046 |
 | **Owner/Area** | All mutation routes |
 | **Next Review** | R046 |
@@ -157,7 +157,7 @@
 | **Description** | LLM calls that bypass AIProviderGateway do not write AIUsageLog rows. Revenue leakage and usage reporting gaps. |
 | **Impact** | H — billing inaccuracy; incorrect cost attribution |
 | **Likelihood** | H — 55+ direct LLM calls identified (same as R04) |
-| **Mitigation** | AIProviderGateway.call() is the required path; R041 CI gate; R048 cleanup; `40-ai-provider-gateway-billing.md` spec |
+| **Mitigation** | AIProviderGateway.call() is the required path; R041 CI gate; R048 cleanup; `../05-ai/provider-gateway.md` spec |
 | **Blocking** | R043 (routing matrix), R048 (cleanup) |
 | **Owner/Area** | `apps/ai_providers/`, all modules using LLM |
 | **Next Review** | R048 |
@@ -169,10 +169,10 @@
 
 | Field | Value |
 |-------|-------|
-| **Description** | After a round completes, `96-rounds-index.md`, `98-change-log.md`, `15-action-backlog.md`, and affected `INDEX.md` files are not updated. Future agents operate on stale state. |
+| **Description** | After a round completes, `../09-history/rounds-index.md`, `../09-history/change-log.md`, `../03-roadmap/action-backlog.md`, and affected `INDEX.md` files are not updated. Future agents operate on stale state. |
 | **Impact** | M — duplicate work; wrong dependency assumptions |
 | **Likelihood** | M — happened before governance docs existed |
-| **Mitigation** | Definition of Done item; `CLAUDE.md` Index Maintenance Protocol; `00-implementation-control-center.md` enforces this |
+| **Mitigation** | Definition of Done item; `CLAUDE.md` Index Maintenance Protocol; `../00-control-center.md` enforces this |
 | **Blocking** | No |
 | **Owner/Area** | Every round |
 | **Next Review** | Every round completion |
@@ -187,7 +187,7 @@
 | **Description** | A round is started before its dependencies are met (e.g., R042 started before R040 migrations applied). Results in code that cannot be tested or that builds on wrong assumptions. |
 | **Impact** | H — wasted work; broken inter-round contracts |
 | **Likelihood** | M — dependency graph is complex; agents may miss blockers |
-| **Mitigation** | `00-implementation-control-center.md §Current Blockers`; `35-platform-capabilities-build-order.md` dependency graph; Definition of Ready blockers check |
+| **Mitigation** | `../00-control-center.md §Current Blockers`; `../03-roadmap/master-roadmap.md` dependency graph; Definition of Ready blockers check |
 | **Blocking** | Indirect — enforced at round start |
 | **Owner/Area** | All rounds |
 | **Next Review** | Before every round start |
@@ -272,9 +272,9 @@
 | **Description** | Existing modules and API routes lack systematic security tests: authentication (401), authorization (403), tenant isolation, audit assertions, safe error responses, and AI governance. Cross-tenant data exposure or unauthorized mutations could ship undetected. |
 | **Impact** | H — critical security or compliance incident if cross-tenant leak or privilege escalation reaches production undetected |
 | **Likelihood** | H — no security test standard existed before R041-Test Addendum; most modules have no isolation or RBAC tests |
-| **Mitigation** | `48-testing-and-evidence-standard.md` — mandatory test categories; `01-round-review-checklist.md §12` — reviewer gate; E2E security scaffold (`tests/e2e/security/`) created; backend security helper pattern documented; CI gate plan defined in §5 of standard |
+| **Mitigation** | `../02-rules/testing-standard.md` — mandatory test categories; `../06-governance/round-checklist.md §12` — reviewer gate; E2E security scaffold (`tests/e2e/security/`) created; backend security helper pattern documented; CI gate plan defined in §5 of standard |
 | **Blocking** | Implicit blocker on every round that adds API routes, DB queries, or UI mutations — `§12` in the round review checklist enforces this |
-| **Owner/Area** | All modules; enforced per-round via `01-round-review-checklist.md §12` |
+| **Owner/Area** | All modules; enforced per-round via `../06-governance/round-checklist.md §12` |
 | **Next Review** | R042 (first round to add new API routes post-R041-Test) |
 | **Status** | 🟡 Active — standard now defined; retroactive coverage per-module pending |
 
@@ -298,9 +298,9 @@
 | **Description** | During the platform-ui rewrite, existing module capabilities are silently removed because no formal inventory was done before implementation started. Users discover missing features only after migration. |
 | **Impact** | Critical — lost user-facing functionality; potential customer churn and data inaccessibility |
 | **Likelihood** | H — no per-module inventory process existed before R041-Governance; rewrite pressure creates incentive to simplify by removing rather than redesigning |
-| **Mitigation** | Mandatory `LEGACY_INVENTORY.md` before any module rewrite (enforced by `01-round-review-checklist.md §13`); `02-development-rules.md §No Feature Loss During Rewrite`; Removal/Deprecation log required per capability; `03-module-migration-progress.md` tracks must-preserve status |
+| **Mitigation** | Mandatory `LEGACY_INVENTORY.md` before any module rewrite (enforced by `../06-governance/round-checklist.md §13`); `../02-rules/development-rules.md §No Feature Loss During Rewrite`; Removal/Deprecation log required per capability; `../06-governance/module-migration-progress.md` tracks must-preserve status |
 | **Blocking** | Blocks any module from entering rewrite phase without its inventory |
-| **Owner/Area** | All module rounds; enforced via `01-round-review-checklist.md §13` |
+| **Owner/Area** | All module rounds; enforced via `../06-governance/round-checklist.md §13` |
 | **Next Review** | First module round that starts implementation |
 | **Status** | 🟡 Active — standard defined; no inventories created yet |
 
@@ -313,9 +313,9 @@
 | **Description** | Multiple AI agents work on the same codebase in separate sessions. Without a handoff protocol, each agent starts without context of prior decisions, creates conflicting implementations, or re-implements already-solved problems. |
 | **Impact** | H — duplicate work, conflicting implementations, orphaned code, broken dependencies, lost architectural decisions |
 | **Likelihood** | H — multi-agent parallel work is planned; session context is ephemeral; memory is limited |
-| **Mitigation** | `51-agent-handoff-protocol.md` — mandatory before/during/after work; handoff summary required in `96-rounds-index.md`; `03-module-migration-progress.md` as shared state; issue-based workflow with round contracts; `CLAUDE.md` auto-memory system |
+| **Mitigation** | `../06-governance/handoff-protocol.md` — mandatory before/during/after work; handoff summary required in `../09-history/rounds-index.md`; `../06-governance/module-migration-progress.md` as shared state; issue-based workflow with round contracts; `CLAUDE.md` auto-memory system |
 | **Blocking** | No — process control risk |
-| **Owner/Area** | All agents; enforced via `51-agent-handoff-protocol.md` |
+| **Owner/Area** | All agents; enforced via `../06-governance/handoff-protocol.md` |
 | **Next Review** | First parallel-agent session |
 | **Status** | 🟡 Active — protocol defined; not yet tested under parallel load |
 
@@ -328,7 +328,7 @@
 | **Description** | A designer or agent simplifies a UI flow by merging, removing, or reorganizing screens, inadvertently losing a required user capability that was only available through the removed path. |
 | **Impact** | H — specific user workflows break; power users lose required features; potential data inaccessibility |
 | **Likelihood** | M — simplification is explicitly encouraged by product rules; risk exists when simplification decisions are made without capability mapping |
-| **Mitigation** | UX simplification allowed only if capability mapping is preserved (documented in `LEGACY_INVENTORY.md`); all removed or merged flows must be in §Removal/Deprecation; stakeholder approval required for intentional removals; `02-development-rules.md §No Feature Loss During Rewrite` |
+| **Mitigation** | UX simplification allowed only if capability mapping is preserved (documented in `LEGACY_INVENTORY.md`); all removed or merged flows must be in §Removal/Deprecation; stakeholder approval required for intentional removals; `../02-rules/development-rules.md §No Feature Loss During Rewrite` |
 | **Blocking** | Blocks a round if removed capability not documented |
 | **Owner/Area** | All UI/module rounds |
 | **Next Review** | First module UI round |
@@ -343,7 +343,7 @@
 | **Description** | Modules are built and shipped without declaring AI readiness or i18n readiness. Adding these capabilities later requires invasive refactoring. Hardcoded strings accumulate and become expensive to extract. |
 | **Impact** | M/H — delayed AI feature integration; expensive retroactive i18n work; poor international/RTL user experience |
 | **Likelihood** | H — without a tracking requirement, these are easy to skip under time pressure |
-| **Mitigation** | AI readiness and i18n readiness columns in `03-module-migration-progress.md`; required declaration in `docs/modules/<key>/AI_READINESS.md` and `I18N_READINESS.md`; `01-round-review-checklist.md §13` requires status declaration before module marked Done; `02-development-rules.md §AI Readiness` and `§i18n` define minimum requirements |
+| **Mitigation** | AI readiness and i18n readiness columns in `../06-governance/module-migration-progress.md`; required declaration in `docs/modules/<key>/AI_READINESS.md` and `I18N_READINESS.md`; `../06-governance/round-checklist.md §13` requires status declaration before module marked Done; `../02-rules/development-rules.md §AI Readiness` and `§i18n` define minimum requirements |
 | **Blocking** | Blocks a module from being marked `migrated` (not from shipping in-progress state) |
 | **Owner/Area** | All module rounds |
 | **Next Review** | First module marked ready_for_review |
@@ -358,7 +358,7 @@
 | **Description** | UI, API, and workers are collocated in the same pod or started from the same process. A UI crash or memory spike kills API capacity. An AI workload degrades normal user requests. A migration bug prevents startup and takes down all services simultaneously. No independent scaling per service. |
 | **Impact** | H — correlated failures; single outage takes down all platform capabilities simultaneously; no ability to scale hot paths independently |
 | **Likelihood** | M — current EKS deployment already has API and workers separated; main risk is that `db.create_all()` still runs at app startup and `platform-ui` Dockerfile does not exist yet |
-| **Mitigation** | `53-runtime-deployment-architecture.md` — Phase 1 minimum split defined; Phase 2/3 target split documented; `db.create_all()` production ban documented; migration job rule defined; service dependency rules explicit |
+| **Mitigation** | `../04-capabilities/runtime-deployment.md` — Phase 1 minimum split defined; Phase 2/3 target split documented; `db.create_all()` production ban documented; migration job rule defined; service dependency rules explicit |
 | **Blocking** | No — architecture is partially correct; gaps are tracked |
 | **Owner/Area** | Deployment, CI/CD, `apps/__init__.py` (db.create_all removal), platform-ui (Dockerfile) |
 | **Next Review** | Before P2 module work begins |
@@ -373,7 +373,7 @@
 | **Description** | Modules are built and shipped without declaring AI/voice readiness level, registering page contexts, or declaring AI actions. The platform's core AI-native product promise fails silently — the assistant cannot help users on those pages. Adding AI support retroactively requires invasive, expensive refactoring. |
 | **Impact** | Critical — the platform's defining differentiator (AI-native experience) is absent from completed modules |
 | **Likelihood** | H — without an enforced gate, this is easy to defer under time pressure |
-| **Mitigation** | `02-development-rules.md §6` — mandatory AI readiness rule; `01-round-review-checklist.md §14` — reviewer gate; `03-module-migration-progress.md` — mandatory `ai_chat`/`voice_agent` columns; `AI_READINESS.md` required per module; `54-ai-assistant-runtime.md §10–§14` — full contract |
+| **Mitigation** | `../02-rules/development-rules.md §6` — mandatory AI readiness rule; `../06-governance/round-checklist.md §14` — reviewer gate; `../06-governance/module-migration-progress.md` — mandatory `ai_chat`/`voice_agent` columns; `AI_READINESS.md` required per module; `../05-ai/assistant-runtime.md §10–§14` — full contract |
 | **Blocking** | Blocks a round from being marked Done if no AI/voice status declared (§14 gate) |
 | **Owner/Area** | All module rounds |
 | **Next Review** | First module marked ready_for_review |
@@ -388,7 +388,7 @@
 | **Description** | The AI assistant or voice agent executes an action the user does not have permission for, or against a resource in another tenant, because the frontend context was accepted as the authorization source. |
 | **Impact** | Critical — unauthorized data modification, privilege escalation, cross-tenant data breach |
 | **Likelihood** | M — risk exists whenever prompt-injected or client-supplied parameters are used for authorization |
-| **Mitigation** | 14-check backend re-authorization on every action (`54-ai-assistant-runtime.md §8`); `org_id` always from JWT; `AIActionRegistry` — unregistered actions rejected; `AIActionInvocation` audit row mandatory; per-action permission re-check; tenant scope re-check on target record; stale context detection (`context_version`); AI action denial tests mandatory (`48-testing-and-evidence-standard.md §2.8`) |
+| **Mitigation** | 14-check backend re-authorization on every action (`../05-ai/assistant-runtime.md §8`); `org_id` always from JWT; `AIActionRegistry` — unregistered actions rejected; `AIActionInvocation` audit row mandatory; per-action permission re-check; tenant scope re-check on target record; stale context detection (`context_version`); AI action denial tests mandatory (`../02-rules/testing-standard.md §2.8`) |
 | **Blocking** | Blocks a round if AI action tests do not include authorization denial tests |
 | **Owner/Area** | All AI action capable modules (Level 4+) |
 | **Next Review** | Phase C implementation (AI action execution) |
@@ -403,7 +403,7 @@
 | **Description** | The voice agent executes a dangerous action (high/critical danger level, bulk destructive, hard delete) via verbal confirmation only, without UI approval — or executes against a resource the user cannot modify. |
 | **Impact** | Critical — irreversible destructive action triggered by a voice misunderstanding, ambient noise, or voice spoofing |
 | **Likelihood** | M — risk exists in any voice-interactive system; one-action-per-turn and read-back reduce but do not eliminate it |
-| **Mitigation** | Voice safety rules (`02-development-rules.md §6.6`): one action per turn, read-back before confirm, high/critical always escalate to UI, no bulk destructive by voice, no hard delete by voice, silence/timeout cancels; voice uses same backend authorization as chat; `voice_eligible: false` enforced in registry; voice E2E flows VOICE-06 through VOICE-12 must pass before Level 5+ claimed; `AIActionInvocation` created for every voice attempt |
+| **Mitigation** | Voice safety rules (`../02-rules/development-rules.md §6.6`): one action per turn, read-back before confirm, high/critical always escalate to UI, no bulk destructive by voice, no hard delete by voice, silence/timeout cancels; voice uses same backend authorization as chat; `voice_eligible: false` enforced in registry; voice E2E flows VOICE-06 through VOICE-12 must pass before Level 5+ claimed; `AIActionInvocation` created for every voice attempt |
 | **Blocking** | Blocks a module from claiming Level 5+ without voice safety tests |
 | **Owner/Area** | All voice-capable modules (Level 5+) |
 | **Next Review** | Phase E implementation (voice agent) |
@@ -418,9 +418,9 @@
 | **Description** | The Global System Capability Knowledge (doc 55) becomes stale or incomplete as new modules and capabilities are added without updating the capability registry or module metadata declarations. |
 | **Impact** | H — the assistant gives incorrect advice, recommends unavailable capabilities, or fails to mention available capabilities. Erodes user trust in advisory mode. |
 | **Likelihood** | M — metadata tends to be skipped when developers focus on functionality. |
-| **Mitigation** | §6.1 of doc 55 requires capability metadata for every module; `03-module-migration-progress.md` tracks `capability_metadata` column; KB-01–KB-15 E2E tests verify advisory accuracy; `01-round-review-checklist.md §14` requires capability_metadata check. |
+| **Mitigation** | §6.1 of doc 55 requires capability metadata for every module; `../06-governance/module-migration-progress.md` tracks `capability_metadata` column; KB-01–KB-15 E2E tests verify advisory accuracy; `../06-governance/round-checklist.md §14` requires capability_metadata check. |
 | **Blocking** | Advisory Mode accuracy. Does not block execution or runtime authorization. |
-| **Owner/Area** | All user-facing modules; enforced via `01-round-review-checklist.md §14` |
+| **Owner/Area** | All user-facing modules; enforced via `../06-governance/round-checklist.md §14` |
 | **Next Review** | First module with CAPABILITY_METADATA.md created |
 | **Status** | 🟡 Active — standard defined; no modules have metadata yet |
 

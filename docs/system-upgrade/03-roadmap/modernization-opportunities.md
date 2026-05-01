@@ -33,7 +33,7 @@ _Last updated: 2026-04-24_
 2. **File headers**: Add standard module-level docstring to every file touched in the current sprint
 3. **Module INDEX.md**: Create `INDEX.md` in each `apps/<module>/` directory visited; use `DOCS/templates/INDEX_TEMPLATE.md`
 
-**Why**: AI coding assistants generate better, safer changes when the codebase has no dead code, clear file headers, and local index files. This is the single highest-leverage DX improvement before starting the 19-module migration. See full strategy in `23-ai-maintainability-and-code-cleanup.md`.
+**Why**: AI coding assistants generate better, safer changes when the codebase has no dead code, clear file headers, and local index files. This is the single highest-leverage DX improvement before starting the 19-module migration. See full strategy in `../06-governance/ai-maintainability.md`.
 
 **Effort**: 1-2 days initial sweep; ongoing as modules are touched
 

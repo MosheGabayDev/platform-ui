@@ -5,11 +5,11 @@
 > _Last updated: 2026-04-26_
 >
 > **Relationship to other AI docs:**
-> - `36-ai-action-platform.md` — AI delegated action design, action registry, permission model
-> - `38-floating-ai-assistant.md` — UI shell: drawer, lazy loading, route change behavior, session state
-> - `39-ai-architecture-consistency-pass.md` — canonical terms: `AIActionDescriptor` v1, `voice_eligible`, capability levels
-> - `40-ai-provider-gateway-billing.md` — gateway pipeline, `AIUsageLog`, billing metering
-> - `55-ai-system-capability-knowledge-base.md` — global knowledge model, SystemCapability registry, SolutionTemplates, advisory flows, KB-01–KB-15 E2E tests
+> - `../05-ai/action-platform.md` — AI delegated action design, action registry, permission model
+> - `../05-ai/floating-assistant.md` — UI shell: drawer, lazy loading, route change behavior, session state
+> - `../05-ai/canonical-terms.md` — canonical terms: `AIActionDescriptor` v1, `voice_eligible`, capability levels
+> - `../05-ai/provider-gateway.md` — gateway pipeline, `AIUsageLog`, billing metering
+> - `../05-ai/capability-kb.md` — global knowledge model, SystemCapability registry, SolutionTemplates, advisory flows, KB-01–KB-15 E2E tests
 >
 > **This doc (54)** is the runtime contract: how the chat assistant and voice agent behave end-to-end, from page load to executed action to audit row. When there is a conflict between this doc and docs 36/38/39/40, this doc wins for runtime behavior. Design rationale stays in those earlier docs.
 
@@ -220,7 +220,7 @@ interface AIFieldContext {
 A module that does not declare `aiPageContext` for its pages will:
 - Have the assistant say "I don't have context for this page yet"
 - Not be able to offer page-specific help or actions
-- Have `ai_chat` column in `03-module-migration-progress.md` marked `not_ready`
+- Have `ai_chat` column in `../06-governance/module-migration-progress.md` marked `not_ready`
 
 This is acceptable for early implementation phases. All modules must eventually declare contexts.
 
@@ -360,7 +360,7 @@ client re-fetches: GET /api/ai/context
 
 Every AI-executable action must be registered. No unregistered action can be executed.
 
-### 6.1 AIActionDescriptor (canonical v1 — from `39-ai-architecture-consistency-pass.md §05`)
+### 6.1 AIActionDescriptor (canonical v1 — from `../05-ai/canonical-terms.md §05`)
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -551,7 +551,7 @@ Routes the assistant may call for read-only data (no auth bypass):
 |-----------|-------------------|
 ```
 
-### 10.2 Status in `03-module-migration-progress.md`
+### 10.2 Status in `../06-governance/module-migration-progress.md`
 
 The `ai_chat` and `voice_agent` columns must be set per module:
 
@@ -628,7 +628,7 @@ Every module that implements AI/voice features must have:
 
 - [ ] `aiPageContext` declared for every new page in `ai-page-contexts.ts`
 - [ ] `AI_READINESS.md` updated for the module
-- [ ] `ai_chat` column in `03-module-migration-progress.md` updated
+- [ ] `ai_chat` column in `../06-governance/module-migration-progress.md` updated
 
 > Any round that adds a new AI-executable action:
 
@@ -694,7 +694,7 @@ Exceptions (staying at Level 0 permanently) require documented reason and a foll
 
 ### 14.3 Progress tracker status values
 
-The `ai_chat` and `voice_agent` columns in `03-module-migration-progress.md` must use:
+The `ai_chat` and `voice_agent` columns in `../06-governance/module-migration-progress.md` must use:
 
 | Status | Meaning |
 |--------|---------|
@@ -750,7 +750,7 @@ Build the harness after Phase D (dangerous action confirmations + audit). Requir
 
 The assistant runtime (this doc) handles the **execution side**: page context, action proposal flow, backend re-check, confirmation, audit, billing.
 
-Doc 55 (`55-ai-system-capability-knowledge-base.md`) handles the **knowledge side**: what the platform can do, how to advise users, what to recommend.
+Doc 55 (`../05-ai/capability-kb.md`) handles the **knowledge side**: what the platform can do, how to advise users, what to recommend.
 
 **Integration rules:**
 1. Advisory Mode uses doc 55 knowledge sources. No LLM execution in Advisory Mode.

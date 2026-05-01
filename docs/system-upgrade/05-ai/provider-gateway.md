@@ -3,7 +3,7 @@
 _Round 029 — 2026-04-24 | Updated R031 — 2026-04-25 | Updated R041-AI (cross-reference to 54)_
 _Status: Architecture design complete. **Phase 1 implemented (platformengineer working tree, uncommitted — R031)**._
 
-> **Runtime contract:** `54-ai-assistant-runtime.md §9` defines what every AI assistant action must record (AIActionInvocation fields, AIUsageLog fields, billing event fields). Doc 40 retains the gateway pipeline design, billing metering architecture, `AIUsageLog` 14-field extension, CI enforcement design, and quota enforcement model.
+> **Runtime contract:** `../05-ai/assistant-runtime.md §9` defines what every AI assistant action must record (AIActionInvocation fields, AIUsageLog fields, billing event fields). Doc 40 retains the gateway pipeline design, billing metering architecture, `AIUsageLog` 14-field extension, CI enforcement design, and quota enforcement model.
 
 > **Core rule:** No module may call OpenAI, Gemini, Anthropic, Claude, or any LLM/STT/TTS provider SDK directly. All AI calls go through the AI Provider Gateway. Every call emits a usage event linked to org / user / module / session.
 
@@ -994,15 +994,15 @@ Migrate modules that serve production user traffic first:
 
 Round 029 is complete when:
 
-- [ ] `40-ai-provider-gateway-billing.md` exists with §01–§19
+- [ ] `../05-ai/provider-gateway.md` exists with §01–§19
 - [ ] ADR-027 exists in decision log for "AI Provider Gateway + Mandatory Billing Metering"
-- [ ] `35-platform-capabilities-build-order.md` has gateway migration track pre-R027
-- [ ] `15-action-backlog.md` has gateway + billing migration tasks
+- [ ] `../03-roadmap/master-roadmap.md` has gateway migration track pre-R027
+- [ ] `../03-roadmap/action-backlog.md` has gateway + billing migration tasks
 - [ ] `CLAUDE.md` updated: no direct LLM imports rule + `AIProviderGateway.call()` example
 - [ ] `docs/ARCHITECTURE.md` updated: AI Provider Gateway section
-- [ ] `36-ai-action-platform.md` has note: all LLM calls in action planning go through gateway
-- [ ] `38-floating-ai-assistant.md` has note: all LLM calls go through gateway with `module_id='floating_assistant'`
-- [ ] `39-ai-architecture-consistency-pass.md` has note: gateway is enforcement mechanism for doc 39 §09 tool injection rules
+- [ ] `../05-ai/action-platform.md` has note: all LLM calls in action planning go through gateway
+- [ ] `../05-ai/floating-assistant.md` has note: all LLM calls go through gateway with `module_id='floating_assistant'`
+- [ ] `../05-ai/canonical-terms.md` has note: gateway is enforcement mechanism for doc 39 §09 tool injection rules
 
 ---
 

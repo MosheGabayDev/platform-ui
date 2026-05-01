@@ -606,7 +606,7 @@ Exceptions without a complete record are violations. No silent exceptions.
 - [ ] `docs/modules/<N>-<name>/IMPLEMENTATION.md` created with DoD items
 - [ ] Module `INDEX.md` updated in platformengineer if backend files added
 - [ ] `docs/system-upgrade/15-action-backlog.md` updated: completed tasks marked `[x]`
-- [ ] `docs/system-upgrade/96-rounds-index.md` and `98-change-log.md` updated
+- [ ] `docs/system-upgrade/96-rounds-index.md` and `../09-history/change-log.md` updated
 
 ---
 
@@ -749,7 +749,7 @@ This round (R032) is complete only when all of the following are true:
 - [x] PR/reviewer checklist exists (§11)
 - [x] `CLAUDE.md` updated in both repos (§13 — P0-02, P0-03) — done R032
 - [x] `docs/ARCHITECTURE.md` updated with Capability-First Rule (§13 — P0-04) — done R032
-- [x] P0 tasks added to `15-action-backlog.md` — done R032
+- [x] P0 tasks added to `../03-roadmap/action-backlog.md` — done R032
 - [x] Canonical paths table added (§01) — done R033 follow-up
 - [x] Detection script registry with owner/round/phase added (§07) — done R033 follow-up
 - [x] ActionButton transition rule documented (§FE-05) — done R033 follow-up

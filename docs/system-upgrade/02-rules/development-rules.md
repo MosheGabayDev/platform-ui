@@ -3,7 +3,7 @@
 > Non-negotiable rules for all agents and developers working on this platform.
 > _Last updated: 2026-04-26 (R041-AI-Assist Governance — §6 AI readiness expanded to mandatory gate)_
 >
-> **Read after:** `CLAUDE.md` → `00-implementation-control-center.md` → **this file**
+> **Read after:** `CLAUDE.md` → `../00-control-center.md` → **this file**
 
 ---
 
@@ -52,7 +52,7 @@ A module round cannot be marked Done without:
 - E2E evidence: spec exists, or blocker documented
 - AI readiness status: declared (even if "not applicable")
 - i18n readiness status: declared (even if "deferred")
-- Module migration progress row updated: `03-module-migration-progress.md`
+- Module migration progress row updated: `../06-governance/module-migration-progress.md`
 
 ---
 
@@ -85,7 +85,7 @@ A module round cannot be marked Done without:
 
 ### 2.3 Shared Capabilities First
 
-- Before building any new capability, check `26-platform-capabilities-catalog.md`.
+- Before building any new capability, check `../04-capabilities/catalog.md`.
 - No local duplicate components — use shared `PageShell`, `DataTable`, `PlatformForm`, `DetailView`, `ActionButton`.
 - Shared capabilities: auth, RBAC, audit, notifications, file storage, AI gateway, billing, feature flags, settings engine.
 
@@ -130,8 +130,8 @@ A module round cannot be marked Done without:
 - **No module without E2E evidence.** Playwright spec exists, or blocker documented with issue reference.
 - **No fake passing tests.** Tests must actually exercise the behavior being asserted.
 - **Skipped tests require documented blocker.** `test.skip()` / `pytest.mark.skip()` with reason string pointing to an issue or this file.
-- Full standard: `48-testing-and-evidence-standard.md`.
-- Evidence matrix required per module: see `48-testing-and-evidence-standard.md §7`.
+- Full standard: `../02-rules/testing-standard.md`.
+- Evidence matrix required per module: see `../02-rules/testing-standard.md §7`.
 
 ---
 
@@ -160,7 +160,7 @@ A module round cannot be marked **Done** unless one of these is true and documen
 
 | Option | What is required |
 |--------|----------------|
-| **Full AI/Voice readiness** | AI readiness level declared + tested per `54-ai-assistant-runtime.md §14` |
+| **Full AI/Voice readiness** | AI readiness level declared + tested per `../05-ai/assistant-runtime.md §14` |
 | **Read-only explanation support** | Level 1 page context declared + explanation tested |
 | **Explicit documented exception** | Reason + approval + follow-up issue reference in `AI_READINESS.md` |
 
@@ -168,7 +168,7 @@ No silent omission. Every module must have one of the above before its round clo
 
 ### 6.2 AI Readiness Levels
 
-Full level definitions: `54-ai-assistant-runtime.md §14`.
+Full level definitions: `../05-ai/assistant-runtime.md §14`.
 
 | Level | Name | Description |
 |-------|------|-------------|
@@ -197,7 +197,7 @@ Every user-facing page must declare (in `ai-page-contexts.ts`):
 
 ### 6.4 Per-Module AI Actions
 
-Every AI-executable action must be registered in `AIActionRegistry` with a complete `AIActionDescriptor` (full spec: `54-ai-assistant-runtime.md §6`, canonical schema: `39-ai-architecture-consistency-pass.md`):
+Every AI-executable action must be registered in `AIActionRegistry` with a complete `AIActionDescriptor` (full spec: `../05-ai/assistant-runtime.md §6`, canonical schema: `../05-ai/canonical-terms.md`):
 
 | Required field | Description |
 |----------------|-------------|
@@ -242,11 +242,11 @@ Each module must document what the assistant must refuse. Examples:
 
 ### 6.7 Chat Capability Rules
 
-Chat may support any readiness level the module has declared and tested. Chat cannot bypass backend authorization for any reason. The model's output is guidance — the backend always re-checks (14 checks: `54-ai-assistant-runtime.md §8`).
+Chat may support any readiness level the module has declared and tested. Chat cannot bypass backend authorization for any reason. The model's output is guidance — the backend always re-checks (14 checks: `../05-ai/assistant-runtime.md §8`).
 
 ### 6.8 Required declarations per module
 
-In `docs/modules/<module_key>/AI_READINESS.md` (full template: `54-ai-assistant-runtime.md §10`):
+In `docs/modules/<module_key>/AI_READINESS.md` (full template: `../05-ai/assistant-runtime.md §10`):
 - Current and target readiness level
 - AI page contexts for every user-facing page
 - AI action registry entries (if Level 3+)
@@ -255,17 +255,17 @@ In `docs/modules/<module_key>/AI_READINESS.md` (full template: `54-ai-assistant-
 - AI service routes (read-only backend routes the assistant may call)
 - Exception declaration if AI readiness is not applicable
 
-**The `ai_chat` and `voice_agent` columns in `03-module-migration-progress.md` must be updated after every module round.**
+**The `ai_chat` and `voice_agent` columns in `../06-governance/module-migration-progress.md` must be updated after every module round.**
 
 **A module cannot be marked `migrated` until `ai_chat != "not_started"` and the declared level has passing tests.**
 
-Full module contract: `54-ai-assistant-runtime.md §10`
-Full readiness level spec: `54-ai-assistant-runtime.md §14`
-Required tests: `54-ai-assistant-runtime.md §11`
+Full module contract: `../05-ai/assistant-runtime.md §10`
+Full readiness level spec: `../05-ai/assistant-runtime.md §14`
+Required tests: `../05-ai/assistant-runtime.md §11`
 
 ### §6.9 Global Capability Metadata Required
 
-Every module must declare global capability metadata per `55-ai-system-capability-knowledge-base.md §6.1`. This is tracked in `03-module-migration-progress.md` column `capability_metadata`.
+Every module must declare global capability metadata per `../05-ai/capability-kb.md §6.1`. This is tracked in `../06-governance/module-migration-progress.md` column `capability_metadata`.
 
 Fields required:
 - `capability_summary`
@@ -300,14 +300,14 @@ A module cannot be marked `capability_metadata = complete` without all fields de
 ## 8. Agent Collaboration Rules
 
 - Multiple agents may work on different modules in parallel.
-- **Every parallel agent works in a Git worktree.** Never work directly on `main` or `master`. See `52-parallel-worktree-agent-workflow.md` for setup, naming, and cleanup.
+- **Every parallel agent works in a Git worktree.** Never work directly on `main` or `master`. See `_(deleted: see CLAUDE.md §Workflow Rules)_` for setup, naming, and cleanup.
 - Agents must not modify shared contracts (auth, RBAC decorators, shared components) without documenting impact.
-- Agents must not edit locked files in parallel — see `52-parallel-worktree-agent-workflow.md §7` for the full lock list.
-- Every agent must read the handoff protocol before starting: `51-agent-handoff-protocol.md`.
-- Every agent must leave a handoff summary when done (template in `51-agent-handoff-protocol.md`).
-- Progress tracker `03-module-migration-progress.md` must be updated after every module-related round.
+- Agents must not edit locked files in parallel — see `_(deleted: see CLAUDE.md §Workflow Rules)_ §7` for the full lock list.
+- Every agent must read the handoff protocol before starting: `../06-governance/handoff-protocol.md`.
+- Every agent must leave a handoff summary when done (template in `../06-governance/handoff-protocol.md`).
+- Progress tracker `../06-governance/module-migration-progress.md` must be updated after every module-related round.
 - Agents must not implement outside their assigned round/issue scope.
-- Safe and unsafe parallel combinations are defined in `52-parallel-worktree-agent-workflow.md §8`.
+- Safe and unsafe parallel combinations are defined in `_(deleted: see CLAUDE.md §Workflow Rules)_ §8`.
 
 ---
 
@@ -324,7 +324,7 @@ All per-module docs live under `docs/modules/<module_key>/`:
 | `AI_READINESS.md` | AI readiness declaration | Module marked migrated |
 | `I18N_READINESS.md` | i18n readiness and string inventory | Module marked migrated |
 
-> **Central tracker** links to all per-module docs: `03-module-migration-progress.md`.
+> **Central tracker** links to all per-module docs: `../06-governance/module-migration-progress.md`.
 
 ---
 
@@ -338,4 +338,4 @@ Violations of §5 (UX) and §7 (i18n) block a module from being marked **migrate
 
 Violations of §8 (Agent Collaboration) must be documented in the handoff summary and corrected in the next round.
 
-**Cross-reference:** `01-round-review-checklist.md` maps these rules to reviewer checklist items.
+**Cross-reference:** `../06-governance/round-checklist.md` maps these rules to reviewer checklist items.

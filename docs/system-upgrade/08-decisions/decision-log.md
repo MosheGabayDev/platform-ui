@@ -179,7 +179,7 @@ Error case:
 - MFA flow: `POST /login` may redirect to `/two-factor-login` instead of returning JSON — needs handling in `authorize` callback
 - 15-min JWT access token: next-auth JWT callback must refresh transparently
 
-**Follow-up tasks**: See `15-action-backlog.md §Auth Bridge Implementation`
+**Follow-up tasks**: See `../03-roadmap/action-backlog.md §Auth Bridge Implementation`
 
 ---
 
@@ -237,7 +237,7 @@ Error case:
 - B: CSV per table — simple; no FK awareness; no schema version; no signature; no PII handling
 - C: Governed JSONL module package with manifest, dry-run, ID remapping, and audit log ✅
 
-**Chosen direction**: **Option C** — versioned ZIP package per module per tenant, with JSONL data files, explicit owned/referenced/core table classification, mandatory dry-run before write, ID remapping, signature, and full audit trail. See full specification in `24-core-platform-and-module-system.md`.
+**Chosen direction**: **Option C** — versioned ZIP package per module per tenant, with JSONL data files, explicit owned/referenced/core table classification, mandatory dry-run before write, ID remapping, signature, and full audit trail. See full specification in `../04-capabilities/module-system.md`.
 
 **Core invariants this ADR enforces**:
 1. Exports are not raw DB dumps — they are module-owned data packages
@@ -255,7 +255,7 @@ Error case:
 - Import pipeline wraps writes in a DB transaction; rollback on any error
 - Download links are time-limited (24h for tenant data; 7d for config-only)
 - Export/import history visible in module management UI
-- 15 backlog tasks added — see `15-action-backlog.md §Module Data Export/Import`
+- 15 backlog tasks added — see `../03-roadmap/action-backlog.md §Module Data Export/Import`
 
 **Affected modules**: All 19 modules (at varying priority); core platform; billing; helpdesk highest priority
 
@@ -318,7 +318,7 @@ Error case:
 - Filter/pagination state uses `nuqs` after it's installed (Phase 1)
 - CSV export with BOM (Hebrew Excel compatibility)
 - `react-grid-layout` deferred to Phase 3 (Monitoring module)
-- Libraries listed in "What NOT to Add" table in `25-open-source-capability-layer.md` require explicit approval before installation
+- Libraries listed in "What NOT to Add" table in `../04-capabilities/oss-layer.md` require explicit approval before installation
 
 **Full reference**: `docs/system-upgrade/25-open-source-capability-layer.md`
 

@@ -5,7 +5,7 @@
 >
 > **Purpose:** Multiple agents may work in parallel on different modules. This protocol ensures no context is lost, no conflicts occur, and any agent can pick up where another left off.
 >
-> **Worktree workflow:** See `52-parallel-worktree-agent-workflow.md` for Git worktree setup, naming conventions, and parallel safety rules. Every parallel agent session should use a worktree, not the main working directory.
+> **Worktree workflow:** See `_(deleted: see CLAUDE.md §Workflow Rules)_` for Git worktree setup, naming conventions, and parallel safety rules. Every parallel agent session should use a worktree, not the main working directory.
 
 ---
 
@@ -31,7 +31,7 @@ Every agent must read these docs before writing any code:
 
 **If any of the above docs do not exist for the module being worked on:** create them before writing product code.
 
-**AI readiness check:** Before writing any module code, confirm the module's `ai_chat` and `voice_agent` status in `03-module-migration-progress.md`. If `not_started`, create the `AI_READINESS.md` with at minimum a level declaration and exception documentation if AI is not applicable.
+**AI readiness check:** Before writing any module code, confirm the module's `ai_chat` and `voice_agent` status in `../06-governance/module-migration-progress.md`. If `not_started`, create the `AI_READINESS.md` with at minimum a level declaration and exception documentation if AI is not applicable.
 
 ---
 
@@ -41,13 +41,13 @@ Every agent must read these docs before writing any code:
 
 - Work only within the assigned issue/round.
 - If you discover something that must be done but is outside scope: document it as a follow-up issue. Do not implement it.
-- If scope is unclear: add an open question to `13-open-questions.md` and stop until clarified.
+- If scope is unclear: add an open question to `../08-decisions/open-questions.md` and stop until clarified.
 
 ### Update progress in real-time
 
 - Use `TodoWrite` to track your steps for the current session.
 - Mark tasks complete immediately — do not batch.
-- If you hit a blocker: record it in the module's blocker row in `03-module-migration-progress.md` and in `99-risk-register.md` if it affects multiple rounds.
+- If you hit a blocker: record it in the module's blocker row in `../06-governance/module-migration-progress.md` and in `../09-history/risk-register.md` if it affects multiple rounds.
 
 ### Do not touch shared contracts without documenting impact
 
@@ -59,7 +59,7 @@ Shared contracts that affect all agents:
 - Any shared TypeScript component in `components/`
 - `middleware.ts` — Next.js auth middleware
 
-If you must modify a shared contract: document the impact in the commit message and in the round entry in `96-rounds-index.md`.
+If you must modify a shared contract: document the impact in the commit message and in the round entry in `../09-history/rounds-index.md`.
 
 ### Record skipped tests immediately
 
@@ -90,7 +90,7 @@ Before a round is closed, the agent must update:
 
 ## Handoff Summary Template
 
-Every agent must leave a handoff summary at the end of their round. This summary goes into the `96-rounds-index.md` entry for the round and as a comment in the final commit message.
+Every agent must leave a handoff summary at the end of their round. This summary goes into the `../09-history/rounds-index.md` entry for the round and as a comment in the final commit message.
 
 ```markdown
 ## Handoff Summary — <round_id>
@@ -156,7 +156,7 @@ When multiple agents work concurrently:
 ### Worktree-first rule
 
 - **Every parallel agent must work in a Git worktree**, not the main repo directory.
-- Worktree setup: `52-parallel-worktree-agent-workflow.md §4`.
+- Worktree setup: `_(deleted: see CLAUDE.md §Workflow Rules)_ §4`.
 - **Never work directly on `main` or `master`.**
 - Never start work without confirming `git branch --show-current` shows the feature branch.
 
@@ -164,35 +164,35 @@ When multiple agents work concurrently:
 
 - Each agent is assigned **one module** (or one well-defined cross-cutting task).
 - Two agents must not modify the same module simultaneously.
-- `03-module-migration-progress.md` shows which modules are in-progress — check before starting.
+- `../06-governance/module-migration-progress.md` shows which modules are in-progress — check before starting.
 
 ### Shared docs reconciliation
 
 The following files are **shared coordination docs** — never updated by two agents simultaneously:
 
-`CLAUDE.md`, `00-implementation-control-center.md`, `15-action-backlog.md`, `35-platform-capabilities-build-order.md`, `96-rounds-index.md`, `97-source-of-truth.md`, `98-change-log.md`, `99-risk-register.md`, `03-module-migration-progress.md`
+`CLAUDE.md`, `../00-control-center.md`, `../03-roadmap/action-backlog.md`, `../03-roadmap/master-roadmap.md`, `../09-history/rounds-index.md`, `97-source-of-truth.md`, `../09-history/change-log.md`, `../09-history/risk-register.md`, `../06-governance/module-migration-progress.md`
 
 **Each agent updates only module-local docs** during their round. Central docs are reconciled via one of two paths:
 - **Docs coordinator:** a dedicated post-merge agent round updates all central docs at once.
 - **Final PR reconciliation:** the last parallel PR to merge includes central docs updates as a separate commit.
 
-If a round *must* update a central doc during its own PR: it must be explicitly listed in the agent assignment contract, and no other active agent may edit the same file. See `52-parallel-worktree-agent-workflow.md §6.1` for the full rule.
+If a round *must* update a central doc during its own PR: it must be explicitly listed in the agent assignment contract, and no other active agent may edit the same file. See `_(deleted: see CLAUDE.md §Workflow Rules)_ §6.1` for the full rule.
 
-Full lock list: `52-parallel-worktree-agent-workflow.md §7`.
+Full lock list: `_(deleted: see CLAUDE.md §Workflow Rules)_ §7`.
 
 ### Conflict resolution
 
 - If two agents create conflicting implementations: the one that matches the round contract wins.
 - The conflicting work must be documented as a follow-up, not silently dropped.
-- If uncertain: add an open question to `13-open-questions.md`.
+- If uncertain: add an open question to `../08-decisions/open-questions.md`.
 
 ### Context transfer
 
 An agent picking up abandoned work must:
-1. Read the handoff summary in `96-rounds-index.md` for the round.
+1. Read the handoff summary in `../09-history/rounds-index.md` for the round.
 2. Check `git log --oneline -10` on the branch.
 3. Run `bash scripts/test_steps/00_regression.sh` to confirm starting state.
-4. Check `03-module-migration-progress.md` for the module's current blocker status.
+4. Check `../06-governance/module-migration-progress.md` for the module's current blocker status.
 
 ---
 
@@ -203,28 +203,28 @@ If a round must be abandoned mid-implementation:
 1. **Do not leave uncompilable code.** Either complete the change or revert it.
 2. **Commit what is safe.** Partial work that doesn't break anything should be committed with a clear WIP message.
 3. **Write the handoff summary** with "Not Completed" section filled in.
-4. **Document blockers** in `99-risk-register.md` if they affect future rounds.
-5. **Update `03-module-migration-progress.md`** to reflect the current (not intended) state.
+4. **Document blockers** in `../09-history/risk-register.md` if they affect future rounds.
+5. **Update `../06-governance/module-migration-progress.md`** to reflect the current (not intended) state.
 
 ---
 
 ## Quick Orientation Checklist for a New Agent
 
 ```
-[ ] Confirm worktree setup (52-parallel-worktree-agent-workflow.md §4)
+[ ] Confirm worktree setup (_(deleted: see CLAUDE.md §Workflow Rules)_ §4)
     - git branch --show-current  ← must be feature branch, NOT main/master
     - git status                 ← must be clean
 [ ] Read CLAUDE.md — especially §Shared Services Enforcement and §Security Rules
-[ ] Read 00-implementation-control-center.md — active round, blockers, do-not-start
-[ ] Read 02-development-rules.md — product, arch, security, testing, UX rules
-[ ] Check 03-module-migration-progress.md — is your module in progress? blocked?
+[ ] Read ../00-control-center.md — active round, blockers, do-not-start
+[ ] Read ../02-rules/development-rules.md — product, arch, security, testing, UX rules
+[ ] Check ../06-governance/module-migration-progress.md — is your module in progress? blocked?
 [ ] Read the round/issue contract — scope, acceptance criteria, out-of-scope
 [ ] Read the module LEGACY_INVENTORY.md — what must be preserved?
 [ ] Read the module E2E_COVERAGE.md — what must be testable?
 [ ] Run: bash scripts/test_steps/00_regression.sh — baseline passing
 [ ] Check git log: any WIP commits from previous agent?
-[ ] Check 96-rounds-index.md: any handoff summary for your round?
-[ ] Check 52-parallel-worktree-agent-workflow.md §7 — am I allowed to edit the files I need?
+[ ] Check ../09-history/rounds-index.md: any handoff summary for your round?
+[ ] Check _(deleted: see CLAUDE.md §Workflow Rules)_ §7 — am I allowed to edit the files I need?
 ```
 
-If any of these steps surface a concern: add it to `13-open-questions.md` before writing code.
+If any of these steps surface a concern: add it to `../08-decisions/open-questions.md` before writing code.

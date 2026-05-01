@@ -24,7 +24,7 @@ _Last updated: 2026-04-24 (Round 022 — all deferred blockers resolved)_
 | **R021-PII-001** — Email in user list | NEW MEDIUM | Deferred | ✅ Fixed R022 |
 | **R021-L3** — URL token in jwt_required | NEW LOW | Deferred | ✅ Fixed R022 |
 | C1 — SAML disabled | CRITICAL | Still open — not in scope | Still open |
-| **CSP-enforce** — Security headers | NEW MEDIUM | — | Plan only ([31-production-security-headers.md](31-production-security-headers.md)) |
+| **CSP-enforce** — Security headers | NEW MEDIUM | — | Plan only ([../07-audits/production-security-headers.md](../07-audits/production-security-headers.md)) |
 
 ---
 

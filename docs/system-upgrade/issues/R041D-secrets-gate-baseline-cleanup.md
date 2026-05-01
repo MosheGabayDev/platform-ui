@@ -52,7 +52,7 @@ bypass it, and a real new secret could ship undetected.
   to anchor the allowlist
 - Verify D-005 green on `platformengineer/main` — or clearly reduced to documented allowlist
 - Ensure future PRs fail only on new findings (not pre-existing baseline)
-- Move R27 from `🔴 Active` to `🟢 MITIGATED` or `RESOLVED` in `99-risk-register.md`
+- Move R27 from `🔴 Active` to `🟢 MITIGATED` or `RESOLVED` in `../09-history/risk-register.md`
   when acceptance criteria pass
 
 ---
@@ -88,7 +88,7 @@ bypass it, and a real new secret could ship undetected.
 5. Allowlist policy is documented (what is allowed and why; who approves additions)
 6. Test fixtures still run after any changes to test credential handling
 7. CI evidence attached: D-005 output before + after
-8. `99-risk-register.md §R27` updated from `🔴 Active` to `🟢 MITIGATED/RESOLVED`
+8. `../09-history/risk-register.md §R27` updated from `🔴 Active` to `🟢 MITIGATED/RESOLVED`
 9. No new secrets introduced during cleanup
 10. PR description explicitly states: before/after finding counts; classification breakdown
 
@@ -164,6 +164,6 @@ an allowlist entry instead.
 
 ## Follow-ups / Related
 
-- `99-risk-register.md §R27` — close when AC pass
-- `00-implementation-control-center.md §G-SecretScan` — update gate to ✅ when clean
+- `../09-history/risk-register.md §R27` — close when AC pass
+- `../00-control-center.md §G-SecretScan` — update gate to ✅ when clean
 - R041A CI enforcement: confirm D-005 gate is reliable before enforcing hard-fail mode

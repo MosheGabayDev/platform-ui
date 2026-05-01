@@ -81,7 +81,7 @@ body:
         - [ ] Existing violations are flagged but non-blocking (warning mode)
         - [ ] ActionButton extracted to shared components with same behavior
         - [ ] All existing tests still pass (regression gate green)
-        - [ ] 96-rounds-index.md updated
+        - [ ] ../../docs/system-upgrade/09-history/rounds-index.md updated
     validations:
       required: true
 
@@ -106,7 +106,7 @@ body:
       label: Shared Capability Checklist
       description: Confirm shared services are used correctly
       value: |
-        - [ ] Checked `26-platform-capabilities-catalog.md` — not duplicating existing capability
+        - [ ] Checked `../../docs/system-upgrade/04-capabilities/catalog.md` — not duplicating existing capability
         - [ ] LLM calls use `AIProviderGateway.call()` — not direct SDK
         - [ ] Auth uses `@jwt_required` + `g.jwt_user`
         - [ ] Response envelope is `{"success": bool, "data": {...}}`
@@ -144,7 +144,7 @@ body:
     id: risks
     attributes:
       label: Risks
-      description: Known risks for this round; link to relevant entries in 99-risk-register.md
+      description: Known risks for this round; link to relevant entries in ../../docs/system-upgrade/09-history/risk-register.md
       placeholder: |
         - R04 (Direct LLM Bypass) — this round partially mitigates
         - Scope creep risk: don't fix existing violations in this round

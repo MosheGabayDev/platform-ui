@@ -669,7 +669,7 @@ Do not install all at once — each library adds bundle weight. Install on first
 
 ## 18. ADR-016 Reference
 
-See `14-decision-log.md §ADR-016` for the formal architecture decision record covering this capability layer.
+See `../08-decisions/decision-log.md §ADR-016` for the formal architecture decision record covering this capability layer.
 
 ---
 

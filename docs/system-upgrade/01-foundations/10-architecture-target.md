@@ -26,7 +26,7 @@ Every database table in the system must be classified into one of three categori
 | **Referenced** | Module reads but does not own | Export reference key only; remap on import |
 | **Core/Shared** | Owned by platform (`users`, `orgs`, `roles`) | Never overwritten on import; remapped only |
 
-Each module declares its data ownership in a `dataContract` section in its manifest. See `24-core-platform-and-module-system.md` for full specification.
+Each module declares its data ownership in a `dataContract` section in its manifest. See `../04-capabilities/module-system.md` for full specification.
 
 Export packages are versioned JSONL archives — not SQL dumps. Every import runs a mandatory dry-run before writing. Secrets are never exported.
 
@@ -44,9 +44,9 @@ These principles apply to every file written or modified in this project:
 | **Self-describing headers** | Module-level docstring (Python) or JSDoc (TypeScript) on every file; states purpose, auth requirement, tenant-scoping |
 | **Explicit boundaries** | `apps/A/` does not import from `apps/B/`; `lib/api/` does not import from `app/`; boundaries declared and enforced by `import-linter` |
 | **One canonical implementation** | When an old and new version of the same thing co-exist, the old one is archived or deleted — never left as a sibling file |
-| **Capability-first** | Before building any new module feature, check `26-platform-capabilities-catalog.md` — if a shared capability exists or should exist, build/extend it first, then use it. Module-local implementations used in 2+ modules must be promoted to the catalog. |
+| **Capability-first** | Before building any new module feature, check `../04-capabilities/catalog.md` — if a shared capability exists or should exist, build/extend it first, then use it. Module-local implementations used in 2+ modules must be promoted to the catalog. |
 
-For the full policy see `23-ai-maintainability-and-code-cleanup.md`.
+For the full policy see `../06-governance/ai-maintainability.md`.
 
 ---
 
@@ -297,7 +297,7 @@ AI agents (ALA voice, Helpdesk AI, Investigation Console) execute platform actio
 - Confirmation: `AIActionConfirmationToken` (single-use, 120s TTL); voice uses 60s + verbal confirm ceiling
 - Audit: `AIActionInvocation` table (monthly partitioned) + `UserActivity` row on every execution
 - Integrates with: `ApprovalService` (high/critical tier), `ToolInvocation` (helpdesk sessions), `AIAction` (org-defined HTTP actions)
-- Decision: ADR-022 in `14-decision-log.md`
+- Decision: ADR-022 in `../08-decisions/decision-log.md`
 
 **AI User Capability Context (ADR-023):**
 - `GET /api/ai/context` returns server-generated `AIUserCapabilityContext` — JWT-derived, never client-supplied

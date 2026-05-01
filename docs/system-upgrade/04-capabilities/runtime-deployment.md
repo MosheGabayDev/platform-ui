@@ -431,7 +431,7 @@ Note: `platform-api`, `platform-worker`, and `platform-scheduler` share one Dock
 
 **Rules:**
 
-1. `db.create_all()` must **not** run in production/staging on pod boot — it is banned from the production startup path. This is already violated in R040 (`apps/__init__.py:1487`) — tracked in `99-risk-register.md §R15`. Must be removed before P2.
+1. `db.create_all()` must **not** run in production/staging on pod boot — it is banned from the production startup path. This is already violated in R040 (`apps/__init__.py:1487`) — tracked in `../09-history/risk-register.md §R15`. Must be removed before P2.
 2. Migrations must run as a **separate Job** (Kubernetes `Job` or manual step), observable, with exit code verification.
 3. The app startup (`web-api` pod) must check migration state via `/api/ready` — if migrations are not current, the pod must return `503` until they are.
 4. **Migration failure must not partially start a new app version.** Deployment rollout must wait for migration Job success before proceeding.
@@ -505,7 +505,7 @@ Every service must provide:
 
 ## 12. CI/CD Pipeline Implications
 
-Target deployment pipeline (not yet implemented — tracked in `15-action-backlog.md`):
+Target deployment pipeline (not yet implemented — tracked in `../03-roadmap/action-backlog.md`):
 
 ```
 1.  Build platform-ui Docker image  (if platform-ui changes)

@@ -22,7 +22,7 @@
 > - `blocked` — blocked on dependency; reason documented in this row
 > - `tested` — all required tests for declared level pass and are documented
 >
-> Full readiness level spec: `54-ai-assistant-runtime.md §14`
+> Full readiness level spec: `../05-ai/assistant-runtime.md §14`
 
 ### Global AI Knowledge Status Columns
 
@@ -36,7 +36,7 @@
 | `advisory_tested` | `not_started` / `passing` | Knowledge completeness + advisory behavior tests written and passing | `docs/modules/<key>/CAPABILITY_METADATA.md` |
 | `user_capability_context` | `not_started` / `partial` / `integrated` | Module contributes to runtime user capability context | `docs/modules/<key>/CAPABILITY_METADATA.md` |
 
-> A module cannot be marked `capability_metadata = complete` without all §6.1 fields of `55-ai-system-capability-knowledge-base.md` declared.
+> A module cannot be marked `capability_metadata = complete` without all §6.1 fields of `../05-ai/capability-kb.md` declared.
 > A module cannot be marked `global_ai_knowledge = complete` without being registered in the capability registry (or docs equivalent).
 
 ---

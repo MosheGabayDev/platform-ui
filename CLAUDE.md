@@ -33,9 +33,9 @@
 11. [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — full system architecture blueprint
 
 **Before rewriting any module:**
-- `docs/modules/<module_key>/LEGACY_INVENTORY.md` must exist (template: `49-legacy-functionality-inventory.md`)
-- `docs/modules/<module_key>/E2E_COVERAGE.md` must exist (standard: `50-module-e2e-coverage-matrix.md`)
-- No capability may be silently removed — see `02-development-rules.md §No Feature Loss During Rewrite`
+- `docs/modules/<module_key>/LEGACY_INVENTORY.md` must exist (template: `docs/system-upgrade/02-rules/legacy-inventory.md`)
+- `docs/modules/<module_key>/E2E_COVERAGE.md` must exist (standard: `docs/system-upgrade/02-rules/e2e-coverage.md`)
+- No capability may be silently removed — see `docs/system-upgrade/02-rules/development-rules.md §No Feature Loss During Rewrite`
 
 ---
 
@@ -46,7 +46,7 @@
 - **Push every commit to `origin/master`** when done. No local-only commits left dangling.
 - **Hotfix on `master`.** If something breaks on master, fix forward — do not branch.
 - **Tasks are atomic.** See `docs/system-upgrade/10-tasks/` — every round is broken into ≤2h task units. Pick one task, complete it, commit, move on.
-- **Old worktree/parallel-agent docs are deprecated.** The previous worktree workflow (legacy `52-parallel-worktree-agent-workflow.md`) is superseded by this rule. Ignore worktree instructions in any older doc.
+- **Old worktree/parallel-agent docs are deprecated.** The previous worktree workflow (legacy `_(deleted: see CLAUDE.md §Workflow Rules)_`) is superseded by this rule. Ignore worktree instructions in any older doc.
 
 ---
 
@@ -317,4 +317,4 @@ IF BLOCKED BY MISSING SHARED CAPABILITY:
 - [ ] If module touched: `docs/system-upgrade/03-module-migration-progress.md` updated
 - [ ] If module rewritten: `docs/modules/<key>/LEGACY_INVENTORY.md` exists and is updated
 - [ ] If module rewritten: `docs/modules/<key>/E2E_COVERAGE.md` exists and is updated
-- [ ] Handoff summary written in `96-rounds-index.md` entry (see `51-agent-handoff-protocol.md`)
+- [ ] Handoff summary written in `docs/system-upgrade/09-history/rounds-index.md` entry (see `docs/system-upgrade/06-governance/handoff-protocol.md`)

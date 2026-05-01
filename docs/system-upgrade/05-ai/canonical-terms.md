@@ -3,7 +3,7 @@
 _Round 028 — 2026-04-24 | Updated R041-AI (cross-reference to 54)_
 _Status: Complete. This document is the canonical reference for terminology, schemas, and security rules. All new implementation must follow this document, not earlier drafts in doc 36._
 
-> **Runtime contract:** `54-ai-assistant-runtime.md` is the runtime source of truth. Doc 39 remains the canonical reference for: terminology (`voice_eligible`, `capability_level` values), `AIActionDescriptor` v1 30-field schema (§05), security rules (§09), and rollback policy (§11). Doc 54 §6 reproduces the key `AIActionDescriptor` fields for runtime reference.
+> **Runtime contract:** `../05-ai/assistant-runtime.md` is the runtime source of truth. Doc 39 remains the canonical reference for: terminology (`voice_eligible`, `capability_level` values), `AIActionDescriptor` v1 30-field schema (§05), security rules (§09), and rollback policy (§11). Doc 54 §6 reproduces the key `AIActionDescriptor` fields for runtime reference.
 
 ---
 
@@ -462,16 +462,16 @@ The following must be resolved before any non-READ AI action ships to production
 
 Round 028 (this doc) is complete when:
 
-- [ ] `39-ai-architecture-consistency-pass.md` exists and all sections §01–§12 are present
+- [ ] `../05-ai/canonical-terms.md` exists and all sections §01–§12 are present
 - [ ] Doc 36 §05 marks old `AIActionDescriptor` as "pre-v1 draft, superseded by doc 39 §05"
 - [ ] Doc 36 §06 marks `check_delegated_permission()` as "pre-v1 draft; use §37 viability checks"
 - [ ] Doc 36 §09 voice rule "READ and WRITE_LOW only" is corrected or removed
 - [ ] Doc 36 §09/§11/§23 `voiceInvocable` / `voice_invocable` → `voice_eligible`
 - [ ] ADR-026 in decision log references this document as consistency foundation
-- [ ] `15-action-backlog.md` has B1–B10 blocker tasks
-- [ ] `35-platform-capabilities-build-order.md` lists consistency-pass gate before R027 implementation
-- [ ] `96-rounds-index.md` has Round 028 entry
-- [ ] `98-change-log.md` has Round 028 entry
+- [ ] `../03-roadmap/action-backlog.md` has B1–B10 blocker tasks
+- [ ] `../03-roadmap/master-roadmap.md` lists consistency-pass gate before R027 implementation
+- [ ] `../09-history/rounds-index.md` has Round 028 entry
+- [ ] `../09-history/change-log.md` has Round 028 entry
 
 ---
 

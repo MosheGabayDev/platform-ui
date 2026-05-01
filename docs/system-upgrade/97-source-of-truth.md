@@ -1,6 +1,6 @@
-# 97 — Source of Truth Registry
+# Source of Truth Registry
 
-_Defines which file owns each concern. When you have new information, look up the category and write it there — not anywhere else._
+> Defines which file owns each concern. When you have new information, look up the category and write it there — not anywhere else.
 
 ---
 
@@ -12,60 +12,122 @@ _Defines which file owns each concern. When you have new information, look up th
 
 ## Registry
 
-| Category | Primary File | Secondary / Cross-ref | Notes |
-|----------|-------------|----------------------|-------|
-| **Executive summary** | `00-executive-summary.md` | — | High-level status, maturity, direction. Update after each round that changes the overall picture. |
-| **Current system analysis** | `01-current-system-analysis.md` | `03-technology-inventory.md` | Code-derived facts about platformengineer. Add new discoveries here. |
-| **Product needs** | `02-product-needs-inferred.md` | — | Inferred user/business requirements. Update when a new module or user story is uncovered. |
-| **Technology inventory** | `03-technology-inventory.md` | `11-recommended-tech-stack.md` | Every library/service with version + assessment. Keep in sync with `package.json`. |
-| **Architecture assessment** | `04-architecture-assessment.md` | `10-target-architecture.md` | Strengths and weaknesses of current architecture. |
-| **UI/UX assessment** | `05-ui-ux-assessment.md` | `docs/design/DESIGN_SYSTEM.md` | Frontend condition + design decisions. |
-| **Security** | `06-security-assessment.md` | `14-decision-log.md` (security ADRs) | Findings by severity. New CVEs or auth issues go here first. |
-| **Scalability** | `07-scalability-maintainability.md` | — | Performance bottlenecks, scale limits. |
-| **Technical debt** | `08-technical-debt-register.md` | `15-action-backlog.md` | Debt items with priority. Resolved debt → mark as `[x]` and add resolution date. |
-| **Modernization opportunities** | `09-modernization-opportunities.md` | `docs/UPGRADE_ROADMAP.md` | Opportunities with effort/impact rating. Quick wins cross-reference `UPGRADE_ROADMAP.md §7`. |
-| **Target architecture** | `10-target-architecture.md` | `docs/ARCHITECTURE.md` | Future-state system design. `docs/ARCHITECTURE.md` is the Next.js-specific view; this file is the full-stack view. |
-| **Recommended tech stack** | `11-recommended-tech-stack.md` | `CLAUDE.md §Tech Stack` | Frontend + backend library choices with rationale. `CLAUDE.md` has the definitive dev-time table. |
-| **Migration roadmap** | `12-migration-roadmap.md` | `docs/modules/ROADMAP.md` | Phased plan (Phase 0-4). Module-level plan lives in `docs/modules/`. |
-| **Open questions** | `13-open-questions.md` | — | Every unresolved question. Mark answered questions `[RESOLVED]` with the answer inline. Never delete — history is valuable. |
-| **Decision log** | `14-decision-log.md` | `CLAUDE.md §Hard Rules` | ADRs. When an ADR affects dev rules, propagate the consequence to `CLAUDE.md`. |
-| **Action backlog** | `15-action-backlog.md` | `docs/modules/*/PLAN.md` | Prioritized tasks. Module-specific tasks live in each module's PLAN.md; this file has cross-cutting and Phase 0 tasks. |
-| **Module specs** | `docs/modules/<N>-<name>/PLAN.md` | `15-action-backlog.md` | One file per module. Flask endpoints, TypeScript types, pages, components, DoD. |
-| **Deep upgrade roadmap** | `docs/UPGRADE_ROADMAP.md` | `09-modernization-opportunities.md` | 5-tier upgrade plan with quick wins, dependency order, risk register. |
-| **AI-maintainability policy** | `23-ai-maintainability-and-code-cleanup.md` | `08-technical-debt-register.md`, `10-target-architecture.md`, `12-migration-roadmap.md` | Dead-code strategy, file size limits, INDEX.md standards, Vite app retirement, Jinja2 retirement schedule. |
-| **Module system + data export/import** | `24-core-platform-and-module-system.md` | `10-target-architecture.md §Module Data Ownership`, `12-migration-roadmap.md §Phase 3.5`, `14-decision-log.md (ADR-014)` | Module lifecycle, data ownership (owned/referenced/core), export package format, import modes, data contract spec, security rules, backend models, UI flows. |
-| **Platform capabilities build order** | `35-platform-capabilities-build-order.md` | `26-platform-capabilities-catalog.md` | Sequenced capability rounds, gate requirements, dependency graph. Capability round labels in §11 start at R033 (R023–R031 consumed by AI/security work). |
-| **AI Action Platform** | `36-ai-action-platform.md` | `39-ai-architecture-consistency-pass.md` | Canonical AI action design: AIActionDescriptor v1, capability levels, voice policy, security rules. Deprecated sections marked; use doc 39 for canonical terms. |
-| **Floating AI Assistant** | `38-floating-ai-assistant.md` | `36-ai-action-platform.md`, `40-ai-provider-gateway-billing.md` | Shell layout, drawer UX, PageContextDiff, voice mode spec. No LLM code yet — infra only. |
-| **AI architecture canonical terms** | `39-ai-architecture-consistency-pass.md` | `36-ai-action-platform.md` (deprecated §§) | Single source for: risk_tier retirement, voice_eligible canonical name, AIActionDescriptor v1 30-field schema, rollback policy, tool injection safety rules. |
-| **AI Provider Gateway architecture** | `40-ai-provider-gateway-billing.md` | `36-ai-action-platform.md §42`, `38-floating-ai-assistant.md §14` | Gateway pipeline, billing metering, usage event model, AIUsageLog 14-field extension, CI enforcement design. Phase 1 implemented (platformengineer working tree, R031). |
-| **Direct LLM call migration inventory** | `41-direct-llm-call-audit-and-migration.md` | `40-ai-provider-gateway-billing.md`, `15-action-backlog.md` | P0/P1/P2/P3 files, bypass wrapper deletion criteria, gateway Phase 1 readiness assessment. |
-| **Master plan consistency** | `42-master-plan-consistency-and-readiness.md` | All docs 00–41 | Conflicts found/fixed, canonical hierarchy, implementation status matrices, blocker register, gates A–G. Update after every round that changes overall status. |
-| **Round history** | `96-rounds-index.md` (this workspace) | — | Every investigation round. |
-| **Change log** | `98-change-log.md` (this workspace) | — | What changed in each round. |
-| **Generic Platform Foundation Roadmap** | `47-generic-platform-foundation-roadmap.md` | `10-target-architecture.md`, `docs/ARCHITECTURE.md` | Master platform roadmap: pillars, capability inventory, build order, ADRs 033-035. |
-| **Data Sources & Knowledge Connections** | `47-generic-platform-foundation-roadmap.md §9` | `26-platform-capabilities-catalog.md` | Full spec: DataConnection, DataSource, SourceAccessPolicy, MCP governance, DB governance, AI retrieval policy. |
-| **AI-Native Platform Vision** | `47-generic-platform-foundation-roadmap.md §2` | `10-target-architecture.md`, `docs/ARCHITECTURE.md §24` | Product purpose, target users, target organizations, AI operating model, module/marketplace fit, cross-platform strategy. |
-| **Platform pillars** | `47-generic-platform-foundation-roadmap.md §3` | `docs/ARCHITECTURE.md §24` | 10 pillars with status and key capabilities. |
-| **Implementation Control Center** | `00-implementation-control-center.md` | `CLAUDE.md §Implementation Governance` | Active round, next 10 rounds, blockers, DoR, DoD, do-not-start list. Read after CLAUDE.md. |
-| **Testing and evidence standard** | `48-testing-and-evidence-standard.md` | `01-round-review-checklist.md §12` | Mandatory test categories: auth, RBAC, tenant isolation, audit, safe errors, AI governance, data sources, billing. Evidence matrix, E2E security structure, backend helper patterns, CI gate plan. |
-| **Development rules** | `02-development-rules.md` | `CLAUDE.md §Shared Services Enforcement`, `01-round-review-checklist.md` | Non-negotiable rules for all agents: product, architecture, security, testing, UX, AI readiness, i18n. |
-| **Module migration progress** | `03-module-migration-progress.md` | `51-agent-handoff-protocol.md §After Work` | Central per-module rewrite tracker. Update after every module-related round. Links to per-module docs. |
-| **Legacy inventory standard** | `49-legacy-functionality-inventory.md` | `docs/modules/<key>/LEGACY_INVENTORY.md` | Standard template for per-module legacy inventory. Actual inventories are per-module files, not this file. |
-| **E2E coverage standard** | `50-module-e2e-coverage-matrix.md` | `docs/modules/<key>/E2E_COVERAGE.md` | Standard and global index for E2E coverage. Actual coverage plans are per-module files. |
-| **Agent handoff protocol** | `51-agent-handoff-protocol.md` | `96-rounds-index.md §Handoff Summary`, `52-parallel-worktree-agent-workflow.md` | Protocol for parallel agents and context handoff. Handoff summaries live in the round's `96-rounds-index.md` entry. |
-| **Parallel worktree workflow** | `52-parallel-worktree-agent-workflow.md` | `51-agent-handoff-protocol.md`, `02-development-rules.md §Agent Collaboration` | Git worktree naming convention, creation commands, file lock list, safe/unsafe parallel tracks, PR workflow, merge order, cleanup. |
-| **Runtime deployment architecture** | `53-runtime-deployment-architecture.md` | `CLAUDE.md §System Architecture`, `deployment/CLAUDE.md`, `47-generic-platform-foundation-roadmap.md` | Pod/service separation, Kubernetes runtime topology, deployment boundaries, health checks, failure isolation, scaling rules, security boundaries, migration job rule. ADR: Runtime Pod Separation and Failure Isolation. |
-| **AI assistant runtime contract** | `54-ai-assistant-runtime.md` | `36-ai-action-platform.md`, `38-floating-ai-assistant.md`, `39-ai-architecture-consistency-pass.md`, `40-ai-provider-gateway-billing.md` | Global chat + voice agent end-to-end runtime: page context registry, capability context lifecycle, action proposal flow, backend re-check, confirmation/approval policy, audit/billing requirements, voice safety limits, module contract, implementation phases. |
-| **Global AI capability knowledge** | `55-ai-system-capability-knowledge-base.md` | `36-ai-action-platform.md`, `54-ai-assistant-runtime.md` | SystemCapability, SolutionTemplate, CapabilityRecommendation models. Knowledge sources, advisory flows, module capability metadata standard. |
-| **Per-module legacy inventory** | `docs/modules/<module_key>/LEGACY_INVENTORY.md` | `49-legacy-functionality-inventory.md` (template) | Per-module: existing functionality inventory. Must exist before rewrite starts. |
-| **Per-module E2E coverage** | `docs/modules/<module_key>/E2E_COVERAGE.md` | `50-module-e2e-coverage-matrix.md` (standard) | Per-module: E2E flow plan and evidence. Must exist before rewrite starts. |
-| **Per-module testing docs** | `docs/modules/<module_key>/TESTING.md` | `48-testing-and-evidence-standard.md` | Per-module: test evidence, known gaps, security test matrix. |
-| **Per-module AI readiness** | `docs/modules/<module_key>/AI_READINESS.md` | `02-development-rules.md §AI Readiness` | Per-module: AI page context, actions, routes, voice capability, refuse list. |
-| **Per-module i18n readiness** | `docs/modules/<module_key>/I18N_READINESS.md` | `02-development-rules.md §i18n` | Per-module: translation key inventory, hardcoded string list, RTL status. |
-| **Risk register** | `99-risk-register.md` | `00-implementation-control-center.md §Link` | All active platform risks (R01–R20) with mitigations, blocking status, review round. |
-| **Round review checklist** | `01-round-review-checklist.md` | `00-implementation-control-center.md §Review` | 11-section reviewer checklist. Run before marking any round done. |
-| **Implementation issue drafts** | `issues/R040-R049-issue-drafts.md` | GitHub issue tracker | Round contract bodies for R040–R049 until GitHub issues created. |
+### Active plan and governance
+
+| Category | Primary file |
+|----------|-------------|
+| Active round, blockers, gates, do-not-start list | `00-control-center.md` |
+| Master plan (vision, pillars, phases, gates, build order) | `03-roadmap/master-roadmap.md` |
+| Action backlog (cross-cutting tasks) | `03-roadmap/action-backlog.md` |
+| Modernization opportunities (quick wins → strategic) | `03-roadmap/modernization-opportunities.md` |
+| Atomic task breakdown per round | `10-tasks/<round>/epic.md` + `10-tasks/<round>/tasks/T*.md` |
+
+### Foundations (current state, target state, assessments)
+
+| Category | Primary file |
+|----------|-------------|
+| Executive summary (high-level status, direction, maturity) | `01-foundations/01-executive-summary.md` |
+| Current system analysis | `01-foundations/02-current-system.md` |
+| Product needs (inferred user/business requirements) | `01-foundations/03-product-needs.md` |
+| Technology inventory (current libraries with assessments) | `01-foundations/04-tech-inventory.md` |
+| Current architecture (strengths and weaknesses) | `01-foundations/05-architecture-current.md` |
+| UI/UX assessment | `01-foundations/06-ux-assessment.md` |
+| Security assessment (findings by severity) | `01-foundations/07-security.md` |
+| Scalability and maintainability | `01-foundations/08-scalability.md` |
+| Technical debt register | `01-foundations/09-tech-debt.md` |
+| Target architecture | `01-foundations/10-architecture-target.md` |
+| Recommended tech stack | `01-foundations/11-recommended-tech-stack.md` |
+
+### Rules (non-negotiable)
+
+| Category | Primary file |
+|----------|-------------|
+| Development rules (product, architecture, security, testing, UX, AI, i18n) | `02-rules/development-rules.md` |
+| Shared services contract (ADR-028) | `02-rules/shared-services.md` |
+| Testing and evidence standard | `02-rules/testing-standard.md` |
+| Per-module legacy inventory template | `02-rules/legacy-inventory.md` |
+| Per-module E2E coverage template | `02-rules/e2e-coverage.md` |
+
+### Capabilities (shared platform services)
+
+| Category | Primary file |
+|----------|-------------|
+| Capability catalog (inventory by domain) | `04-capabilities/catalog.md` |
+| Core platform + module system | `04-capabilities/module-system.md` |
+| Module Manager redesign | `04-capabilities/module-manager-redesign.md` |
+| Module Manager implementation inventory | `04-capabilities/module-manager-inventory.md` |
+| Open-source capability layer | `04-capabilities/oss-layer.md` |
+| Runtime deployment architecture | `04-capabilities/runtime-deployment.md` |
+| Auth bridge design | `04-capabilities/auth-bridge.md` |
+
+### AI (all AI-related specs)
+
+| Category | Primary file |
+|----------|-------------|
+| AI Action Platform | `05-ai/action-platform.md` |
+| AI canonical terms (consistency-pass) | `05-ai/canonical-terms.md` |
+| Floating AI Assistant | `05-ai/floating-assistant.md` |
+| AI assistant runtime contract | `05-ai/assistant-runtime.md` |
+| AI system capability KB | `05-ai/capability-kb.md` |
+| AI Provider Gateway architecture | `05-ai/provider-gateway.md` |
+| AI Providers Hub (per-org config) | `05-ai/providers-hub.md` |
+| Direct LLM call migration inventory | `05-ai/llm-migration.md` |
+
+### Governance (process)
+
+| Category | Primary file |
+|----------|-------------|
+| Round review checklist (11 sections) | `06-governance/round-checklist.md` |
+| Agent handoff protocol | `06-governance/handoff-protocol.md` |
+| Module migration progress tracker | `06-governance/module-migration-progress.md` |
+| AI-maintainability and code cleanup | `06-governance/ai-maintainability.md` |
+| Master plan consistency pass | `06-governance/consistency-pass.md` |
+
+### Audits (one-off reports)
+
+| Category | Primary file |
+|----------|-------------|
+| Cross-platform structure audit | `07-audits/cross-platform-structure.md` |
+| Security hardening audit | `07-audits/security-hardening.md` |
+| Production security headers | `07-audits/production-security-headers.md` |
+
+### Decisions
+
+| Category | Primary file |
+|----------|-------------|
+| Decision log (ADRs) | `08-decisions/decision-log.md` |
+| Open questions | `08-decisions/open-questions.md` |
+
+### History (audit trail)
+
+| Category | Primary file |
+|----------|-------------|
+| Round history (every investigation round) | `09-history/rounds-index.md` |
+| Change log (what changed each round) | `09-history/change-log.md` |
+| Risk register (R01–RXX with mitigations) | `09-history/risk-register.md` |
+
+### Per-module docs
+
+| Category | Path |
+|----------|------|
+| Module spec (Flask endpoints, types, pages, DoD) | `../modules/<module_key>/PLAN.md` |
+| Module legacy inventory | `../modules/<module_key>/LEGACY_INVENTORY.md` |
+| Module E2E coverage plan | `../modules/<module_key>/E2E_COVERAGE.md` |
+| Module testing evidence | `../modules/<module_key>/TESTING.md` |
+| Module AI readiness | `../modules/<module_key>/AI_READINESS.md` |
+| Module i18n readiness | `../modules/<module_key>/I18N_READINESS.md` |
+
+### External references
+
+| Category | Path |
+|----------|------|
+| AI agent project instructions | `../../CLAUDE.md` |
+| Next.js architecture blueprint | `../ARCHITECTURE.md` |
+| Design system | `../design/DESIGN_SYSTEM.md` |
+| Design tokens | `../design/TOKENS.md` |
+| Animation library | `../design/ANIMATIONS.md` |
+| Component patterns | `../design/COMPONENTS.md` |
+| Mobile/PWA rules | `../design/MOBILE.md` |
 
 ---
 
@@ -75,41 +137,41 @@ _Defines which file owns each concern. When you have new information, look up th
 
 | Type of finding | Write to |
 |-----------------|---------|
-| New Flask endpoint discovered | `01-current-system-analysis.md` + relevant `docs/modules/*/PLAN.md` |
-| New security vulnerability | `06-security-assessment.md` |
-| New tech debt item | `08-technical-debt-register.md` |
-| New upgrade opportunity | `09-modernization-opportunities.md` or `docs/UPGRADE_ROADMAP.md` |
-| New library version conflict | `03-technology-inventory.md` |
-| New product requirement discovered | `02-product-needs-inferred.md` |
+| New Flask endpoint discovered | `01-foundations/02-current-system.md` + relevant `../modules/*/PLAN.md` |
+| New security vulnerability | `01-foundations/07-security.md` |
+| New tech debt item | `01-foundations/09-tech-debt.md` |
+| New upgrade opportunity | `03-roadmap/modernization-opportunities.md` |
+| New library version conflict | `01-foundations/04-tech-inventory.md` |
+| New product requirement | `01-foundations/03-product-needs.md` |
 
 ### Where decisions go
 
 | Type of decision | Write to |
 |-----------------|---------|
-| Architecture / tech choice | `14-decision-log.md` (ADR format) |
-| Dev coding rule | `CLAUDE.md §Hard Rules` |
-| Design pattern | `docs/design/COMPONENTS.md` |
-| Migration phase change | `12-migration-roadmap.md` |
+| Architecture or tech choice | `08-decisions/decision-log.md` (ADR format) |
+| Coding rule for AI agents | `../../CLAUDE.md §Hard Rules` |
+| Design pattern | `../design/COMPONENTS.md` |
+| Phase or build-order change | `03-roadmap/master-roadmap.md` |
 
 ### Where unresolved questions go
 
-→ `13-open-questions.md`, categorized by domain (Authentication, API, Data, etc.).
-Add the question immediately when it arises, not after the round ends.
+→ `08-decisions/open-questions.md`, categorized by domain. Add immediately when the question arises, not after the round ends. Mark answered with `[RESOLVED]` and the answer inline. Never delete — history is valuable.
 
 ### Where implementation tasks go
 
 | Scope | Write to |
 |-------|---------|
-| Single module | `docs/modules/<N>/PLAN.md §Definition of Done` |
-| Cross-cutting (auth, proxy, CI) | `15-action-backlog.md` |
-| Upgrade / non-module feature | `docs/UPGRADE_ROADMAP.md §7 Quick Wins` or a new backlog section |
+| Single module | `../modules/<key>/PLAN.md §Definition of Done` |
+| Cross-cutting (auth, proxy, CI) | `03-roadmap/action-backlog.md` |
+| Atomic ≤2h task within an active round | `10-tasks/<round>/tasks/T{NN}.md` |
 
 ---
 
 ## Consistency Rules
 
-1. **Same terminology throughout**: "platform-ui" (frontend), "platformengineer" (backend), "Flask" (never "Django"), "TanStack Query" (never "React Query").
-2. **Dates**: ISO format `YYYY-MM-DD` everywhere.
-3. **ADR IDs**: sequential, never reuse. Current highest: ADR-035.
-4. **Module numbers**: always zero-padded two digits (`01`, `04`, `17`).
-5. **Status markers**: `[ ]` TODO, `[~]` In Progress, `[x]` Done, `[!]` Blocked.
+1. **Same terminology throughout:** "platform-ui" (frontend), "platformengineer" (backend), "Flask" (never "Django"), "TanStack Query" (never "React Query").
+2. **Dates:** ISO format `YYYY-MM-DD` everywhere.
+3. **ADR IDs:** sequential, never reuse. Current highest: ADR-036.
+4. **Module numbers:** zero-padded two digits (`01`, `04`, `17`).
+5. **Status markers:** `[ ]` TODO, `[~]` In Progress, `[x]` Done, `[!]` Blocked.
+6. **Round IDs:** `R040`, `R041A`, `R041B`, … sub-letters mark parallel sub-rounds within a numeric round.

@@ -12,7 +12,7 @@ These questions cannot be reliably answered from the codebase alone. Each needs 
 
 | # | Question | Why It Matters | How to Answer |
 |---|----------|---------------|---------------|
-| Q1 | ~~Does Flask's `POST /api/auth/login` return a JWT or a session cookie?~~ | — | **[RESOLVED 2026-04-24]** `POST /api/auth/login` returns JWT + refresh token. `POST /login` (HTML route) also accepts JSON and returns session cookie. Platform-ui will use the JWT endpoint. See `16-auth-bridge-design.md`. |
+| Q1 | ~~Does Flask's `POST /api/auth/login` return a JWT or a session cookie?~~ | — | **[RESOLVED 2026-04-24]** `POST /api/auth/login` returns JWT + refresh token. `POST /login` (HTML route) also accepts JSON and returns session cookie. Platform-ui will use the JWT endpoint. See `../04-capabilities/auth-bridge.md`. |
 | Q2 | ~~Is there a `POST /api/auth/refresh` token refresh endpoint?~~ | — | **[RESOLVED 2026-04-24]** Yes — `POST /api/auth/refresh` exists in `jwt_routes.py`. Accepts `{refresh_token}`, returns new JWT + refresh (rotation). |
 | Q3 | Which OAuth providers are configured and tested in production? | Determines social login options for next-auth | `.env` check required — GitHub + Google clients configured in Flask-Dance; production status unknown |
 | Q13 | Does Flask `POST /login` MFA flow return JSON or redirect to `/two-factor-login` when `is_json=True`? | If redirect, next-auth `authorize` callback must handle MFA separately | Test with curl: `POST /login` with `Content-Type: application/json` for an MFA-enabled user |

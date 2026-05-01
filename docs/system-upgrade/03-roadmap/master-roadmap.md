@@ -1,7 +1,7 @@
 # Master Roadmap — ResolveAI Platform
 
 > **Single source of truth** for the platform plan: vision, pillars, phases, gates, build order.
-> Replaces and supersedes the previous three overlapping docs (`12-migration-roadmap.md`, `35-platform-capabilities-build-order.md`, `47-generic-platform-foundation-roadmap.md`), now archived under `_legacy/`.
+> Replaces and supersedes three legacy roadmap docs (the original migration roadmap, capabilities build order, and generic foundation roadmap), now archived under `_legacy/`.
 > _Last updated: 2026-05-01_
 
 ---

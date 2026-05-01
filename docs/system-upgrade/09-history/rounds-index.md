@@ -77,7 +77,7 @@ _Updated after each round — append, never overwrite entries._
 | **Topic** | Auth bridge design — next-auth + Flask JWT |
 | **Objective** | Answer all auth questions from codebase investigation. Design the complete auth bridge. Unblock all module development. |
 | **Key Findings** | • Flask has TWO auth systems: Flask-Login (session cookie) + JWT (`/api/auth/login`, mobile). Platform-ui uses JWT. <br>• `POST /api/auth/login` returns `{data: {token, refresh_token, user: {id,email,org_id,roles}}}` — clean JSON contract. <br>• `POST /api/auth/refresh` exists in `jwt_routes.py` — rotation-based refresh. <br>• JWT expiry: 15-min access, 7-day refresh. <br>• `next-auth` v4 already in `package.json` — NOT yet configured. Login page is a stub. <br>• No `middleware.ts` — all dashboard routes publicly accessible. <br>• CSRF auto-check disabled Flask-side (`WTF_CSRF_CHECK_DEFAULT=False`) — no CSRF needed for API calls. <br>• Flask CORS allows only localhost Flutter ports, NOT `localhost:3000` — must add for dev. <br>• `Session_COOKIE_SECURE` not set — production security gap. <br>• RBAC via `@role_required`, `@permission_required` in `rbac.py`. Admins bypass all checks. <br>• `MFA`: TOTP-based, session-based (`pending_user_id`) — may redirect instead of returning JSON for MFA users (Q13 unresolved). |
-| **Files Updated** | `16-auth-bridge-design.md` (created), `14-decision-log.md` (ADR-011, ADR-012), `13-open-questions.md` (Q1/Q2 resolved, Q13-15 added), `15-action-backlog.md` (Phase A/B/C tasks added), `96-rounds-index.md`, `98-change-log.md` |
+| **Files Updated** | `../04-capabilities/auth-bridge.md` (created), `../08-decisions/decision-log.md` (ADR-011, ADR-012), `../08-decisions/open-questions.md` (Q1/Q2 resolved, Q13-15 added), `../03-roadmap/action-backlog.md` (Phase A/B/C tasks added), `../09-history/rounds-index.md`, `../09-history/change-log.md` |
 | **Decisions Proposed** | ADR-011: next-auth Credentials + Flask JWT (Option C) <br>ADR-012: No CSRF token needed for platform-ui API calls |
 | **Next Recommended Round** | Round 006: Implement Phase A auth (next-auth config, login, middleware, proxy update) — confirm working in TEST |
 
@@ -91,7 +91,7 @@ _Updated after each round — append, never overwrite entries._
 | **Topic** | AI-maintainability as a first-class architectural goal |
 | **Objective** | Define the complete cleanup strategy — dead code, file size limits, module INDEX.md, Jinja2 retirement, Vite app consolidation — so that AI coding assistants produce reliably correct changes throughout the 19-module migration. |
 | **Key Findings** | • `api_auth_OLD_BACKUP.py` confirmed dead — safe to delete after grep-confirm <br>• 4 Vite apps have no inventory of what they do vs platform-ui — scoping needed before retirement <br>• No per-module INDEX.md exists in `apps/` — agent navigates by reading every file <br>• No file size enforcement — `run.py` is 15KB god-file <br>• Jinja2 templates not yet tracked against their Flask callers — retirement order undefined <br>• 39 Alembic parallel heads intentional — must NOT consolidate (documented in MEMORY.md) |
-| **Files Updated** | `23-ai-maintainability-and-code-cleanup.md` (created), `08-technical-debt-register.md`, `09-modernization-opportunities.md`, `10-target-architecture.md`, `12-migration-roadmap.md`, `14-decision-log.md` (ADR-013), `15-action-backlog.md`, `96-rounds-index.md`, `97-source-of-truth.md`, `98-change-log.md` |
+| **Files Updated** | `../06-governance/ai-maintainability.md` (created), `../01-foundations/09-tech-debt.md`, `../03-roadmap/modernization-opportunities.md`, `../01-foundations/10-architecture-target.md`, `../03-roadmap/master-roadmap.md`, `../08-decisions/decision-log.md` (ADR-013), `../03-roadmap/action-backlog.md`, `../09-history/rounds-index.md`, `97-source-of-truth.md`, `../09-history/change-log.md` |
 | **Decisions Proposed** | ADR-013: AI-maintainable codebase and cleanup-first modernization |
 | **Next Recommended Round** | Round 007: Implement Phase A auth (next-auth config, login, middleware, proxy update) — confirm working in TEST |
 
@@ -106,7 +106,7 @@ _Updated after each round — append, never overwrite entries._
 | **Objective** | Implement the minimum viable auth layer in platform-ui: next-auth handler, options, types, RBAC helpers, login page, middleware, proxy Bearer token, session provider, env docs, auth README. |
 | **Key Findings** | • next-auth v4 `authorize` callback returns `null` on any failure — all Flask errors safely normalized <br>• Flask `POST /api/auth/login` returns `{data: {token, refresh_token, user: {id,email,org_id,roles}}}` — contract confirmed <br>• `roles` is an array; `is_admin` not yet in JWT response — derived from role name for now <br>• TypeScript typecheck passes (exit 0) after all auth files created <br>• `refreshToken` correctly excluded from client-visible session — stored only in server-side JWT cookie <br>• Middleware handles two behaviors: 401 JSON for `/api/proxy/*`, redirect for pages <br>• `expiresAt` tracked manually since Credentials provider has no `account.expires_at` <br>• No backend changes required for Phase A (proxy is server-to-server, no CORS issue) |
 | **Files Created** | `lib/auth/types.ts`, `lib/auth/options.ts`, `lib/auth/rbac.ts`, `app/api/auth/[...nextauth]/route.ts`, `components/providers/session-provider.tsx`, `middleware.ts`, `docs/auth/README.md`, `.env.example` |
-| **Files Updated** | `app/(auth)/login/page.tsx`, `app/api/proxy/[...path]/route.ts`, `app/layout.tsx`, `15-action-backlog.md` |
+| **Files Updated** | `app/(auth)/login/page.tsx`, `app/api/proxy/[...path]/route.ts`, `app/layout.tsx`, `../03-roadmap/action-backlog.md` |
 | **Decisions Proposed** | None new — implements ADR-011 (auth bridge) and ADR-012 (no CSRF) |
 | **Next Recommended Round** | Round 008: Phase B Flask additions — `POST /api/auth/logout`, `GET /api/auth/me`, CORS `localhost:3000` |
 
@@ -120,8 +120,8 @@ _Updated after each round — append, never overwrite entries._
 | **Topic** | Tenant-aware module data export/import architecture |
 | **Objective** | Design a safe, governed module data package system for moving tenant data between environments. Owned/referenced/core table classification, JSONL package format, dry-run import, ID remapping, PII/secret handling, audit trail, backend models, UI flows. |
 | **Key Findings** | • Raw SQL dump is never acceptable — export must be governed, versioned, tenant-scoped <br>• Three table categories: owned (exportable), referenced (export key only), core (remap only) <br>• JSONL chosen over CSV/Parquet for Phase 1 — streaming-friendly, schema-preserving <br>• Dry-run is mandatory before any write — enforced at pipeline level, not UI level <br>• Secrets must be excluded at platform level (registry), not module-declared only <br>• Cross-tenant imports require `is_system_admin` — cannot be delegated to org-admin <br>• 6 new backend models needed: ExportJob, ImportJob, DataContract, ExportFile, ValidationResult, RowError, AuditEvent <br>• `replace-module-data` and `restore-snapshot` modes are system-admin only — highest risk <br>• Download link expiry: 24h for tenant data, 7d for config-only, 4h for system-wide <br>• Q21–Q25 added: need large table size audit, S3 setup, existing manifest check |
-| **Files Created** | `24-core-platform-and-module-system.md` (14 sections, 400+ lines) |
-| **Files Updated** | `10-target-architecture.md`, `12-migration-roadmap.md`, `14-decision-log.md` (ADR-014), `15-action-backlog.md` (35+ tasks added), `13-open-questions.md` (Q21–Q25), `97-source-of-truth.md`, `96-rounds-index.md`, `98-change-log.md` |
+| **Files Created** | `../04-capabilities/module-system.md` (14 sections, 400+ lines) |
+| **Files Updated** | `../01-foundations/10-architecture-target.md`, `../03-roadmap/master-roadmap.md`, `../08-decisions/decision-log.md` (ADR-014), `../03-roadmap/action-backlog.md` (35+ tasks added), `../08-decisions/open-questions.md` (Q21–Q25), `97-source-of-truth.md`, `../09-history/rounds-index.md`, `../09-history/change-log.md` |
 | **Decisions Proposed** | ADR-014: Tenant-Aware Module Data Export/Import (accepted) |
 | **Next Recommended Round** | Round 009: Auth Phase B Flask additions — `POST /api/auth/logout`, `GET /api/auth/me`, CORS `localhost:3000`, `permissions[]` in JWT response |
 
@@ -137,7 +137,7 @@ _Updated after each round — append, never overwrite entries._
 | **Key Findings** | • Existing `GET /api/auth/me` was buggy: used `payload.get('sub')` (JWT uses `user_id`), wrong response format, no `@jwt_required` decorator <br>• `POST /api/auth/logout` did not exist — `mobile_refresh_token` field exists for real revocation <br>• `_user_to_dict()` missing: `permissions[]`, `is_admin`, `is_system_admin`, `is_manager`, `is_ai_agent` <br>• CORS already covered: `apps/__init__.py` `after_request` handler matches `http://localhost` prefix — no change needed for `localhost:3000` <br>• `is_admin` is a real boolean column on User — the role-name derivation workaround in `normalizeFlaskUser()` can be removed |
 | **Files Created** | `apps/authentication/tests/test_jwt_routes_v2.py` (10 tests) |
 | **Files Updated** | `apps/authentication/jwt_routes.py` (`serialize_auth_user`, fixed `/me`, new `/logout`), `apps/authentication/INDEX.md` (platform-ui integration section) |
-| **Planning Files Updated** | `13-open-questions.md` (Q14 fully resolved), `15-action-backlog.md` (Phase B all done + B.1 follow-ups added), `96-rounds-index.md`, `98-change-log.md` |
+| **Planning Files Updated** | `../08-decisions/open-questions.md` (Q14 fully resolved), `../03-roadmap/action-backlog.md` (Phase B all done + B.1 follow-ups added), `../09-history/rounds-index.md`, `../09-history/change-log.md` |
 | **Decisions Proposed** | None new — implements Phase B from ADR-011 (auth bridge) |
 | **Next Recommended Round** | Round 010: Module 01 Users — first full module build, unblocked by auth |
 
@@ -234,7 +234,7 @@ _Updated after each round — append, never overwrite entries._
 | **Key Findings** | • Score raised from **55/100 → 68/100** <br>• `lib/platform/` created with 7 subdirs + root barrel index <br>• `NormalizedAuthUser` / `FlaskUserPayload` now importable without `next-auth` <br>• `lib/api/client.ts` base URL now `NEXT_PUBLIC_API_BASE_URL ?? "/api/proxy"` <br>• All existing web imports unchanged — shims at original paths <br>• TypeScript typecheck: EXIT 0 |
 | **Files Created (platform-ui)** | `lib/platform/index.ts`, `lib/platform/auth/types.ts+index`, `lib/platform/permissions/rbac.ts+index`, `lib/platform/formatting/format.ts+index`, `lib/platform/export/csv.ts+index`, `lib/platform/request/context.ts+index`, `lib/platform/data-grid/types.ts+index`, `lib/platform/modules/users/types.ts`, `lib/platform/modules/organizations/types.ts` (18 new files total) |
 | **Files Updated (platform-ui)** | `lib/auth/types.ts` (re-export + next-auth augmentation), `lib/auth/rbac.ts` (re-export shim), `lib/utils/format.ts` (re-export shim), `lib/utils/csv.ts` (platform import + browser layer), `lib/api/request-context.ts` (re-export shim), `lib/api/client.ts` (configurable base URL), `docs/system-upgrade/28-cross-platform-structure-audit.md` (CP-0 status updated), docs 10, 12, 15, 96, 98 |
-| **Decisions Proposed** | ADR-018 (platform boundary enforcement — see 14-decision-log.md) |
+| **Decisions Proposed** | ADR-018 (platform boundary enforcement — see ../08-decisions/decision-log.md) |
 | **Next Recommended Round** | Round 017: Users Phase B (create/edit form + zod) OR Module 04 Helpdesk Phase A |
 
 ---
@@ -345,13 +345,13 @@ _Updated after each round — append, never overwrite entries._
 
 | Round | Topic | Why Now |
 |-------|-------|---------|
-| **005** | Authentication bridge | ✅ Complete — design in `16-auth-bridge-design.md` |
-| **006** | AI-maintainability policy | ✅ Complete — policy in `23-ai-maintainability-and-code-cleanup.md` |
+| **005** | Authentication bridge | ✅ Complete — design in `../04-capabilities/auth-bridge.md` |
+| **006** | AI-maintainability policy | ✅ Complete — policy in `../06-governance/ai-maintainability.md` |
 | **007** | Auth implementation (Phase A) | ✅ Complete — all Phase A files implemented |
-| **008** | Module data export/import design | ✅ Complete — spec in `24-core-platform-and-module-system.md` |
+| **008** | Module data export/import design | ✅ Complete — spec in `../04-capabilities/module-system.md` |
 | **009** | Auth Phase B (Flask additions) | ✅ Complete — /me fixed, /logout added, serialize_auth_user with permissions |
 | **010** | Module 01: Users | ✅ Complete — list + detail pages, Flask JSON API, types, components, ADR-015 |
-| **011** | Open-Source Capability Layer | ✅ Complete — ADR-016, 25-open-source-capability-layer.md, 14 backlog tasks |
+| **011** | Open-Source Capability Layer | ✅ Complete — ADR-016, ../04-capabilities/oss-layer.md, 14 backlog tasks |
 | **012** | Capability Layer Foundation | ✅ Complete — shared DataTable, PermissionGate, format utils, CSV util, request context, audit headers |
 | **013** | Module 02: Organizations | ✅ Complete — Flask JWT org API + platform-ui list/detail pages |
 | **014** | Platform Capabilities Catalog | ✅ Complete — 30 capabilities documented, capability-first rule added |
@@ -825,7 +825,7 @@ No tests required — governance/process round.
 | Tables empty | ✅ No data at risk |
 
 **Code-First Schema Rule added:** `CLAUDE.md §Code-First Schema Rule` — all future agents must follow.
-**Drift documented:** `99-risk-register.md §R15` — follow-up migrations required before R042 data ingestion.
+**Drift documented:** `../09-history/risk-register.md §R15` — follow-up migrations required before R042 data ingestion.
 **G-ModuleDB gate:** ✅ Green (maintained — functional correctness unaffected).
 
 ### Next Recommended Round
@@ -895,7 +895,7 @@ All 4 spec files are scaffolded with `test.skip()` guards. Tests activate when:
 3. TEST environment running
 
 ### Reviewer Gate Added
-`01-round-review-checklist.md §12` blocks rounds without security/tenant evidence.
+`../06-governance/round-checklist.md §12` blocks rounds without security/tenant evidence.
 
 ### Known Gaps (documented in R16 and 48 §9)
 - Backend helper module `apps/tests/helpers/security.py` not yet created
@@ -952,25 +952,25 @@ Governance-only round. Create a formal system to ensure that during the rewrite:
 
 | File | What changed |
 |------|-------------|
-| `00-implementation-control-center.md` | R041-Gov recorded; new docs linked in Key Governance Documents; DoR + DoD checklists extended |
-| `01-round-review-checklist.md` | §13 Legacy Functionality Preservation added |
-| `15-action-backlog.md` | "Legacy Preservation & Module Readiness" section added (11 tasks) |
-| `35-platform-capabilities-build-order.md` | Legacy preservation gate paragraph added |
-| `48-testing-and-evidence-standard.md` | Cross-references to new docs added |
+| `../00-control-center.md` | R041-Gov recorded; new docs linked in Key Governance Documents; DoR + DoD checklists extended |
+| `../06-governance/round-checklist.md` | §13 Legacy Functionality Preservation added |
+| `../03-roadmap/action-backlog.md` | "Legacy Preservation & Module Readiness" section added (11 tasks) |
+| `../03-roadmap/master-roadmap.md` | Legacy preservation gate paragraph added |
+| `../02-rules/testing-standard.md` | Cross-references to new docs added |
 | `97-source-of-truth.md` | 11 new entries added (per-module docs, agent protocol, new governance docs) |
-| `99-risk-register.md` | R17–R20 added (legacy loss, agent drift, UX simplification removes caps, AI/i18n untracked) |
-| `98-change-log.md` | Entry prepended |
+| `../09-history/risk-register.md` | R17–R20 added (legacy loss, agent drift, UX simplification removes caps, AI/i18n untracked) |
+| `../09-history/change-log.md` | Entry prepended |
 
 ### Key Rules Established
 
 | Rule | Where enforced |
 |------|---------------|
-| No Feature Loss During Rewrite | `02-development-rules.md`, `01-round-review-checklist.md §13` |
-| No Module Rewrite Without Inventory | `02-development-rules.md`, `00-implementation-control-center.md §DoR` |
-| No Module Done Without Evidence | `02-development-rules.md`, `01-round-review-checklist.md §13` |
-| AI readiness declared for all modules | `02-development-rules.md §AI Readiness`, `03-module-migration-progress.md` |
-| i18n readiness declared for all modules | `02-development-rules.md §i18n`, `03-module-migration-progress.md` |
-| Agent handoff summary required | `51-agent-handoff-protocol.md`, `01-round-review-checklist.md §13` |
+| No Feature Loss During Rewrite | `../02-rules/development-rules.md`, `../06-governance/round-checklist.md §13` |
+| No Module Rewrite Without Inventory | `../02-rules/development-rules.md`, `../00-control-center.md §DoR` |
+| No Module Done Without Evidence | `../02-rules/development-rules.md`, `../06-governance/round-checklist.md §13` |
+| AI readiness declared for all modules | `../02-rules/development-rules.md §AI Readiness`, `../06-governance/module-migration-progress.md` |
+| i18n readiness declared for all modules | `../02-rules/development-rules.md §i18n`, `../06-governance/module-migration-progress.md` |
+| Agent handoff summary required | `../06-governance/handoff-protocol.md`, `../06-governance/round-checklist.md §13` |
 
 ### Per-Module File Convention
 
@@ -984,7 +984,7 @@ Actual inventories and E2E plans are per-module (not in central docs), to suppor
 | `AI_READINESS.md` | `docs/modules/<module_key>/` | Module marked migrated |
 | `I18N_READINESS.md` | `docs/modules/<module_key>/` | Module marked migrated |
 
-Central tracker `03-module-migration-progress.md` links to all per-module docs.
+Central tracker `../06-governance/module-migration-progress.md` links to all per-module docs.
 
 ### New Risks Added
 
@@ -1013,7 +1013,7 @@ Central tracker `03-module-migration-progress.md` links to all per-module docs.
 **Tests Run:** N/A — governance round, no code changes
 
 **Next Recommended Action:**
-Start R041A (CI enforcement — LLM import gate) which has no blockers. Alternatively, start the first module rewrite round by first creating the module's `LEGACY_INVENTORY.md` following the template in `49-legacy-functionality-inventory.md`.
+Start R041A (CI enforcement — LLM import gate) which has no blockers. Alternatively, start the first module rewrite round by first creating the module's `LEGACY_INVENTORY.md` following the template in `../02-rules/legacy-inventory.md`.
 
 
 ---
@@ -1044,11 +1044,11 @@ agent handoff, and no context loss.
 
 ### Files Updated
 
-- 51-agent-handoff-protocol.md: worktree-first rule + worktree fields in handoff template
-- 02-development-rules.md: worktree-first rule in agent collaboration section
-- 00-implementation-control-center.md: R041-WT recorded, 52 linked
-- 01-round-review-checklist.md: branch-from-feature-branch check in PR section
-- 15-action-backlog.md: Parallel Worktree Workflow setup tasks added
+- ../06-governance/handoff-protocol.md: worktree-first rule + worktree fields in handoff template
+- ../02-rules/development-rules.md: worktree-first rule in agent collaboration section
+- ../00-control-center.md: R041-WT recorded, 52 linked
+- ../06-governance/round-checklist.md: branch-from-feature-branch check in PR section
+- ../03-roadmap/action-backlog.md: Parallel Worktree Workflow setup tasks added
 - 97-source-of-truth.md: 52 registered
 
 ### Safe Parallel Pairs
@@ -1094,12 +1094,12 @@ service has health/readiness checks.
 
 ### Files Updated
 
-- `99-risk-register.md`: R21 added — runtime service coupling risk
+- `../09-history/risk-register.md`: R21 added — runtime service coupling risk
 - `97-source-of-truth.md`: 53 registered
-- `00-implementation-control-center.md`: 53 linked in Key Governance Documents
-- `15-action-backlog.md`: Runtime Deployment Architecture tasks added (Phase 1 + Phase 2)
-- `01-round-review-checklist.md §7`: pod separation checks added to migration safety section
-- `98-change-log.md`: entry prepended
+- `../00-control-center.md`: 53 linked in Key Governance Documents
+- `../03-roadmap/action-backlog.md`: Runtime Deployment Architecture tasks added (Phase 1 + Phase 2)
+- `../06-governance/round-checklist.md §7`: pod separation checks added to migration safety section
+- `../09-history/change-log.md`: entry prepended
 
 ### ADR
 
@@ -1145,7 +1145,7 @@ from production startup. Migrations run as controlled Jobs. Heavy jobs queued.
 ### Recommended Next Action
 
 Start R041A (CI enforcement — LLM import gate in GitHub Actions). Create worktree for R041A
-using the commands in `52-parallel-worktree-agent-workflow.md §4`. R041A is in the
+using the commands in `_(deleted: see CLAUDE.md §Workflow Rules)_ §4`. R041A is in the
 `platformengineer` repo with no blockers.
 
 ---
@@ -1185,14 +1185,14 @@ records audit, records billing, and works automatically for every module with AI
 
 ### Files Updated
 
-- `36-ai-action-platform.md`: cross-reference to 54 in header
-- `38-floating-ai-assistant.md`: cross-reference to 54 §1 in header
-- `39-ai-architecture-consistency-pass.md`: cross-reference to 54 in header
-- `40-ai-provider-gateway-billing.md`: cross-reference to 54 §9 in header
-- `02-development-rules.md §6`: extended AI readiness rules with module contract pointer
+- `../05-ai/action-platform.md`: cross-reference to 54 in header
+- `../05-ai/floating-assistant.md`: cross-reference to 54 §1 in header
+- `../05-ai/canonical-terms.md`: cross-reference to 54 in header
+- `../05-ai/provider-gateway.md`: cross-reference to 54 §9 in header
+- `../02-rules/development-rules.md §6`: extended AI readiness rules with module contract pointer
 - `97-source-of-truth.md`: 54 registered
-- `00-implementation-control-center.md`: 54 linked in Key Governance Documents
-- `15-action-backlog.md`: AI assistant implementation tasks Phase A-F added
+- `../00-control-center.md`: 54 linked in Key Governance Documents
+- `../03-roadmap/action-backlog.md`: AI assistant implementation tasks Phase A-F added
 - `platformengineer/CLAUDE.md`: 54 added to key governance docs list
 
 ### Completed
@@ -1220,7 +1220,7 @@ records audit, records billing, and works automatically for every module with AI
 ### Recommended Next Action
 
 Start R041A (CI enforcement — LLM import gate) which has no blockers.
-Create worktree using `52-parallel-worktree-agent-workflow.md §4` commands.
+Create worktree using `_(deleted: see CLAUDE.md §Workflow Rules)_ §4` commands.
 
 ---
 
@@ -1255,16 +1255,16 @@ None — governance/standards round.
 
 | File | What changed |
 |------|-------------|
-| `54-ai-assistant-runtime.md` | §14 AI Readiness Levels (0–6) + §15 AI Test Harness design added |
-| `02-development-rules.md` | §6 rewritten as mandatory gate: readiness levels, voice rules, chat rules, Done gate, module contract |
-| `03-module-migration-progress.md` | ai_chat/voice_agent status values formalized; mandatory migrated gate documented |
-| `48-testing-and-evidence-standard.md` | §2.8 AI action backend tests + §3.4 frontend AI/voice UI tests added; evidence matrix updated |
-| `50-module-e2e-coverage-matrix.md` | 16 Chat AI E2E flows (AI-01–AI-16) + 14 Voice Agent E2E flows (VOICE-01–VOICE-14) added |
-| `51-agent-handoff-protocol.md` | AI_READINESS.md added to Before Work checklist; ai_chat/voice_agent columns added to After Work |
-| `01-round-review-checklist.md` | §14 AI/Voice Readiness Gate added (13 reviewer checks) |
-| `99-risk-register.md` | R22 (AI readiness omitted), R23 (unauthorized action), R24 (unsafe voice action) added |
-| `15-action-backlog.md` | Per-module AI_READINESS.md tasks + test harness implementation tasks added |
-| `00-implementation-control-center.md` | DoR + DoD updated with AI_READINESS.md requirement; this round recorded |
+| `../05-ai/assistant-runtime.md` | §14 AI Readiness Levels (0–6) + §15 AI Test Harness design added |
+| `../02-rules/development-rules.md` | §6 rewritten as mandatory gate: readiness levels, voice rules, chat rules, Done gate, module contract |
+| `../06-governance/module-migration-progress.md` | ai_chat/voice_agent status values formalized; mandatory migrated gate documented |
+| `../02-rules/testing-standard.md` | §2.8 AI action backend tests + §3.4 frontend AI/voice UI tests added; evidence matrix updated |
+| `../02-rules/e2e-coverage.md` | 16 Chat AI E2E flows (AI-01–AI-16) + 14 Voice Agent E2E flows (VOICE-01–VOICE-14) added |
+| `../06-governance/handoff-protocol.md` | AI_READINESS.md added to Before Work checklist; ai_chat/voice_agent columns added to After Work |
+| `../06-governance/round-checklist.md` | §14 AI/Voice Readiness Gate added (13 reviewer checks) |
+| `../09-history/risk-register.md` | R22 (AI readiness omitted), R23 (unauthorized action), R24 (unsafe voice action) added |
+| `../03-roadmap/action-backlog.md` | Per-module AI_READINESS.md tasks + test harness implementation tasks added |
+| `../00-control-center.md` | DoR + DoD updated with AI_READINESS.md requirement; this round recorded |
 
 ### AI/Voice Readiness Levels Defined
 
@@ -1293,7 +1293,7 @@ None — governance/standards round.
 **Warnings for next agent:**
 - Per-module `AI_READINESS.md` files do not yet exist — create each one when the module's implementation round begins
 - The test harness (`apps/tests/ai_readiness/`) does not yet exist — implement after Phase D
-- All `ai_chat` columns in `03-module-migration-progress.md` remain `not_started` until modules are implemented
+- All `ai_chat` columns in `../06-governance/module-migration-progress.md` remain `not_started` until modules are implemented
 
 ### Recommended Next Action
 
@@ -1318,20 +1318,20 @@ Create worktree: `git worktree add "..\worktrees\platformengineer-r041a-ci" -b f
 
 | File | Action | Summary |
 |------|--------|---------|
-| `55-ai-system-capability-knowledge-base.md` | Created | Full global knowledge model: §1 product role + 3 modes, §2 global vs runtime distinction, §3 data models (SystemCapability/SolutionTemplate/CapabilityRecommendation), §4 knowledge sources, §5 advisory flow, §6 module contract, §7 relationships, §8 tests (KB-01–KB-15), §9 tracker columns, §10 ADR, §11 enforcement |
-| `54-ai-assistant-runtime.md` | Updated | Added §16 cross-reference to doc 55; updated header cross-refs |
-| `36-ai-action-platform.md` | Updated | Added doc 55 relationship note |
-| `02-development-rules.md` | Updated | Added §6.9 global capability metadata requirement |
-| `48-testing-and-evidence-standard.md` | Updated | Added §2.9 AI knowledge/advisory tests + KB patterns |
-| `50-module-e2e-coverage-matrix.md` | Updated | Added KB-01–KB-15 E2E flow table |
-| `03-module-migration-progress.md` | Updated | Added 5 global AI knowledge tracking columns |
-| `15-action-backlog.md` | Updated | Added AI knowledge base per-module tasks |
-| `35-platform-capabilities-build-order.md` | Updated | Added doc 55 reference |
+| `../05-ai/capability-kb.md` | Created | Full global knowledge model: §1 product role + 3 modes, §2 global vs runtime distinction, §3 data models (SystemCapability/SolutionTemplate/CapabilityRecommendation), §4 knowledge sources, §5 advisory flow, §6 module contract, §7 relationships, §8 tests (KB-01–KB-15), §9 tracker columns, §10 ADR, §11 enforcement |
+| `../05-ai/assistant-runtime.md` | Updated | Added §16 cross-reference to doc 55; updated header cross-refs |
+| `../05-ai/action-platform.md` | Updated | Added doc 55 relationship note |
+| `../02-rules/development-rules.md` | Updated | Added §6.9 global capability metadata requirement |
+| `../02-rules/testing-standard.md` | Updated | Added §2.9 AI knowledge/advisory tests + KB patterns |
+| `../02-rules/e2e-coverage.md` | Updated | Added KB-01–KB-15 E2E flow table |
+| `../06-governance/module-migration-progress.md` | Updated | Added 5 global AI knowledge tracking columns |
+| `../03-roadmap/action-backlog.md` | Updated | Added AI knowledge base per-module tasks |
+| `../03-roadmap/master-roadmap.md` | Updated | Added doc 55 reference |
 | `97-source-of-truth.md` | Updated | Added global AI capability knowledge row |
-| `01-round-review-checklist.md` | Updated | Added capability metadata check note to §14 |
-| `99-risk-register.md` | Updated | Added R25 (AI capability knowledge drift) |
-| `96-rounds-index.md` | Updated | This entry |
-| `98-change-log.md` | Updated | Entry prepended |
+| `../06-governance/round-checklist.md` | Updated | Added capability metadata check note to §14 |
+| `../09-history/risk-register.md` | Updated | Added R25 (AI capability knowledge drift) |
+| `../09-history/rounds-index.md` | Updated | This entry |
+| `../09-history/change-log.md` | Updated | Entry prepended |
 
 **Key decisions:**
 - Assistant is governed in-platform operational assistant (not documentation chatbot) with 3 modes: Advisory, Guided Operation, Delegated Action
@@ -1397,14 +1397,14 @@ Prepare recommended next execution order. Create R041D issue draft.
 
 | File | Change |
 |------|--------|
-| `00-implementation-control-center.md` | R040-Fix complete; G-ModuleDB-DriftFixed ✅; G-SecretScan 🔴; blockers updated; Code-First Schema Rule section updated |
-| `99-risk-register.md` | R15 resolved; R26 reserved; R27 added |
-| `15-action-backlog.md` | R040-Fix DB apply status table; R041D task section added |
-| `35-platform-capabilities-build-order.md` | R040-Fix gate summary table added; recommended next execution order |
-| `96-rounds-index.md` | This entry |
-| `98-change-log.md` | Entry prepended |
-| `01-round-review-checklist.md` | CI baseline failure policy note added |
-| `03-module-migration-progress.md` | Global blocker note: Module Manager DB foundation complete at DB level |
+| `../00-control-center.md` | R040-Fix complete; G-ModuleDB-DriftFixed ✅; G-SecretScan 🔴; blockers updated; Code-First Schema Rule section updated |
+| `../09-history/risk-register.md` | R15 resolved; R26 reserved; R27 added |
+| `../03-roadmap/action-backlog.md` | R040-Fix DB apply status table; R041D task section added |
+| `../03-roadmap/master-roadmap.md` | R040-Fix gate summary table added; recommended next execution order |
+| `../09-history/rounds-index.md` | This entry |
+| `../09-history/change-log.md` | Entry prepended |
+| `../06-governance/round-checklist.md` | CI baseline failure policy note added |
+| `../06-governance/module-migration-progress.md` | Global blocker note: Module Manager DB foundation complete at DB level |
 | `issues/R041D-secrets-gate-baseline-cleanup.md` | New issue draft created |
 
 ### Follow-ups / Not Completed (out of scope)
