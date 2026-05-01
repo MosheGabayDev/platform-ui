@@ -1,7 +1,7 @@
 # Platform UI — AI Agent Instructions
 
 > Every AI working on this project MUST read this file completely before writing any code.
-> Last updated: 2026-04-26 (R041-Gov Worktree Addendum)
+> Last updated: 2026-05-01 (Main-only workflow + docs reorg)
 
 ---
 
@@ -18,11 +18,11 @@
 ## Must-Read Before Coding
 
 **Governance (read first — in order):**
-1. [`docs/system-upgrade/00-implementation-control-center.md`](docs/system-upgrade/00-implementation-control-center.md) — active round, blockers, do-not-start list
-2. [`docs/system-upgrade/02-development-rules.md`](docs/system-upgrade/02-development-rules.md) — non-negotiable product, architecture, security, testing, UX, AI, i18n rules
-3. [`docs/system-upgrade/03-module-migration-progress.md`](docs/system-upgrade/03-module-migration-progress.md) — which modules are in what state; per-module doc links
-4. [`docs/system-upgrade/51-agent-handoff-protocol.md`](docs/system-upgrade/51-agent-handoff-protocol.md) — agent collaboration and handoff rules
-5. [`docs/system-upgrade/52-parallel-worktree-agent-workflow.md`](docs/system-upgrade/52-parallel-worktree-agent-workflow.md) — **Git worktree workflow** (naming, creation, lock list, safe/unsafe tracks, PR workflow, cleanup)
+1. [`docs/system-upgrade/README.md`](docs/system-upgrade/README.md) — navigation index for the whole planning workspace
+2. [`docs/system-upgrade/00-control-center.md`](docs/system-upgrade/00-control-center.md) — active round, blockers, do-not-start list
+3. [`docs/system-upgrade/02-rules/development-rules.md`](docs/system-upgrade/02-rules/development-rules.md) — non-negotiable product, architecture, security, testing, UX, AI, i18n rules
+4. [`docs/system-upgrade/03-roadmap/master-roadmap.md`](docs/system-upgrade/03-roadmap/master-roadmap.md) — single source of truth for plan, phases, build order
+5. [`docs/system-upgrade/10-tasks/README.md`](docs/system-upgrade/10-tasks/README.md) — atomic task structure (epic + ≤2h tasks per round)
 
 **Design (read before writing UI):**
 6. [`docs/design/DESIGN_SYSTEM.md`](docs/design/DESIGN_SYSTEM.md) — visual language, colors, spacing, typography
@@ -39,13 +39,14 @@
 
 ---
 
-## Parallel Agent Rules (NEVER BREAK)
+## Workflow Rules (NEVER BREAK)
 
-- **Never work directly on `main` or `master`.** All feature/fix/docs work happens in a Git worktree on a feature branch.
-- **Every parallel agent session uses a worktree.** See `docs/system-upgrade/52-parallel-worktree-agent-workflow.md` for setup.
-- **Branch name must include the round ID.** `feat/r041b-actionbutton`, not `feat/actionbutton`.
-- **Locked governance files** (`CLAUDE.md`, `00`, `96`, `98`, `03`) are updated by the coordinator after PR merge, not by parallel agents.
-- Full lock list: `52-parallel-worktree-agent-workflow.md §7`.
+- **Work directly on `master`.** Single-trunk workflow. No long-lived feature branches, no worktrees, no parallel-agent branching.
+- **Commit small, focused units.** Every commit must build green and pass tests. Never commit half-broken state.
+- **Push every commit to `origin/master`** when done. No local-only commits left dangling.
+- **Hotfix on `master`.** If something breaks on master, fix forward — do not branch.
+- **Tasks are atomic.** See `docs/system-upgrade/10-tasks/` — every round is broken into ≤2h task units. Pick one task, complete it, commit, move on.
+- **Old worktree/parallel-agent docs are deprecated.** The previous worktree workflow (legacy `52-parallel-worktree-agent-workflow.md`) is superseded by this rule. Ignore worktree instructions in any older doc.
 
 ---
 
