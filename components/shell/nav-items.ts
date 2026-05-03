@@ -23,6 +23,7 @@ import {
   Mic,
   UserCog,
   Wrench,
+  Layers,
 } from "lucide-react";
 
 export type NavItem = {
@@ -67,6 +68,7 @@ export const navGroups: NavGroup[] = [
       { title: "טכנאים", href: "/helpdesk/technicians", icon: Users },
       { title: "SLA", href: "/helpdesk/sla", icon: Activity },
       { title: "תחזוקה", href: "/helpdesk/maintenance", icon: Wrench },
+      { title: "משימות אצווה", href: "/helpdesk/batch", icon: Layers },
       { title: "בסיס ידע", href: "/helpdesk/kb", icon: BookOpen },
     ],
   },

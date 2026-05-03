@@ -418,3 +418,100 @@ export interface MaintenanceActionResponse {
   message: string;
   data?: { window: MaintenanceWindow };
 }
+
+// ---------------------------------------------------------------------------
+// Batch tasks (Phase C — long-running ticket operations)
+// ---------------------------------------------------------------------------
+
+/**
+ * Async/long-running ticket operations. Distinct from synchronous bulk ops
+ * in `helpdesk.ts` (`bulkReassignTickets`, `bulkStatusChange`) — those return
+ * immediately. Batch tasks are for jobs that exceed a request window (e.g.
+ * "regenerate SLA on all open tickets", "reassign 500 tickets to a new shift",
+ * "export every ticket as CSV"). Server enqueues the task, returns an ID,
+ * the UI polls (or subscribes) for progress.
+ *
+ * Mirrors legacy `BatchTask` model (apps/helpdesk in legacy stack). Backend
+ * port pending — current schema is FRONTEND-DEFINED and tracked as Q-HD-10.
+ */
+export type BatchTaskType =
+  | "bulk_reassign"
+  | "bulk_status_change"
+  | "bulk_export"
+  | "sla_recompute"
+  | "ticket_archive"
+  | (string & {});
+
+export type BatchTaskStatus =
+  | "queued"
+  | "running"
+  | "succeeded"
+  | "failed"
+  | "partial"
+  | "cancelled"
+  | (string & {});
+
+export interface BatchTaskProgress {
+  /** Items processed so far (success + fail). */
+  processed: number;
+  /** Total items to process; null while planning. */
+  total: number | null;
+  /** Items that succeeded. */
+  succeeded: number;
+  /** Items that failed (kept separate from errored task itself). */
+  failed: number;
+}
+
+export interface BatchTaskResult {
+  /** Item IDs that completed successfully (capped server-side for big jobs). */
+  succeeded_ids: number[];
+  /** Failed items with reason. */
+  failures: Array<{ id: number; error: string }>;
+  /** Optional download URL for tasks that produce artifacts (CSV exports). */
+  artifact_url: string | null;
+}
+
+export interface BatchTask {
+  id: number;
+  org_id: number;
+  task_type: BatchTaskType;
+  status: BatchTaskStatus;
+  /** Free-form label for display ("Reassign 14 tickets to OnCall Olivia"). */
+  label: string;
+  /** Original input — kept verbatim for re-run/audit. */
+  input_params: Record<string, unknown>;
+  progress: BatchTaskProgress;
+  result: BatchTaskResult | null;
+  /** Why the task itself failed (NOT individual item failures — see `result.failures`). */
+  error_message: string | null;
+  created_by: number | null;
+  created_by_name: string | null;
+  created_at: string;
+  started_at: string | null;
+  completed_at: string | null;
+}
+
+export interface BatchTasksListParams {
+  page: number;
+  per_page: number;
+  status?: BatchTaskStatus;
+  task_type?: BatchTaskType;
+}
+
+export interface BatchTasksListResponse {
+  success: boolean;
+  data: {
+    tasks: BatchTask[];
+    total: number;
+    running_count: number;
+    queued_count: number;
+    page: number;
+    per_page: number;
+  };
+}
+
+export interface BatchTaskActionResponse {
+  success: boolean;
+  message: string;
+  data?: { task: BatchTask };
+}
