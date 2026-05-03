@@ -92,7 +92,8 @@
 - **Refetch intervals**: stats 60s, health 30s, timeseries 120s
 
 ### Components / Architecture
-- **`components/ui/`**: DO NOT MODIFY — shadcn/ui primitives, copy-paste only
+- **`components/ui/`**: DO NOT MODIFY — shadcn/ui primitives, copy-paste only.
+  - **Exception (ADR-043):** narrow patches allowed when a primitive ships a runtime error or a hard Radix/a11y violation. Three conditions MUST hold: (1) defect causes a runtime error or production-console a11y warning; (2) patch is minimum-viable, no API or styling changes; (3) file is annotated with `// PATCH (<date>) — ADR-043 — keep on next shadcn re-init.` header. See `docs/system-upgrade/08-decisions/decision-log.md ADR-043`.
 - **`components/shared/`**: custom reusable components (TiltCard, CursorGlow, EmptyState, DataTable, Skeletons)
 - **`components/shell/`**: layout chrome only (Sidebar, Topbar, BottomNav, AuroraBackground)
 - **`components/providers/`**: React context providers (QueryProvider, etc.)

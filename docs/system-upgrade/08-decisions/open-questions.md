@@ -98,7 +98,7 @@ Source: `planning-artifacts/reviews/2026-05-01-e2e-error-report.md`
 
 | # | Question | Why It Matters | How to Answer |
 |---|----------|---------------|---------------|
-| Q29 | `CommandDialog` in `components/ui/command.tsx` places `<DialogHeader>` as a sibling of `<DialogContent>` instead of inside it. Radix complains `DialogContent requires a DialogTitle`, and a `Cannot read properties of undefined (reading 'subscribe')` page-error fires in cmdk on Ctrl+K. CLAUDE.md forbids modifying `components/ui/`. Pick: (a) carve exception for primitive bugs, (b) ship corrected `CommandDialogV2` wrapper, or (c) re-init shadcn at newer version. | Page-errors crash error tracking and pollute Sentry. A11y warning blocks future a11y baseline. | Decide policy; pick a/b/c. |
+| Q29 | ✅ **RESOLVED 2026-05-01** — Picked option (a) per ADR-043. Moved `<DialogHeader>` inside `<DialogContent>` in `components/ui/command.tsx`. PATCH header added per the new exception clause in CLAUDE.md. Ctrl+K no longer throws; a11y warning gone. | — | — |
 | Q30 | ✅ **RESOLVED 2026-05-01** — Sparkline render gated on a `useEffect`+`requestAnimationFrame` flag so `ResponsiveContainer` measures a non-zero parent. Fix in `components/shared/stats/kpi-card.tsx`. Also added `min-w-[40px]` and `minWidth={40}` belt-and-braces. | — | — |
 | Q31 | ✅ **RESOLVED 2026-05-01** — Picked option (b): explicit `MOCK_MODE` flag per client. Rolled out to `client.ts`, `notifications.ts`, `users.ts`, `organizations.ts`, `roles.ts`, `feature-flags.ts` (in addition to existing `helpdesk.ts` + `ai.ts`). Each client returns realistic fixtures; `feature-flags.ts` MOCK_OVERRIDES has `helpdesk.enabled=true` so Phase A pages render in mock-mode demos. Single-line flip per client when backend lands. | — | — |
 

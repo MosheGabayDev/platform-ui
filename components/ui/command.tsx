@@ -1,4 +1,12 @@
 "use client"
+// PATCH (2026-05-01) — ADR-043 — keep on next shadcn re-init.
+// Bug: shadcn template renders <DialogHeader> as a sibling of <DialogContent>.
+// Radix Dialog requires DialogTitle inside DialogContent for a11y, and cmdk
+// crashes with "Cannot read properties of undefined (reading 'subscribe')"
+// when its provider tree is split. Fix below moves DialogHeader inside
+// DialogContent. If `npx shadcn add command` overwrites this file, restore
+// the patch using ADR-043 §2 reproduction.
+// Upstream tracking: file an issue at https://github.com/shadcn-ui/ui
 
 import * as React from "react"
 import { Command as CommandPrimitive } from "cmdk"
@@ -48,10 +56,6 @@ function CommandDialog({
 }) {
   return (
     <Dialog {...props}>
-      <DialogHeader className="sr-only">
-        <DialogTitle>{title}</DialogTitle>
-        <DialogDescription>{description}</DialogDescription>
-      </DialogHeader>
       <DialogContent
         className={cn(
           "top-1/3 translate-y-0 overflow-hidden rounded-xl! p-0",
@@ -59,6 +63,10 @@ function CommandDialog({
         )}
         showCloseButton={showCloseButton}
       >
+        <DialogHeader className="sr-only">
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
+        </DialogHeader>
         {children}
       </DialogContent>
     </Dialog>

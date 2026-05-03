@@ -871,4 +871,29 @@ Error case:
 
 ---
 
+## ADR-043 — `components/ui/` primitive bug exception (2026-05-01)
+
+- **Status:** Accepted (responds to e2e error report Q29).
+- **Context:** `CLAUDE.md §Hard Rules` mandates `components/ui/` is read-only ("shadcn/ui primitives, copy-paste only — do not modify"). The intent is to prevent silent drift between the project and shadcn upstream. However the shipped `components/ui/command.tsx` has a real defect: `<DialogHeader>` is rendered as a sibling of `<DialogContent>` instead of nested inside it. Two consequences observed in e2e error capture (`planning-artifacts/reviews/2026-05-01-e2e-error-report.md`):
+  1. **Page-error on Ctrl+K:** `Cannot read properties of undefined (reading 'subscribe')` — `cmdk` crashes because its provider tree is split when `DialogContent` doesn't contain the children that read its context.
+  2. **A11y violation logged on every render:** `DialogContent requires a DialogTitle for the component to be accessible for screen reader users.`
+- **Decision:** Carve a **narrow exception** to the read-only rule for primitive bugs that cause runtime errors or hard a11y violations. Three conditions MUST hold for a patch to qualify:
+  1. The defect causes a runtime error (`pageerror`, console error from a primitive's own code) OR a Radix/Radix-derived a11y warning that ships in the production console.
+  2. The patch is the **minimum viable fix** — no styling changes, no API changes, no logic refactor unrelated to the defect.
+  3. The patch is **annotated in-file** with a `// PATCH (<date>) — ADR-043 — keep on next shadcn re-init.` header that explains the bug, the upstream tracking link (or "TODO: file upstream"), and the restoration recipe.
+- **Operational rules:**
+  1. The patch annotation lives at the top of the file (after `"use client"`) so re-init reviewers see it immediately.
+  2. If `npx shadcn add <component> --overwrite` is ever run, the pre-commit hook (R-OPS-01 ADR-037) must flag any commit that touches `components/ui/` and require a corresponding `commits/<sha>-checklist.md` confirming the PATCH header was preserved.
+  3. Each ADR-043 patch references this ADR by number in its annotation comment so a future maintainer can find the policy.
+  4. Each patch MUST have an upstream issue link (or a `// TODO upstream:` placeholder if filing is pending) so the long-term direction is to delete the patch when upstream fixes it.
+- **First applied to:** `components/ui/command.tsx` `CommandDialog`. Move `DialogHeader` inside `DialogContent`. Verify Ctrl+K no longer throws and a11y warning gone.
+- **Alternatives considered:**
+  - **(b) Wrapper `CommandDialogV2` in `components/shared/`** — rejected: creates "shadow primitive" anti-pattern, two files for one job, perpetual confusion about which to use.
+  - **(c) `npx shadcn add command --overwrite` to a newer version** — rejected for now: no evidence the bug is fixed upstream, and a version bump risks breaking React 19 / Tailwind 4 compatibility we already validated.
+  - **(d) Live with the bug** — rejected: page-error pollutes Sentry on every Ctrl+K, blocks future a11y baseline.
+- **Consequences:** `components/ui/` is no longer 100% read-only — it's 99.9% read-only with a documented exception path. The PATCH header convention must be respected by every future contributor. In practice this is the same discipline as a vendored library with local patches (e.g. how the FreeBSD ports tree handles upstream patches).
+- **Reviews this ADR responds to:** `planning-artifacts/reviews/2026-05-01-e2e-error-report.md` Q29.
+
+---
+
 _Add new ADRs here as decisions are made during implementation._
