@@ -60,11 +60,11 @@
       "note": "ADR-042 target — currently no tests"
     },
     "components/shell/": {
-      "lines": 5.31,
-      "branches": 6.5,
-      "functions": 7.81,
+      "lines": 13.86,
+      "branches": 14,
+      "functions": 17.18,
       "target_floor": 50,
-      "note": "Story 1.4 (AIDrawer) raised from 2.53% to 5.31% lines (2026-05-01)"
+      "note": "Review #2 fix — added action-preview-card.test.tsx (7 tests) + base.ts e2e fixture exercises drawer + FAB. Raised from 5.31% to 13.86% lines (2026-05-03)."
     },
     "app/api/proxy/": {
       "lines": 0,
