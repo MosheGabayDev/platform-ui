@@ -4,11 +4,11 @@
   "_run": "vitest run --coverage (1 test file: lib/utils.test.ts)",
   "layers": {
     "lib/api/": {
-      "lines": 21.05,
-      "branches": 12.64,
-      "functions": 25.19,
+      "lines": 28.57,
+      "branches": 17.86,
+      "functions": 34.02,
       "target_floor": 90,
-      "note": "Phase B mutations + technicians added; absolute coverage rose with code volume but ratio shifted (was 24.11% with smaller surface). Functions metric rose 20.77% → 25.19% as more functions are tested. (2026-05-01)"
+      "note": "Helpdesk SLA (Phase C) — fetchSLAPolicies + fetchSLACompliance + 5 tests; raised from 21.05% to 28.57% lines (2026-05-01)"
     },
     "lib/auth/": {
       "lines": 0,

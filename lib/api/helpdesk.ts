@@ -28,6 +28,9 @@ import type {
   TechnicianProfile,
   TechniciansListResponse,
   TechnicianUtilizationResponse,
+  SLAPolicy,
+  SLAPoliciesResponse,
+  SLAComplianceResponse,
 } from "@/lib/modules/helpdesk/types";
 
 export const MOCK_MODE = true;
@@ -646,5 +649,161 @@ export async function fetchTechnicianUtilization(): Promise<TechnicianUtilizatio
   }
   const res = await fetch("/api/proxy/helpdesk/api/technicians/utilization");
   if (!res.ok) throw new Error(`fetchTechnicianUtilization failed: ${res.status}`);
+  return res.json();
+}
+
+// ---------------------------------------------------------------------------
+// SLA (Phase C)
+// ---------------------------------------------------------------------------
+
+const MOCK_SLA_POLICIES: SLAPolicy[] = [
+  {
+    id: 1,
+    org_id: 1,
+    name: "Critical incident — 24/7",
+    priority: "P1",
+    priority_label: "critical",
+    response_minutes: 15,
+    resolution_minutes: 240,
+    business_hours_only: false,
+    business_start: null,
+    business_end: null,
+    business_days: [0, 1, 2, 3, 4, 5, 6],
+    is_default: false,
+    is_active: true,
+    created_at: "2026-01-01T00:00:00Z",
+    updated_at: "2026-01-01T00:00:00Z",
+  },
+  {
+    id: 2,
+    org_id: 1,
+    name: "High priority — business hours",
+    priority: "P2",
+    priority_label: "high",
+    response_minutes: 60,
+    resolution_minutes: 480,
+    business_hours_only: true,
+    business_start: "08:00",
+    business_end: "18:00",
+    business_days: [0, 1, 2, 3, 4],
+    is_default: false,
+    is_active: true,
+    created_at: "2026-01-01T00:00:00Z",
+    updated_at: "2026-01-01T00:00:00Z",
+  },
+  {
+    id: 3,
+    org_id: 1,
+    name: "Standard — business hours",
+    priority: "P3",
+    priority_label: "medium",
+    response_minutes: 240,
+    resolution_minutes: 1440,
+    business_hours_only: true,
+    business_start: "08:00",
+    business_end: "18:00",
+    business_days: [0, 1, 2, 3, 4],
+    is_default: true,
+    is_active: true,
+    created_at: "2026-01-01T00:00:00Z",
+    updated_at: "2026-03-15T00:00:00Z",
+  },
+  {
+    id: 4,
+    org_id: 1,
+    name: "Low priority — best effort",
+    priority: "P4",
+    priority_label: "low",
+    response_minutes: 1440,
+    resolution_minutes: 4320,
+    business_hours_only: true,
+    business_start: "08:00",
+    business_end: "18:00",
+    business_days: [0, 1, 2, 3, 4],
+    is_default: false,
+    is_active: true,
+    created_at: "2026-01-01T00:00:00Z",
+    updated_at: "2026-01-01T00:00:00Z",
+  },
+];
+
+export async function fetchSLAPolicies(): Promise<SLAPoliciesResponse> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 150));
+    return {
+      success: true,
+      data: { policies: MOCK_SLA_POLICIES, total: MOCK_SLA_POLICIES.length },
+    };
+  }
+  const res = await fetch("/api/proxy/helpdesk/api/sla/policies");
+  if (!res.ok) throw new Error(`fetchSLAPolicies failed: ${res.status}`);
+  return res.json();
+}
+
+export async function fetchSLACompliance(): Promise<SLAComplianceResponse> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 200));
+    // Derive compliance from current MOCK_TICKETS state.
+    const breakdown = (["critical", "high", "medium", "low"] as const).map(
+      (priority) => {
+        const tickets = MOCK_TICKETS.filter((t) => t.priority === priority);
+        const breachedResponse = tickets.filter((t) => t.sla_response_breached).length;
+        const breachedResolution = tickets.filter((t) => t.sla_resolution_breached).length;
+        const onTrack = tickets.length - breachedResponse - breachedResolution;
+        const compliance =
+          tickets.length === 0
+            ? 100
+            : Math.round((onTrack / tickets.length) * 1000) / 10;
+        return {
+          priority,
+          total: tickets.length,
+          on_track: onTrack,
+          breached_response: breachedResponse,
+          breached_resolution: breachedResolution,
+          compliance_pct: compliance,
+        };
+      },
+    );
+    const totalTickets = MOCK_TICKETS.length;
+    const totalBreaches = MOCK_TICKETS.filter(
+      (t) => t.sla_response_breached || t.sla_resolution_breached,
+    ).length;
+    const totalResponseBreaches = MOCK_TICKETS.filter(
+      (t) => t.sla_response_breached,
+    ).length;
+    const totalResolutionBreaches = MOCK_TICKETS.filter(
+      (t) => t.sla_resolution_breached,
+    ).length;
+    return {
+      success: true,
+      data: {
+        overall_compliance_pct:
+          totalTickets === 0
+            ? 100
+            : Math.round(((totalTickets - totalBreaches) / totalTickets) * 1000) / 10,
+        response_compliance_pct:
+          totalTickets === 0
+            ? 100
+            : Math.round(
+                ((totalTickets - totalResponseBreaches) / totalTickets) * 1000,
+              ) / 10,
+        resolution_compliance_pct:
+          totalTickets === 0
+            ? 100
+            : Math.round(
+                ((totalTickets - totalResolutionBreaches) / totalTickets) * 1000,
+              ) / 10,
+        by_priority: breakdown,
+        active_breaches: MOCK_TICKETS.filter(
+          (t) =>
+            (t.sla_response_breached || t.sla_resolution_breached) &&
+            t.status !== "resolved" &&
+            t.status !== "closed",
+        ).length,
+      },
+    };
+  }
+  const res = await fetch("/api/proxy/helpdesk/api/sla/compliance");
+  if (!res.ok) throw new Error(`fetchSLACompliance failed: ${res.status}`);
   return res.json();
 }

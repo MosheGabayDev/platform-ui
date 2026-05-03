@@ -198,3 +198,56 @@ export interface TechnicianUtilizationResponse {
     avg_utilization_pct: number;
   };
 }
+
+/**
+ * SLA policies — mirrors apps/helpdesk/models.py SLAPolicy.to_dict().
+ * Per-org, per-priority response/resolution targets with optional business-hours window.
+ */
+export interface SLAPolicy {
+  id: number;
+  org_id: number;
+  name: string;
+  /** Flask priority code (P1-P4) — semantic translation handled at the boundary. */
+  priority: FlaskPriorityCode;
+  /** Semantic priority for UI display. */
+  priority_label: TicketPriority;
+  response_minutes: number;
+  resolution_minutes: number;
+  business_hours_only: boolean;
+  business_start: string | null;
+  business_end: string | null;
+  business_days: number[];
+  is_default: boolean;
+  is_active: boolean;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface SLAPoliciesResponse {
+  success: boolean;
+  data: {
+    policies: SLAPolicy[];
+    total: number;
+  };
+}
+
+export interface SLAComplianceBreakdown {
+  priority: TicketPriority;
+  total: number;
+  on_track: number;
+  breached_response: number;
+  breached_resolution: number;
+  compliance_pct: number;
+}
+
+export interface SLAComplianceResponse {
+  success: boolean;
+  data: {
+    overall_compliance_pct: number;
+    response_compliance_pct: number;
+    resolution_compliance_pct: number;
+    by_priority: SLAComplianceBreakdown[];
+    /** Tickets currently breached (not yet resolved). */
+    active_breaches: number;
+  };
+}

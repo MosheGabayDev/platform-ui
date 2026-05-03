@@ -8,6 +8,8 @@ import {
   commentOnTicket,
   fetchTechnicians,
   fetchTechnicianUtilization,
+  fetchSLAPolicies,
+  fetchSLACompliance,
   MOCK_MODE,
 } from "./helpdesk";
 
@@ -122,5 +124,47 @@ describe("helpdesk client (mock mode)", () => {
       res.data.technicians.every((t) => t.utilization_pct >= 0 && t.utilization_pct <= 100),
     ).toBe(true);
     expect(res.data.avg_utilization_pct).toBeGreaterThanOrEqual(0);
+  });
+
+  // -------------------------------------------------------------------------
+  // SLA (Phase C)
+  // -------------------------------------------------------------------------
+
+  it("fetchSLAPolicies returns 4 fixture policies (P1-P4)", async () => {
+    const res = await fetchSLAPolicies();
+    expect(res.success).toBe(true);
+    expect(res.data.policies.length).toBe(4);
+    const priorities = res.data.policies.map((p) => p.priority).sort();
+    expect(priorities).toEqual(["P1", "P2", "P3", "P4"]);
+  });
+
+  it("fetchSLAPolicies critical policy is 24/7", async () => {
+    const res = await fetchSLAPolicies();
+    const p1 = res.data.policies.find((p) => p.priority === "P1");
+    expect(p1?.business_hours_only).toBe(false);
+    expect(p1?.business_days.length).toBe(7);
+  });
+
+  it("fetchSLAPolicies has exactly one default", async () => {
+    const res = await fetchSLAPolicies();
+    const defaults = res.data.policies.filter((p) => p.is_default);
+    expect(defaults.length).toBe(1);
+  });
+
+  it("fetchSLACompliance breakdown covers all 4 priorities", async () => {
+    const res = await fetchSLACompliance();
+    expect(res.success).toBe(true);
+    expect(res.data.by_priority.length).toBe(4);
+    expect(res.data.overall_compliance_pct).toBeGreaterThanOrEqual(0);
+    expect(res.data.overall_compliance_pct).toBeLessThanOrEqual(100);
+  });
+
+  it("fetchSLACompliance per-priority compliance is bounded [0, 100]", async () => {
+    const res = await fetchSLACompliance();
+    for (const row of res.data.by_priority) {
+      expect(row.compliance_pct).toBeGreaterThanOrEqual(0);
+      expect(row.compliance_pct).toBeLessThanOrEqual(100);
+      expect(row.on_track + row.breached_response + row.breached_resolution).toBe(row.total);
+    }
   });
 });

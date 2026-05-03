@@ -43,5 +43,7 @@ export const queryKeys = {
     ticket:      (id: number) => ["helpdesk", "ticket", id]          as const,
     technicians: (availableOnly?: boolean) => ["helpdesk", "technicians", { availableOnly }] as const,
     technicianUtilization: () => ["helpdesk", "technicians", "utilization"]      as const,
+    slaPolicies:    () => ["helpdesk", "sla", "policies"]    as const,
+    slaCompliance:  () => ["helpdesk", "sla", "compliance"]  as const,
   },
 } as const;
