@@ -17,6 +17,14 @@
  *
  * `partial` is canonical (some items succeeded, some failed) — distinct
  * from `failed` which means the whole job exploded.
+ *
+ * **Spelling note (Round 3 review MED #4 — 2026-05-03):**
+ * Both `success` and `succeeded` are accepted because consumers are split:
+ * legacy Celery results emit `"success"` while the helpdesk batch tasks
+ * surface emits `"succeeded"`. Use `normalizeJobStatus()` at the boundary
+ * if you need a single canonical value for equality checks. Prefer
+ * `isTerminalStatus()` over direct equality so consumer code is safe
+ * regardless of which spelling the backend chooses.
  */
 export type JobStatus =
   | "pending"
@@ -28,6 +36,15 @@ export type JobStatus =
   | "failed"
   | "cancelled"
   | (string & {});
+
+/**
+ * Normalizes a JobStatus to its canonical spelling — used at the boundary
+ * before equality checks. `success` collapses to `succeeded`. Pass-through
+ * for unknown statuses (open enum).
+ */
+export function normalizeJobStatus(status: string): string {
+  return status === "success" ? "succeeded" : status;
+}
 
 /** A status is terminal when polling should stop. */
 export const TERMINAL_STATUSES = new Set<string>([

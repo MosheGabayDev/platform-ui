@@ -365,9 +365,12 @@ function MaintenanceInner() {
                   cancelTarget.impact === "high"
                     ? `This window has HIGH impact (services: ${cancelTarget.affected_services.join(", ")}). Cancelling cannot be undone — provide a reason for the audit log.`
                     : `Cancel maintenance window #${cancelTarget.id}? This cannot be undone.`,
+                // dangerLevel: "high" alone forces requiresReason via DANGER_LEVEL_CONFIG
+                // (see lib/platform/actions/danger-level.ts). The explicit prop
+                // below is a no-op for "high" but load-bearing for "medium" —
+                // medium impact keeps the reason field optional. (Round 3 MED #6.)
                 dangerLevel: cancelTarget.impact === "high" ? "high" : "medium",
                 requiresConfirmation: true,
-                requiresReason: cancelTarget.impact === "high",
                 auditEvent: "helpdesk.maintenance.cancel",
                 resourceType: "maintenance_window",
               } as PlatformAction

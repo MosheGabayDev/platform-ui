@@ -191,7 +191,7 @@ describe("authOptions.callbacks.jwt", () => {
     };
     const out = await authOptions.callbacks!.jwt!({
       token: {} as JWT,
-      user: userObj as unknown as Parameters<typeof authOptions.callbacks.jwt>[0]["user"],
+      user: userObj as unknown as never,
       account: null,
       profile: undefined,
       trigger: "signIn",
@@ -213,7 +213,7 @@ describe("authOptions.callbacks.jwt", () => {
     } as JWT;
     const out = await authOptions.callbacks!.jwt!({
       token: existing,
-      user: undefined,
+      user: undefined as unknown as never,
       account: null,
     });
     expect(out).toBe(existing);
@@ -237,7 +237,7 @@ describe("authOptions.callbacks.jwt", () => {
     } as JWT;
     const out = (await authOptions.callbacks!.jwt!({
       token: expired,
-      user: undefined,
+      user: undefined as unknown as never,
       account: null,
     })) as JWT;
     expect(out.accessToken).toBe("fresh-access");
@@ -258,7 +258,7 @@ describe("authOptions.callbacks.jwt", () => {
     } as JWT;
     const out = (await authOptions.callbacks!.jwt!({
       token: expired,
-      user: undefined,
+      user: undefined as unknown as never,
       account: null,
     })) as JWT;
     expect(out.error).toBe("RefreshTokenError");
@@ -277,7 +277,7 @@ describe("authOptions.callbacks.jwt", () => {
     } as JWT;
     const out = (await authOptions.callbacks!.jwt!({
       token: expired,
-      user: undefined,
+      user: undefined as unknown as never,
       account: null,
     })) as JWT;
     expect(out.error).toBe("RefreshTokenError");
@@ -299,7 +299,7 @@ describe("authOptions.callbacks.jwt", () => {
     } as JWT;
     const out = (await authOptions.callbacks!.jwt!({
       token: expired,
-      user: undefined,
+      user: undefined as unknown as never,
       account: null,
     })) as JWT;
     expect(out.refreshToken).toBe("old-refresh");
@@ -316,17 +316,28 @@ describe("authOptions.callbacks.session", () => {
       user: makeFlaskUser() as unknown as NormalizedAuthUser,
     } as JWT;
     const out = await authOptions.callbacks!.session!({
-      session: { user: undefined, expires: "" } as unknown as Parameters<typeof authOptions.callbacks.session>[0]["session"],
+      session: { user: undefined, expires: "" } as unknown as never,
       token,
-      user: undefined as unknown as Parameters<typeof authOptions.callbacks.session>[0]["user"],
+      user: undefined as unknown as never,
       newSession: undefined,
       trigger: "update",
     });
     const session = out as { user?: unknown; expiresAt?: number; refreshToken?: string };
     expect(session.user).toEqual(token.user);
     expect(session.expiresAt).toBe(1234567890);
-    // CRITICAL: refresh token must never reach the client.
-    expect(JSON.stringify(out)).not.toContain("SECRET-refresh");
+    // CRITICAL: refresh token must never reach the client. Round 3 review
+    // MED #5 — assert structurally (no `refreshToken` key at any depth) AND
+    // by value, so a future base64/hash refactor cannot pass a literal-string
+    // assertion silently.
+    function findKey(obj: unknown, key: string): boolean {
+      if (obj === null || typeof obj !== "object") return false;
+      if (Object.prototype.hasOwnProperty.call(obj, key)) return true;
+      return Object.values(obj as Record<string, unknown>).some((v) =>
+        findKey(v, key),
+      );
+    }
+    expect(findKey(out, "refreshToken")).toBe(false);
+    expect(JSON.stringify(out)).not.toContain(token.refreshToken);
   });
 
   it("propagates error flag when token has one (RefreshTokenError)", async () => {
@@ -339,9 +350,9 @@ describe("authOptions.callbacks.session", () => {
       error: "RefreshTokenError",
     } as JWT;
     const out = (await authOptions.callbacks!.session!({
-      session: { user: undefined, expires: "" } as unknown as Parameters<typeof authOptions.callbacks.session>[0]["session"],
+      session: { user: undefined, expires: "" } as unknown as never,
       token,
-      user: undefined as unknown as Parameters<typeof authOptions.callbacks.session>[0]["user"],
+      user: undefined as unknown as never,
       newSession: undefined,
       trigger: "update",
     })) as { error?: string };
@@ -361,7 +372,8 @@ describe("authOptions.events.signOut", () => {
     const { authOptions } = await loadModule();
     await authOptions.events!.signOut!({
       token: { accessToken: "ax-tok-1" } as JWT,
-      session: undefined as unknown as Parameters<typeof authOptions.events.signOut>[0]["session"],
+      // signOut payload type is internal to next-auth — cast through unknown.
+      session: undefined as unknown as never,
     });
     expect(fetchSpy).toHaveBeenCalled();
     const [, init] = fetchSpy.mock.calls[0]!;
@@ -376,7 +388,8 @@ describe("authOptions.events.signOut", () => {
     await expect(
       authOptions.events!.signOut!({
         token: { accessToken: "ax" } as JWT,
-        session: undefined as unknown as Parameters<typeof authOptions.events.signOut>[0]["session"],
+        // signOut payload type is internal to next-auth — cast through unknown.
+      session: undefined as unknown as never,
       }),
     ).resolves.toBeUndefined();
   });
@@ -386,7 +399,8 @@ describe("authOptions.events.signOut", () => {
     const { authOptions } = await loadModule();
     await authOptions.events!.signOut!({
       token: {} as JWT,
-      session: undefined as unknown as Parameters<typeof authOptions.events.signOut>[0]["session"],
+      // signOut payload type is internal to next-auth — cast through unknown.
+      session: undefined as unknown as never,
     });
     expect(fetchSpy).not.toHaveBeenCalled();
   });
@@ -412,7 +426,7 @@ describe("refreshAccessToken — mock mode branch", () => {
     } as JWT;
     const out = (await authOptions.callbacks!.jwt!({
       token: expired,
-      user: undefined,
+      user: undefined as unknown as never,
       account: null,
     })) as JWT;
     expect(out.accessToken).toBe("mock-access-token");

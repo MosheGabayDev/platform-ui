@@ -37,5 +37,16 @@ export function useJobPolling<TJobId extends number | string>({
       if (!job) return intervalMs;
       return isTerminalStatus(String(job.status)) ? false : intervalMs;
     },
+    // Round 3 review HIGH #2: also disable focus + reconnect refetches once
+    // terminal. Without these, switching tabs back fires N concurrent
+    // requests for already-complete jobs in a list view.
+    refetchOnWindowFocus: (query) => {
+      const job = query.state.data?.data?.job;
+      return !job || !isTerminalStatus(String(job.status));
+    },
+    refetchOnReconnect: (query) => {
+      const job = query.state.data?.data?.job;
+      return !job || !isTerminalStatus(String(job.status));
+    },
   });
 }
