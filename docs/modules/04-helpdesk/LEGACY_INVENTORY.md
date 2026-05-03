@@ -32,7 +32,7 @@
 | 19 | Email-to-ticket ingest | `apps/helpdesk/email_ingest.py` | external | live | Phase D (no UI changes) |
 | 20 | Ticket templates | `apps/helpdesk/templates.py` | `/helpdesk/api/templates` | partial | Phase B |
 | 21 | Bulk reassign | `apps/helpdesk/bulk.py` | `POST /helpdesk/api/tickets/bulk/reassign` | live | Phase C |
-| 22 | Ticket search (full-text) | `apps/helpdesk/search.py` | `GET /helpdesk/api/search` | live | Phase C (depends on PlatformSearch) |
+| 22 | Ticket search (full-text) | `apps/helpdesk/search.py` | `GET /helpdesk/api/search` | live | **Unblocked 2026-05-03** — frontend implementing against `docs/system-upgrade/04-capabilities/platform-search-spec.md` via `lib/api/search.ts` MOCK_MODE. Backend port flips MOCK off per spec §7. |
 | 23 | CSV export of tickets | `apps/helpdesk/export.py` | `GET /helpdesk/api/tickets/export` | live | Phase B (uses lib/utils/csv.ts) |
 
 ## Database tables (do not drop in Phase A — additive migrations only)

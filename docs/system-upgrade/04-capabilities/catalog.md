@@ -45,7 +45,7 @@ This rule is enforced by code review and CI. Reviewers must reject PRs that dupl
 | 08 | [PlatformDetailView](#08-platformdetailview) | **now** | 🔵 Partial | 015 | R023 (extract) |
 | 09 | [PlatformTimeline](#09-platformtimeline) | **now** | ✅ Implemented | R041E | — |
 | 10 | [PlatformAuditLog](#10-platformauditlog) | **next** | ⬜ Pending | — | R026 |
-| 11 | [PlatformSearch / Command Palette](#11-platformsearch--command-palette) | **next** | ⬜ Pending | — | R032 |
+| 11 | [PlatformSearch / Command Palette](#11-platformsearch--command-palette) | **next** | 🔵 Frontend mock + spec (2026-05-03) — backend port pending | — | R032 |
 | 12 | [PlatformNotifications](#12-platformnotifications) | **now** | ✅ Implemented \| R042 | — | R024 |
 | 13 | [PlatformApprovalFlow](#13-platformapprovalflow) | **now** | ⬜ Pending | — | R028 |
 | 14 | [PlatformJobRunner](#14-platformjobrunner) | **next** | ⬜ Pending | — | R031 |
