@@ -78,7 +78,7 @@ function PermissionChecklist({
   };
 
   return (
-    <div className="space-y-4 max-h-80 overflow-y-auto pr-1">
+    <div className="space-y-4 max-h-80 overflow-y-auto pe-1">
       {Array.from(grouped.entries()).map(([ns, perms]) => (
         <div key={ns}>
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">

@@ -1,9 +1,16 @@
 /**
  * Audit log API client (platform-wide, R046).
  *
- * MOCK MODE returns ~25 fixture entries spanning the last 7 days. Flips to
- * false once R046-min AuditLog backend lands. The proxy path
- * `/api/proxy/audit-log/*` is reserved.
+ * MOCK MODE returns ~17 fixture entries spanning the last 5 days. Flips to
+ * false once R046-min AuditLog backend lands. Proxy path `/api/proxy/audit-log/*`.
+ *
+ * **Contract.** The shape returned here is authoritative for what the backend
+ * MUST emit on flip. See `docs/system-upgrade/05-ai/audit-log.md` for the
+ * canonical SQLAlchemy schema, the 7-category enum (login/create/update/
+ * delete/admin/ai/security), retention rules, PII redaction rules, and the
+ * `UserActivity` → `audit_log` backfill SQL. Review #2 Q-AU-1 resolved this
+ * doc gap; do NOT change the wire shape here without updating that spec in
+ * lockstep.
  */
 import type {
   AuditLogParams,
