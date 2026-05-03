@@ -26,6 +26,22 @@ import type {
 
 const FLASK_URL = process.env.FLASK_API_URL ?? "http://localhost:5000";
 
+/**
+ * AUTH_MOCK_MODE — bypasses Flask /api/auth/login when true.
+ *
+ * Same pattern as the per-client MOCK_MODE flags (Q31). Accepts ANY email +
+ * password combo and returns a system_admin session so the UI can be browsed
+ * without a running Flask backend. Flips to false once Flask auth is reachable
+ * from the environment (typically when R040+ deploys land).
+ *
+ * SECURITY: this is dev/demo only. Production deployments MUST set
+ * `AUTH_MOCK_MODE=false` via env. The flag below defaults true to match the
+ * rest of platform-ui's offline-friendly demo defaults; production env files
+ * (`.env.production`) MUST override.
+ */
+export const AUTH_MOCK_MODE =
+  process.env.AUTH_MOCK_MODE !== "false";
+
 /** Matches Flask jwt_auth.py JWT_ACCESS_EXPIRY = timedelta(minutes=15). */
 const ACCESS_TOKEN_TTL_SECONDS = 15 * 60;
 
@@ -56,6 +72,43 @@ function normalizeFlaskUser(user: FlaskUserPayload): NormalizedAuthUser {
     // is_admin is now a real boolean from Flask User.is_admin column (Round 009).
     is_admin: user.is_admin ?? false,
     is_system_admin: user.is_system_admin ?? false,
+  };
+}
+
+/**
+ * Mock authorize path — accepts any credentials and returns an admin session.
+ * Used when AUTH_MOCK_MODE=true (default for offline demos).
+ */
+function authorizeMock(email: string): User {
+  const normalizedEmail = email.toLowerCase().trim();
+  const isAdminEmail =
+    normalizedEmail.startsWith("admin") ||
+    normalizedEmail === "admin@platform.local" ||
+    !normalizedEmail.includes("viewer");
+  return {
+    id: "1",
+    email: normalizedEmail,
+    name: normalizedEmail.split("@")[0] ?? "admin",
+    accessToken: "mock-access-token",
+    refreshToken: "mock-refresh-token",
+    expiresAt: Math.floor(Date.now() / 1000) + ACCESS_TOKEN_TTL_SECONDS,
+    normalizedUser: {
+      id: 1,
+      email: normalizedEmail,
+      username: normalizedEmail.split("@")[0] ?? "admin",
+      role: isAdminEmail ? "system_admin" : "viewer",
+      permissions: [
+        "users.view",
+        "users.create",
+        "users.edit",
+        "helpdesk.view",
+        "helpdesk.assign",
+        "helpdesk.resolve",
+      ],
+      org_id: 1,
+      is_admin: isAdminEmail,
+      is_system_admin: isAdminEmail,
+    },
   };
 }
 
@@ -115,6 +168,14 @@ async function authorizeWithFlask(
  * The middleware treats "RefreshTokenError" as unauthenticated and redirects to /login.
  */
 async function refreshAccessToken(staleToken: JWT): Promise<JWT> {
+  if (AUTH_MOCK_MODE) {
+    return {
+      ...staleToken,
+      accessToken: "mock-access-token",
+      expiresAt: Math.floor(Date.now() / 1000) + ACCESS_TOKEN_TTL_SECONDS,
+      error: undefined,
+    };
+  }
   try {
     const res = await fetch(`${FLASK_URL}/api/auth/refresh`, {
       method: "POST",
@@ -172,6 +233,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
+        if (AUTH_MOCK_MODE) return authorizeMock(credentials.email);
         return authorizeWithFlask(credentials.email, credentials.password);
       },
     }),
