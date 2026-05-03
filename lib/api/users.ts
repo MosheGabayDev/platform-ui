@@ -7,6 +7,23 @@
  * render without 401 noise. Flips to false once R045-min ships and Flask
  * /api/users endpoints are reachable from this environment.
  *
+ * **Schema drift watch (review #2 §5).** Flask `serialize_auth_user()` returns
+ * `{id, email, org_id, name, roles[], permissions[], is_admin, is_system_admin,
+ * is_manager, is_ai_agent}` — note `roles` is an ARRAY, not a single string.
+ * The frontend `UserSummary` exposes:
+ *   - `role: string` (singular)        ← decision: derive from `roles[0]` at boundary
+ *   - `username: string`                ← NOT in serialize_auth_user; comes from
+ *                                          dedicated `/api/users` list serializer
+ *                                          (R045-full deliverable). Until then,
+ *                                          mock-only.
+ *   - `is_approved`, `last_login`        ← same — list serializer fields
+ *   - `permissions[]` on UserDetail     ← derived in mock; Flask returns real
+ *                                          list from user.role.permissions on flip.
+ * When MOCK_MODE flips, a `transformFlaskUser()` boundary function (similar to
+ * `transformFlaskTicket` in helpdesk.ts) MUST handle `roles[] → role: roles[0]`.
+ *
+ * Tracked in open-questions Q-USR-1 (NEW): R045-full users list serializer shape.
+ *
  * Do NOT call Flask directly. Do NOT put UI logic here.
  * Do NOT use these functions directly in components — wrap with useQuery in hooks.
  */

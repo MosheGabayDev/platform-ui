@@ -136,6 +136,8 @@ Authoritative round sequence. Each row is a single round; epic + atomic tasks li
 
 > **Round sub-letter convention:** A/B/C/D/E/F/G suffixes mark parallel sub-rounds within a numeric round. The `-min` / `-full` split (per ADR-040) is a slicing convention: `-min` ships first as a Helpdesk-validating subset, `-full` completes after Helpdesk Phase A validates the slice.
 
+> **Frontend-first-in-mock note (review #2 §2):** ADR-040 prescribed that the four "-min" backend rounds run *before* Helpdesk Phase A frontend. In practice the order has been inverted: Helpdesk Phase A + B + C-entry shipped first in `MOCK_MODE` (commits `7f5152d` through `60c1a48`), with realistic fixtures and explicit schema-mapping at the boundary (`transformFlaskTicket()` + the spec at `docs/modules/04-helpdesk/LEGACY_INVENTORY.md`). The four "-min" backend rounds run *next*. This is the actual P1 path; the original wording is preserved above for traceability but is not the operating sequence. The risk this introduces is schema drift — captured by the `MOCK_MODE` flip checklists per client (e.g. `docs/system-upgrade/05-ai/audit-log.md` §"Frontend MOCK_MODE flip checklist").
+
 ---
 
 ## 6. Capability Dependency Graph
