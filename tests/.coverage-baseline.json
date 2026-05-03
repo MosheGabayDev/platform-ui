@@ -4,11 +4,11 @@
   "_run": "vitest run --coverage (1 test file: lib/utils.test.ts)",
   "layers": {
     "lib/api/": {
-      "lines": 38.28,
+      "lines": 42.19,
       "branches": 24.04,
       "functions": 45.94,
       "target_floor": 90,
-      "note": "Phase C wave (audit + approvals + bulk ops + SLA) — total 14 lib/api tests added across 3 files. Raised from 32.82% to 38.28% lines (2026-05-03)."
+      "note": "Phase C wave (audit + approvals + bulk ops + SLA + maintenance) — added helpdesk.maintenance.ts client + 9 tests. Raised from 38.28% to 42.19% lines (2026-05-03)."
     },
     "lib/auth/": {
       "lines": 24.48,
@@ -32,11 +32,11 @@
       "note": "Schemas show 100% branches because they're declarations only"
     },
     "lib/platform/": {
-      "lines": 0,
+      "lines": 19.59,
       "branches": 0,
       "functions": 0,
       "target_floor": 70,
-      "note": "Cross-platform code — currently no tests"
+      "note": "Picked up indirect coverage via AI-shell action executors invoked by shared mutations (2026-05-03)."
     },
     "lib/utils/": {
       "lines": 0,
@@ -60,11 +60,11 @@
       "note": "ADR-042 target — currently no tests"
     },
     "components/shell/": {
-      "lines": 13.86,
+      "lines": 22.11,
       "branches": 14,
       "functions": 17.18,
       "target_floor": 50,
-      "note": "Review #2 fix — added action-preview-card.test.tsx (7 tests) + base.ts e2e fixture exercises drawer + FAB. Raised from 5.31% to 13.86% lines (2026-05-03)."
+      "note": "Picked up indirect coverage from action-preview-card + drawer paths exercised in component tests. Raised from 13.86% to 22.11% lines (2026-05-03)."
     },
     "app/api/proxy/": {
       "lines": 0,

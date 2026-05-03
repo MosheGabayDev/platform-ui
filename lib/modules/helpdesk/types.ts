@@ -350,3 +350,71 @@ export interface ApprovalActionResponse {
   success: boolean;
   message: string;
 }
+
+// ---------------------------------------------------------------------------
+// Maintenance windows (Phase C row 4 — extends inventory)
+// ---------------------------------------------------------------------------
+
+/**
+ * Operational maintenance window. Surfaces in helpdesk so technicians know
+ * when alert noise is expected (suppress_alerts), what services are impacted,
+ * and which tickets are linked to the change.
+ *
+ * Mirrors legacy `MaintenanceWindow` model (apps/helpdesk in legacy stack).
+ * Backend is not yet ported; current schema is FRONTEND-DEFINED and tracked
+ * in `08-decisions/open-questions.md` Q-HD-9 — backend MUST adopt this shape
+ * or we add a transform fn at the boundary.
+ */
+export type MaintenanceStatus =
+  | "scheduled"
+  | "in_progress"
+  | "completed"
+  | "cancelled";
+
+export type MaintenanceImpact = "none" | "low" | "medium" | "high";
+
+export interface MaintenanceWindow {
+  id: number;
+  org_id: number;
+  title: string;
+  description: string;
+  starts_at: string;
+  ends_at: string;
+  status: MaintenanceStatus;
+  impact: MaintenanceImpact;
+  /** Free-form labels — Flask `affected_services` JSON column. */
+  affected_services: string[];
+  /** When true, monitoring alerts in scope are suppressed for this window. */
+  suppress_alerts: boolean;
+  /** Linked helpdesk ticket IDs (change-management trail). */
+  ticket_ids: number[];
+  created_by: number | null;
+  created_by_name: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MaintenanceListParams {
+  page: number;
+  per_page: number;
+  status?: MaintenanceStatus;
+  search?: string;
+}
+
+export interface MaintenanceListResponse {
+  success: boolean;
+  data: {
+    windows: MaintenanceWindow[];
+    total: number;
+    active_count: number;
+    upcoming_count: number;
+    page: number;
+    per_page: number;
+  };
+}
+
+export interface MaintenanceActionResponse {
+  success: boolean;
+  message: string;
+  data?: { window: MaintenanceWindow };
+}
