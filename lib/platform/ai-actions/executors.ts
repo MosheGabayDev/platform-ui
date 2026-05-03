@@ -19,6 +19,8 @@ import {
   takeTicket,
   resolveTicket,
 } from "@/lib/api/helpdesk";
+import { cancelMaintenanceWindow } from "@/lib/api/helpdesk.maintenance";
+import { cancelBatchTask } from "@/lib/api/helpdesk.batch";
 import { queryKeys } from "@/lib/api/query-keys";
 
 export type ActionParams = Record<string, unknown>;
@@ -55,6 +57,20 @@ const EXECUTORS: Record<string, ActionExecutor> = {
     const res = await resolveTicket({ ticketId, resolution });
     await queryClient.invalidateQueries({ queryKey: queryKeys.helpdesk.all() });
     await queryClient.invalidateQueries({ queryKey: queryKeys.helpdesk.ticket(ticketId) });
+    return { message: res.message };
+  },
+  "helpdesk.maintenance.cancel": async (params, queryClient) => {
+    const windowId = asNumber(params.windowId, "windowId");
+    const reason = asString(params.reason, "reason", "Cancelled via AI assistant");
+    const res = await cancelMaintenanceWindow({ windowId, reason });
+    await queryClient.invalidateQueries({ queryKey: queryKeys.helpdesk.all() });
+    return { message: res.message };
+  },
+  "helpdesk.batch.cancel": async (params, queryClient) => {
+    const taskId = asNumber(params.taskId, "taskId");
+    const reason = asString(params.reason, "reason", "Cancelled via AI assistant");
+    const res = await cancelBatchTask({ taskId, reason });
+    await queryClient.invalidateQueries({ queryKey: queryKeys.helpdesk.all() });
     return { message: res.message };
   },
 };

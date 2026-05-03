@@ -30,9 +30,11 @@ import { FeatureGate } from "@/components/shared/feature-gate";
 import { PageShell } from "@/components/shared/page-shell";
 import { DataTable } from "@/components/shared/data-table";
 import { EmptyState } from "@/components/shared/empty-state";
+import { ConfirmActionDialog } from "@/components/shared/confirm-action-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import type { PlatformAction } from "@/lib/platform/actions";
 import {
   fetchMaintenanceWindows,
   cancelMaintenanceWindow,
@@ -110,6 +112,7 @@ function MaintenanceInner() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<MaintenanceStatus | "all">("all");
+  const [cancelTarget, setCancelTarget] = useState<MaintenanceWindow | null>(null);
 
   const params = useMemo(
     () => ({
@@ -236,17 +239,7 @@ function MaintenanceInner() {
                 size="sm"
                 variant="outline"
                 disabled={cancel.isPending}
-                onClick={() => {
-                  // TODO(ADR-021): swap to ConfirmActionDialog when refactor lands.
-                  // Same precedent as approvals reject — see approvals/page.tsx.
-                  if (
-                    !window.confirm(
-                      `Cancel maintenance window "${w.title}"? This cannot be undone.`,
-                    )
-                  )
-                    return;
-                  cancel.mutate({ windowId: w.id });
-                }}
+                onClick={() => setCancelTarget(w)}
                 aria-label={`Cancel maintenance window ${w.title}`}
               >
                 <CircleSlash2 className="h-3.5 w-3.5 me-1" aria-hidden="true" />
@@ -360,6 +353,41 @@ function MaintenanceInner() {
             }}
           />
         </motion.div>
+
+        {cancelTarget && (
+          <ConfirmActionDialog
+            open={cancelTarget !== null}
+            action={
+              {
+                id: "helpdesk.maintenance.cancel",
+                label: `Cancel "${cancelTarget.title}"`,
+                description:
+                  cancelTarget.impact === "high"
+                    ? `This window has HIGH impact (services: ${cancelTarget.affected_services.join(", ")}). Cancelling cannot be undone — provide a reason for the audit log.`
+                    : `Cancel maintenance window #${cancelTarget.id}? This cannot be undone.`,
+                dangerLevel: cancelTarget.impact === "high" ? "high" : "medium",
+                requiresConfirmation: true,
+                requiresReason: cancelTarget.impact === "high",
+                auditEvent: "helpdesk.maintenance.cancel",
+                resourceType: "maintenance_window",
+              } as PlatformAction
+            }
+            isPending={cancel.isPending}
+            serverError={cancel.serverError}
+            onConfirm={async (payload) => {
+              try {
+                await cancel.mutateAsync({
+                  windowId: cancelTarget.id,
+                  reason: payload.reason ?? undefined,
+                });
+                setCancelTarget(null);
+              } catch {
+                // serverError surfaces in dialog
+              }
+            }}
+            onCancel={() => setCancelTarget(null)}
+          />
+        )}
       </PageShell>
     </LazyMotion>
   );

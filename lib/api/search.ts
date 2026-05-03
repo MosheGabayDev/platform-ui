@@ -124,14 +124,25 @@ const DEFAULT_TYPES: SearchResultType[] = ["ticket", "user", "kb", "org"];
 // Mock scoring
 // ---------------------------------------------------------------------------
 
+/**
+ * Wrap matches of `q` in `<mark>` over the raw `text`. Round 2 review MED #5:
+ * we run the regex against RAW text, then escape match + non-match segments
+ * separately. Escaping first would produce mismatches when `q` contains
+ * `&`, `<`, or `>` (would search for `&` against `&amp;`).
+ */
 function highlight(text: string, q: string): string {
   if (!q) return escapeHtml(text);
-  const escaped = escapeHtml(text);
-  const escapedQ = escapeRegex(q);
-  return escaped.replace(
-    new RegExp(`(${escapedQ})`, "ig"),
-    "<mark>$1</mark>",
-  );
+  const re = new RegExp(escapeRegex(q), "ig");
+  let result = "";
+  let lastIndex = 0;
+  for (const match of text.matchAll(re)) {
+    const start = match.index ?? 0;
+    result += escapeHtml(text.slice(lastIndex, start));
+    result += `<mark>${escapeHtml(match[0])}</mark>`;
+    lastIndex = start + match[0].length;
+  }
+  result += escapeHtml(text.slice(lastIndex));
+  return result;
 }
 
 function escapeHtml(s: string): string {

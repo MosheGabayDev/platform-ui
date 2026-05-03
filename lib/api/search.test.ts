@@ -68,4 +68,17 @@ describe("PlatformSearch client (mock mode)", () => {
     expect(res.success).toBe(true);
     expect(res.data.results).toEqual([]);
   });
+
+  it("highlight() escapes <mark> wrapping AND surrounding text (Round 2 MED #5)", async () => {
+    // The fixture corpus is plain text with no special chars. We assert that
+    // (a) the match is wrapped in literal <mark>, (b) the surrounding raw
+    // text (which would have produced &amp; if someone added an `&` to the
+    // corpus) is escaped, (c) no double-escaping.
+    const res = await searchGlobal({ q: "VPN" });
+    const ticket = res.data.results.find((r) => r.type === "ticket");
+    expect(ticket).toBeDefined();
+    expect(ticket!.match_excerpt).toMatch(/<mark>VPN<\/mark>/);
+    // No literal `&amp;amp;` (double escape)
+    expect(ticket!.match_excerpt).not.toContain("&amp;amp;");
+  });
 });

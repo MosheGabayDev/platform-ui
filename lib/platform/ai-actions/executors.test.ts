@@ -9,6 +9,26 @@ describe("AI action executors", () => {
     expect(ids).toContain("helpdesk.ticket.resolve");
   });
 
+  it("registers helpdesk.maintenance.cancel and helpdesk.batch.cancel (Round 2 HIGH #2)", () => {
+    const ids = _registeredActions();
+    expect(ids).toContain("helpdesk.maintenance.cancel");
+    expect(ids).toContain("helpdesk.batch.cancel");
+  });
+
+  it("helpdesk.maintenance.cancel executes against mock client", async () => {
+    const exec = getActionExecutor("helpdesk.maintenance.cancel")!;
+    const qc = new QueryClient();
+    const result = await exec({ windowId: 9001 }, qc);
+    expect(result.message).toContain("(mock)");
+  });
+
+  it("helpdesk.batch.cancel executes against mock client", async () => {
+    const exec = getActionExecutor("helpdesk.batch.cancel")!;
+    const qc = new QueryClient();
+    const result = await exec({ taskId: 7002 }, qc);
+    expect(result.message).toContain("(mock)");
+  });
+
   it("returns null for unregistered action id", () => {
     expect(getActionExecutor("users.delete")).toBeNull();
   });

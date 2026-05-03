@@ -31,8 +31,10 @@ import { FeatureGate } from "@/components/shared/feature-gate";
 import { PageShell } from "@/components/shared/page-shell";
 import { DataTable } from "@/components/shared/data-table";
 import { EmptyState } from "@/components/shared/empty-state";
+import { ConfirmActionDialog } from "@/components/shared/confirm-action-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import type { PlatformAction } from "@/lib/platform/actions";
 import {
   fetchBatchTasks,
   cancelBatchTask,
@@ -154,6 +156,7 @@ function StatusBadge({ status }: { status: BatchTaskStatus }) {
 function BatchInner() {
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState<BatchTaskStatus | "all">("all");
+  const [cancelTarget, setCancelTarget] = useState<BatchTask | null>(null);
 
   const params = useMemo(
     () => ({
@@ -265,16 +268,7 @@ function BatchInner() {
                   size="sm"
                   variant="outline"
                   disabled={cancel.isPending}
-                  onClick={() => {
-                    // TODO(ADR-021): swap to ConfirmActionDialog when refactor lands.
-                    if (
-                      !window.confirm(
-                        `Cancel batch task "${t.label}"?`,
-                      )
-                    )
-                      return;
-                    cancel.mutate({ taskId: t.id });
-                  }}
+                  onClick={() => setCancelTarget(t)}
                   aria-label={`Cancel batch task ${t.id}`}
                 >
                   <CircleSlash2 className="h-3.5 w-3.5 me-1" aria-hidden="true" />
@@ -415,6 +409,38 @@ function BatchInner() {
               </div>
             )}
         </motion.div>
+
+        {cancelTarget && (
+          <ConfirmActionDialog
+            open={cancelTarget !== null}
+            action={
+              {
+                id: "helpdesk.batch.cancel",
+                label: `Cancel "${cancelTarget.label}"`,
+                description: `Cancel batch task #${cancelTarget.id}? In-flight items will halt at the next checkpoint; processed items remain.`,
+                dangerLevel: "medium",
+                requiresConfirmation: true,
+                requiresReason: false,
+                auditEvent: "helpdesk.batch.cancel",
+                resourceType: "batch_task",
+              } as PlatformAction
+            }
+            isPending={cancel.isPending}
+            serverError={cancel.serverError}
+            onConfirm={async (payload) => {
+              try {
+                await cancel.mutateAsync({
+                  taskId: cancelTarget.id,
+                  reason: payload.reason ?? undefined,
+                });
+                setCancelTarget(null);
+              } catch {
+                // serverError surfaces in dialog
+              }
+            }}
+            onCancel={() => setCancelTarget(null)}
+          />
+        )}
       </PageShell>
     </LazyMotion>
   );
