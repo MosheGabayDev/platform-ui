@@ -21,6 +21,7 @@ export function MessageInput() {
   const setDraft = useAssistantSession((s) => s.setDraft);
   const sendMessage = useAssistantSession((s) => s.sendMessage);
   const receiveResponse = useAssistantSession((s) => s.receiveResponse);
+  const proposeAction = useAssistantSession((s) => s.proposeAction);
   const failChat = useAssistantSession((s) => s.failChat);
   const context = useAssistantSession((s) => s.currentPageContext);
 
@@ -39,7 +40,14 @@ export function MessageInput() {
         contextVersion,
       });
       setContextVersion(response.contextVersion);
+      // Always show the assistant's text reply in transcript
       receiveResponse(response.text);
+      // If the LLM also proposed an action, hand off to the proposal flow
+      // (state transitions chatting_idle → awaiting_action_confirmation;
+      // ActionPreviewCard renders below the transcript).
+      if (response.actionProposal) {
+        proposeAction(response.actionProposal);
+      }
     } catch (err) {
       if (err instanceof StaleContextError) {
         // Re-emit context (HTTP 409 retry contract per assistant-runtime spec)
@@ -51,6 +59,7 @@ export function MessageInput() {
           });
           setContextVersion(retry.contextVersion);
           receiveResponse(retry.text);
+          if (retry.actionProposal) proposeAction(retry.actionProposal);
         } catch {
           failChat("network");
         }
@@ -58,7 +67,16 @@ export function MessageInput() {
         failChat("llm");
       }
     }
-  }, [draft, disabled, sendMessage, context, contextVersion, receiveResponse, failChat]);
+  }, [
+    draft,
+    disabled,
+    sendMessage,
+    context,
+    contextVersion,
+    receiveResponse,
+    proposeAction,
+    failChat,
+  ]);
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {

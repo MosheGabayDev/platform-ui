@@ -10,9 +10,11 @@
  *
  * Spec: docs/system-upgrade/10-tasks/AI-shell-C-actions-confirm/epic.md
  */
-import { useEffect, useState } from "react";
-import { ShieldAlert, ShieldCheck, AlertTriangle, Skull } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { ShieldAlert, ShieldCheck, Skull } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -20,6 +22,7 @@ import {
   type CapabilityLevel,
   type ActionProposal,
 } from "@/lib/hooks/use-assistant-session";
+import { getActionExecutor } from "@/lib/platform/ai-actions/executors";
 
 const LEVEL_META: Record<
   CapabilityLevel,
@@ -45,7 +48,10 @@ function ActionPreviewCardInner({ proposal }: ActionPreviewCardProps) {
   const confirmAction = useAssistantSession((s) => s.confirmAction);
   const rejectAction = useAssistantSession((s) => s.rejectAction);
   const expireConfirmation = useAssistantSession((s) => s.expireConfirmation);
+  const receiveResponse = useAssistantSession((s) => s.receiveResponse);
+  const failChat = useAssistantSession((s) => s.failChat);
   const stateKind = useAssistantSession((s) => s.state.kind);
+  const queryClient = useQueryClient();
 
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
@@ -63,6 +69,31 @@ function ActionPreviewCardInner({ proposal }: ActionPreviewCardProps) {
   const meta = LEVEL_META[proposal.capabilityLevel];
   const Icon = meta.icon;
   const isExecuting = stateKind === "executing_action";
+
+  const handleConfirm = useCallback(async () => {
+    // Transition to executing_action — store enforces token match
+    confirmAction(proposal.tokenId);
+
+    const executor = getActionExecutor(proposal.actionId);
+    if (!executor) {
+      // Unknown action — pretend the backend would reject; fail the chat.
+      failChat("backend_recheck_failed");
+      toast.error(`No executor registered for ${proposal.actionId}`);
+      return;
+    }
+
+    try {
+      const result = await executor(proposal.params, queryClient);
+      // After successful execution, settle back to chatting_idle by emitting
+      // a final assistant message describing the outcome.
+      receiveResponse(`✅ ${result.message}`);
+      toast.success(result.message);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Action failed";
+      failChat("backend_recheck_failed");
+      toast.error(msg);
+    }
+  }, [confirmAction, failChat, proposal, queryClient, receiveResponse]);
 
   return (
     <div
@@ -124,7 +155,7 @@ function ActionPreviewCardInner({ proposal }: ActionPreviewCardProps) {
         <Button
           variant="default"
           size="sm"
-          onClick={() => confirmAction(proposal.tokenId)}
+          onClick={() => void handleConfirm()}
           disabled={isExecuting || remaining <= 0}
         >
           {isExecuting ? "Executing…" : "Confirm"}
