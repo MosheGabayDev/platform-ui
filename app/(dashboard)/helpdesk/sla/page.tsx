@@ -40,7 +40,16 @@ function formatMinutes(mins: number): string {
   return `${Math.round(mins / 1440)}d`;
 }
 
-const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+// ISO weekday: 1=Monday … 7=Sunday (matches Flask `shift_days` / `business_days` defaults).
+const DAY_LABELS_ISO: Record<number, string> = {
+  1: "Mon",
+  2: "Tue",
+  3: "Wed",
+  4: "Thu",
+  5: "Fri",
+  6: "Sat",
+  7: "Sun",
+};
 
 function SLAInner() {
   const { data: policies, isLoading: policiesLoading, error: policiesError } = useQuery({
@@ -111,7 +120,7 @@ function SLAInner() {
           }
           const days = p.business_days
             .slice(0, 5)
-            .map((d) => DAY_LABELS[d] ?? d)
+            .map((d) => DAY_LABELS_ISO[d] ?? String(d))
             .join(", ");
           return (
             <span className="text-xs text-muted-foreground">

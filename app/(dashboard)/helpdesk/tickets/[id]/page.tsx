@@ -50,9 +50,21 @@ import { useSession } from "next-auth/react";
 import { hasRole } from "@/lib/auth/rbac";
 import { TicketActions } from "@/components/modules/helpdesk/ticket-actions";
 import { PAGE_EASE } from "@/lib/ui/motion";
-import type { TicketEvent, TicketEventType } from "@/lib/modules/helpdesk/types";
+import { Activity } from "lucide-react";
+import type {
+  TicketEvent,
+  CanonicalTicketEventType,
+} from "@/lib/modules/helpdesk/types";
 
-const EVENT_ICONS: Record<TicketEventType, LucideIcon> = {
+/**
+ * Maps the 8 canonical event types to icons. Flask's `event_type` is
+ * `String(30)` (open enum) — investigation/automation flows can emit
+ * unknown values like `tool_invoked`, `escalated`. We fall back to a
+ * generic Activity icon so the detail page never crashes on unknown values.
+ *
+ * Per Q-HD-7. Per types.ts header.
+ */
+const EVENT_ICONS: Record<CanonicalTicketEventType, LucideIcon> = {
   created: PlusCircle,
   assigned: UserPlus,
   status_changed: RefreshCw,
@@ -63,6 +75,10 @@ const EVENT_ICONS: Record<TicketEventType, LucideIcon> = {
   reopened: RefreshCw,
 };
 
+function eventIcon(type: string): LucideIcon {
+  return EVENT_ICONS[type as CanonicalTicketEventType] ?? Activity;
+}
+
 function toTimelineEvents(events: TicketEvent[]): TimelineEvent[] {
   return events.map((e) => ({
     id: String(e.id),
@@ -71,7 +87,7 @@ function toTimelineEvents(events: TicketEvent[]): TimelineEvent[] {
     actor: e.actor_name ?? undefined,
     description: e.description,
     detail: e.detail,
-    icon: EVENT_ICONS[e.type],
+    icon: eventIcon(e.type),
   }));
 }
 

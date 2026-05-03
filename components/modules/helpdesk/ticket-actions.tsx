@@ -9,10 +9,10 @@
  * Spec: docs/modules/04-helpdesk/AI_READINESS.md (action capability levels)
  */
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import { UserPlus, CheckCircle, MessageSquarePlus, Users as UsersIcon } from "lucide-react";
 import { ActionButton } from "@/components/shared/action-button";
 import { ConfirmActionDialog } from "@/components/shared/confirm-action-dialog";
-import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
   useTakeTicket,
@@ -41,6 +41,7 @@ const RESOLVE_ACTION: PlatformAction = {
 };
 
 export function TicketActions({ ticket, canManage }: TicketActionsProps) {
+  const { data: session } = useSession();
   const [resolveOpen, setResolveOpen] = useState(false);
   const [commentDraft, setCommentDraft] = useState("");
 
@@ -50,7 +51,11 @@ export function TicketActions({ ticket, canManage }: TicketActionsProps) {
   const comment = useCommentOnTicket(ticket.id);
 
   const isTerminal = ticket.status === "resolved" || ticket.status === "closed";
-  const isAssignedToMe = ticket.assignee_id === 7; // mock: hardcoded "me" until R045 user context lands
+  // Compare against the actual signed-in user (Q-HD review fix). Falls back to
+  // false when session is loading — Take button stays visible until we know.
+  const currentUserId = session?.user?.id ?? null;
+  const isAssignedToMe =
+    currentUserId !== null && ticket.assignee_id === currentUserId;
 
   if (!canManage) {
     return (

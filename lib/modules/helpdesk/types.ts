@@ -124,7 +124,18 @@ export interface HelpdeskStatsResponse {
   data: HelpdeskStats;
 }
 
-export type TicketEventType =
+/**
+ * Ticket timeline event types.
+ *
+ * **Backend reality:** Flask `TicketTimeline.event_type` is `String(30)` — an
+ * open enum. Investigation flows in legacy emit values like `tool_invoked`,
+ * `escalated`, `kb_referenced`, `command_executed`. Frontend canonicals
+ * cover the 8 well-known cases; consumers MUST fall back gracefully on
+ * unknown strings (do NOT index a `Record<TicketEventType, …>` without `?? default`).
+ *
+ * Tracked in `08-decisions/open-questions.md` Q-HD-7.
+ */
+export type CanonicalTicketEventType =
   | "created"
   | "assigned"
   | "status_changed"
@@ -133,6 +144,9 @@ export type TicketEventType =
   | "resolved"
   | "closed"
   | "reopened";
+
+/** Open string with autocomplete for the 8 canonical values. */
+export type TicketEventType = CanonicalTicketEventType | (string & {});
 
 export interface TicketEvent {
   id: number;
