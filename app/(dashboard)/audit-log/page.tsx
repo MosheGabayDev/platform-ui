@@ -19,13 +19,16 @@ import {
   Users as UsersIcon,
   Bot,
   Shield,
+  Download,
 } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { PermissionGate } from "@/components/shared/permission-gate";
 import { PageShell } from "@/components/shared/page-shell";
 import { DataTable } from "@/components/shared/data-table";
 import { EmptyState } from "@/components/shared/empty-state";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { exportToCsv } from "@/lib/utils/csv";
 import { AuditCategoryBadge } from "@/components/modules/audit/category-badge";
 import { fetchAuditLog, fetchAuditLogStats } from "@/lib/api/audit";
 import { queryKeys } from "@/lib/api/query-keys";
@@ -228,7 +231,7 @@ function AuditLogInner() {
           )}
 
           {/* Filters */}
-          <div className="flex flex-col sm:flex-row gap-2">
+          <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
             <Input
               type="search"
               placeholder="Search action, resource, or actor…"
@@ -255,6 +258,45 @@ function AuditLogInner() {
                 </option>
               ))}
             </select>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                exportToCsv(
+                  entries.map((e) => ({
+                    timestamp: e.timestamp,
+                    category: e.category,
+                    action: e.action,
+                    actor_id: e.actor_id ?? "",
+                    actor_name: e.actor_name ?? "",
+                    resource_type: e.resource_type ?? "",
+                    resource_id: e.resource_id ?? "",
+                    ip: e.ip ?? "",
+                    metadata: JSON.stringify(e.metadata ?? {}),
+                  })),
+                  [
+                    { key: "timestamp", label: "When" },
+                    { key: "category", label: "Category" },
+                    { key: "action", label: "Action" },
+                    { key: "actor_id", label: "Actor ID" },
+                    { key: "actor_name", label: "Actor name" },
+                    { key: "resource_type", label: "Resource type" },
+                    { key: "resource_id", label: "Resource ID" },
+                    { key: "ip", label: "IP" },
+                    { key: "metadata", label: "Metadata" },
+                  ],
+                  "audit-log",
+                );
+              }}
+              disabled={entries.length === 0}
+              className="ms-auto"
+              aria-label="Export current view to CSV"
+            >
+              <Download className="h-4 w-4 me-1.5" aria-hidden="true" />
+              Export CSV
+            </Button>
           </div>
 
           <DataTable

@@ -4,11 +4,11 @@
   "_run": "vitest run --coverage (1 test file: lib/utils.test.ts)",
   "layers": {
     "lib/api/": {
-      "lines": 32.82,
-      "branches": 20.98,
-      "functions": 39.26,
+      "lines": 38.28,
+      "branches": 24.04,
+      "functions": 45.94,
       "target_floor": 90,
-      "note": "Audit log (R046 surface) — fetchAuditLog + fetchAuditLogStats + 8 tests; raised from 28.57% to 32.82% lines (2026-05-01)"
+      "note": "Phase C wave (audit + approvals + bulk ops + SLA) — total 14 lib/api tests added across 3 files. Raised from 32.82% to 38.28% lines (2026-05-03)."
     },
     "lib/auth/": {
       "lines": 24.48,

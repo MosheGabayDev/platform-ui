@@ -13,17 +13,32 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
-import { HeadphonesIcon, AlertTriangle, AlertCircle } from "lucide-react";
+import {
+  HeadphonesIcon,
+  AlertTriangle,
+  AlertCircle,
+  Users as UsersIcon,
+  CheckCircle,
+  X,
+} from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
+import { toast } from "sonner";
 import { FeatureGate } from "@/components/shared/feature-gate";
 import { PageShell } from "@/components/shared/page-shell";
 import { DataTable } from "@/components/shared/data-table";
 import { EmptyState } from "@/components/shared/empty-state";
+import { ActionButton } from "@/components/shared/action-button";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TicketStatusBadge } from "@/components/modules/helpdesk/ticket-status-badge";
 import { TicketPriorityBadge } from "@/components/modules/helpdesk/ticket-priority-badge";
-import { fetchTickets } from "@/lib/api/helpdesk";
+import {
+  fetchTickets,
+  bulkReassignTickets,
+  bulkStatusChange,
+} from "@/lib/api/helpdesk";
 import { queryKeys } from "@/lib/api/query-keys";
+import { usePlatformMutation } from "@/lib/hooks/use-platform-mutation";
 import { useRegisterPageContext } from "@/lib/hooks/use-register-page-context";
 import { PAGE_EASE } from "@/lib/ui/motion";
 import type {
@@ -55,6 +70,9 @@ function TicketsListInner() {
   const [status, setStatus] = useState<TicketStatus | "all">("all");
   const [priority, setPriority] = useState<TicketPriority | "all">("all");
 
+  // Bulk selection — survives pagination because it's keyed on ticket.id
+  const [selected, setSelected] = useState<Set<string | number>>(new Set());
+
   const params = useMemo(
     () => ({
       page,
@@ -72,6 +90,35 @@ function TicketsListInner() {
   });
 
   const tickets = data?.data?.tickets ?? [];
+
+  const bulkReassign = usePlatformMutation({
+    mutationFn: bulkReassignTickets,
+    invalidateKeys: [queryKeys.helpdesk.all()],
+    onSuccess: (res) => {
+      toast.success(res.message);
+      if (res.data.failed.length > 0) {
+        toast.error(`${res.data.failed.length} ticket(s) failed.`);
+      }
+      setSelected(new Set());
+    },
+  });
+
+  const bulkStatus = usePlatformMutation({
+    mutationFn: bulkStatusChange,
+    invalidateKeys: [queryKeys.helpdesk.all()],
+    onSuccess: (res) => {
+      toast.success(res.message);
+      if (res.data.failed.length > 0) {
+        toast.error(`${res.data.failed.length} ticket(s) failed.`);
+      }
+      setSelected(new Set());
+    },
+  });
+
+  const selectedIds = useMemo(
+    () => Array.from(selected).map((id) => Number(id)).filter((n) => !Number.isNaN(n)),
+    [selected],
+  );
   const total = data?.data?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / 25));
 
@@ -186,6 +233,60 @@ function TicketsListInner() {
             </select>
           </div>
 
+          {/* Bulk action toolbar — only visible when ≥1 row selected */}
+          {selectedIds.length > 0 && (
+            <div
+              className="flex items-center gap-2 rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-sm"
+              role="toolbar"
+              aria-label="Bulk actions"
+            >
+              <span className="font-medium">
+                {selectedIds.length} selected
+              </span>
+              <span className="text-muted-foreground">·</span>
+              <ActionButton
+                onClick={() =>
+                  bulkReassign.mutate({
+                    ticketIds: selectedIds,
+                    assigneeId: 3, // mock target: OnCall Olivia
+                    reason: "Bulk reassign from list",
+                  })
+                }
+                isLoading={bulkReassign.isPending}
+                size="sm"
+                variant="default"
+              >
+                <UsersIcon className="h-3.5 w-3.5 me-1" aria-hidden="true" />
+                Reassign to Olivia
+              </ActionButton>
+              <ActionButton
+                onClick={() =>
+                  bulkStatus.mutate({
+                    ticketIds: selectedIds,
+                    status: "resolved",
+                    reason: "Bulk resolve from list",
+                  })
+                }
+                isLoading={bulkStatus.isPending}
+                size="sm"
+                variant="default"
+              >
+                <CheckCircle className="h-3.5 w-3.5 me-1" aria-hidden="true" />
+                Mark resolved
+              </ActionButton>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setSelected(new Set())}
+                className="ms-auto"
+                aria-label="Clear selection"
+              >
+                <X className="h-3.5 w-3.5 me-1" aria-hidden="true" />
+                Clear
+              </Button>
+            </div>
+          )}
+
           <DataTable
             columns={columns}
             data={tickets}
@@ -199,6 +300,11 @@ function TicketsListInner() {
               total,
               perPage: 25,
               onPageChange: setPage,
+            }}
+            selection={{
+              value: selected,
+              onChange: setSelected,
+              getRowId: (row) => row.id,
             }}
           />
         </motion.div>

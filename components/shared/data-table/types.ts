@@ -20,6 +20,22 @@ export interface PaginationState {
   onPageChange: (page: number) => void;
 }
 
+/**
+ * Bulk-selection state. When provided, DataTable renders a leading checkbox
+ * column with a "select all on this page" header checkbox.
+ *
+ * Selection is row-id-based (not index) so it survives pagination, sorting,
+ * and refetches. Caller owns the Set.
+ */
+export interface SelectionState<TData> {
+  /** Currently-selected row IDs (across all pages, caller-managed). */
+  value: ReadonlySet<string | number>;
+  /** Update selection. Called with the next Set on every checkbox click. */
+  onChange: (next: Set<string | number>) => void;
+  /** Stable row identifier — typically `row.id`. */
+  getRowId: (row: TData) => string | number;
+}
+
 export interface DataTableProps<TData> {
   /** Column definitions — caller owns all column logic. */
   columns: ColumnDef<TData>[];
@@ -37,4 +53,6 @@ export interface DataTableProps<TData> {
   emptyMessage?: string;
   /** Number of skeleton rows during loading. Default: 5. */
   loadingRows?: number;
+  /** Optional bulk selection. Adds a leading checkbox column. */
+  selection?: SelectionState<TData>;
 }

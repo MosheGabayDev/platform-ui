@@ -10,6 +10,8 @@ import {
   fetchTechnicianUtilization,
   fetchSLAPolicies,
   fetchSLACompliance,
+  bulkReassignTickets,
+  bulkStatusChange,
   MOCK_MODE,
 } from "./helpdesk";
 
@@ -166,5 +168,61 @@ describe("helpdesk client (mock mode)", () => {
       expect(row.compliance_pct).toBeLessThanOrEqual(100);
       expect(row.on_track + row.breached_response + row.breached_resolution).toBe(row.total);
     }
+  });
+
+  // -------------------------------------------------------------------------
+  // Bulk operations (Phase C row 21)
+  // -------------------------------------------------------------------------
+
+  it("bulkReassignTickets returns succeeded list for valid IDs", async () => {
+    const res = await bulkReassignTickets({
+      ticketIds: [1001, 1002],
+      assigneeId: 3,
+      reason: "Bulk shift cover",
+    });
+    expect(res.success).toBe(true);
+    expect(res.data.succeeded).toEqual(expect.arrayContaining([1001, 1002]));
+    expect(res.data.failed.length).toBe(0);
+
+    // Verify both tickets reflect the new assignee
+    const t1 = await fetchTicket(1001);
+    const t2 = await fetchTicket(1002);
+    expect(t1.data.ticket.assignee_id).toBe(3);
+    expect(t2.data.ticket.assignee_id).toBe(3);
+  });
+
+  it("bulkReassignTickets reports failed entries for unknown IDs", async () => {
+    const res = await bulkReassignTickets({
+      ticketIds: [99998, 99999],
+      assigneeId: 3,
+    });
+    expect(res.data.succeeded.length).toBe(0);
+    expect(res.data.failed.length).toBe(2);
+    expect(res.data.failed[0].error).toBe("ticket not found");
+  });
+
+  it("bulkStatusChange flips status + appends timeline events", async () => {
+    const res = await bulkStatusChange({
+      ticketIds: [1005],
+      status: "resolved",
+      reason: "Sweep close stale onboarding tickets",
+    });
+    expect(res.success).toBe(true);
+    expect(res.data.succeeded).toContain(1005);
+
+    const detail = await fetchTicket(1005);
+    expect(detail.data.ticket.status).toBe("resolved");
+    const lastEvent = detail.data.events[detail.data.events.length - 1];
+    expect(lastEvent.type).toBe("status_changed");
+    expect(lastEvent.description).toContain("Bulk status change");
+  });
+
+  it("bulkReassignTickets partial-failure: some valid + some unknown", async () => {
+    const res = await bulkReassignTickets({
+      ticketIds: [1003, 99999],
+      assigneeId: 7,
+    });
+    expect(res.data.succeeded).toContain(1003);
+    expect(res.data.failed.map((f) => f.id)).toContain(99999);
   });
 });

@@ -42,6 +42,7 @@ export function DataTable<TData>({
   onRowClick,
   emptyMessage = "לא נמצאו תוצאות",
   loadingRows = 5,
+  selection,
 }: DataTableProps<TData>) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -57,7 +58,34 @@ export function DataTable<TData>({
   });
 
   const rows = table.getRowModel().rows;
-  const colCount = columns.length;
+  const colCount = columns.length + (selection ? 1 : 0);
+
+  // Selection helpers — only meaningful when `selection` is provided.
+  const pageRowIds = selection ? data.map((d) => selection.getRowId(d)) : [];
+  const selectedOnPage = selection
+    ? pageRowIds.filter((id) => selection.value.has(id)).length
+    : 0;
+  const allOnPageSelected =
+    selection && pageRowIds.length > 0 && selectedOnPage === pageRowIds.length;
+
+  const togglePage = () => {
+    if (!selection) return;
+    const next = new Set(selection.value);
+    if (allOnPageSelected) {
+      pageRowIds.forEach((id) => next.delete(id));
+    } else {
+      pageRowIds.forEach((id) => next.add(id));
+    }
+    selection.onChange(next);
+  };
+
+  const toggleRow = (id: string | number) => {
+    if (!selection) return;
+    const next = new Set(selection.value);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    selection.onChange(next);
+  };
 
   return (
     <div className="space-y-3">
@@ -66,6 +94,18 @@ export function DataTable<TData>({
           <TableHeader>
             {table.getHeaderGroups().map((hg) => (
               <TableRow key={hg.id} className="bg-muted/30 hover:bg-muted/30">
+                {selection && (
+                  <TableHead className="w-9 text-xs font-medium">
+                    <input
+                      type="checkbox"
+                      aria-label="Select all on page"
+                      checked={!!allOnPageSelected}
+                      onChange={togglePage}
+                      onClick={(e) => e.stopPropagation()}
+                      className="size-4 cursor-pointer accent-primary"
+                    />
+                  </TableHead>
+                )}
                 {hg.headers.map((header) => (
                   <TableHead key={header.id} className="text-xs font-medium">
                     {header.isPlaceholder
@@ -103,19 +143,42 @@ export function DataTable<TData>({
             </TableBody>
           ) : (
             <TableBody>
-              {rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  onClick={() => onRowClick?.(row.original)}
-                  className={cn(onRowClick && "cursor-pointer")}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="py-2.5">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))}
+              {rows.map((row) => {
+                const rowId = selection
+                  ? selection.getRowId(row.original)
+                  : null;
+                const isSelected =
+                  selection && rowId !== null && selection.value.has(rowId);
+                return (
+                  <TableRow
+                    key={row.id}
+                    onClick={() => onRowClick?.(row.original)}
+                    data-selected={isSelected || undefined}
+                    className={cn(
+                      onRowClick && "cursor-pointer",
+                      isSelected && "bg-primary/5",
+                    )}
+                  >
+                    {selection && rowId !== null && (
+                      <TableCell className="py-2.5 w-9">
+                        <input
+                          type="checkbox"
+                          aria-label={`Select row ${rowId}`}
+                          checked={!!isSelected}
+                          onChange={() => toggleRow(rowId)}
+                          onClick={(e) => e.stopPropagation()}
+                          className="size-4 cursor-pointer accent-primary"
+                        />
+                      </TableCell>
+                    )}
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className="py-2.5">
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                );
+              })}
             </TableBody>
           )}
         </Table>

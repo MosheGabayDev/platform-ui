@@ -807,3 +807,121 @@ export async function fetchSLACompliance(): Promise<SLAComplianceResponse> {
   if (!res.ok) throw new Error(`fetchSLACompliance failed: ${res.status}`);
   return res.json();
 }
+
+// ---------------------------------------------------------------------------
+// Bulk operations (Phase C row 21)
+// ---------------------------------------------------------------------------
+
+export interface BulkResult {
+  succeeded: number[];
+  failed: Array<{ id: number; error: string }>;
+}
+
+export interface BulkResponse {
+  success: boolean;
+  message: string;
+  data: BulkResult;
+}
+
+export interface BulkReassignInput {
+  ticketIds: number[];
+  assigneeId: number;
+  reason?: string;
+}
+
+export interface BulkStatusInput {
+  ticketIds: number[];
+  status: TicketSummary["status"];
+  reason?: string;
+}
+
+export async function bulkReassignTickets(
+  input: BulkReassignInput,
+): Promise<BulkResponse> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 350));
+    const succeeded: number[] = [];
+    const failed: BulkResult["failed"] = [];
+    for (const id of input.ticketIds) {
+      applyMockTransition(id, {
+        assignee_id: input.assigneeId,
+        status: "in_progress",
+      });
+      const ticket = MOCK_TICKETS.find((t) => t.id === id);
+      if (ticket) {
+        appendMockEvent(id, {
+          type: "assigned",
+          timestamp: new Date().toISOString(),
+          actor_id: 1,
+          actor_name: "Manager Bot",
+          description: `Bulk reassigned to user #${input.assigneeId}`,
+          detail: input.reason,
+        });
+        succeeded.push(id);
+      } else {
+        failed.push({ id, error: "ticket not found" });
+      }
+    }
+    return {
+      success: true,
+      message: `(mock) Reassigned ${succeeded.length} of ${input.ticketIds.length} ticket(s).`,
+      data: { succeeded, failed },
+    };
+  }
+  const res = await fetch("/api/proxy/helpdesk/api/tickets/bulk/reassign", {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      ticket_ids: input.ticketIds,
+      assignee_id: input.assigneeId,
+      reason: input.reason,
+    }),
+  });
+  if (!res.ok) throw new Error(`bulkReassignTickets failed: ${res.status}`);
+  return res.json();
+}
+
+export async function bulkStatusChange(
+  input: BulkStatusInput,
+): Promise<BulkResponse> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 350));
+    const succeeded: number[] = [];
+    const failed: BulkResult["failed"] = [];
+    for (const id of input.ticketIds) {
+      const ticket = MOCK_TICKETS.find((t) => t.id === id);
+      if (!ticket) {
+        failed.push({ id, error: "ticket not found" });
+        continue;
+      }
+      applyMockTransition(id, { status: input.status });
+      appendMockEvent(id, {
+        type: "status_changed",
+        timestamp: new Date().toISOString(),
+        actor_id: 1,
+        actor_name: "Manager Bot",
+        description: `Bulk status change: ${ticket.status} → ${input.status}`,
+        detail: input.reason,
+      });
+      succeeded.push(id);
+    }
+    return {
+      success: true,
+      message: `(mock) Status changed for ${succeeded.length} of ${input.ticketIds.length} ticket(s).`,
+      data: { succeeded, failed },
+    };
+  }
+  const res = await fetch("/api/proxy/helpdesk/api/tickets/bulk/status", {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      ticket_ids: input.ticketIds,
+      status: input.status,
+      reason: input.reason,
+    }),
+  });
+  if (!res.ok) throw new Error(`bulkStatusChange failed: ${res.status}`);
+  return res.json();
+}
