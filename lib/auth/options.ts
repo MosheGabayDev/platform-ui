@@ -39,8 +39,21 @@ const FLASK_URL = process.env.FLASK_API_URL ?? "http://localhost:5000";
  * rest of platform-ui's offline-friendly demo defaults; production env files
  * (`.env.production`) MUST override.
  */
-export const AUTH_MOCK_MODE =
-  process.env.AUTH_MOCK_MODE !== "false";
+/**
+ * Resolves AUTH_MOCK_MODE with fail-closed prod guard (Q-AU-2 review fix).
+ *
+ * - In production builds (`NODE_ENV === 'production'`), mock mode is HARD-OFF
+ *   regardless of env override. A leaked `AUTH_MOCK_MODE=true` in prod env
+ *   cannot bypass real auth.
+ * - In dev/test, defaults to true (offline-friendly). Override with
+ *   `AUTH_MOCK_MODE=false` to exercise the real Flask flow when backend is up.
+ */
+function resolveAuthMockMode(): boolean {
+  if (process.env.NODE_ENV === "production") return false;
+  return process.env.AUTH_MOCK_MODE !== "false";
+}
+
+export const AUTH_MOCK_MODE = resolveAuthMockMode();
 
 /** Matches Flask jwt_auth.py JWT_ACCESS_EXPIRY = timedelta(minutes=15). */
 const ACCESS_TOKEN_TTL_SECONDS = 15 * 60;

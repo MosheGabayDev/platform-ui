@@ -11,11 +11,11 @@
       "note": "Audit log (R046 surface) — fetchAuditLog + fetchAuditLogStats + 8 tests; raised from 28.57% to 32.82% lines (2026-05-01)"
     },
     "lib/auth/": {
-      "lines": 0,
-      "branches": 0,
-      "functions": 0,
+      "lines": 24.48,
+      "branches": 29.09,
+      "functions": 33.33,
       "target_floor": 95,
-      "note": "ADR-042 target (security-critical) — currently no tests"
+      "note": "Review #2 fix — added options.test.ts (AUTH_MOCK_MODE prod guard + authorize). 0% → 24.48% lines (2026-05-03). Still below ADR-042 floor (95%) — gap to close in subsequent rounds (Flask login path + JWT refresh callback)."
     },
     "lib/hooks/": {
       "lines": 32.06,
