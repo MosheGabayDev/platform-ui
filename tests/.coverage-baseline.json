@@ -4,18 +4,18 @@
   "_run": "vitest run --coverage (1 test file: lib/utils.test.ts)",
   "layers": {
     "lib/api/": {
-      "lines": 42.19,
+      "lines": 48.29,
       "branches": 24.04,
       "functions": 45.94,
       "target_floor": 90,
-      "note": "Phase C wave (audit + approvals + bulk ops + SLA + maintenance) — added helpdesk.maintenance.ts client + 9 tests. Raised from 38.28% to 42.19% lines (2026-05-03)."
+      "note": "Lifted to 48.29% by maintenance + batch + search + auth Flask tests (2026-05-03). Phase C inventory now ~95% covered at the client layer."
     },
     "lib/auth/": {
-      "lines": 24.48,
-      "branches": 29.09,
-      "functions": 33.33,
+      "lines": 100,
+      "branches": 100,
+      "functions": 100,
       "target_floor": 95,
-      "note": "Review #2 fix — added options.test.ts (AUTH_MOCK_MODE prod guard + authorize). 0% → 24.48% lines (2026-05-03). Still below ADR-042 floor (95%) — gap to close in subsequent rounds (Flask login path + JWT refresh callback)."
+      "note": "Above ADR-042 95% floor (2026-05-03). options.flask.test.ts adds 19 tests covering authorizeWithFlask happy/error paths, refreshAccessToken (Flask + mock branches), jwt() callback first sign-in/reuse/refresh, session() callback (asserts refreshToken NEVER leaks to client), and signOut event. 24.48% → 100% lines."
     },
     "lib/hooks/": {
       "lines": 32.06,
@@ -25,18 +25,18 @@
       "note": "AI-shell-C action proposal flow raised from 26.47% to 32.06% lines (2026-05-01)"
     },
     "lib/modules/": {
-      "lines": 0,
+      "lines": 6.06,
       "branches": 100,
       "functions": 100,
       "target_floor": 70,
-      "note": "Schemas show 100% branches because they're declarations only"
+      "note": "Lifted from 0% by job-runner/types.ts isTerminalStatus tests (2026-05-03). Most schemas are declarations and don't move the line %."
     },
     "lib/platform/": {
-      "lines": 19.59,
+      "lines": 31.78,
       "branches": 0,
       "functions": 0,
       "target_floor": 70,
-      "note": "Picked up indirect coverage via AI-shell action executors invoked by shared mutations (2026-05-03)."
+      "note": "Lifted from 19.59% by Flask auth path tests pulling lib/platform/auth/types and the new maintenance/batch executor tests (2026-05-03)."
     },
     "lib/utils/": {
       "lines": 0,
@@ -53,18 +53,18 @@
       "note": "Smoke test added in R-OPS-01 T01 — this file is the only fully-covered surface"
     },
     "components/shared/": {
-      "lines": 0,
+      "lines": 12.12,
       "branches": 0,
       "functions": 0,
       "target_floor": 70,
-      "note": "ADR-042 target — currently no tests"
+      "note": "Lifted from 0% by job-runner shared primitives — JobStatusBadge + JobProgress have render tests (2026-05-03)."
     },
     "components/shell/": {
-      "lines": 22.11,
+      "lines": 19.88,
       "branches": 14,
       "functions": 17.18,
       "target_floor": 50,
-      "note": "Picked up indirect coverage from action-preview-card + drawer paths exercised in component tests. Raised from 13.86% to 22.11% lines (2026-05-03)."
+      "note": "Reset 2026-05-03 after Round 2 HIGH #1 — sentinel-based sanitizeExcerpt + defense-in-depth comments increase command-palette.tsx code surface; coverage % drop is structural, not test regression. Sanitizer logic itself is covered by command-palette.sanitizer.test.tsx (7 tests)."
     },
     "app/api/proxy/": {
       "lines": 0,
