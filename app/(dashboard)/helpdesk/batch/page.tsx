@@ -18,21 +18,18 @@ import {
   AlertCircle,
   Clock,
   CircleDot,
-  CheckCircle2,
-  AlertTriangle,
-  XCircle,
   CircleSlash2,
   Download,
 } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
-import type { LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 import { FeatureGate } from "@/components/shared/feature-gate";
 import { PageShell } from "@/components/shared/page-shell";
 import { DataTable } from "@/components/shared/data-table";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ConfirmActionDialog } from "@/components/shared/confirm-action-dialog";
-import { Badge } from "@/components/ui/badge";
+import { JobStatusBadge } from "@/components/shared/job-runner/job-status-badge";
+import { JobProgress } from "@/components/shared/job-runner/job-progress";
 import { Button } from "@/components/ui/button";
 import type { PlatformAction } from "@/lib/platform/actions";
 import {
@@ -58,42 +55,6 @@ const STATUS_OPTIONS: Array<{ value: BatchTaskStatus | "all"; label: string }> =
   { value: "cancelled", label: "Cancelled" },
 ];
 
-const STATUS_META: Record<
-  string,
-  { icon: LucideIcon; tone: string; label: string }
-> = {
-  running: {
-    icon: CircleDot,
-    tone: "border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-400",
-    label: "Running",
-  },
-  queued: {
-    icon: Clock,
-    tone: "border-cyan-500/30 bg-cyan-500/15 text-cyan-700 dark:text-cyan-400",
-    label: "Queued",
-  },
-  succeeded: {
-    icon: CheckCircle2,
-    tone: "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
-    label: "Succeeded",
-  },
-  partial: {
-    icon: AlertTriangle,
-    tone: "border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-400",
-    label: "Partial",
-  },
-  failed: {
-    icon: XCircle,
-    tone: "border-rose-500/30 bg-rose-500/15 text-rose-700 dark:text-rose-400",
-    label: "Failed",
-  },
-  cancelled: {
-    icon: CircleSlash2,
-    tone: "border-muted text-muted-foreground",
-    label: "Cancelled",
-  },
-};
-
 function formatRelative(iso: string | null): string {
   if (!iso) return "—";
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -103,54 +64,6 @@ function formatRelative(iso: string | null): string {
   const hours = Math.round(mins / 60);
   if (hours < 24) return `${hours}h ago`;
   return `${Math.round(hours / 24)}d ago`;
-}
-
-function ProgressBar({ task }: { task: BatchTask }) {
-  const total = task.progress.total;
-  if (total === null || total === 0) {
-    return (
-      <span className="text-xs text-muted-foreground">
-        {task.progress.processed > 0 ? `${task.progress.processed}` : "—"}
-      </span>
-    );
-  }
-  const pct = Math.round((task.progress.processed / total) * 100);
-  const failed = task.progress.failed;
-  return (
-    <div className="flex flex-col gap-1 min-w-[120px]">
-      <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-        <div
-          className={`h-full ${
-            failed > 0
-              ? "bg-amber-500 dark:bg-amber-400"
-              : task.status === "running"
-                ? "bg-cyan-500 dark:bg-cyan-400"
-                : "bg-emerald-500 dark:bg-emerald-400"
-          }`}
-          style={{ width: `${pct}%` }}
-        />
-      </div>
-      <span className="text-[10px] text-muted-foreground font-mono">
-        {task.progress.processed}/{total}
-        {failed > 0 ? ` · ${failed} failed` : ""}
-      </span>
-    </div>
-  );
-}
-
-function StatusBadge({ status }: { status: BatchTaskStatus }) {
-  const meta = STATUS_META[status as string] ?? {
-    icon: Clock,
-    tone: "border-muted text-muted-foreground",
-    label: String(status),
-  };
-  const Icon = meta.icon;
-  return (
-    <Badge variant="outline" className={meta.tone}>
-      <Icon className="h-3 w-3 me-1" aria-hidden="true" />
-      {meta.label}
-    </Badge>
-  );
 }
 
 function BatchInner() {
@@ -210,12 +123,17 @@ function BatchInner() {
       {
         accessorKey: "status",
         header: "Status",
-        cell: ({ row }) => <StatusBadge status={row.original.status} />,
+        cell: ({ row }) => <JobStatusBadge status={row.original.status} />,
       },
       {
         accessorKey: "progress",
         header: "Progress",
-        cell: ({ row }) => <ProgressBar task={row.original} />,
+        cell: ({ row }) => (
+          <JobProgress
+            progress={row.original.progress}
+            status={row.original.status}
+          />
+        ),
       },
       {
         accessorKey: "created_at",

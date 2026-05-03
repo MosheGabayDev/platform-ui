@@ -48,7 +48,7 @@ This rule is enforced by code review and CI. Reviewers must reject PRs that dupl
 | 11 | [PlatformSearch / Command Palette](#11-platformsearch--command-palette) | **next** | 🔵 Frontend mock + spec (2026-05-03) — backend port pending | — | R032 |
 | 12 | [PlatformNotifications](#12-platformnotifications) | **now** | ✅ Implemented \| R042 | — | R024 |
 | 13 | [PlatformApprovalFlow](#13-platformapprovalflow) | **now** | ⬜ Pending | — | R028 |
-| 14 | [PlatformJobRunner](#14-platformjobrunner) | **next** | ⬜ Pending | — | R031 |
+| 14 | [PlatformJobRunner](#14-platformjobrunner) | **next** | 🔵 Frontend primitives shipped (2026-05-03) — `JobStatusBadge` + `JobProgress` + `useJobPolling`. Consumed by helpdesk batch tasks page. | — | R031 |
 | 15 | [PlatformWizard](#15-platformwizard) | **later** | ⬜ Pending | — | Phase 3 |
 | 16 | [PlatformSettings Engine](#16-platformsettings-engine) | **next** | ⬜ Pending | — | R029 |
 | 17 | [PlatformFeatureFlags](#17-platformfeatureflags) | **now** | ⬜ Pending | — | R023 |
