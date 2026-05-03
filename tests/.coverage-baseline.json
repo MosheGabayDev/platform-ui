@@ -18,11 +18,11 @@
       "note": "Above ADR-042 95% floor (2026-05-03). options.flask.test.ts adds 19 tests covering authorizeWithFlask happy/error paths, refreshAccessToken (Flask + mock branches), jwt() callback first sign-in/reuse/refresh, session() callback (asserts refreshToken NEVER leaks to client), and signOut event. 24.48% → 100% lines."
     },
     "lib/hooks/": {
-      "lines": 32.06,
-      "branches": 28.23,
-      "functions": 47.61,
+      "lines": 53.37,
+      "branches": 44.68,
+      "functions": 64.04,
       "target_floor": 80,
-      "note": "AI-shell-C action proposal flow raised from 26.47% to 32.06% lines (2026-05-01)"
+      "note": "Lifted from 32.06% by tests for use-permission, use-feature-flag, use-platform-mutation, use-job-polling, use-count-up (2026-05-03 — 39 new tests). Remaining gaps: use-dangerous-action, use-keyboard-shortcuts, use-nav-history, use-notifications."
     },
     "lib/modules/": {
       "lines": 6.06,
@@ -32,18 +32,18 @@
       "note": "Lifted from 0% by job-runner/types.ts isTerminalStatus tests (2026-05-03). Most schemas are declarations and don't move the line %."
     },
     "lib/platform/": {
-      "lines": 31.78,
+      "lines": 38.32,
       "branches": 0,
       "functions": 0,
       "target_floor": 70,
-      "note": "Lifted from 19.59% by Flask auth path tests pulling lib/platform/auth/types and the new maintenance/batch executor tests (2026-05-03)."
+      "note": "Lifted to 38.32% by hook tests pulling permission/RBAC paths through (2026-05-03)."
     },
     "lib/utils/": {
-      "lines": 0,
+      "lines": 28.57,
       "branches": 100,
       "functions": 0,
       "target_floor": 70,
-      "note": "csv.ts has no tests yet; cn() in lib/utils.ts is fully covered"
+      "note": "Lifted from 0% by sanitize-excerpt.ts tests (2026-05-03). csv.ts still untested."
     },
     "lib/utils.ts": {
       "lines": 100,
