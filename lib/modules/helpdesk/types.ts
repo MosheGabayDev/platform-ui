@@ -265,3 +265,88 @@ export interface SLAComplianceResponse {
     active_breaches: number;
   };
 }
+
+// ---------------------------------------------------------------------------
+// Platform Approval Flow (cap 13) — backed by `tool_invocations` table
+// ---------------------------------------------------------------------------
+
+/**
+ * ToolInvocation — mirrors `apps/helpdesk/models.py ToolInvocation.to_dict()`.
+ * Each row is one AI tool/action call. When `approval_required=true` and
+ * `status='pending_approval'`, it appears in the approval queue UI.
+ *
+ * Status values (open enum, String(30) in Flask):
+ *   queued | running | success | error | timed_out | cancelled |
+ *   pending_approval | approved | rejected
+ */
+export type ToolInvocationStatus =
+  | "queued"
+  | "running"
+  | "success"
+  | "error"
+  | "timed_out"
+  | "cancelled"
+  | "pending_approval"
+  | "approved"
+  | "rejected"
+  | (string & {});
+
+/**
+ * Frozen snapshot of the tool registration at approval time — prevents
+ * registry drift between the orchestrator's plan and the resumed execution.
+ */
+export interface ToolSnapshot {
+  handler_type: string;
+  handler_config: Record<string, unknown>;
+  timeout_seconds: number;
+  risk_level: "low" | "medium" | "high" | "critical" | (string & {});
+  captured_at: string;
+}
+
+export interface ToolInvocation {
+  id: number;
+  org_id: number;
+  session_id: number;
+  tool_name: string;
+  input_params: Record<string, unknown>;
+  output_data: Record<string, unknown> | null;
+  status: ToolInvocationStatus;
+  error_message: string | null;
+  duration_ms: number | null;
+  approval_required: boolean;
+  tool_snapshot: ToolSnapshot | null;
+  created_at: string;
+  /**
+   * Display fields not in the Flask `to_dict()` — joined or computed.
+   * `requested_by_name` joins through session → user; `ticket_id` joins through
+   * the helpdesk_session that owns the invocation. Both are optional because
+   * they require server-side joins on the eventual live endpoint.
+   */
+  requested_by_name?: string | null;
+  ticket_id?: number | null;
+}
+
+export interface ApprovalsListParams {
+  page: number;
+  per_page: number;
+  /** Defaults to `pending_approval` on the page; admin can widen. */
+  status?: ToolInvocationStatus;
+  /** Free-text search across tool_name + ticket_id. */
+  search?: string;
+}
+
+export interface ApprovalsListResponse {
+  success: boolean;
+  data: {
+    invocations: ToolInvocation[];
+    total: number;
+    pending_count: number;
+    page: number;
+    per_page: number;
+  };
+}
+
+export interface ApprovalActionResponse {
+  success: boolean;
+  message: string;
+}

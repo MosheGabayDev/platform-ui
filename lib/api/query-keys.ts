@@ -52,5 +52,6 @@ export const queryKeys = {
     technicianUtilization: () => ["helpdesk", "technicians", "utilization"]      as const,
     slaPolicies:    () => ["helpdesk", "sla", "policies"]    as const,
     slaCompliance:  () => ["helpdesk", "sla", "compliance"]  as const,
+    approvals:      (params?: object) => ["helpdesk", "approvals", params] as const,
   },
 } as const;
