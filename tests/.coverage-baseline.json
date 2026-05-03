@@ -4,11 +4,11 @@
   "_run": "vitest run --coverage (1 test file: lib/utils.test.ts)",
   "layers": {
     "lib/api/": {
-      "lines": 28.57,
-      "branches": 17.86,
-      "functions": 34.02,
+      "lines": 32.82,
+      "branches": 20.98,
+      "functions": 39.26,
       "target_floor": 90,
-      "note": "Helpdesk SLA (Phase C) — fetchSLAPolicies + fetchSLACompliance + 5 tests; raised from 21.05% to 28.57% lines (2026-05-01)"
+      "note": "Audit log (R046 surface) — fetchAuditLog + fetchAuditLogStats + 8 tests; raised from 28.57% to 32.82% lines (2026-05-01)"
     },
     "lib/auth/": {
       "lines": 0,

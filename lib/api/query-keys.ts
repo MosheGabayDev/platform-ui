@@ -35,6 +35,13 @@ export const queryKeys = {
     list: () => ["notifications", "list"] as const,
   },
 
+  // Platform-wide audit log (R046 service)
+  audit: {
+    all:    () => ["audit"]                                  as const,
+    list:   (params?: object) => ["audit", "list", params]   as const,
+    stats:  () => ["audit", "stats"]                         as const,
+  },
+
   // Module 04: Helpdesk (Phase A — list + KPI dashboard)
   helpdesk: {
     all:         () => ["helpdesk"]                                    as const,
