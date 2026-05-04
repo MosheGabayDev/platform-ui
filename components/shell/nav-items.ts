@@ -24,6 +24,7 @@ import {
   UserCog,
   Wrench,
   Layers,
+  Flag,
 } from "lucide-react";
 
 export type NavItem = {
@@ -95,6 +96,12 @@ export const navGroups: NavGroup[] = [
       { title: "לוגים", href: "/logs", icon: FileText },
       { title: "מטריקות", href: "/metrics", icon: BarChart2 },
       { title: "יומן ביקורת", href: "/audit-log", icon: ClipboardList },
+    ],
+  },
+  {
+    label: "ניהול פלטפורמה",
+    items: [
+      { title: "Feature flags", href: "/admin/feature-flags", icon: Flag },
     ],
   },
   {

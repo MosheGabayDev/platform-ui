@@ -54,7 +54,7 @@ Until **Phase 1 is closed**, do NOT start new vertical modules. Do NOT polish. D
 | 14 | PlatformJobRunner | ✅ (this session) | ✅ | 🔵 batch tasks consumer | ✅ | **DONE (frontend)** |
 | **15** | **PlatformWizard** | ❌ | ❌ | ❌ | ❌ | **TODO** |
 | **16** | **PlatformSettings Engine** | ❌ | ❌ | ❌ | ❌ | **TODO** |
-| **17** | **PlatformFeatureFlags** | ❌ proper spec missing | 🟡 mock client only | ❌ admin UI | partial | **IN PROGRESS** |
+| 17 | PlatformFeatureFlags | ✅ (2026-05-04) | ✅ 4-source resolution | ✅ /admin/feature-flags | ✅ 9 tests | **DONE (frontend)** |
 | **18** | **PlatformModuleRegistry** | ❌ | 🔵 partial | ❌ | ❌ | **TODO** |
 | 19 | PlatformTenantContext | ✅ | ✅ | n/a | partial | **DONE** |
 | **23** | **PlatformRealtime SSE** | ❌ | ❌ | ❌ | ❌ | **TODO (deferred — polling works for now)** |
@@ -62,15 +62,13 @@ Until **Phase 1 is closed**, do NOT start new vertical modules. Do NOT polish. D
 
 ### Phase 1 detailed roadmap
 
-#### 1.1 — PlatformFeatureFlags (cap 17) — IN PROGRESS
+#### 1.1 — PlatformFeatureFlags (cap 17) — DONE 2026-05-04
 
-The mock client exists. What's missing:
-
-- [ ] Spec doc `docs/system-upgrade/04-capabilities/platform-feature-flags-spec.md` — backend contract, evaluation rules, per-org override hierarchy (system → plan → org → user), audit on flag flips.
-- [ ] Admin UI at `/admin/feature-flags` — list flags, see resolution source per flag, override per-org (system_admin only).
-- [ ] `/api/proxy/feature-flags/<key>` mock returns proper resolution metadata (`source: "org" | "plan" | "system"`).
-- [ ] Tests: hook covers all 4 sources, admin UI render test, override mutation test.
-- [ ] Update `lib/api/feature-flags.ts` to support `setFeatureFlag(key, scope, value)` mutation.
+- [x] Spec doc `docs/system-upgrade/04-capabilities/platform-feature-flags-spec.md` — 9 sections covering hierarchy, endpoints, multi-tenant safety, perf budget, schema, audit, flip checklist, open questions.
+- [x] Mock client extended with 4-source resolution (user → org → plan → system), `setFeatureFlagOverride` mutation, `fetchFeatureFlagDefinitions`, optional `resolution_chain` for admin views.
+- [x] Admin UI at `/admin/feature-flags` — categorized flag tree (AI / Modules / Integrations / Platform / Experimental), enable/disable/clear per org, system_admin gate.
+- [x] Nav entry "ניהול פלטפורמה → Feature flags" added.
+- [x] Tests: 9 client tests covering all 4 resolution sources, override flip, clear-and-fallback, definitions list, user-scope rejection (Q-FF-2).
 
 #### 1.2 — PlatformSettings Engine (cap 16)
 
@@ -235,12 +233,12 @@ While Phase 1 is open:
 
 | Section | Items | Done | In Progress | TODO |
 |---|---|---|---|---|
-| Phase 1 caps | 13 | 7 | 1 (cap 17) | 5 (caps 15, 16, 17 finish, 18, 27) |
+| Phase 1 caps | 13 | 8 | 0 | 4 (caps 15, 16, 18, 27) |
 | Phase 2 (AI core) | 5 | 0 | 0 | 5 |
 | Phase 3 (onboarding) | 3 | 0 | 0 | 3 |
 | Phase 4 (helpdesk demo) | 4 | 3 | 0 | 1 |
 | Phase 5 (backend) | n/a (other repo) | — | — | — |
 
-**Overall Phase 1 completion: ~54% (7/13).**
+**Overall Phase 1 completion: ~62% (8/13).**
 
-**Last reviewed:** 2026-05-04, commit `9b4d50f`.
+**Last reviewed:** 2026-05-04, after cap 17 PlatformFeatureFlags landed.
