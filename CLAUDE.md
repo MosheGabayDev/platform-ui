@@ -1,7 +1,24 @@
 # Platform UI — AI Agent Instructions
 
 > Every AI working on this project MUST read this file completely before writing any code.
-> Last updated: 2026-05-01 (Main-only workflow + docs reorg)
+> Last updated: 2026-05-04 (Generic AI Platform priority directive)
+
+---
+
+## TOP PRIORITY DIRECTIVE — 2026-05-04
+
+> **Owner directive:** finish everything required to turn this codebase into a **generic AI platform for businesses** before doing anything else. Vertical modules, polish, and nice-to-haves wait until the generic platform is operational end-to-end.
+>
+> **Single source of truth:** [`docs/system-upgrade/GENERIC_AI_PLATFORM_PROGRESS.md`](docs/system-upgrade/GENERIC_AI_PLATFORM_PROGRESS.md) — read this BEFORE picking any task. It defines phases (Foundation → AI Core → Onboarding → Vertical demo → Backend) and what "done" looks like for each.
+>
+> **Working rules while Phase 1 is open:**
+> 1. Default "no" on new vertical modules. Helpdesk bug fixes OK; new module work is NOT.
+> 2. Default "yes" on the Phase 1 caps listed in §1.1–§1.5 of the progress file.
+> 3. Every commit that closes (or opens) a row MUST update the progress file.
+> 4. Every cap requires a spec doc in `docs/system-upgrade/04-capabilities/<name>-spec.md` BEFORE code lands.
+> 5. Mock-first is fine; mock clients MUST match their spec verbatim.
+>
+> When the user says "תמשיך" / "continue", pick the highest-priority unblocked item from the progress file.
 
 ---
 
