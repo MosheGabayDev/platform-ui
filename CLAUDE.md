@@ -11,14 +11,26 @@
 >
 > **Single source of truth:** [`docs/system-upgrade/GENERIC_AI_PLATFORM_PROGRESS.md`](docs/system-upgrade/GENERIC_AI_PLATFORM_PROGRESS.md) — read this BEFORE picking any task. It defines phases (Foundation → AI Core → Onboarding → Vertical demo → Backend) and what "done" looks like for each.
 >
-> **Working rules while Phase 1 is open:**
-> 1. Default "no" on new vertical modules. Helpdesk bug fixes OK; new module work is NOT.
-> 2. Default "yes" on the Phase 1 caps listed in §1.1–§1.5 of the progress file.
-> 3. Every commit that closes (or opens) a row MUST update the progress file.
+> **Working rules:**
+> 1. Default "no" on new vertical modules. Helpdesk bug fixes OK; new module work is NOT, until Phase 1 is fully closed (Phase 2 onward, follow the progress file).
+> 2. Default "yes" on the items listed in the active phase of the progress file.
+> 3. Every commit that closes (or opens) a row MUST update the progress file (table + status snapshot + Test status section).
 > 4. Every cap requires a spec doc in `docs/system-upgrade/04-capabilities/<name>-spec.md` BEFORE code lands.
 > 5. Mock-first is fine; mock clients MUST match their spec verbatim.
 >
-> When the user says "תמשיך" / "continue", pick the highest-priority unblocked item from the progress file.
+> ### MANDATORY testing discipline (every single feature, no exceptions)
+>
+> **Every commit that adds or changes feature code MUST include:**
+> 1. **Unit tests** for any new / modified `lib/api/*` client (resolution, validation, error paths, mutation flow). Coverage gate (`scripts/check-coverage-baseline.mjs`) MUST pass.
+> 2. **Component render tests** (vitest + @testing-library/react) for any new shared primitive (under `components/shared/**`). Page-level admin / consumer pages MAY rely on E2E in lieu of full render tests when mocking next-auth + TanStack Query + next/navigation would be more boilerplate than test value — but the E2E spec is then **mandatory**.
+> 3. **E2E smoke spec** (`tests/e2e/**`) for every new admin page, every new wizard surface, and every page that has a primary mutation flow. One spec file per surface, minimum scope: page renders + key elements visible + at least one mutation path.
+> 4. **Run BOTH suites at end of every commit:**
+>    - `npx vitest run` — must report all green
+>    - `node scripts/check-coverage-baseline.mjs` — must pass gate
+>    - Playwright E2E is run by CI (or by hand when changing E2E specs); commit message MUST cite which suites were run.
+> 5. **Backend is a separate repo** — backend tests are NOT in scope here. Specs in `docs/system-upgrade/04-capabilities/<name>-spec.md` MUST include a "MOCK_MODE flip checklist" so the backend team has a clear test contract.
+>
+> When the user says "תמשיך" / "continue", pick the highest-priority unblocked item from the progress file. Skipping tests is treated as the work being unfinished — do NOT mark a row DONE without all of (1)–(4).
 
 ---
 

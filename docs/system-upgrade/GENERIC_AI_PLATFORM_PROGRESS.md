@@ -212,19 +212,55 @@ Frontend's job: keep the contract specs current, run cross-tenant gate tests, fl
 
 ## Working Agreement (for AI agents)
 
-While Phase 1 is open:
+1. **Default to "no" on new vertical modules.** Helpdesk bug fixes OK; new module work is NOT in-scope until Phase 1 is fully closed and Phase 2 dictates otherwise.
 
-1. **Default to "no" on new modules.** If a request lands that builds a new vertical module, ask whether it can wait for Phase 1 closeout. The exception is bug fixes on Helpdesk (the chosen demonstration vertical).
+2. **Default to "yes" on the items listed in the active phase.** Pick the highest-priority unblocked one.
 
-2. **Default to "yes" on Phase 1 caps.** Anything in §1.1–§1.5 is in-scope. Pick the highest-priority unblocked one.
+3. **Every commit updates this file.** When a row's status changes, edit the table at the top of its phase, the snapshot table at the bottom, AND the **Test status** section below. Stale rows are worse than missing rows.
 
-3. **Every commit updates this file.** When a row's status changes, edit the table at the top of its phase. When a new TODO item is added, add it under the right cap. Stale rows are worse than missing rows.
+4. **Specs are mandatory.** Every cap gets a spec doc in `docs/system-upgrade/04-capabilities/<name>-spec.md` BEFORE any code lands.
 
-4. **Specs are mandatory.** Every cap gets a spec doc in `docs/system-upgrade/04-capabilities/<name>-spec.md` BEFORE any code lands. Schema-frozen contracts prevent backend drift later.
+5. **Mock-first is fine.** Lock the contract; backend ports follow. But every mock client MUST match its spec verbatim, and the spec MUST include a MOCK_MODE flip checklist.
 
-5. **Test as you go.** Each cap brings tests with it; no "tests later" debt. ADR-042 floors apply.
+### MANDATORY testing discipline — DO NOT SKIP
 
-6. **Mock-first is fine.** The whole point of this phase is to lock the contract; backend ports follow. But every mock client MUST match its spec verbatim.
+A cap is **not done** until ALL of the following are present and green:
+
+| # | Requirement | Tooling | Where it lives |
+|---|---|---|---|
+| 1 | **Unit tests** for every new / modified `lib/api/*` client and `lib/hooks/*` hook | vitest | `<file>.test.ts` next to source |
+| 2 | **Component render tests** for every new shared primitive | vitest + @testing-library/react | `components/shared/**/*.test.tsx` |
+| 3 | **E2E smoke spec** for every new admin page, wizard surface, or mutation flow | Playwright | `tests/e2e/**` (one spec file per surface; renders + key elements + ≥1 mutation path) |
+| 4 | **Coverage gate passes** | `node scripts/check-coverage-baseline.mjs` | run at end of commit |
+| 5 | **All vitest suites green** | `npx vitest run` | run at end of commit |
+| 6 | **Test counts cited in commit message** | manual | "Tests: X/Y unit. E2E specs added: N. Typecheck clean. Gate passes." |
+
+**Backend tests are NOT in scope** here — Flask backend lives in a separate repo. The contract this repo guarantees is the **MOCK_MODE flip checklist** in each spec doc; backend team writes their own tests against that contract.
+
+When you (the AI) finish a cap and consider marking it DONE: re-read this checklist. If any row is missing, the cap is unfinished. Update the **Test status** section below with the latest counts AND the timestamp of the run.
+
+---
+
+## Test status (snapshot — refresh on every commit that changes test counts)
+
+| Suite | Last run | Files | Tests | Status |
+|---|---|---|---|---|
+| vitest unit (`npx vitest run`) | 2026-05-05 | 33 | 314 / 314 | ✅ all green |
+| coverage gate (`scripts/check-coverage-baseline.mjs`) | 2026-05-05 | n/a | n/a | ✅ passed |
+| Playwright E2E | not run locally — see CI | 12+ specs in `tests/e2e/**` | run via `npx playwright test` | requires `npm run dev` |
+
+### E2E specs by surface (Phase 1 coverage)
+
+| Surface | Spec file | Status |
+|---|---|---|
+| `/admin/feature-flags` | `tests/e2e/smoke/admin-pages.spec.ts` | ✅ |
+| `/admin/settings` | `tests/e2e/smoke/admin-pages.spec.ts` | ✅ |
+| `/admin/modules` | `tests/e2e/smoke/admin-pages.spec.ts` | ✅ |
+| `/admin/policies` | `tests/e2e/smoke/admin-pages.spec.ts` (incl. tester evaluate) | ✅ |
+| `/onboarding` (Wizard) | `tests/e2e/smoke/admin-pages.spec.ts` (5 specs) | ✅ |
+| `/helpdesk/*` (legacy) | `tests/e2e/helpdesk/*.spec.ts` | ✅ |
+| Command palette + search | `tests/e2e/smoke/command-palette-search.spec.ts` | ✅ |
+| Cross-tenant isolation | `tests/e2e/security/tenant-isolation*.spec.ts` | 🟡 scaffolded (skipped without 2 test orgs) |
 
 ---
 
