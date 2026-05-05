@@ -60,6 +60,9 @@ interface MockIntent {
 
 const TAKE_TICKET_RE = /\btake\s+ticket\s+#?(\d{3,6})\b/i;
 const RESOLVE_TICKET_RE = /\bresolve\s+ticket\s+#?(\d{3,6})\b/i;
+const CANCEL_MAINTENANCE_RE = /\bcancel\s+maintenance\s+#?(\d{3,6})\b/i;
+const CANCEL_BATCH_RE = /\bcancel\s+batch\s+#?(\d{3,6})\b/i;
+const SEARCH_USERS_RE = /\bsearch\s+users?\s+(?:for\s+)?["']?([\w@. .-]+?)["']?\s*$/i;
 
 function makeTokenId(): string {
   // Stable-ish synthetic token; backend will mint real tokens per R051
@@ -97,6 +100,57 @@ function extractIntent(message: string): MockIntent {
         capabilityLevel: "WRITE_HIGH",
         expiresAt: Date.now() + 30_000,
         params: { ticketId, resolution: "Resolved via AI assistant" },
+      },
+    };
+  }
+
+  const cancelMaint = message.match(CANCEL_MAINTENANCE_RE);
+  if (cancelMaint) {
+    const windowId = Number(cancelMaint[1]);
+    return {
+      text: `Cancel maintenance window #${windowId}? Affected services will be released back to monitoring.`,
+      proposal: {
+        tokenId: makeTokenId(),
+        actionId: "helpdesk.maintenance.cancel",
+        label: `Cancel maintenance window #${windowId}`,
+        targetSummary: `Cancel scheduled maintenance window #${windowId}`,
+        capabilityLevel: "DESTRUCTIVE",
+        expiresAt: Date.now() + 30_000,
+        params: { windowId, reason: "Cancelled via AI assistant" },
+      },
+    };
+  }
+
+  const cancelBatch = message.match(CANCEL_BATCH_RE);
+  if (cancelBatch) {
+    const taskId = Number(cancelBatch[1]);
+    return {
+      text: `Cancel batch task #${taskId}? In-flight items will halt at the next checkpoint.`,
+      proposal: {
+        tokenId: makeTokenId(),
+        actionId: "helpdesk.batch.cancel",
+        label: `Cancel batch task #${taskId}`,
+        targetSummary: `Cancel running batch task #${taskId}`,
+        capabilityLevel: "WRITE_HIGH",
+        expiresAt: Date.now() + 30_000,
+        params: { taskId, reason: "Cancelled via AI assistant" },
+      },
+    };
+  }
+
+  const searchUsers = message.match(SEARCH_USERS_RE);
+  if (searchUsers) {
+    const query = searchUsers[1]!.trim();
+    return {
+      text: `I'll search users for "${query}".`,
+      proposal: {
+        tokenId: makeTokenId(),
+        actionId: "users.search",
+        label: `Search users for "${query}"`,
+        targetSummary: `Find users matching "${query}"`,
+        capabilityLevel: "READ",
+        expiresAt: Date.now() + 60_000,
+        params: { query },
       },
     };
   }

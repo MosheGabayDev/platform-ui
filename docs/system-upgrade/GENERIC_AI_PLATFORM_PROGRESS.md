@@ -161,16 +161,20 @@ Polling at 5–30s works for now. Defer until Phase 5 (backend) since the SSE ch
 - [x] Skill validate wiring: both happy path and unknown-skill branch emit `ai_skill.validate`. Metadata records `param_keys` only — never full params (PII safety).
 - [x] Tests: 9 audit-emission tests covering policy.evaluate writes, skill validate writes, error_count for invalid params, NEVER-record-PII assertion, runActionExecutor success + error + unknown branches, growth invariant on category=ai count.
 
-### 2.5 — AI demo slice (ADR-038)
+### 2.5 — AI demo slice (ADR-038) — DONE 2026-05-06
 
-The end-to-end smoke that proves the AI stack works:
+**Phase 2 closeout.** End-to-end chain works against the mock backend:
+user opens chat → sends "take ticket NNNN" → mock LLM proposes → preview
+card renders → user confirms → executor runs (mutation lands) → audit
+entry written with `category=ai` → toast notification fires → state
+returns to chatting_idle.
 
-1. User opens chat
-2. Says "take ticket 1004"
-3. AI proposes → user confirms → policy allows → executor runs → audit logged → notification sent
-4. P1-Exit gate row 8 turns green when this works.
-
-Most pieces exist. Need to integrate.
+- [x] Spec doc `docs/system-upgrade/04-capabilities/platform-ai-demo-slice-spec.md` — flow diagram, intent grammar table, audit chain, P1-Exit gate item #8 readiness checklist, Q-AID-1..4.
+- [x] Mock LLM intent grammar extended: now recognizes `take ticket NNNN`, `resolve ticket NNNN`, `cancel maintenance NNNN`, `cancel batch NNNN`, `search users for <query>`. Each maps to a real skill manifest from cap 2.2.
+- [x] ActionPreviewCard rewired: confirm path now calls `runActionExecutor` (Phase 2.4 wrapper) instead of bare `getActionExecutor` — every confirm now emits a `category=ai` audit entry on success or error.
+- [x] Integration test `lib/platform/ai-actions/demo-slice.test.tsx` (7 tests): recognized phrase → proposal shape, unrecognized → no proposal, full chain (send → propose → confirm → execute → audit), reject path doesn't run executor, capability-level mapping (DESTRUCTIVE for cancel-maintenance, READ for search-users), executor failure → audit error entry.
+- [x] E2E spec `tests/e2e/ai-shell/demo-slice.spec.ts` (4 tests): confirm flow with toast assertion, plain text → no card, destructive badge, reject path.
+- [x] P1-Exit gate item #8 ("AI demo slice (ADR-038) in development") — 🟢 ready to flip when control center is updated.
 
 ---
 
@@ -249,9 +253,9 @@ When you (the AI) finish a cap and consider marking it DONE: re-read this checkl
 
 | Suite | Last run | Files | Tests | Status |
 |---|---|---|---|---|
-| vitest unit (`npx vitest run`) | 2026-05-06 | 44 | 402 / 402 | ✅ all green |
+| vitest unit (`npx vitest run`) | 2026-05-06 | 45 | 409 / 409 | ✅ all green |
 | coverage gate (`scripts/check-coverage-baseline.mjs`) | 2026-05-06 | n/a | n/a | ✅ passed |
-| Playwright E2E (`npx playwright test`) | 2026-05-06 | 30 specs | 84 passed / 0 failed / 42 skipped | ✅ all green (skipped = cross-tenant tests gated on E2E_ORG_*_ID env vars) |
+| Playwright E2E (`npx playwright test`) | 2026-05-06 | 31 specs | 88 passed / 0 failed / 42 skipped | ✅ all green (skipped = cross-tenant tests gated on E2E_ORG_*_ID env vars) |
 
 ### E2E specs by surface (Phase 1 coverage)
 
@@ -273,7 +277,7 @@ When you (the AI) finish a cap and consider marking it DONE: re-read this checkl
 | Section | Items | Done | In Progress | TODO |
 |---|---|---|---|---|
 | Phase 1 caps | 13 | 12 | 0 | 0 — cap 23 SSE deferred to Phase 5 |
-| Phase 2 (AI core) | 5 | 4 | 0 | 1 |
+| Phase 2 (AI core) | 5 | 5 | 0 | 0 — **PHASE 2 CLOSED** |
 | Phase 3 (onboarding) | 3 | 0 | 0 | 3 |
 | Phase 4 (helpdesk demo) | 4 | 3 | 0 | 1 |
 | Phase 5 (backend) | n/a (other repo) | — | — | — |

@@ -22,7 +22,10 @@ import {
   type CapabilityLevel,
   type ActionProposal,
 } from "@/lib/hooks/use-assistant-session";
-import { getActionExecutor } from "@/lib/platform/ai-actions/executors";
+import {
+  getActionExecutor,
+  runActionExecutor,
+} from "@/lib/platform/ai-actions/executors";
 
 const LEVEL_META: Record<
   CapabilityLevel,
@@ -74,8 +77,7 @@ function ActionPreviewCardInner({ proposal }: ActionPreviewCardProps) {
     // Transition to executing_action — store enforces token match
     confirmAction(proposal.tokenId);
 
-    const executor = getActionExecutor(proposal.actionId);
-    if (!executor) {
+    if (!getActionExecutor(proposal.actionId)) {
       // Unknown action — pretend the backend would reject; fail the chat.
       failChat("backend_recheck_failed");
       toast.error(`No executor registered for ${proposal.actionId}`);
@@ -83,9 +85,13 @@ function ActionPreviewCardInner({ proposal }: ActionPreviewCardProps) {
     }
 
     try {
-      const result = await executor(proposal.params, queryClient);
-      // After successful execution, settle back to chatting_idle by emitting
-      // a final assistant message describing the outcome.
+      // runActionExecutor (Phase 2.4) wraps the call with audit emission —
+      // success + error branches both write category=ai entries.
+      const result = await runActionExecutor(
+        proposal.actionId,
+        proposal.params,
+        queryClient,
+      );
       receiveResponse(`✅ ${result.message}`);
       toast.success(result.message);
     } catch (err) {
