@@ -130,16 +130,17 @@ Polling at 5–30s works for now. Defer until Phase 5 (backend) since the SSE ch
 - [x] Nav entry "ניהול פלטפורמה → ספקי AI" added.
 - [x] Tests: 13 client tests covering catalog, configs list, masked-credential reads, mutation roundtrip with NEVER-leak assertion, clearing credentials, test connection (ok + missing-creds), routing rule match, fallback to default, no-provider error. Plus 2 E2E smoke specs.
 
-### 2.2 — Capability / Skill registry
+### 2.2 — Capability / Skill registry — DONE 2026-05-06
 
-Which tools AI can call. Currently `lib/platform/ai-actions/executors.ts` has 4 actions; needs to be discoverable and per-module-pluggable.
-
-- [ ] Spec doc — capability manifest, risk levels, parameter schemas, RBAC requirements per skill.
-- [ ] Types: `AISkill`, `SkillRegistry`, with Zod-validated parameters.
-- [ ] Module-level skill exports (helpdesk, users, audit) collected at app boot.
-- [ ] Admin UI at `/admin/ai-skills` — browse registered skills per module, enable/disable per org, see invocation history.
-- [ ] Hook `useAvailableSkills(moduleKey)` for context-aware AI proposals.
-- [ ] Tests: manifest validation, RBAC gating, registry discovery.
+- [x] Spec doc `docs/system-upgrade/04-capabilities/platform-ai-skill-registry-spec.md` — manifest shape, per-org enablement, 3 endpoints (list, set-enablement, validate), schema, MOCK flip checklist, Q-AIS-1..4.
+- [x] Types `lib/modules/ai-skills/types.ts` — AISkill (id, module_key, category, risk_level, parameter_schema, required_permissions, policy_action_id, ai_callable, default_enabled, estimated_cost_class), SkillEnablement, SkillEntry.
+- [x] Module manifests: `lib/modules/helpdesk/skills.ts` (4 skills) + `lib/modules/users/skills.ts` (3 skills). Each skill matches an executor in lib/platform/ai-actions/executors.ts by id.
+- [x] Central registry `lib/platform/ai-skills/registry.ts` — aggregates module manifests; mirrors cap 18 manifests pattern.
+- [x] Mock client `lib/api/ai-skills.ts` — list with module/ai_callable filters, set-enablement (org override), validate-invocation (combines parameter validation + skill-availability + policy decision via cap 27).
+- [x] Hook `lib/hooks/use-ai-skills.ts` — useAISkills(filter), useSkillValidation(input).
+- [x] Admin UI at `/admin/ai-skills` — KPI banner (registered / enabled / available-to-AI), module + ai-callable filters, per-skill card with category + risk + cost badges, parameter-schema preview, Enable/Disable toggle.
+- [x] Nav entry "ניהול פלטפורמה → כישורי AI" added.
+- [x] Tests: 14 client tests covering catalog, filters, default vs override enablement, available_to_ai computation, set-enablement, parameter validation (required/type/minimum), policy decision integration, unknown-skill handling. Plus 2 E2E specs.
 
 ### 2.3 — AI cost & usage dashboard (cap 26 partial)
 
@@ -245,9 +246,9 @@ When you (the AI) finish a cap and consider marking it DONE: re-read this checkl
 
 | Suite | Last run | Files | Tests | Status |
 |---|---|---|---|---|
-| vitest unit (`npx vitest run`) | 2026-05-06 | 41 | 366 / 366 | ✅ all green |
+| vitest unit (`npx vitest run`) | 2026-05-06 | 42 | 380 / 380 | ✅ all green |
 | coverage gate (`scripts/check-coverage-baseline.mjs`) | 2026-05-06 | n/a | n/a | ✅ passed |
-| Playwright E2E (`npx playwright test`) | 2026-05-06 | 30 specs | 80 passed / 0 failed / 42 skipped | ✅ all green (skipped = cross-tenant tests gated on E2E_ORG_*_ID env vars) |
+| Playwright E2E (`npx playwright test`) | 2026-05-06 | 30 specs | 82 passed / 0 failed / 42 skipped | ✅ all green (skipped = cross-tenant tests gated on E2E_ORG_*_ID env vars) |
 
 ### E2E specs by surface (Phase 1 coverage)
 
@@ -269,7 +270,7 @@ When you (the AI) finish a cap and consider marking it DONE: re-read this checkl
 | Section | Items | Done | In Progress | TODO |
 |---|---|---|---|---|
 | Phase 1 caps | 13 | 12 | 0 | 0 — cap 23 SSE deferred to Phase 5 |
-| Phase 2 (AI core) | 5 | 1 | 0 | 4 |
+| Phase 2 (AI core) | 5 | 2 | 0 | 3 |
 | Phase 3 (onboarding) | 3 | 0 | 0 | 3 |
 | Phase 4 (helpdesk demo) | 4 | 3 | 0 | 1 |
 | Phase 5 (backend) | n/a (other repo) | — | — | — |

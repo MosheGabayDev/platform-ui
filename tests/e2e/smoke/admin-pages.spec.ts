@@ -68,6 +68,31 @@ test.describe("Admin pages — Phase 1 smoke", () => {
     await expect(page.getByText(/Sensitive credentials:/i)).toBeVisible();
   });
 
+  test("/admin/ai-skills renders catalog + module filters", async ({ page }) => {
+    await page.goto("/admin/ai-skills");
+    await expect(page.getByRole("heading", { name: /^AI skills$/i })).toBeVisible();
+    await expect(page.getByText(/^Registered$/i).first()).toBeVisible();
+    await expect(page.getByText(/^Available to AI$/i).first()).toBeVisible();
+    // Helpdesk skill visible
+    await expect(page.getByText(/helpdesk\.ticket\.take/i).first()).toBeVisible();
+    // Module filter button
+    await expect(page.getByRole("button", { name: /helpdesk \(/i })).toBeVisible();
+  });
+
+  test("/admin/ai-skills can toggle a skill enablement", async ({ page }) => {
+    await page.goto("/admin/ai-skills");
+    // users.deactivate is default-off — find its Enable button
+    await page.getByRole("button", { name: /users \(/i }).click();
+    const enableBtn = page
+      .getByRole("button", { name: /^Enable skill users\.deactivate$/ });
+    await expect(enableBtn).toBeVisible();
+    await enableBtn.click();
+    // Toast appears + Disable button replaces Enable
+    await expect(
+      page.getByRole("button", { name: /^Disable skill users\.deactivate$/ }),
+    ).toBeVisible({ timeout: 5_000 });
+  });
+
   test("/admin/ai-providers Test button triggers connection test", async ({ page }) => {
     await page.goto("/admin/ai-providers");
     const testBtn = page.getByRole("button", { name: /Test connection to Anthropic/i });
