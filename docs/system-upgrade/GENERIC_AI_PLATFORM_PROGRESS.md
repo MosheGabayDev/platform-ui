@@ -58,7 +58,7 @@ Until **Phase 1 is closed**, do NOT start new vertical modules. Do NOT polish. D
 | 18 | PlatformModuleRegistry | ✅ (2026-05-05) | ✅ 12 modules + status resolver | ✅ /admin/modules | ✅ 8 tests | **DONE (frontend)** |
 | 19 | PlatformTenantContext | ✅ | ✅ | n/a | partial | **DONE** |
 | **23** | **PlatformRealtime SSE** | ❌ | ❌ | ❌ | ❌ | **TODO (deferred — polling works for now)** |
-| **27** | **PlatformPolicy Engine** | ❌ | ❌ | ❌ | ❌ | **TODO** |
+| 27 | PlatformPolicy Engine | ✅ (2026-05-05) | ✅ evaluator + 3 system policies | ✅ /admin/policies + tester | ✅ 21 tests | **DONE (frontend)** |
 
 ### Phase 1 detailed roadmap
 
@@ -101,16 +101,16 @@ Onboarding wizard for new tenants.
 - [x] Nav integration: `nav-items.ts` adds `filterNavByEnabledModules(groups, enabledKeys)` helper + ROUTE_TO_MODULE map. Future sidebar refactor wires this; current static groups still render.
 - [x] Tests: 8 client tests (manifest expansion, flag-disabled status, plan-locked status, set/clear, 404, ai_actions/search_types declared, nav_entries ordering).
 
-#### 1.5 — PlatformPolicy Engine (cap 27)
+#### 1.5 — PlatformPolicy Engine (cap 27) — DONE 2026-05-05
 
-Guardrails for AI. Decides whether an AI action is allowed before execution.
-
-- [ ] Spec doc — policy DSL (resource + action + condition), evaluation order, deny precedence, audit on every evaluation.
-- [ ] Types: `Policy`, `PolicyRule`, `PolicyDecision`.
-- [ ] Mock evaluator: input `(action_id, params, session)`, output `{ allowed, reasons, requires_approval }`.
-- [ ] Hook `usePolicyDecision(actionId, params)` for ActionPreviewCard / ConfirmActionDialog gating.
-- [ ] Admin UI at `/admin/policies` — list policies, see eval examples, edit conditions.
-- [ ] Tests: deny-by-default, allow with conditions, requires-approval branch.
+- [x] Spec doc `docs/system-upgrade/04-capabilities/platform-policy-engine-spec.md` — 15 sections covering policy/rule shape, condition language, evaluation context, decision shape, 5 endpoints, multi-tenant safety, perf budget, schema, 3 seeded system policies, mock condition language, audit, MOCK flip checklist, Q-PE-1..4.
+- [x] Types `lib/modules/policies/types.ts` — Policy, PolicyRule, PolicyDecision, PolicyEvaluationContext, SubjectSelector, response envelopes.
+- [x] Mock client `lib/api/policies.ts` — full evaluator with recursive-descent parser for the condition language (field refs, comparison/logical ops, in/not_in/exists, glob action_pattern, built-in functions `is_business_hours()`, `hour_of_day()`, `now()`), deny precedence, default-allow, cross-org isolation.
+- [x] 3 seeded system policies: deny critical resolves outside business hours, require approval for batch >50, AI safety baseline (deny admin.* for non-admin, require approval for *.delete by non-admin).
+- [x] Hook `usePolicyDecision(input)` with TanStack Query, fail-closed on error.
+- [x] Admin UI at `/admin/policies` — KPI banner (Policies / Enabled / Deny rules), per-policy card with rule list (effect badge + action_pattern + subject + condition), Enable/Disable toggle, **inline policy tester** (paste action_id + params → see decision + matched rules + reasons).
+- [x] Nav entry "ניהול פלטפורמה → Policy engine" added.
+- [x] Tests: 21 covering condition evaluator (field comparison, logical ops, exists, in/not_in, fail-safe on broken expressions, empty=match), evaluation (default-allow, deny precedence, cross-org isolation, disabled policies skipped, glob action patterns, system-policy fires), API surface (fetchPolicies, fetchPolicy 404, setPolicyEnabled, evaluatePolicy end-to-end).
 
 #### 1.6 — Realtime SSE (cap 23) — deferred
 
@@ -232,12 +232,12 @@ While Phase 1 is open:
 
 | Section | Items | Done | In Progress | TODO |
 |---|---|---|---|---|
-| Phase 1 caps | 13 | 10 | 0 | 2 (caps 15, 27) — cap 23 deferred |
+| Phase 1 caps | 13 | 11 | 0 | 1 (cap 15 Wizard) — cap 23 deferred |
 | Phase 2 (AI core) | 5 | 0 | 0 | 5 |
 | Phase 3 (onboarding) | 3 | 0 | 0 | 3 |
 | Phase 4 (helpdesk demo) | 4 | 3 | 0 | 1 |
 | Phase 5 (backend) | n/a (other repo) | — | — | — |
 
-**Overall Phase 1 completion: ~77% (10/13).**
+**Overall Phase 1 completion: ~85% (11/13).**
 
-**Last reviewed:** 2026-05-05, after cap 18 PlatformModuleRegistry landed.
+**Last reviewed:** 2026-05-05, after cap 27 PlatformPolicy Engine landed.

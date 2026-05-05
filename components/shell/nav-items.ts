@@ -27,6 +27,7 @@ import {
   Flag,
   Cog,
   Boxes,
+  Shield,
 } from "lucide-react";
 
 export type NavItem = {
@@ -106,6 +107,7 @@ export const navGroups: NavGroup[] = [
       { title: "מודולים", href: "/admin/modules", icon: Boxes },
       { title: "הגדרות פלטפורמה", href: "/admin/settings", icon: Cog },
       { title: "Feature flags", href: "/admin/feature-flags", icon: Flag },
+      { title: "Policy engine", href: "/admin/policies", icon: Shield },
     ],
   },
   {

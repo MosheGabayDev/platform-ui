@@ -1,6 +1,7 @@
 /**
- * @module middleware
- * Next.js middleware for platform-ui route protection.
+ * @module proxy
+ * Next.js proxy for platform-ui route protection. Replaces the deprecated
+ * `middleware.ts` convention as of Next.js 16 (renamed 2026-05-05).
  * Protects all routes except auth pages and static assets.
  *
  * Rules:
@@ -16,7 +17,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const PUBLIC_PATHS = ["/login", "/reset-password"];
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Always allow: NextAuth internals, Next.js build assets, static files
