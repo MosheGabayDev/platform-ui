@@ -53,7 +53,7 @@ Until **Phase 1 is closed**, do NOT start new vertical modules. Do NOT polish. D
 | 13 | PlatformApprovalFlow | ✅ | ✅ | ✅ approvals page | ✅ | **DONE (frontend)** |
 | 14 | PlatformJobRunner | ✅ (this session) | ✅ | 🔵 batch tasks consumer | ✅ | **DONE (frontend)** |
 | **15** | **PlatformWizard** | ❌ | ❌ | ❌ | ❌ | **TODO** |
-| **16** | **PlatformSettings Engine** | ❌ | ❌ | ❌ | ❌ | **TODO** |
+| 16 | PlatformSettings Engine | ✅ (2026-05-05) | ✅ resolution + secrets | ✅ /admin/settings | ✅ 16 tests | **DONE (frontend)** |
 | 17 | PlatformFeatureFlags | ✅ (2026-05-04) | ✅ 4-source resolution | ✅ /admin/feature-flags | ✅ 9 tests | **DONE (frontend)** |
 | **18** | **PlatformModuleRegistry** | ❌ | 🔵 partial | ❌ | ❌ | **TODO** |
 | 19 | PlatformTenantContext | ✅ | ✅ | n/a | partial | **DONE** |
@@ -70,16 +70,15 @@ Until **Phase 1 is closed**, do NOT start new vertical modules. Do NOT polish. D
 - [x] Nav entry "ניהול פלטפורמה → Feature flags" added.
 - [x] Tests: 9 client tests covering all 4 resolution sources, override flip, clear-and-fallback, definitions list, user-scope rejection (Q-FF-2).
 
-#### 1.2 — PlatformSettings Engine (cap 16)
+#### 1.2 — PlatformSettings Engine (cap 16) — DONE 2026-05-05
 
-Per-org configuration surface. The single most important cap for "generic AI for business" because it's where every tenant configures their AI.
-
-- [ ] Spec doc — settings hierarchy (system → plan → org), schema-validated value storage, history/audit, sensitive-value redaction.
-- [ ] Types: `SettingDefinition`, `SettingValue`, `SettingScope`, schema validation via Zod.
-- [ ] Mock client `lib/api/settings.ts` with fixture settings: AI config, rate limits, contact info, branding, integrations.
-- [ ] Admin UI at `/admin/settings` — categorized settings tree, edit form per setting, validation, save with audit.
-- [ ] React hook `useSetting(key)` and `useSettings(category)` for module consumers.
-- [ ] Tests: schema validation, hook returns, admin UI mutation flow.
+- [x] Spec doc `docs/system-upgrade/04-capabilities/platform-settings-engine-spec.md` — 13 sections covering resolution hierarchy, 6 setting types (string/int/bool/json/secret/enum), 4 endpoints, schema, sensitive-value handling (KMS envelope encryption, masked reads), 13 initial settings catalog, MOCK_MODE flip checklist, Q-S-1..4.
+- [x] Types `lib/modules/settings/types.ts` — `SettingDefinition`, `SettingValue` (discriminated by type), `SettingScope`, response envelopes.
+- [x] Mock client `lib/api/settings.ts` — 13 fixture settings across 4 categories (ai/branding/notifications/rate_limits), full resolution walk (user→org→plan→system→default), schema validation (string maxLength/minLength/pattern, int min/max, enum allowed_values), secret masking (`sk-...XYZ`).
+- [x] Hook `useSetting(key)`, `useSettingsByCategory(category)`, `useSettingDefinitions()`.
+- [x] Admin UI at `/admin/settings` — categorized tree, type-aware editors (textarea for long strings, number input, On/Off toggle, enum select, masked secret with Replace flow, JSON textarea), Save / Cancel / Clear-override buttons, source-of-resolution display per row.
+- [x] Nav entry "ניהול פלטפורמה → הגדרות פלטפורמה" added.
+- [x] Tests: 16 client tests covering resolution sources, override set/clear, secret masking (asserts plaintext NEVER leaks), schema validation rejection (int min, string maxLength, enum allowed, pattern, empty secret), scope rejection, category fetch, 404.
 
 #### 1.3 — PlatformWizard (cap 15)
 
@@ -233,12 +232,12 @@ While Phase 1 is open:
 
 | Section | Items | Done | In Progress | TODO |
 |---|---|---|---|---|
-| Phase 1 caps | 13 | 8 | 0 | 4 (caps 15, 16, 18, 27) |
+| Phase 1 caps | 13 | 9 | 0 | 3 (caps 15, 18, 27) |
 | Phase 2 (AI core) | 5 | 0 | 0 | 5 |
 | Phase 3 (onboarding) | 3 | 0 | 0 | 3 |
 | Phase 4 (helpdesk demo) | 4 | 3 | 0 | 1 |
 | Phase 5 (backend) | n/a (other repo) | — | — | — |
 
-**Overall Phase 1 completion: ~62% (8/13).**
+**Overall Phase 1 completion: ~69% (9/13).**
 
-**Last reviewed:** 2026-05-04, after cap 17 PlatformFeatureFlags landed.
+**Last reviewed:** 2026-05-05, after cap 16 PlatformSettings Engine landed.

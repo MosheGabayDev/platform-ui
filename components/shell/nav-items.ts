@@ -25,6 +25,7 @@ import {
   Wrench,
   Layers,
   Flag,
+  Cog,
 } from "lucide-react";
 
 export type NavItem = {
@@ -101,6 +102,7 @@ export const navGroups: NavGroup[] = [
   {
     label: "ניהול פלטפורמה",
     items: [
+      { title: "הגדרות פלטפורמה", href: "/admin/settings", icon: Cog },
       { title: "Feature flags", href: "/admin/feature-flags", icon: Flag },
     ],
   },
