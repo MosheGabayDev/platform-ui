@@ -55,7 +55,7 @@ Until **Phase 1 is closed**, do NOT start new vertical modules. Do NOT polish. D
 | **15** | **PlatformWizard** | ❌ | ❌ | ❌ | ❌ | **TODO** |
 | 16 | PlatformSettings Engine | ✅ (2026-05-05) | ✅ resolution + secrets | ✅ /admin/settings | ✅ 16 tests | **DONE (frontend)** |
 | 17 | PlatformFeatureFlags | ✅ (2026-05-04) | ✅ 4-source resolution | ✅ /admin/feature-flags | ✅ 9 tests | **DONE (frontend)** |
-| **18** | **PlatformModuleRegistry** | ❌ | 🔵 partial | ❌ | ❌ | **TODO** |
+| 18 | PlatformModuleRegistry | ✅ (2026-05-05) | ✅ 12 modules + status resolver | ✅ /admin/modules | ✅ 8 tests | **DONE (frontend)** |
 | 19 | PlatformTenantContext | ✅ | ✅ | n/a | partial | **DONE** |
 | **23** | **PlatformRealtime SSE** | ❌ | ❌ | ❌ | ❌ | **TODO (deferred — polling works for now)** |
 | **27** | **PlatformPolicy Engine** | ❌ | ❌ | ❌ | ❌ | **TODO** |
@@ -90,16 +90,16 @@ Onboarding wizard for new tenants.
 - [ ] Onboarding wizard at `/onboarding` — tenant info → AI provider selection → invite team → first action.
 - [ ] Tests: step navigation, validation gates, resume after refresh.
 
-#### 1.4 — PlatformModuleRegistry (cap 18)
+#### 1.4 — PlatformModuleRegistry (cap 18) — DONE 2026-05-05
 
-Dynamic module enablement per org. Drives nav, dashboard tiles, and AI capability scoping.
-
-- [ ] Spec doc — module manifest shape (key, label, icon, routes, permissions, AI capabilities).
-- [ ] Types: `ModuleManifest`, `ModuleEnablement`.
-- [ ] Mock registry of all known modules with their manifests.
-- [ ] Hook `useEnabledModules()` driving sidebar nav (replace static nav-items with dynamic list).
-- [ ] Admin UI at `/admin/modules` — enable/disable per org with confirmation.
-- [ ] Tests: enabled-only filtering, admin override flow.
+- [x] Spec doc `docs/system-upgrade/04-capabilities/platform-module-registry-spec.md` — manifest shape, 3 endpoints, schema, conflicts (Q-MR-4), required-flag/plan evaluation, MOCK flip checklist, Q-MR-1..4.
+- [x] Types `lib/modules/module-registry/types.ts` — `ModuleManifest`, `ModuleEnablement`, `ModuleStatus`, `ModuleEntry`.
+- [x] Central manifests `lib/platform/module-registry/manifests.ts` — 12 modules registered (helpdesk, audit-log, users, ai-agents, ai-providers, knowledge, voice, automation, integrations, monitoring, billing, data-sources) with full metadata: nav entries, AI actions, permissions, search types, required flags, required plans.
+- [x] Mock client `lib/api/module-registry.ts` — list endpoint resolves status by combining manifest + enablement + flag eval + plan check; write endpoint enforces conflicts.
+- [x] Hook `useEnabledModules()`, `useModuleStatus(key)`.
+- [x] Admin UI at `/admin/modules` — KPI banner (Registered / Enabled / Blocked), category filter, per-module card with status badge, blocked_reason display, dependency chain (flags + plans + counts), Enable/Disable button with org_admin_can_toggle gate.
+- [x] Nav integration: `nav-items.ts` adds `filterNavByEnabledModules(groups, enabledKeys)` helper + ROUTE_TO_MODULE map. Future sidebar refactor wires this; current static groups still render.
+- [x] Tests: 8 client tests (manifest expansion, flag-disabled status, plan-locked status, set/clear, 404, ai_actions/search_types declared, nav_entries ordering).
 
 #### 1.5 — PlatformPolicy Engine (cap 27)
 
@@ -232,12 +232,12 @@ While Phase 1 is open:
 
 | Section | Items | Done | In Progress | TODO |
 |---|---|---|---|---|
-| Phase 1 caps | 13 | 9 | 0 | 3 (caps 15, 18, 27) |
+| Phase 1 caps | 13 | 10 | 0 | 2 (caps 15, 27) — cap 23 deferred |
 | Phase 2 (AI core) | 5 | 0 | 0 | 5 |
 | Phase 3 (onboarding) | 3 | 0 | 0 | 3 |
 | Phase 4 (helpdesk demo) | 4 | 3 | 0 | 1 |
 | Phase 5 (backend) | n/a (other repo) | — | — | — |
 
-**Overall Phase 1 completion: ~69% (9/13).**
+**Overall Phase 1 completion: ~77% (10/13).**
 
-**Last reviewed:** 2026-05-05, after cap 16 PlatformSettings Engine landed.
+**Last reviewed:** 2026-05-05, after cap 18 PlatformModuleRegistry landed.

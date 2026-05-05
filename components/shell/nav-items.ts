@@ -26,6 +26,7 @@ import {
   Layers,
   Flag,
   Cog,
+  Boxes,
 } from "lucide-react";
 
 export type NavItem = {
@@ -102,6 +103,7 @@ export const navGroups: NavGroup[] = [
   {
     label: "ניהול פלטפורמה",
     items: [
+      { title: "מודולים", href: "/admin/modules", icon: Boxes },
       { title: "הגדרות פלטפורמה", href: "/admin/settings", icon: Cog },
       { title: "Feature flags", href: "/admin/feature-flags", icon: Flag },
     ],
@@ -131,3 +133,64 @@ export const navGroups: NavGroup[] = [
     ],
   },
 ];
+
+/**
+ * Mapping of nav routes → module key from PlatformModuleRegistry (cap 18).
+ * Used by `filterNavByEnabledModules()` so disabled modules' groups don't
+ * render in the sidebar. Routes not in this map always render (admin chrome,
+ * dashboard root, settings).
+ */
+const ROUTE_TO_MODULE: Record<string, string> = {
+  "/helpdesk": "helpdesk",
+  "/users": "users",
+  "/roles": "users",
+  "/organizations": "users",
+  "/departments": "users",
+  "/audit-log": "audit-log",
+  "/ai-agents": "ai-agents",
+  "/ai-providers": "ai-providers",
+  "/knowledge": "knowledge",
+  "/ala": "voice",
+  "/voice": "voice",
+  "/automation": "automation",
+  "/integrations": "integrations",
+  "/monitoring": "monitoring",
+  "/logs": "monitoring",
+  "/metrics": "monitoring",
+  "/billing": "billing",
+  "/api-keys": "billing",
+  "/data-sources": "data-sources",
+};
+
+function moduleKeyForHref(href: string): string | null {
+  // Match by longest prefix so /helpdesk/tickets resolves to "helpdesk".
+  const candidates = Object.keys(ROUTE_TO_MODULE).filter((r) => href.startsWith(r));
+  if (candidates.length === 0) return null;
+  candidates.sort((a, b) => b.length - a.length);
+  return ROUTE_TO_MODULE[candidates[0]] ?? null;
+}
+
+/**
+ * Filter sidebar nav by the set of currently-enabled module keys.
+ * Items belonging to a known-but-disabled module are dropped. Items with no
+ * registry mapping (e.g. admin pages, /settings, root /) always render.
+ *
+ * Pass `enabledKeys` from `useEnabledModules().enabledKeys` (cap 18).
+ */
+export function filterNavByEnabledModules(
+  groups: NavGroup[],
+  enabledKeys: ReadonlySet<string>,
+): NavGroup[] {
+  const result: NavGroup[] = [];
+  for (const group of groups) {
+    const filteredItems = group.items.filter((item) => {
+      const key = moduleKeyForHref(item.href);
+      if (key === null) return true;
+      return enabledKeys.has(key);
+    });
+    if (filteredItems.length > 0) {
+      result.push({ ...group, items: filteredItems });
+    }
+  }
+  return result;
+}
