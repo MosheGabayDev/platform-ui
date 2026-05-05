@@ -52,7 +52,7 @@ Until **Phase 1 is closed**, do NOT start new vertical modules. Do NOT polish. D
 | 12 | PlatformNotifications | ✅ | ✅ | ✅ bell+drawer | partial | **DONE (frontend)** |
 | 13 | PlatformApprovalFlow | ✅ | ✅ | ✅ approvals page | ✅ | **DONE (frontend)** |
 | 14 | PlatformJobRunner | ✅ (this session) | ✅ | 🔵 batch tasks consumer | ✅ | **DONE (frontend)** |
-| **15** | **PlatformWizard** | ❌ | ❌ | ❌ | ❌ | **TODO** |
+| 15 | PlatformWizard | ✅ (2026-05-05) | ✅ primitive + hook | ✅ /onboarding consumer | ✅ 12 tests | **DONE (frontend)** |
 | 16 | PlatformSettings Engine | ✅ (2026-05-05) | ✅ resolution + secrets | ✅ /admin/settings | ✅ 16 tests | **DONE (frontend)** |
 | 17 | PlatformFeatureFlags | ✅ (2026-05-04) | ✅ 4-source resolution | ✅ /admin/feature-flags | ✅ 9 tests | **DONE (frontend)** |
 | 18 | PlatformModuleRegistry | ✅ (2026-05-05) | ✅ 12 modules + status resolver | ✅ /admin/modules | ✅ 8 tests | **DONE (frontend)** |
@@ -80,15 +80,15 @@ Until **Phase 1 is closed**, do NOT start new vertical modules. Do NOT polish. D
 - [x] Nav entry "ניהול פלטפורמה → הגדרות פלטפורמה" added.
 - [x] Tests: 16 client tests covering resolution sources, override set/clear, secret masking (asserts plaintext NEVER leaks), schema validation rejection (int min, string maxLength, enum allowed, pattern, empty secret), scope rejection, category fetch, 404.
 
-#### 1.3 — PlatformWizard (cap 15)
+#### 1.3 — PlatformWizard (cap 15) — DONE 2026-05-05
 
-Onboarding wizard for new tenants.
-
-- [ ] Spec doc — multi-step wizard contract, validation per step, skip-and-resume, completion audit.
-- [ ] Generic `Wizard<TState>` component at `components/shared/wizard/` — step indicator, navigation, validation gates.
-- [ ] Hook `useWizardState(key, initial)` with localStorage persistence.
-- [ ] Onboarding wizard at `/onboarding` — tenant info → AI provider selection → invite team → first action.
-- [ ] Tests: step navigation, validation gates, resume after refresh.
+- [x] Spec doc `docs/system-upgrade/04-capabilities/platform-wizard-spec.md` — types, component API, hook API, persistence rules, accessibility, audit, first-consumer (/onboarding) flow, Q-WZ-1..4.
+- [x] Types `lib/modules/wizard/types.ts` — `WizardStep`, `WizardConfig`, `WizardStepProps`, `PersistedWizardState`.
+- [x] Hook `lib/hooks/use-wizard-state.ts` — debounced localStorage persist, version-namespaced key, hydrate-on-mount, malformed-JSON safe, range-clamping navigation.
+- [x] Primitive `components/shared/wizard/wizard.tsx` — step indicator (compact pills), validation-gated Next, AnimatePresence transitions, focus-on-step-change for screen readers, optional steps render Skip, Finish triggers async onComplete with loading + error display.
+- [x] First consumer `app/(dashboard)/onboarding/page.tsx` — 4 steps (Organization → AI configuration → Modules → Review). Smoke-tests caps 16+18: writes 4 settings via `setSetting()`, toggles modules via `setModuleEnablement()`, redirects to `/` on Finish.
+- [x] Nav entry "ראשי → הקמה ראשונית" added.
+- [x] Tests: 12 hook tests covering initial state, update merging, navigation clamps, debounced persist, hydrate from storage, version mismatch ignored, out-of-range index ignored, reset clears storage, malformed JSON survival, clearWizardStorage helper.
 
 #### 1.4 — PlatformModuleRegistry (cap 18) — DONE 2026-05-05
 
@@ -232,12 +232,14 @@ While Phase 1 is open:
 
 | Section | Items | Done | In Progress | TODO |
 |---|---|---|---|---|
-| Phase 1 caps | 13 | 11 | 0 | 1 (cap 15 Wizard) — cap 23 deferred |
+| Phase 1 caps | 13 | 12 | 0 | 0 — cap 23 SSE deferred to Phase 5 |
 | Phase 2 (AI core) | 5 | 0 | 0 | 5 |
 | Phase 3 (onboarding) | 3 | 0 | 0 | 3 |
 | Phase 4 (helpdesk demo) | 4 | 3 | 0 | 1 |
 | Phase 5 (backend) | n/a (other repo) | — | — | — |
 
-**Overall Phase 1 completion: ~85% (11/13).**
+**Overall Phase 1 completion: 100% of in-scope caps (12/12; cap 23 SSE deferred to backend phase).** 🎉
 
-**Last reviewed:** 2026-05-05, after cap 27 PlatformPolicy Engine landed.
+**Phase 1 closed.** Next: Phase 2 — AI Core (provider gateway, skill registry, cost dashboard, audit wiring, demo slice).
+
+**Last reviewed:** 2026-05-05, after cap 15 PlatformWizard landed.

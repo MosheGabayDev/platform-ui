@@ -28,6 +28,7 @@ import {
   Cog,
   Boxes,
   Shield,
+  Sparkles,
 } from "lucide-react";
 
 export type NavItem = {
@@ -48,6 +49,7 @@ export const navGroups: NavGroup[] = [
     label: "ראשי",
     items: [
       { title: "דשבורד", href: "/", icon: LayoutDashboard },
+      { title: "הקמה ראשונית", href: "/onboarding", icon: Sparkles },
     ],
   },
   {
