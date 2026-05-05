@@ -112,6 +112,7 @@ export const navGroups: NavGroup[] = [
       { title: "Policy engine", href: "/admin/policies", icon: Shield },
       { title: "ספקי AI", href: "/admin/ai-providers", icon: Bot },
       { title: "כישורי AI", href: "/admin/ai-skills", icon: Sparkles },
+      { title: "צריכת AI", href: "/admin/ai-usage", icon: BarChart2 },
     ],
   },
   {

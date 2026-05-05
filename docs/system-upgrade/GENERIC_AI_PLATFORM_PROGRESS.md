@@ -142,13 +142,15 @@ Polling at 5–30s works for now. Defer until Phase 5 (backend) since the SSE ch
 - [x] Nav entry "ניהול פלטפורמה → כישורי AI" added.
 - [x] Tests: 14 client tests covering catalog, filters, default vs override enablement, available_to_ai computation, set-enablement, parameter validation (required/type/minimum), policy decision integration, unknown-skill handling. Plus 2 E2E specs.
 
-### 2.3 — AI cost & usage dashboard (cap 26 partial)
+### 2.3 — AI cost & usage dashboard — DONE 2026-05-06
 
-- [ ] Spec doc — usage event shape (org_id, provider, model, tokens_in, tokens_out, cost, action_id, ticket_id).
-- [ ] Mock client `lib/api/ai-usage.ts` with fixture events.
-- [ ] Dashboard at `/admin/ai-usage` — KPI tiles (cost MTD, tokens, top users), time-series chart, table.
-- [ ] Per-org budget alert (warning at 80%, hard cap at 100%).
-- [ ] Tests.
+- [x] Spec doc `docs/system-upgrade/04-capabilities/platform-ai-usage-spec.md` — UsageEvent shape, 3 endpoints (stats with range filter, paginated events, set-budget), schema with materialized view, MOCK flip checklist, Q-AIU-1..4.
+- [x] Types `lib/modules/ai-usage/types.ts` — UsageEvent, UsageStats, UsageBucket, UsageTopUser, DailySeriesPoint, UsageBudget (status: ok/warning/exceeded/unset).
+- [x] Mock client `lib/api/ai-usage.ts` — generates ~30 days of synthetic events deterministically (seeded mulberry32). Aggregations match spec: totals, by_provider/model/purpose, top_users (capped 5), daily_series (length matches range), budget status with 80%/100% thresholds. ~1500 events fixture across 5 providers, 12 models, 5 users.
+- [x] Hook `lib/hooks/use-ai-usage.ts` — useUsageStats(range) with 60s refetchInterval, useUsageEvents(filter).
+- [x] Dashboard at `/admin/ai-usage` — KPI tiles (Cost / Events / Tokens / Errors), Range selector (24h/7d/mtd/30d), Budget banner with warning/exceeded states + inline editor, daily-cost area chart (recharts), by-provider/model/purpose breakdown bars, Top users list, Recent events table (last 25 with timestamp, user, provider·model, purpose, tokens, cost, outcome badge).
+- [x] Nav entry "ניהול פלטפורמה → צריכת AI" added.
+- [x] Tests: 13 client tests covering aggregation correctness (sum invariant, daily_series length matches range, totals.errors matches outcome filter), budget state machine (ok→warning at 80%, exceeded at 100%, unset on null), pagination, all filters, top_users sorted desc, negative budget rejection. Plus 2 E2E specs.
 
 ### 2.4 — AI audit trail wired to PlatformAuditLog
 
@@ -246,9 +248,9 @@ When you (the AI) finish a cap and consider marking it DONE: re-read this checkl
 
 | Suite | Last run | Files | Tests | Status |
 |---|---|---|---|---|
-| vitest unit (`npx vitest run`) | 2026-05-06 | 42 | 380 / 380 | ✅ all green |
+| vitest unit (`npx vitest run`) | 2026-05-06 | 43 | 393 / 393 | ✅ all green |
 | coverage gate (`scripts/check-coverage-baseline.mjs`) | 2026-05-06 | n/a | n/a | ✅ passed |
-| Playwright E2E (`npx playwright test`) | 2026-05-06 | 30 specs | 82 passed / 0 failed / 42 skipped | ✅ all green (skipped = cross-tenant tests gated on E2E_ORG_*_ID env vars) |
+| Playwright E2E (`npx playwright test`) | 2026-05-06 | 30 specs | 84 passed / 0 failed / 42 skipped | ✅ all green (skipped = cross-tenant tests gated on E2E_ORG_*_ID env vars) |
 
 ### E2E specs by surface (Phase 1 coverage)
 
@@ -270,7 +272,7 @@ When you (the AI) finish a cap and consider marking it DONE: re-read this checkl
 | Section | Items | Done | In Progress | TODO |
 |---|---|---|---|---|
 | Phase 1 caps | 13 | 12 | 0 | 0 — cap 23 SSE deferred to Phase 5 |
-| Phase 2 (AI core) | 5 | 2 | 0 | 3 |
+| Phase 2 (AI core) | 5 | 3 | 0 | 2 |
 | Phase 3 (onboarding) | 3 | 0 | 0 | 3 |
 | Phase 4 (helpdesk demo) | 4 | 3 | 0 | 1 |
 | Phase 5 (backend) | n/a (other repo) | — | — | — |

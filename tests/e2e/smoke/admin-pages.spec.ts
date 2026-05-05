@@ -79,6 +79,30 @@ test.describe("Admin pages — Phase 1 smoke", () => {
     await expect(page.getByRole("button", { name: /helpdesk \(/i })).toBeVisible();
   });
 
+  test("/admin/ai-usage renders KPI tiles + chart + tables", async ({ page }) => {
+    await page.goto("/admin/ai-usage");
+    await expect(page.getByRole("heading", { name: /^AI usage$/i })).toBeVisible();
+    // KPI labels
+    await expect(page.getByText(/^Cost$/i).first()).toBeVisible();
+    await expect(page.getByText(/^Events$/i).first()).toBeVisible();
+    await expect(page.getByText(/^Tokens$/i).first()).toBeVisible();
+    await expect(page.getByText(/^Errors$/i).first()).toBeVisible();
+    // Daily chart
+    await expect(page.getByText(/Daily cost/i)).toBeVisible();
+    // Sections
+    await expect(page.getByText(/^By provider$/i)).toBeVisible();
+    await expect(page.getByText(/^Top users$/i)).toBeVisible();
+    // Recent events table header
+    await expect(page.getByText(/^Recent events$/i)).toBeVisible();
+  });
+
+  test("/admin/ai-usage range selector switches windows", async ({ page }) => {
+    await page.goto("/admin/ai-usage");
+    await page.getByRole("button", { name: /^Last 7 days$/i }).click();
+    // Subtitle / chart caption updates — daily-series length will be 7.
+    await expect(page.getByText(/7 days · USD/i)).toBeVisible();
+  });
+
   test("/admin/ai-skills can toggle a skill enablement", async ({ page }) => {
     await page.goto("/admin/ai-skills");
     // users.deactivate is default-off — find its Enable button
