@@ -12,6 +12,7 @@
 import { getAllSkills, getSkill } from "@/lib/platform/ai-skills/registry";
 import { evaluatePolicy } from "@/lib/api/policies";
 import { fetchModules } from "@/lib/api/module-registry";
+import { emitSkillValidation } from "@/lib/platform/ai-actions/audit-emitter";
 import type {
   AISkill,
   SkillEntry,
@@ -225,6 +226,13 @@ export async function validateSkillInvocation(
     await new Promise((r) => setTimeout(r, 60));
     const skill = getSkill(input.skill_id);
     if (!skill) {
+      void emitSkillValidation({
+        skill_id: input.skill_id,
+        params: input.params,
+        valid: false,
+        skill_available: false,
+        error_count: 1,
+      });
       return {
         success: true,
         data: {
@@ -253,6 +261,15 @@ export async function validateSkillInvocation(
       });
       policy_decision = policyRes.data.decision;
     }
+
+    // Phase 2.4: emit AI audit entry per skill spec §11.
+    void emitSkillValidation({
+      skill_id: input.skill_id,
+      params: input.params,
+      valid: errors.length === 0,
+      skill_available,
+      error_count: errors.length,
+    });
 
     return {
       success: true,

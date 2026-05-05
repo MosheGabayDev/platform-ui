@@ -22,6 +22,7 @@ import {
 import { cancelMaintenanceWindow } from "@/lib/api/helpdesk.maintenance";
 import { cancelBatchTask } from "@/lib/api/helpdesk.batch";
 import { queryKeys } from "@/lib/api/query-keys";
+import { emitExecutorRun } from "./audit-emitter";
 
 export type ActionParams = Record<string, unknown>;
 
@@ -82,4 +83,78 @@ export function getActionExecutor(actionId: string): ActionExecutor | null {
 /** Test-only: list registered actions so tests can assert coverage. */
 export function _registeredActions(): string[] {
   return Object.keys(EXECUTORS);
+}
+
+/**
+ * Run an executor by `actionId` with full audit emission (cap 10).
+ * Phase 2.4 — every AI-initiated action is recorded with `category=ai`.
+ *
+ * Usage from ActionPreviewCard / executor-driven UIs:
+ *   const result = await runActionExecutor(actionId, params, queryClient);
+ *
+ * On unknown actionId throws — same behavior as null from getActionExecutor.
+ * Audit is recorded for both success and failure; emit_failure does not
+ * abort the action (audit-emitter swallows its own errors).
+ */
+export async function runActionExecutor(
+  actionId: string,
+  params: ActionParams,
+  queryClient: QueryClient,
+): Promise<{ message: string }> {
+  const executor = getActionExecutor(actionId);
+  if (!executor) {
+    // Audit a missing-executor proposal so admins can spot drift between
+    // skill registry and executor registry.
+    void emitExecutorRun({
+      action_id: actionId,
+      params,
+      outcome: "error",
+      error: "executor not registered",
+    });
+    throw new Error(`No executor registered for action '${actionId}'`);
+  }
+  // Best-effort resource hint — common params we recognize.
+  const resourceHint = inferResourceHint(actionId, params);
+  try {
+    const result = await executor(params, queryClient);
+    void emitExecutorRun({
+      action_id: actionId,
+      params,
+      outcome: "success",
+      message: result.message,
+      ...resourceHint,
+    });
+    return result;
+  } catch (e) {
+    void emitExecutorRun({
+      action_id: actionId,
+      params,
+      outcome: "error",
+      error: (e as Error).message,
+      ...resourceHint,
+    });
+    throw e;
+  }
+}
+
+function inferResourceHint(
+  actionId: string,
+  params: ActionParams,
+): { resource_type?: string; resource_id?: string | number } {
+  if (actionId.startsWith("helpdesk.ticket.")) {
+    return { resource_type: "ticket", resource_id: params.ticketId as number | undefined };
+  }
+  if (actionId.startsWith("helpdesk.maintenance.")) {
+    return {
+      resource_type: "maintenance_window",
+      resource_id: params.windowId as number | undefined,
+    };
+  }
+  if (actionId.startsWith("helpdesk.batch.")) {
+    return { resource_type: "batch_task", resource_id: params.taskId as number | undefined };
+  }
+  if (actionId.startsWith("users.")) {
+    return { resource_type: "user", resource_id: params.userId as number | undefined };
+  }
+  return {};
 }

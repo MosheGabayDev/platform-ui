@@ -376,3 +376,66 @@ export async function fetchAuditLogStats(): Promise<AuditLogStatsResponse> {
   if (!res.ok) throw new Error(`fetchAuditLogStats failed: ${res.status}`);
   return res.json();
 }
+
+// ---------------------------------------------------------------------------
+// Write path — used by AI executor + policy engine + skill validator
+// ---------------------------------------------------------------------------
+
+export interface RecordAuditInput {
+  action: string;
+  category: AuditCategory;
+  resource_type: string | null;
+  resource_id: string | null;
+  metadata: Record<string, unknown>;
+  /** Override actor — defaults to current session. Server-side authoritative. */
+  actor_id?: number | null;
+  actor_name?: string | null;
+}
+
+export interface RecordAuditResponse {
+  success: boolean;
+  data: { entry: AuditLogEntry };
+}
+
+/**
+ * Record an audit entry. In MOCK_MODE the entry is appended to the in-memory
+ * MOCK_ENTRIES so the audit log page reflects new events immediately. The
+ * real backend (R046) writes to the audit_log table and never trusts client-
+ * supplied org_id / actor_id.
+ */
+export async function recordAuditEntry(
+  input: RecordAuditInput,
+): Promise<RecordAuditResponse> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 20));
+    const entry: AuditLogEntry = {
+      id: Math.floor(Math.random() * 1_000_000) + 100_000,
+      org_id: 1,
+      action: input.action,
+      category: input.category,
+      actor_id: input.actor_id ?? 1,
+      actor_name: input.actor_name ?? "demo",
+      resource_type: input.resource_type,
+      resource_id: input.resource_id,
+      timestamp: new Date().toISOString(),
+      metadata: input.metadata,
+      ip: null,
+      user_agent: null,
+    };
+    MOCK_ENTRIES.unshift(entry);
+    return { success: true, data: { entry } };
+  }
+  const res = await fetch("/api/proxy/audit-log", {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  if (!res.ok) throw new Error(`recordAuditEntry failed: ${res.status}`);
+  return res.json();
+}
+
+/** Test/imperative helper — count current MOCK_ENTRIES (visible to vitest only). */
+export function _mockEntryCount(): number {
+  return MOCK_ENTRIES.length;
+}

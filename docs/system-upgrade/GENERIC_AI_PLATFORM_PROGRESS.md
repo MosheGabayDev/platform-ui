@@ -152,13 +152,14 @@ Polling at 5–30s works for now. Defer until Phase 5 (backend) since the SSE ch
 - [x] Nav entry "ניהול פלטפורמה → צריכת AI" added.
 - [x] Tests: 13 client tests covering aggregation correctness (sum invariant, daily_series length matches range, totals.errors matches outcome filter), budget state machine (ok→warning at 80%, exceeded at 100%, unset on null), pagination, all filters, top_users sorted desc, negative budget rejection. Plus 2 E2E specs.
 
-### 2.4 — AI audit trail wired to PlatformAuditLog
+### 2.4 — AI audit trail wired to PlatformAuditLog — DONE 2026-05-06
 
-Every AI-initiated action MUST emit an audit entry with category=`ai`. Currently the executor registry doesn't emit audit events.
-
-- [ ] Wire executor registry to call `auditLog.append({ category: "ai", ... })` on success/failure.
-- [ ] Action proposals (pre-confirm) also audited so we have a denied/abandoned trail.
-- [ ] Test: action take → audit entry exists with category=ai.
+- [x] Audit emitter `lib/platform/ai-actions/audit-emitter.ts` — three shortcuts: `emitExecutorRun`, `emitPolicyEvaluation`, `emitSkillValidation`. All swallow their own errors so an audit failure never aborts the action it was auditing.
+- [x] Audit write path `recordAuditEntry()` added to `lib/api/audit.ts` — appends to MOCK_ENTRIES so the audit log page reflects new events immediately.
+- [x] Executor wiring: new `runActionExecutor(actionId, params, queryClient)` wraps lookup + run + audit (success + error + missing-executor branches). `inferResourceHint()` derives resource_type/id from the action prefix (helpdesk.ticket → ticket, helpdesk.maintenance → maintenance_window, helpdesk.batch → batch_task, users → user).
+- [x] Policy wiring: `evaluatePolicy()` emits `policy.evaluate` audit entry per spec §12 with full matched_rules + reasons + decision_id.
+- [x] Skill validate wiring: both happy path and unknown-skill branch emit `ai_skill.validate`. Metadata records `param_keys` only — never full params (PII safety).
+- [x] Tests: 9 audit-emission tests covering policy.evaluate writes, skill validate writes, error_count for invalid params, NEVER-record-PII assertion, runActionExecutor success + error + unknown branches, growth invariant on category=ai count.
 
 ### 2.5 — AI demo slice (ADR-038)
 
@@ -248,7 +249,7 @@ When you (the AI) finish a cap and consider marking it DONE: re-read this checkl
 
 | Suite | Last run | Files | Tests | Status |
 |---|---|---|---|---|
-| vitest unit (`npx vitest run`) | 2026-05-06 | 43 | 393 / 393 | ✅ all green |
+| vitest unit (`npx vitest run`) | 2026-05-06 | 44 | 402 / 402 | ✅ all green |
 | coverage gate (`scripts/check-coverage-baseline.mjs`) | 2026-05-06 | n/a | n/a | ✅ passed |
 | Playwright E2E (`npx playwright test`) | 2026-05-06 | 30 specs | 84 passed / 0 failed / 42 skipped | ✅ all green (skipped = cross-tenant tests gated on E2E_ORG_*_ID env vars) |
 
@@ -272,7 +273,7 @@ When you (the AI) finish a cap and consider marking it DONE: re-read this checkl
 | Section | Items | Done | In Progress | TODO |
 |---|---|---|---|---|
 | Phase 1 caps | 13 | 12 | 0 | 0 — cap 23 SSE deferred to Phase 5 |
-| Phase 2 (AI core) | 5 | 3 | 0 | 2 |
+| Phase 2 (AI core) | 5 | 4 | 0 | 1 |
 | Phase 3 (onboarding) | 3 | 0 | 0 | 3 |
 | Phase 4 (helpdesk demo) | 4 | 3 | 0 | 1 |
 | Phase 5 (backend) | n/a (other repo) | — | — | — |

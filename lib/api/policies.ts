@@ -24,6 +24,7 @@ import type {
   EvaluateInput,
   EvaluateResponse,
 } from "@/lib/modules/policies/types";
+import { emitPolicyEvaluation } from "@/lib/platform/ai-actions/audit-emitter";
 
 const BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api/proxy";
 export const MOCK_MODE = true;
@@ -597,10 +598,14 @@ export async function evaluatePolicy(input: EvaluateInput): Promise<EvaluateResp
       resource: input.resource ?? null,
       evaluated_at: new Date().toISOString(),
     };
-    return {
-      success: true,
-      data: { decision: evaluatePoliciesAgainstContext(MOCK_POLICIES, ctx) },
-    };
+    const decision = evaluatePoliciesAgainstContext(MOCK_POLICIES, ctx);
+    // Phase 2.4: emit AI audit entry per spec §12.
+    void emitPolicyEvaluation({
+      action_id: input.action_id,
+      params: ctx.params,
+      decision,
+    });
+    return { success: true, data: { decision } };
   }
   const res = await fetch(`${BASE}/policies/evaluate`, {
     method: "POST",
