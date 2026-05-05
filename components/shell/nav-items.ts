@@ -110,6 +110,7 @@ export const navGroups: NavGroup[] = [
       { title: "הגדרות פלטפורמה", href: "/admin/settings", icon: Cog },
       { title: "Feature flags", href: "/admin/feature-flags", icon: Flag },
       { title: "Policy engine", href: "/admin/policies", icon: Shield },
+      { title: "ספקי AI", href: "/admin/ai-providers", icon: Bot },
     ],
   },
   {

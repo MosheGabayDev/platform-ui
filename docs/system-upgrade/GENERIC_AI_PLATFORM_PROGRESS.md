@@ -120,15 +120,15 @@ Polling at 5–30s works for now. Defer until Phase 5 (backend) since the SSE ch
 
 ## Phase 2 — AI Core
 
-### 2.1 — AIProviderGateway frontend
+### 2.1 — AIProviderGateway frontend — DONE 2026-05-06
 
-The orchestration layer. Currently `lib/ai/` has scattered pieces; need a unified gateway.
-
-- [ ] Spec doc — provider abstraction (OpenAI/Anthropic/Bedrock/local), per-org selection, key management (encrypted server-side), routing matrix.
-- [ ] Mock client `lib/api/ai-providers.ts` — list providers, get/set provider config per org, test connection.
-- [ ] Admin UI at `/admin/ai-providers` — pick provider, paste key (server-stored), set default model, run test prompt.
-- [ ] Hook `useAiProviderConfig()` so the AI shell knows which provider/model to use.
-- [ ] Cost estimate per call: integrate with usage meter (cap 26 stub).
+- [x] Spec doc `docs/system-upgrade/04-capabilities/platform-ai-provider-gateway-spec.md` — 11 sections covering provider catalog, per-org config, routing rules, 6 endpoints, KMS encryption for credentials, schema, MOCK flip checklist, Q-AIP-1..4.
+- [x] Types `lib/modules/ai-providers/types.ts` — AIProvider, ProviderModel, ProviderConfig, RoutingRule, AuthField. CredentialValue is a discriminated union — plaintext literal vs `{ has_value, masked }` so reads cannot accidentally leak.
+- [x] Mock client `lib/api/ai-providers.ts` — 5 providers seeded (anthropic, openai, bedrock, azure_openai, ollama) with 11 models. Per-org configs mutable in-memory, sensitive credentials masked on read. Routing resolver walks rules in priority order with default fallback. `estimateCostUsd()` uses per-million pricing.
+- [x] Hooks `lib/hooks/use-ai-provider-configs.ts` — `useProviderCatalog`, `useProviderConfigs`, `useProviderConfig`, `useRoutingDecision`.
+- [x] Admin UI at `/admin/ai-providers` — KPI banner (in catalog / enabled / verified), category filter (Cloud/Hosted/Local), per-provider card with status badges (enabled, last-test with timestamp, masked credentials), Configure flow with type-aware inputs, Test Connection button with toast + persisted last-test state.
+- [x] Nav entry "ניהול פלטפורמה → ספקי AI" added.
+- [x] Tests: 13 client tests covering catalog, configs list, masked-credential reads, mutation roundtrip with NEVER-leak assertion, clearing credentials, test connection (ok + missing-creds), routing rule match, fallback to default, no-provider error. Plus 2 E2E smoke specs.
 
 ### 2.2 — Capability / Skill registry
 
@@ -245,9 +245,9 @@ When you (the AI) finish a cap and consider marking it DONE: re-read this checkl
 
 | Suite | Last run | Files | Tests | Status |
 |---|---|---|---|---|
-| vitest unit (`npx vitest run`) | 2026-05-06 | 40 | 353 / 353 | ✅ all green |
+| vitest unit (`npx vitest run`) | 2026-05-06 | 41 | 366 / 366 | ✅ all green |
 | coverage gate (`scripts/check-coverage-baseline.mjs`) | 2026-05-06 | n/a | n/a | ✅ passed |
-| Playwright E2E (`npx playwright test`) | 2026-05-06 | 30 specs | 78 passed / 0 failed / 42 skipped | ✅ all green (skipped = cross-tenant tests gated on E2E_ORG_*_ID env vars) |
+| Playwright E2E (`npx playwright test`) | 2026-05-06 | 30 specs | 80 passed / 0 failed / 42 skipped | ✅ all green (skipped = cross-tenant tests gated on E2E_ORG_*_ID env vars) |
 
 ### E2E specs by surface (Phase 1 coverage)
 
@@ -269,7 +269,7 @@ When you (the AI) finish a cap and consider marking it DONE: re-read this checkl
 | Section | Items | Done | In Progress | TODO |
 |---|---|---|---|---|
 | Phase 1 caps | 13 | 12 | 0 | 0 — cap 23 SSE deferred to Phase 5 |
-| Phase 2 (AI core) | 5 | 0 | 0 | 5 |
+| Phase 2 (AI core) | 5 | 1 | 0 | 4 |
 | Phase 3 (onboarding) | 3 | 0 | 0 | 3 |
 | Phase 4 (helpdesk demo) | 4 | 3 | 0 | 1 |
 | Phase 5 (backend) | n/a (other repo) | — | — | — |

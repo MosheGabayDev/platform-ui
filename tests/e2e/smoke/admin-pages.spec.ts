@@ -57,6 +57,28 @@ test.describe("Admin pages — Phase 1 smoke", () => {
     await expect(page.getByLabel(/^action_id$/i)).toBeVisible();
   });
 
+  test("/admin/ai-providers renders catalog + KPI banner", async ({ page }) => {
+    await page.goto("/admin/ai-providers");
+    await expect(page.getByRole("heading", { name: /^AI providers$/i })).toBeVisible();
+    await expect(page.getByText(/^In catalog$/i)).toBeVisible();
+    await expect(page.getByText(/^Enabled$/i).first()).toBeVisible();
+    await expect(page.getByText(/^Verified$/i)).toBeVisible();
+    await expect(page.getByText(/^Anthropic$/i).first()).toBeVisible();
+    await expect(page.getByText(/^OpenAI$/i).first()).toBeVisible();
+    await expect(page.getByText(/Sensitive credentials:/i)).toBeVisible();
+  });
+
+  test("/admin/ai-providers Test button triggers connection test", async ({ page }) => {
+    await page.goto("/admin/ai-providers");
+    const testBtn = page.getByRole("button", { name: /Test connection to Anthropic/i });
+    await expect(testBtn).toBeVisible();
+    await testBtn.click();
+    // The card's "tested ..." badge should appear (or update timestamp).
+    await expect(
+      page.getByText(/tested/i).first(),
+    ).toBeVisible({ timeout: 5_000 });
+  });
+
   test("/admin/policies tester evaluates a request and shows decision", async ({ page }) => {
     await page.goto("/admin/policies");
     // Default action+params already populated (helpdesk.batch.bulk_status, affected_count=100).
