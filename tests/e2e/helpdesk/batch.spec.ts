@@ -42,7 +42,7 @@ test.describe("Helpdesk batch tasks", () => {
     await page.getByLabel(/Filter by status/i).selectOption("partial");
     // The expandable <details> summary appears
     await expect(
-      page.getByText(/Sweep close 18 onboarding tickets older than 30d/i),
+      page.getByText(/Sweep close 18 onboarding tickets older than 30d/i).first(),
     ).toBeVisible();
     await expect(page.getByText(/3 item failures/i)).toBeVisible();
   });

@@ -25,12 +25,16 @@ test.describe("Login flow", () => {
   });
 
   test("wrong credentials show error and stay on /login", async ({ page }) => {
+    // AUTH_MOCK_MODE accepts any creds → this test is meaningful only when
+    // the real Flask backend is reachable. Skip when mock mode is active.
+    const isMockMode = process.env.AUTH_MOCK_MODE !== "false";
+    test.skip(isMockMode, "AUTH_MOCK_MODE accepts any credentials in dev");
+
     await page.goto("/login");
     await page.locator("#email").fill("nobody@example.com");
     await page.locator("#password").fill("wrong-password");
     await page.getByRole("button", { name: /כניסה/ }).click();
 
-    // Error message appears, page does not navigate away.
     await expect(page.getByText(/כתובת האימייל או הסיסמה שגויים/)).toBeVisible({
       timeout: 8_000,
     });

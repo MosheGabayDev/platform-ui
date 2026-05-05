@@ -19,8 +19,10 @@ test.describe("Helpdesk SLA page", () => {
     await expect(page.getByText(/Standard — business hours/i)).toBeVisible();
     await expect(page.getByText(/Low priority — best effort/i)).toBeVisible();
 
-    // Compliance breakdown section
-    await expect(page.getByText(/Compliance by priority/i)).toBeVisible();
+    // Compliance breakdown section heading
+    await expect(
+      page.getByRole("heading", { name: /Compliance by priority/i }),
+    ).toBeVisible();
   });
 
   test("Default badge appears next to the standard policy", async ({ page }) => {
@@ -36,7 +38,7 @@ test.describe("Helpdesk SLA page", () => {
   test("response/resolution time formatting (e.g. 15m, 4h, 1d)", async ({ page }) => {
     await page.goto("/helpdesk/sla");
     // P1 critical: 15m response, 4h resolution
-    await expect(page.getByText("15m")).toBeVisible();
-    await expect(page.getByText("4h")).toBeVisible();
+    await expect(page.getByText("15m").first()).toBeVisible();
+    await expect(page.getByText("4h").first()).toBeVisible();
   });
 });

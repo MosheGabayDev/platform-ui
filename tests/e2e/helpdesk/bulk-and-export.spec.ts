@@ -32,7 +32,12 @@ test.describe("Helpdesk tickets — bulk operations", () => {
 
   test("select all on page checkbox checks every row", async ({ page }) => {
     await page.goto("/helpdesk/tickets");
-    await page.getByLabel(/Select all on page/i).check();
+    // Wait for the table rows to render before clicking the header checkbox.
+    // Otherwise the click can race with the data render and not update state.
+    await expect(
+      page.getByRole("checkbox", { name: /Select row/i }).first(),
+    ).toBeVisible();
+    await page.getByLabel(/Select all on page/i).click();
     // 5 fixture tickets → "5 selected"
     await expect(page.getByText(/^5 selected$/i)).toBeVisible();
   });

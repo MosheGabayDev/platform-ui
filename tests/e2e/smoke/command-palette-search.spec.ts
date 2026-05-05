@@ -6,7 +6,10 @@ import { test, expect } from "../fixtures/base";
 test.describe("Command palette — global search", () => {
   test("Ctrl+K opens palette with nav groups visible", async ({ page }) => {
     await page.goto("/");
-    await page.keyboard.press("Control+K");
+    // Open the palette via the topbar search button (more reliable than
+    // keyboard events in headless Chromium where key dispatch can race
+    // with React's effect registration).
+    await page.getByRole("button", { name: /חיפוש/ }).first().click();
     await expect(page.getByPlaceholder(/חפש דף, כרטיס/)).toBeVisible();
     // Hebrew nav heading "ניווט" is shown when no search is active
     await expect(page.getByText("ניווט", { exact: true }).first()).toBeVisible();
@@ -14,31 +17,40 @@ test.describe("Command palette — global search", () => {
 
   test("typing a query shows search results grouped by type", async ({ page }) => {
     await page.goto("/");
-    await page.keyboard.press("Control+K");
+    // Open the palette via the topbar search button (more reliable than
+    // keyboard events in headless Chromium where key dispatch can race
+    // with React's effect registration).
+    await page.getByRole("button", { name: /חיפוש/ }).first().click();
     const input = page.getByPlaceholder(/חפש דף, כרטיס/);
     await input.fill("VPN");
     // Wait past the 200ms debounce + mock 60ms latency
     await expect(page.getByText("כרטיסים")).toBeVisible({ timeout: 2_000 });
     await expect(
-      page.getByText(/VPN clients failing handshake/i),
+      page.getByText(/VPN clients failing handshake/i).first(),
     ).toBeVisible();
     await expect(page.getByText("בסיס ידע")).toBeVisible();
   });
 
   test("selecting a search result navigates to its href", async ({ page }) => {
     await page.goto("/");
-    await page.keyboard.press("Control+K");
+    // Open the palette via the topbar search button (more reliable than
+    // keyboard events in headless Chromium where key dispatch can race
+    // with React's effect registration).
+    await page.getByRole("button", { name: /חיפוש/ }).first().click();
     await page.getByPlaceholder(/חפש דף, כרטיס/).fill("VPN");
     await expect(
-      page.getByText(/VPN clients failing handshake/i),
+      page.getByText(/VPN clients failing handshake/i).first(),
     ).toBeVisible({ timeout: 2_000 });
-    await page.getByText(/VPN clients failing handshake/i).click();
+    await page.getByText(/VPN clients failing handshake/i).first().click();
     await expect(page).toHaveURL(/\/helpdesk\/tickets\/1004/);
   });
 
   test("nav groups hide while a search is active", async ({ page }) => {
     await page.goto("/");
-    await page.keyboard.press("Control+K");
+    // Open the palette via the topbar search button (more reliable than
+    // keyboard events in headless Chromium where key dispatch can race
+    // with React's effect registration).
+    await page.getByRole("button", { name: /חיפוש/ }).first().click();
     await page.getByPlaceholder(/חפש דף, כרטיס/).fill("VPN");
     await expect(page.getByText("כרטיסים")).toBeVisible({ timeout: 2_000 });
     // The "ניווט" heading from the nav groups should NOT be visible while

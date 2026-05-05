@@ -18,8 +18,11 @@ test.describe("Admin pages — Phase 1 smoke", () => {
     // At least one known flag visible
     await expect(page.getByText(/Helpdesk/i).first()).toBeVisible();
     await expect(page.getByText(/AI Agents/i).first()).toBeVisible();
-    // Filter pills
-    await expect(page.getByRole("button", { name: "AI" })).toBeVisible();
+    // Filter pill (use exact match to avoid colliding with sidebar groups
+    // and per-row "Enable AI Agents" buttons).
+    await expect(
+      page.getByRole("button", { name: "AI", exact: true }),
+    ).toBeVisible();
   });
 
   test("/admin/settings renders categorized settings tree + Edit button", async ({ page }) => {

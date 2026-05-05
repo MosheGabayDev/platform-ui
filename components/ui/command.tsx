@@ -67,7 +67,10 @@ function CommandDialog({
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
-        {children}
+        {/* PATCH (2026-05-06) — ADR-043: wrap in <Command> so CommandInput
+         * gets the cmdk provider context. Without this CommandPrimitive.Input
+         * crashes with "Cannot read properties of undefined (reading 'subscribe')". */}
+        <Command>{children}</Command>
       </DialogContent>
     </Dialog>
   )

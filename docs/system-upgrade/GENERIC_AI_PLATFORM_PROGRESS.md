@@ -245,9 +245,9 @@ When you (the AI) finish a cap and consider marking it DONE: re-read this checkl
 
 | Suite | Last run | Files | Tests | Status |
 |---|---|---|---|---|
-| vitest unit (`npx vitest run`) | 2026-05-05 | 33 | 314 / 314 | ✅ all green |
-| coverage gate (`scripts/check-coverage-baseline.mjs`) | 2026-05-05 | n/a | n/a | ✅ passed |
-| Playwright E2E | not run locally — see CI | 12+ specs in `tests/e2e/**` | run via `npx playwright test` | requires `npm run dev` |
+| vitest unit (`npx vitest run`) | 2026-05-06 | 40 | 353 / 353 | ✅ all green |
+| coverage gate (`scripts/check-coverage-baseline.mjs`) | 2026-05-06 | n/a | n/a | ✅ passed |
+| Playwright E2E (`npx playwright test`) | 2026-05-06 | 30 specs | 78 passed / 0 failed / 42 skipped | ✅ all green (skipped = cross-tenant tests gated on E2E_ORG_*_ID env vars) |
 
 ### E2E specs by surface (Phase 1 coverage)
 
