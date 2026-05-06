@@ -218,4 +218,32 @@ test.describe("Onboarding wizard — Phase 1.5", () => {
       page.getByRole("button", { name: /Cancel wizard/i }),
     ).toBeVisible();
   });
+
+  test("step 4 (Sample data) shows seed toggle, defaulted On", async ({ page }) => {
+    await page.goto("/onboarding");
+    await page.getByLabel(/^Organization name$/i).fill("Acme E2E");
+    await page.getByRole("button", { name: /Next step/i }).click();
+    await page.getByRole("button", { name: /Next step/i }).click();
+    // Skip the modules step (optional)
+    await page.getByRole("button", { name: /Skip step/i }).click();
+    // Sample data step — toggle visible and pressed
+    const toggle = page.getByTestId("seed-sample-data-toggle");
+    await expect(toggle).toBeVisible();
+    await expect(toggle).toHaveAttribute("aria-pressed", "true");
+  });
+});
+
+test.describe("Onboarding tour — Phase 3.1", () => {
+  test("/?tour=first-ai shows the first-AI dialog", async ({ page }) => {
+    await page.goto("/?tour=first-ai");
+    await expect(page.getByTestId("onboarding-tour-dialog")).toBeVisible();
+    await expect(page.getByText(/Try your first AI command/i)).toBeVisible();
+  });
+
+  test("Skip closes the dialog and removes the query param", async ({ page }) => {
+    await page.goto("/?tour=first-ai");
+    await page.getByTestId("onboarding-tour-skip").click();
+    await expect(page.getByTestId("onboarding-tour-dialog")).toBeHidden();
+    await expect(page).toHaveURL(/\/$|\/\?(?!.*tour=)/);
+  });
 });

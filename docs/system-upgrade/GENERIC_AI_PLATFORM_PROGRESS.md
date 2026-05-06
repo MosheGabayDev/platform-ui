@@ -180,10 +180,12 @@ returns to chatting_idle.
 
 ## Phase 3 — Onboarding & Self-Service
 
-### 3.1 — Tenant onboarding flow
-- [ ] `/onboarding` wizard (uses cap 15)
-- [ ] Sample data seeding per module
-- [ ] First-AI-conversation guided tour
+### 3.1 — Tenant onboarding flow — DONE 2026-05-06
+- [x] `/onboarding` wizard (uses cap 15) — shipped Phase 1.3
+- [x] Sample data seeding per module — `lib/api/sample-data.ts` mock client. New optional 5th wizard step "Sample data" defaulting On for the modules just enabled. Each seed call writes per-module audit entry (category=admin) + JSON marker setting `onboarding.sample_data` (cap 16).
+- [x] First-AI-conversation guided tour — `components/shell/onboarding-tour.tsx` mounted in dashboard layout. Triggered by `?tour=first-ai` (set by wizard on Finish). One-time dialog explains propose→confirm→audit chain; "Open AI assistant" opens AI drawer + sets `onboarding.first_ai_tour_completed` marker so the tour never re-shows.
+
+Spec: `docs/system-upgrade/04-capabilities/platform-onboarding-finish-spec.md`. Tests: 8 unit (`sample-data.test.ts`) + 5 component (`onboarding-tour.test.tsx`) + 3 E2E specs added.
 
 ### 3.2 — Self-service settings — DONE 2026-05-06 (AI section)
 - [x] AI persona / system prompt editor — `/settings/ai` page
@@ -257,9 +259,9 @@ When you (the AI) finish a cap and consider marking it DONE: re-read this checkl
 
 | Suite | Last run | Files | Tests | Status |
 |---|---|---|---|---|
-| vitest unit (`npx vitest run`) | 2026-05-06 | 45 | 410 / 410 | ✅ all green |
-| coverage gate (`scripts/check-coverage-baseline.mjs`) | 2026-05-06 | n/a | n/a | ✅ passed (baselines bumped per Phase 2 Round-2 review MED #4) |
-| Playwright E2E (`npx playwright test`) | 2026-05-06 | 31 specs | 90 passed / 0 failed / 42 skipped | ✅ all green (skipped = cross-tenant tests gated on E2E_ORG_*_ID env vars) |
+| vitest unit (`npx vitest run`) | 2026-05-06 | 47 | 423 / 423 | ✅ all green (Phase 3.1 added 8 sample-data + 5 onboarding-tour tests) |
+| coverage gate (`scripts/check-coverage-baseline.mjs`) | 2026-05-06 | n/a | n/a | ✅ passed |
+| Playwright E2E (`npx playwright test`) | 2026-05-06 | 31 specs | 90 passed / 0 failed / 42 skipped | ✅ all green at last full run (3 new specs added by 3.1: 1 wizard step + 2 tour) |
 
 ### E2E specs by surface (Phase 1 coverage)
 
@@ -282,7 +284,7 @@ When you (the AI) finish a cap and consider marking it DONE: re-read this checkl
 |---|---|---|---|---|
 | Phase 1 caps | 13 | 12 | 0 | 0 — cap 23 SSE deferred to Phase 5 |
 | Phase 2 (AI core) | 5 | 5 | 0 | 0 — **PHASE 2 CLOSED** |
-| Phase 3 (onboarding) | 3 | 1 | 0 | 2 (3.1 finish, 3.3) |
+| Phase 3 (onboarding) | 3 | 2 | 0 | 1 (3.3) |
 | Phase 4 (helpdesk demo) | 4 | 3 | 0 | 1 |
 | Phase 5 (backend) | n/a (other repo) | — | — | — |
 

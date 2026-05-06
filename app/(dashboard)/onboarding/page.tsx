@@ -23,6 +23,7 @@ import {
   fetchModules,
   setModuleEnablement,
 } from "@/lib/api/module-registry";
+import { seedSampleData } from "@/lib/api/sample-data";
 import { PAGE_EASE } from "@/lib/ui/motion";
 import type { WizardConfig } from "@/lib/modules/wizard/types";
 
@@ -43,6 +44,7 @@ interface OnboardingState {
   default_model: string;
   persona_name: string;
   modules_to_enable: Record<string, boolean>;
+  seed_sample_data: boolean;
 }
 
 const INITIAL_STATE: OnboardingState = {
@@ -55,6 +57,7 @@ const INITIAL_STATE: OnboardingState = {
     "audit-log": true,
     monitoring: true,
   },
+  seed_sample_data: true,
 };
 
 function OrgStep({
@@ -203,6 +206,46 @@ function ModulesStep({
   );
 }
 
+function SampleDataStep({
+  state,
+  update,
+}: {
+  state: OnboardingState;
+  update: (patch: Partial<OnboardingState>) => void;
+}) {
+  const enabled = Object.entries(state.modules_to_enable)
+    .filter(([, v]) => v)
+    .map(([k]) => k);
+  return (
+    <div className="space-y-3">
+      <p className="text-sm text-muted-foreground">
+        Seed the modules you just enabled with realistic sample data so the dashboard
+        and AI assistant have content to show on day one.
+      </p>
+      <div className="flex items-center justify-between gap-2 p-3 rounded-md border border-border/50">
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-medium">Seed sample data</div>
+          <div className="text-[11px] text-muted-foreground mt-0.5">
+            {enabled.length > 0
+              ? `Will seed: ${enabled.join(", ")}`
+              : "No modules enabled — nothing to seed."}
+          </div>
+        </div>
+        <Button
+          size="sm"
+          variant={state.seed_sample_data ? "default" : "outline"}
+          onClick={() => update({ seed_sample_data: !state.seed_sample_data })}
+          disabled={enabled.length === 0}
+          aria-pressed={state.seed_sample_data}
+          data-testid="seed-sample-data-toggle"
+        >
+          {state.seed_sample_data ? "On" : "Off"}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 function SummaryStep({ state }: { state: OnboardingState }) {
   const enabledModules = Object.entries(state.modules_to_enable)
     .filter(([, v]) => v)
@@ -235,6 +278,10 @@ function SummaryStep({ state }: { state: OnboardingState }) {
           <dd className="font-mono">
             {enabledModules.length > 0 ? enabledModules.join(", ") : "(none)"}
           </dd>
+        </div>
+        <div className="sm:col-span-2">
+          <dt className="text-muted-foreground">Sample data</dt>
+          <dd className="font-mono">{state.seed_sample_data ? "Yes (will seed)" : "No"}</dd>
         </div>
       </dl>
       <p className="text-xs text-muted-foreground">
@@ -285,6 +332,14 @@ export default function OnboardingPage() {
         optional: true,
       },
       {
+        id: "sample-data",
+        label: "Sample data",
+        label_he: "נתוני דוגמה",
+        description: "Seed your enabled modules with realistic content.",
+        render: (props) => <SampleDataStep {...props} />,
+        optional: true,
+      },
+      {
         id: "summary",
         label: "Review",
         label_he: "סיכום",
@@ -309,8 +364,21 @@ export default function OnboardingPage() {
       );
       await Promise.all(moduleCalls);
 
+      // 3. Sample data seeding (Phase 3.1) — only the modules the user enabled.
+      if (state.seed_sample_data) {
+        const enabledKeys = Object.entries(state.modules_to_enable)
+          .filter(([, v]) => v)
+          .map(([k]) => k);
+        if (enabledKeys.length > 0) {
+          const seedRes = await seedSampleData({ modules: enabledKeys });
+          toast.success(
+            `Seeded ${seedRes.data.total_resources} sample resources across ${seedRes.data.seeded.filter((s) => !s.not_seedable).length} modules.`,
+          );
+        }
+      }
+
       toast.success("Setup complete! Welcome to your platform.");
-      router.push("/");
+      router.push("/?tour=first-ai");
     },
     onCancel: () => {
       router.push("/");

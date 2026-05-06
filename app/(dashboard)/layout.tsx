@@ -12,6 +12,7 @@ import { ShortcutsDialog } from "@/components/shell/shortcuts-dialog";
 import { useKeyboardShortcuts } from "@/lib/hooks/use-keyboard-shortcuts";
 import { FloatingAIButton } from "@/components/shell/ai-assistant/floating-button";
 import { AIDrawer } from "@/components/shell/ai-assistant/drawer";
+import { OnboardingTour } from "@/components/shell/onboarding-tour";
 
 const ease = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
@@ -55,6 +56,7 @@ export default function DashboardLayout({
         <ShortcutsDialog />
         <FloatingAIButton />
         <AIDrawer />
+        <OnboardingTour />
       </SidebarProvider>
     </LazyMotion>
   );
