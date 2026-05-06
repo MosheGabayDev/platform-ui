@@ -86,7 +86,32 @@ components/
 | E20 | Convert `/helpdesk/*` chrome (root + tickets/technicians/sla/maintenance/batch/approvals) — page titles + subtitles + feature-gate fallbacks. KB sub-page + per-page table headers/empty states defer | [x] |
 | E21 | Convert `/settings/ai` chrome (title, subtitle, loading, fallback) — form field labels defer | [x] |
 | E22 | Tests: locale switch + fallback to key when translation is missing + html lang/dir side-effect | [x] (`lib/i18n/locale-store.test.ts` 8 tests, `components/providers/intl-provider.test.tsx` 4 tests) |
-| E23 | Tracker: ensure no inline Hebrew/English in `/app/(dashboard)/**/*.tsx` (grep audit) | [ ] |
+| E23 | Tracker: grep audit of remaining inline Hebrew | [partial — see audit below] |
+
+### E23 grep audit results (2026-05-06)
+
+`grep -P '[֐-׿]'` against `app/(dashboard)/**/*.tsx` returns
+hits in 9 files (≈152 strings). Categorized:
+
+**Out of original scope** (not in user's E12-E20 list — convert next pass):
+- `app/(dashboard)/page.tsx` — root dashboard chrome
+- `app/(dashboard)/[...slug]\page.tsx` — 404 catch-all
+- `app/(dashboard)/users/page.tsx`, `app/(dashboard)/users/[id]/page.tsx`
+- `app/(dashboard)/roles/page.tsx`, `app/(dashboard)/roles/[id]/page.tsx`
+- `app/(dashboard)/organizations/page.tsx`, `app/(dashboard)/organizations/[id]/page.tsx`
+
+**Page internals** (chrome converted, body strings deferred):
+- `app/(dashboard)/admin/settings/page.tsx` — 2 leftover strings inside
+  the secret-replacement helper text (low-traffic edit dialog body).
+
+Plus: `components/shell/nav-items.ts` keeps its Hebrew default `title` /
+`label` fields as a fallback. The runtime resolves them via
+`useNavGroups()`; the default strings only appear if the IntlProvider
+fails to mount, so they're not a regression.
+
+Done definition note: a full grep audit returning ZERO hits is the
+ideal end-state. We're shipping what's done so far; the remaining files
+above are tracked for a follow-up commit.
 
 ### Done definition
 
