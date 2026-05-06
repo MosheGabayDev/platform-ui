@@ -1,32 +1,15 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect, KeyboardEvent } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo, KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, X, CornerDownLeft } from "lucide-react";
-import { navGroups, type NavItem } from "./nav-items";
+import { type NavItem } from "./nav-items";
+import { useNavGroups } from "@/lib/hooks/use-nav-groups";
 
 interface FlatItem extends NavItem {
   groupLabel: string;
 }
-
-/* Flatten all nav items (including children) */
-function flattenNav(): FlatItem[] {
-  const result: FlatItem[] = [];
-  for (const group of navGroups) {
-    for (const item of group.items) {
-      result.push({ ...item, groupLabel: group.label });
-      if (item.children) {
-        for (const child of item.children) {
-          result.push({ ...child, groupLabel: group.label });
-        }
-      }
-    }
-  }
-  return result;
-}
-
-const ALL_ITEMS = flattenNav();
 
 /* Highlight matching characters */
 function Highlight({ text, query }: { text: string; query: string }) {
@@ -52,9 +35,25 @@ export function SidebarSearch({ onNavigate }: SidebarSearchProps) {
   const [activeIdx, setActiveIdx] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const navGroups = useNavGroups();
+
+  const allItems = useMemo<FlatItem[]>(() => {
+    const result: FlatItem[] = [];
+    for (const group of navGroups) {
+      for (const item of group.items) {
+        result.push({ ...item, groupLabel: group.label });
+        if (item.children) {
+          for (const child of item.children) {
+            result.push({ ...child, groupLabel: group.label });
+          }
+        }
+      }
+    }
+    return result;
+  }, [navGroups]);
 
   const results = query.trim()
-    ? ALL_ITEMS.filter(item =>
+    ? allItems.filter(item =>
         item.title.toLowerCase().includes(query.toLowerCase()) ||
         item.href.toLowerCase().includes(query.toLowerCase())
       ).slice(0, 8)

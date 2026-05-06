@@ -71,7 +71,7 @@ components/
 | E5 | Convert `/help` page + `lib/docs/content.ts` to use translation keys (catalog now references keys, not embedded copy) | [x] |
 | E6 | Convert `components/shared/wizard/wizard.tsx` (Skip/Next/Back/Cancel/Finish/validation labels) | [x] |
 | E7 | Convert `components/shell/shortcuts-dialog.tsx` | [x] |
-| E8 | Convert sidebar nav (`components/shell/nav-items.ts` titles) — replace inline Hebrew titles with translation keys | [ ] |
+| E8 | Convert sidebar nav (`components/shell/nav-items.ts` titles) — replace inline Hebrew titles with translation keys via `useNavGroups()` hook | [x] |
 | E9 | `components/shell/language-switcher.tsx` + topbar slot | [x] |
 | E10 | Persist locale via cap 16 setting `ui.locale` (definition + sync hook) — deferred (Zustand+localStorage already persists; cap 16 sync is a server-source nice-to-have) | [ ] |
 | E11 | Convert `/onboarding` wizard step labels + onboarding-tour dialog copy | [ ] |

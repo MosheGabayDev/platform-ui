@@ -21,7 +21,8 @@ import {
   DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { navGroups, type NavItem } from "./nav-items";
+import { type NavItem } from "./nav-items";
+import { useNavGroups } from "@/lib/hooks/use-nav-groups";
 import { SidebarSearch } from "./sidebar-search";
 import { useNavHistory, useTrackNavHistory } from "@/lib/hooks/use-nav-history";
 
@@ -172,6 +173,7 @@ function NavGroup({ label, items, defaultOpen = true }: {
 
 /* ─── Recent pages strip ───────────────────────────────────── */
 function RecentPages() {
+  const navGroups = useNavGroups();
   const { recent } = useNavHistory();
   const pathname = usePathname();
   if (recent.filter(h => h !== pathname).length === 0) return null;
@@ -208,6 +210,7 @@ function RecentPages() {
 
 /* ─── Pinned items ─────────────────────────────────────────── */
 function PinnedItems() {
+  const navGroups = useNavGroups();
   const { pinned } = useNavHistory();
   if (pinned.length === 0) return null;
 
@@ -246,6 +249,7 @@ export function AppSidebar() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   useTrackNavHistory();
+  const navGroups = useNavGroups();
 
   return (
     <Sidebar side="right" className="border-s border-sidebar-border">
