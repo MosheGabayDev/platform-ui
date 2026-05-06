@@ -1,10 +1,25 @@
 /**
- * Catalog invariants for the help surface (Phase 3.3).
+ * Catalog invariants for the help surface (Phase 3.3, Track E).
  */
 import { describe, it, expect } from "vitest";
 import { DOCS_CATALOG, searchCatalog } from "@/lib/docs/content";
 import { getAllManifests } from "@/lib/platform/module-registry/manifests";
 import { getAllSkills } from "@/lib/platform/ai-skills/registry";
+import heMessages from "@/i18n/messages/he.json";
+import enMessages from "@/i18n/messages/en.json";
+
+function getByKey(messages: Record<string, unknown>, key: string): string | undefined {
+  const parts = key.split(".");
+  let cur: unknown = messages;
+  for (const p of parts) {
+    if (cur && typeof cur === "object" && p in (cur as Record<string, unknown>)) {
+      cur = (cur as Record<string, unknown>)[p];
+    } else {
+      return undefined;
+    }
+  }
+  return typeof cur === "string" ? cur : undefined;
+}
 
 describe("DOCS_CATALOG invariants", () => {
   it("article ids are unique", () => {
@@ -54,6 +69,32 @@ describe("DOCS_CATALOG invariants", () => {
   });
 });
 
+describe("DOCS_CATALOG translation coverage", () => {
+  // Track E: every key referenced by the catalog MUST resolve in BOTH
+  // locales we ship today. Adding a new locale later means adding the
+  // strings; this test catches the gap immediately.
+  const allKeys: string[] = [];
+  for (const a of DOCS_CATALOG.articles) {
+    allKeys.push(a.titleKey, a.summaryKey);
+    if (a.bodyKey) allKeys.push(a.bodyKey);
+    for (const k of a.stepKeys ?? []) allKeys.push(k);
+  }
+  for (const s of DOCS_CATALOG.aiShortcuts) allKeys.push(s.descriptionKey);
+  for (const k of DOCS_CATALOG.keyboardShortcuts) allKeys.push(k.labelKey);
+
+  it("every catalog key resolves in he.json", () => {
+    for (const k of allKeys) {
+      expect(getByKey(heMessages, k), `missing he: ${k}`).toBeTruthy();
+    }
+  });
+
+  it("every catalog key resolves in en.json", () => {
+    for (const k of allKeys) {
+      expect(getByKey(enMessages, k), `missing en: ${k}`).toBeTruthy();
+    }
+  });
+});
+
 describe("searchCatalog", () => {
   it("returns the full catalog on empty query", () => {
     const res = searchCatalog("");
@@ -62,10 +103,9 @@ describe("searchCatalog", () => {
     expect(res.keyboardShortcuts.length).toBe(DOCS_CATALOG.keyboardShortcuts.length);
   });
 
-  it("filters articles by case-insensitive title substring", () => {
+  it("filters articles by case-insensitive title-key substring", () => {
     const res = searchCatalog("HELPDESK");
     expect(res.articles.some((a) => a.id === "quick-start-helpdesk")).toBe(true);
-    // Unrelated article should be filtered out.
     expect(res.articles.some((a) => a.id === "quick-start-billing")).toBe(false);
   });
 
@@ -79,9 +119,9 @@ describe("searchCatalog", () => {
     expect(res.aiShortcuts.some((s) => s.action_id === "helpdesk.ticket.take")).toBe(true);
   });
 
-  it("filters keyboard shortcuts by label or key", () => {
-    const res = searchCatalog("palette");
-    expect(res.keyboardShortcuts.some((k) => k.label.toLowerCase().includes("palette"))).toBe(true);
+  it("filters keyboard shortcuts by labelKey or key", () => {
+    const res = searchCatalog("openCommandPalette");
+    expect(res.keyboardShortcuts.length).toBeGreaterThan(0);
   });
 
   it("returns empty results for nonsense query", () => {

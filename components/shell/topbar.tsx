@@ -9,6 +9,7 @@ import { useTheme } from "next-themes";
 import { AccentPicker } from "./accent-picker";
 import { ConnectionIndicator } from "./connection-indicator";
 import { NotificationBell } from "./notification-bell";
+import { LanguageSwitcher } from "./language-switcher";
 
 export function Topbar() {
   const { toggleSidebar } = useSidebar();
@@ -67,6 +68,9 @@ export function Topbar() {
 
         {/* Accent color picker */}
         <AccentPicker />
+
+        {/* Language switcher (Track E) */}
+        <LanguageSwitcher />
 
         {/* Notifications — cap 12 */}
         <NotificationBell />

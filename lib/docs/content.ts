@@ -1,186 +1,173 @@
 /**
  * @module lib/docs/content
- * Static help-surface catalog (Phase 3.3). Hebrew + English bodies where
- * helpful. Edit this file to update in-app docs; no rebuild gymnastics
- * needed beyond a Next.js redeploy.
+ * Help-surface catalog (Phase 3.3, Track E refactor).
+ *
+ * Each entry references translation keys instead of embedded copy. Add a
+ * new locale by editing `i18n/messages/<locale>.json` — no changes to
+ * this file required.
+ *
+ * Search is performed against the resolved translations + tags via the
+ * `searchCatalog(query, t)` helper, where `t` is the result of
+ * `useTranslations()` in the calling component.
  *
  * Spec: docs/system-upgrade/04-capabilities/platform-help-surface-spec.md
  */
-import type { DocsCatalog, DocArticle, AIShortcut, KeyboardShortcut } from "./types";
+import type {
+  DocsCatalog,
+  DocArticle,
+  AIShortcut,
+  KeyboardShortcut,
+} from "./types";
 
 const QUICK_STARTS: DocArticle[] = [
   {
     id: "quick-start-helpdesk",
     category: "quick-start",
     module_key: "helpdesk",
-    title: "Helpdesk",
-    title_he: "הלפדסק",
-    summary: "Manage tickets, technicians, SLAs, KB articles, and batch tasks.",
-    summary_he: "ניהול פניות, טכנאים, SLA, מאמרי בסיס ידע ומשימות אצווה.",
-    body_he: "כדי לנסות במהירות: פתח /helpdesk לדשבורד הראשי, או נסה לבקש מה-AI 'take ticket 1001'.",
-    tags: ["tickets", "support", "sla", "helpdesk"],
-    steps: [
-      { text: "Open /helpdesk to see the dashboard.", text_he: "פתח /helpdesk לדשבורד הראשי." },
-      { text: "Use Ctrl+K and type a ticket id to jump straight to it." },
-      { text: "Try the AI: open the floating assistant and say 'take ticket 1001'.", text_he: "נסה את ה-AI: פתח את הסייען וכתוב 'take ticket 1001'." },
-      { text: "Check audit-log to see the action recorded." },
+    titleKey: "help.modules.helpdesk.title",
+    summaryKey: "help.modules.helpdesk.summary",
+    stepKeys: [
+      "help.modules.helpdesk.steps.0",
+      "help.modules.helpdesk.steps.1",
+      "help.modules.helpdesk.steps.2",
+      "help.modules.helpdesk.steps.3",
     ],
+    tags: ["tickets", "support", "sla", "helpdesk"],
   },
   {
     id: "quick-start-users",
     category: "quick-start",
     module_key: "users",
-    title: "Users & roles",
-    title_he: "משתמשים ותפקידים",
-    summary: "Invite users, assign roles, deactivate accounts.",
-    summary_he: "הזמנת משתמשים, שיוך תפקידים, השבתת חשבונות.",
-    tags: ["users", "rbac", "roles"],
-    steps: [
-      { text: "Open /users to list members of your org.", text_he: "פתח /users לרשימת חברי הארגון." },
-      { text: "Use /roles to manage permissions per role.", text_he: "השתמש ב-/roles לניהול הרשאות לפי תפקיד." },
-      { text: "Bulk-deactivate via the AI: 'deactivate user 42' (requires confirm).", text_he: "השבתה מרובה דרך AI: 'deactivate user 42' (דורש אישור)." },
+    titleKey: "help.modules.users.title",
+    summaryKey: "help.modules.users.summary",
+    stepKeys: [
+      "help.modules.users.steps.0",
+      "help.modules.users.steps.1",
+      "help.modules.users.steps.2",
     ],
+    tags: ["users", "rbac", "roles"],
   },
   {
     id: "quick-start-audit-log",
     category: "quick-start",
     module_key: "audit-log",
-    title: "Audit log",
-    title_he: "יומן ביקורת",
-    summary: "Searchable trail of every important platform event.",
-    summary_he: "יומן ניתן לחיפוש של כל אירוע משמעותי בפלטפורמה.",
-    tags: ["audit", "logs", "compliance"],
-    steps: [
-      { text: "Open /audit-log to browse recent entries.", text_he: "פתח /audit-log לעיון ברשומות אחרונות." },
-      { text: "Filter by category (login / create / update / delete / admin / ai / security).", text_he: "סנן לפי קטגוריה (login / create / update / delete / admin / ai / security)." },
-      { text: "Each AI action lands here under category=ai with the matched policy decision.", text_he: "כל פעולת AI נוחתת כאן תחת category=ai יחד עם החלטת ה-policy שהתאימה." },
+    titleKey: "help.modules.auditLog.title",
+    summaryKey: "help.modules.auditLog.summary",
+    stepKeys: [
+      "help.modules.auditLog.steps.0",
+      "help.modules.auditLog.steps.1",
+      "help.modules.auditLog.steps.2",
     ],
+    tags: ["audit", "logs", "compliance"],
   },
   {
     id: "quick-start-ai-agents",
     category: "quick-start",
     module_key: "ai-agents",
-    title: "AI agents",
-    title_he: "סוכני AI",
-    summary: "Background AI workers that run on triggers (cron, events).",
-    summary_he: "עובדי AI ברקע הרצים על טריגרים (cron, אירועים).",
-    tags: ["ai", "agents", "automation"],
-    steps: [
-      { text: "Open /ai-agents to list configured agents.", text_he: "פתח /ai-agents לרשימת הסוכנים המוגדרים." },
-      { text: "Each agent uses a skill from /admin/ai-skills and obeys policies in /admin/policies.", text_he: "כל סוכן משתמש ב-skill מ-/admin/ai-skills וכפוף ל-policies ב-/admin/policies." },
+    titleKey: "help.modules.aiAgents.title",
+    summaryKey: "help.modules.aiAgents.summary",
+    stepKeys: [
+      "help.modules.aiAgents.steps.0",
+      "help.modules.aiAgents.steps.1",
     ],
+    tags: ["ai", "agents", "automation"],
   },
   {
     id: "quick-start-ai-providers",
     category: "quick-start",
     module_key: "ai-providers",
-    title: "AI providers",
-    title_he: "ספקי AI",
-    summary: "Pick which LLM providers and models your org uses.",
-    summary_he: "בחר באילו ספקי LLM ומודלים הארגון שלך משתמש.",
-    tags: ["ai", "providers", "llm"],
-    steps: [
-      { text: "Open /admin/ai-providers (admin only).", text_he: "פתח /admin/ai-providers (admin בלבד)." },
-      { text: "Enable a provider, paste credentials, click Test connection.", text_he: "הפעל ספק, הדבק credentials, לחץ Test connection." },
-      { text: "Routing rules pick which provider serves which purpose.", text_he: "כללי routing בוחרים איזה ספק משרת כל מטרה." },
+    titleKey: "help.modules.aiProviders.title",
+    summaryKey: "help.modules.aiProviders.summary",
+    stepKeys: [
+      "help.modules.aiProviders.steps.0",
+      "help.modules.aiProviders.steps.1",
+      "help.modules.aiProviders.steps.2",
     ],
+    tags: ["ai", "providers", "llm"],
   },
   {
     id: "quick-start-knowledge",
     category: "quick-start",
     module_key: "knowledge",
-    title: "Knowledge base & RAG",
-    title_he: "ידע ו-RAG",
-    summary: "Upload documents the AI can ground its answers in.",
-    summary_he: "העלאת מסמכים שה-AI יכול לבסס עליהם תשובות.",
-    tags: ["rag", "knowledge", "ai"],
-    steps: [
-      { text: "Open /knowledge to upload PDFs / docs / URLs.", text_he: "פתח /knowledge להעלאת PDFים / מסמכים / כתובות URL." },
-      { text: "Indexed chunks become retrievable by AI agents during chat.", text_he: "ה-chunks המאונדקסים זמינים לאחזור ע\"י סוכני AI במהלך שיחה." },
+    titleKey: "help.modules.knowledge.title",
+    summaryKey: "help.modules.knowledge.summary",
+    stepKeys: [
+      "help.modules.knowledge.steps.0",
+      "help.modules.knowledge.steps.1",
     ],
+    tags: ["rag", "knowledge", "ai"],
   },
   {
     id: "quick-start-voice",
     category: "quick-start",
     module_key: "voice",
-    title: "Voice & ALA",
-    title_he: "ALA — Voice AI",
-    summary: "Inbound/outbound voice flows with ASR + TTS.",
-    summary_he: "תרחישי שיחות נכנסות/יוצאות עם ASR + TTS.",
-    tags: ["voice", "ala", "telephony"],
-    steps: [
-      { text: "Open /ala to design call flows.", text_he: "פתח /ala לעיצוב תרחישי שיחה." },
-      { text: "Inspect /voice for live and historical call sessions.", text_he: "בדוק /voice לסשנים חיים והיסטוריים." },
+    titleKey: "help.modules.voice.title",
+    summaryKey: "help.modules.voice.summary",
+    stepKeys: [
+      "help.modules.voice.steps.0",
+      "help.modules.voice.steps.1",
     ],
+    tags: ["voice", "ala", "telephony"],
   },
   {
     id: "quick-start-automation",
     category: "quick-start",
     module_key: "automation",
-    title: "Automation",
-    title_he: "אוטומציה",
-    summary: "Trigger-condition-action workflows across modules.",
-    summary_he: "תהליכי טריגר-תנאי-פעולה חוצי מודולים.",
-    tags: ["automation", "workflows", "triggers"],
-    steps: [
-      { text: "Open /automation to build workflows.", text_he: "פתח /automation לבניית תהליכים." },
-      { text: "Use the audit-log to confirm runs and inspect failures.", text_he: "השתמש ב-audit-log לאישור ריצות ובדיקת כשלונות." },
+    titleKey: "help.modules.automation.title",
+    summaryKey: "help.modules.automation.summary",
+    stepKeys: [
+      "help.modules.automation.steps.0",
+      "help.modules.automation.steps.1",
     ],
+    tags: ["automation", "workflows", "triggers"],
   },
   {
     id: "quick-start-integrations",
     category: "quick-start",
     module_key: "integrations",
-    title: "Integrations",
-    title_he: "אינטגרציות",
-    summary: "OAuth/webhook integrations to external systems.",
-    summary_he: "אינטגרציות OAuth/webhook למערכות חיצוניות.",
-    tags: ["integrations", "oauth", "webhooks"],
-    steps: [
-      { text: "Open /integrations and pick a provider.", text_he: "פתח /integrations ובחר ספק." },
-      { text: "Authorize once; tokens are stored encrypted via cap 16 secrets.", text_he: "הרשה פעם אחת; ה-tokens נשמרים מוצפנים דרך cap 16 secrets." },
+    titleKey: "help.modules.integrations.title",
+    summaryKey: "help.modules.integrations.summary",
+    stepKeys: [
+      "help.modules.integrations.steps.0",
+      "help.modules.integrations.steps.1",
     ],
+    tags: ["integrations", "oauth", "webhooks"],
   },
   {
     id: "quick-start-monitoring",
     category: "quick-start",
     module_key: "monitoring",
-    title: "Monitoring",
-    title_he: "ניטור",
-    summary: "Health, logs, metrics — operations data for the platform itself.",
-    summary_he: "בריאות, לוגים, מטריקות — נתוני תפעול לפלטפורמה עצמה.",
-    tags: ["monitoring", "logs", "metrics"],
-    steps: [
-      { text: "Open /monitoring for system health probes.", text_he: "פתח /monitoring לבדיקות בריאות מערכת." },
-      { text: "Use /logs for raw application logs and /metrics for time-series.", text_he: "השתמש ב-/logs ללוגים גולמיים וב-/metrics לסדרות-זמן." },
+    titleKey: "help.modules.monitoring.title",
+    summaryKey: "help.modules.monitoring.summary",
+    stepKeys: [
+      "help.modules.monitoring.steps.0",
+      "help.modules.monitoring.steps.1",
     ],
+    tags: ["monitoring", "logs", "metrics"],
   },
   {
     id: "quick-start-billing",
     category: "quick-start",
     module_key: "billing",
-    title: "Billing & API keys",
-    title_he: "חיוב ו-API keys",
-    summary: "Plans, invoices, usage caps, API tokens.",
-    summary_he: "תוכניות, חשבוניות, תקרות שימוש, API tokens.",
-    tags: ["billing", "api-keys", "plan"],
-    steps: [
-      { text: "Open /billing to view your current plan and invoices.", text_he: "פתח /billing לצפייה בתוכנית הנוכחית וחשבוניות." },
-      { text: "Manage tokens at /api-keys — they inherit the org's RBAC.", text_he: "נהל tokens ב-/api-keys — הם יורשים את ה-RBAC של הארגון." },
+    titleKey: "help.modules.billing.title",
+    summaryKey: "help.modules.billing.summary",
+    stepKeys: [
+      "help.modules.billing.steps.0",
+      "help.modules.billing.steps.1",
     ],
+    tags: ["billing", "api-keys", "plan"],
   },
   {
     id: "quick-start-data-sources",
     category: "quick-start",
     module_key: "data-sources",
-    title: "Data sources",
-    title_he: "מקורות נתונים",
-    summary: "External databases / warehouses the platform can query.",
-    tags: ["data-sources", "databases"],
-    steps: [
-      { text: "Open /data-sources to register a connection." },
-      { text: "Connections are read-only by default; admin can grant write." },
+    titleKey: "help.modules.dataSources.title",
+    summaryKey: "help.modules.dataSources.summary",
+    stepKeys: [
+      "help.modules.dataSources.steps.0",
+      "help.modules.dataSources.steps.1",
     ],
+    tags: ["data-sources", "databases"],
   },
 ];
 
@@ -188,22 +175,17 @@ const PLATFORM_ARTICLES: DocArticle[] = [
   {
     id: "platform-overview",
     category: "platform",
-    title: "Platform overview",
-    title_he: "סקירת הפלטפורמה",
-    summary: "How the horizontal capabilities fit together.",
-    body: "The platform is built from horizontal capabilities (settings, modules, feature flags, policies, AI providers, AI skills, audit log) plus optional vertical modules (helpdesk, etc.). Every feature is gated through policies (cap 27) and recorded in the audit log (cap 10). LLM calls go through the provider gateway (cap 2.1) and obey the per-skill enablement (cap 2.2).",
-    body_he: "הפלטפורמה בנויה מיכולות אופקיות (הגדרות, מודולים, feature flags, policies, ספקי AI, כישורי AI, יומן ביקורת) ומודולים אנכיים (הלפדסק וכו'). כל פעולה עוברת דרך policies (cap 27) ונרשמת ב-audit log (cap 10).",
+    titleKey: "help.platform.overview.title",
+    summaryKey: "help.platform.overview.summary",
+    bodyKey: "help.platform.overview.body",
     tags: ["overview", "architecture"],
   },
   {
     id: "platform-ai-safety",
     category: "platform",
-    title: "How AI safety works",
-    title_he: "כיצד פועל מנגנון בטיחות ה-AI",
-    summary: "Propose → Confirm → Audit. The AI never executes silently.",
-    summary_he: "הצעה → אישור → ביקורת. ה-AI לעולם אינו מבצע פעולה בשקט.",
-    body: "Every AI-initiated action follows three steps: (1) the AI proposes the action with a token-bound expiration; (2) the user reviews and confirms (or rejects); (3) the executor runs and the audit log records the outcome with category=ai. Policies (cap 27) can reject proposals before they ever reach the user.",
-    body_he: "כל פעולה שיוזם ה-AI עוברת שלושה שלבים: (1) ה-AI מציע את הפעולה עם token שפג בזמן קצוב; (2) המשתמש בודק ומאשר (או דוחה); (3) ה-executor מריץ את הפעולה ויומן הביקורת רושם את התוצאה תחת category=ai. Policies (cap 27) יכולים לדחות הצעות עוד לפני שהן מגיעות למשתמש.",
+    titleKey: "help.platform.aiSafety.title",
+    summaryKey: "help.platform.aiSafety.summary",
+    bodyKey: "help.platform.aiSafety.body",
     tags: ["ai", "safety", "audit"],
   },
 ];
@@ -212,62 +194,59 @@ const AI_SHORTCUTS: AIShortcut[] = [
   {
     phrase: "take ticket NNNN",
     action_id: "helpdesk.ticket.take",
-    description: "Assigns ticket NNNN to you (the current user).",
-    description_he: "משייך פנייה NNNN למשתמש הנוכחי.",
+    descriptionKey: "help.aiShortcuts.takeTicket",
     capability_level: "WRITE_HIGH",
   },
   {
     phrase: "resolve ticket NNNN",
     action_id: "helpdesk.ticket.resolve",
-    description: "Marks ticket NNNN resolved.",
-    description_he: "סוגר פנייה NNNN.",
+    descriptionKey: "help.aiShortcuts.resolveTicket",
     capability_level: "WRITE_HIGH",
   },
   {
     phrase: "cancel maintenance NNNN",
     action_id: "helpdesk.maintenance.cancel",
-    description: "Cancels maintenance window NNNN.",
+    descriptionKey: "help.aiShortcuts.cancelMaintenance",
     capability_level: "DESTRUCTIVE",
   },
   {
     phrase: "cancel batch NNNN",
     action_id: "helpdesk.batch.cancel",
-    description: "Cancels batch task NNNN.",
+    descriptionKey: "help.aiShortcuts.cancelBatch",
     capability_level: "DESTRUCTIVE",
   },
   {
     phrase: "search users for <query>",
     action_id: "users.search",
-    description: "Searches users by name / email / id.",
-    description_he: "חיפוש משתמשים לפי שם / אימייל / מזהה.",
+    descriptionKey: "help.aiShortcuts.searchUsers",
     capability_level: "READ",
   },
   {
     phrase: "deactivate user NNNN",
     action_id: "users.deactivate",
-    description: "Deactivates user NNNN — they can no longer log in.",
+    descriptionKey: "help.aiShortcuts.deactivateUser",
     capability_level: "DESTRUCTIVE",
   },
   {
     phrase: "reset password for user NNNN",
     action_id: "users.reset_password",
-    description: "Sends a password-reset email to user NNNN.",
+    descriptionKey: "help.aiShortcuts.resetPassword",
     capability_level: "WRITE_LOW",
   },
 ];
 
 const KEYBOARD_SHORTCUTS: KeyboardShortcut[] = [
-  { keys: ["g", "d"], label: "Dashboard", label_he: "דשבורד" },
-  { keys: ["g", "u"], label: "Users", label_he: "משתמשים" },
-  { keys: ["g", "t"], label: "Tickets", label_he: "פניות" },
-  { keys: ["g", "a"], label: "AI agents", label_he: "סוכני AI" },
-  { keys: ["g", "h"], label: "Helpdesk" },
-  { keys: ["g", "s"], label: "Settings", label_he: "הגדרות" },
-  { keys: ["g", "l"], label: "Logs", label_he: "לוגים" },
-  { keys: ["⌘", "K"], label: "Open command palette" },
-  { keys: ["/"], label: "Focus sidebar search" },
-  { keys: ["?"], label: "Show keyboard shortcuts" },
-  { keys: ["Esc"], label: "Close / cancel" },
+  { keys: ["g", "d"], labelKey: "help.keyboardShortcuts.dashboard" },
+  { keys: ["g", "u"], labelKey: "help.keyboardShortcuts.users" },
+  { keys: ["g", "t"], labelKey: "help.keyboardShortcuts.tickets" },
+  { keys: ["g", "a"], labelKey: "help.keyboardShortcuts.aiAgents" },
+  { keys: ["g", "h"], labelKey: "help.keyboardShortcuts.helpdesk" },
+  { keys: ["g", "s"], labelKey: "help.keyboardShortcuts.settings" },
+  { keys: ["g", "l"], labelKey: "help.keyboardShortcuts.logs" },
+  { keys: ["⌘", "K"], labelKey: "help.keyboardShortcuts.openCommandPalette" },
+  { keys: ["/"], labelKey: "help.keyboardShortcuts.focusSearch" },
+  { keys: ["?"], labelKey: "help.keyboardShortcuts.showShortcuts" },
+  { keys: ["Esc"], labelKey: "help.keyboardShortcuts.closeOrCancel" },
 ];
 
 export const DOCS_CATALOG: DocsCatalog = {
@@ -280,6 +259,12 @@ export const DOCS_CATALOG: DocsCatalog = {
  * Plain substring search across articles, AI shortcuts, and keyboard
  * shortcuts. Returns a filtered catalog. Empty query returns the full
  * catalog unchanged.
+ *
+ * Note: this implementation searches against translation keys + tags +
+ * static fields (phrase, action_id). Locale-aware text matching can be
+ * added later by passing the active translator and walking resolved
+ * strings — for now substring on the keys + tags catches the most-common
+ * search terms (module name, action_id, phrase fragment).
  */
 export function searchCatalog(query: string): DocsCatalog {
   const q = query.trim().toLowerCase();
@@ -287,15 +272,12 @@ export function searchCatalog(query: string): DocsCatalog {
 
   const matchesArticle = (a: DocArticle): boolean => {
     const haystack = [
-      a.title,
-      a.title_he,
-      a.summary,
-      a.summary_he,
-      a.body,
-      a.body_he,
+      a.titleKey,
+      a.summaryKey,
+      a.bodyKey ?? "",
       ...(a.tags ?? []),
-      a.module_key,
-      ...(a.steps ?? []).flatMap((s) => [s.text, s.text_he]),
+      a.module_key ?? "",
+      ...(a.stepKeys ?? []),
     ]
       .filter(Boolean)
       .join(" ")
@@ -304,18 +286,13 @@ export function searchCatalog(query: string): DocsCatalog {
   };
 
   const matchesAI = (s: AIShortcut): boolean =>
-    [s.phrase, s.action_id, s.description, s.description_he, s.capability_level]
-      .filter(Boolean)
+    [s.phrase, s.action_id, s.descriptionKey, s.capability_level]
       .join(" ")
       .toLowerCase()
       .includes(q);
 
   const matchesKbd = (k: KeyboardShortcut): boolean =>
-    [k.label, k.label_he, ...k.keys]
-      .filter(Boolean)
-      .join(" ")
-      .toLowerCase()
-      .includes(q);
+    [k.labelKey, ...k.keys].join(" ").toLowerCase().includes(q);
 
   return {
     articles: DOCS_CATALOG.articles.filter(matchesArticle),

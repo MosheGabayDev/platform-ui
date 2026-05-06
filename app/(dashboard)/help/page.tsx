@@ -2,21 +2,19 @@
 /**
  * @module app/(dashboard)/help/page
  *
- * In-app help surface (Phase 3.3).
- * - Search across all sections
- * - Per-module quick-starts
- * - AI shortcuts cheatsheet
- * - Keyboard shortcuts cheatsheet
+ * In-app help surface (Phase 3.3). All chrome strings flow through
+ * `useTranslations("help")` (Track E). Catalog content (article titles,
+ * summaries, steps, AI shortcut descriptions, keyboard labels) uses
+ * translation keys provided by the catalog so adding a new locale is a
+ * single JSON edit.
  *
- * Hebrew-first rendering: when an article / step exposes a `*_he`
- * variant, that's what we render. Page chrome is also Hebrew (the
- * platform default). English strings remain in the catalog as a
- * fallback when a translation is missing.
- *
- * Spec: docs/system-upgrade/04-capabilities/platform-help-surface-spec.md
+ * Specs:
+ *   docs/system-upgrade/04-capabilities/platform-help-surface-spec.md
+ *   docs/system-upgrade/PLATFORM_HARDENING_PLAN.md (Track E)
  */
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { BookOpen, Search, Sparkles, Keyboard, Layers, ShieldAlert, ShieldCheck, Skull } from "lucide-react";
 import { PageShell } from "@/components/shared/page-shell";
 import { Input } from "@/components/ui/input";
@@ -33,11 +31,11 @@ import type {
 
 type Tab = "all" | "quick-start" | "ai-cheatsheet" | "shortcuts";
 
-const TAB_OPTIONS: Array<{ value: Tab; label: string; icon: React.ElementType }> = [
-  { value: "all", label: "הכל", icon: Layers },
-  { value: "quick-start", label: "התחלה מהירה", icon: BookOpen },
-  { value: "ai-cheatsheet", label: "קיצורי AI", icon: Sparkles },
-  { value: "shortcuts", label: "מקלדת", icon: Keyboard },
+const TAB_OPTIONS: Array<{ value: Tab; key: string; icon: React.ElementType }> = [
+  { value: "all", key: "all", icon: Layers },
+  { value: "quick-start", key: "quickStart", icon: BookOpen },
+  { value: "ai-cheatsheet", key: "aiCheatsheet", icon: Sparkles },
+  { value: "shortcuts", key: "shortcuts", icon: Keyboard },
 ];
 
 const CAPABILITY_TONE: Record<AICapabilityLevel, string> = {
@@ -55,9 +53,13 @@ const CAPABILITY_ICON: Record<AICapabilityLevel, React.ElementType> = {
 };
 
 function ArticleCard({ article }: { article: DocArticle }) {
-  const title = article.title_he ?? article.title;
-  const summary = article.summary_he ?? article.summary;
-  const body = article.body_he ?? article.body;
+  const t = useTranslations();
+  // Catalog references translation keys instead of inlined copy.
+  const title = t(article.titleKey);
+  const summary = t(article.summaryKey);
+  const body = article.bodyKey ? t(article.bodyKey) : null;
+  const stepKeys = article.stepKeys ?? [];
+
   return (
     <div
       className="rounded-lg border border-border/60 bg-card/40 p-4 space-y-2"
@@ -73,10 +75,10 @@ function ArticleCard({ article }: { article: DocArticle }) {
       </div>
       <p className="text-xs text-muted-foreground">{summary}</p>
       {body && <p className="text-xs text-muted-foreground/90">{body}</p>}
-      {article.steps && article.steps.length > 0 && (
+      {stepKeys.length > 0 && (
         <ol className="space-y-1 text-xs list-decimal ms-5 marker:text-muted-foreground">
-          {article.steps.map((s, i) => (
-            <li key={i}>{s.text_he ?? s.text}</li>
+          {stepKeys.map((k, i) => (
+            <li key={i}>{t(k)}</li>
           ))}
         </ol>
       )}
@@ -85,8 +87,8 @@ function ArticleCard({ article }: { article: DocArticle }) {
 }
 
 function AIShortcutRow({ shortcut }: { shortcut: AIShortcut }) {
+  const t = useTranslations();
   const Icon = CAPABILITY_ICON[shortcut.capability_level];
-  const description = shortcut.description_he ?? shortcut.description;
   return (
     <div
       className="flex items-start gap-3 p-3 rounded-md border border-border/60 bg-card/40"
@@ -103,7 +105,7 @@ function AIShortcutRow({ shortcut }: { shortcut: AIShortcut }) {
             {shortcut.action_id}
           </code>
         </div>
-        <p className="text-xs text-muted-foreground">{description}</p>
+        <p className="text-xs text-muted-foreground">{t(shortcut.descriptionKey)}</p>
         <Badge variant="outline" className={cn("text-[10px]", CAPABILITY_TONE[shortcut.capability_level])}>
           {shortcut.capability_level}
         </Badge>
@@ -113,12 +115,12 @@ function AIShortcutRow({ shortcut }: { shortcut: AIShortcut }) {
 }
 
 function KeyboardRow({ shortcut }: { shortcut: KeyboardShortcut }) {
-  const label = shortcut.label_he ?? shortcut.label;
+  const t = useTranslations();
   return (
     <div
       className="flex items-center justify-between gap-3 px-3 py-2 rounded-md border border-border/40 bg-card/30"
     >
-      <span className="text-xs text-foreground">{label}</span>
+      <span className="text-xs text-foreground">{t(shortcut.labelKey)}</span>
       <div className="flex items-center gap-1" dir="ltr">
         {shortcut.keys.map((k, i) => (
           <kbd
@@ -134,6 +136,8 @@ function KeyboardRow({ shortcut }: { shortcut: KeyboardShortcut }) {
 }
 
 export default function HelpPage() {
+  const t = useTranslations("help");
+  const tCommon = useTranslations("common");
   const [query, setQuery] = useState("");
   const [tab, setTab] = useState<Tab>("all");
 
@@ -155,22 +159,18 @@ export default function HelpPage() {
     (showKbd ? results.keyboardShortcuts.length : 0);
 
   return (
-    <PageShell
-      icon={BookOpen}
-      title="עזרה ותיעוד"
-      subtitle="חיפוש בתיעוד, מדריכי התחלה למודולים, קיצורי AI ומקלדת."
-    >
+    <PageShell icon={BookOpen} title={t("title")} subtitle={t("subtitle")}>
       <div className="space-y-6 pb-20 md:pb-0">
         {/* Search + tabs */}
         <div className="space-y-3">
           <div className="relative">
             <Search className="absolute start-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" aria-hidden="true" />
             <Input
-              placeholder="חיפוש בתיעוד, פקודות AI, קיצורים…"
+              placeholder={t("searchPlaceholder")}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="ps-9"
-              aria-label="חיפוש בתיעוד"
+              aria-label={t("searchAria")}
               data-testid="help-search-input"
             />
           </div>
@@ -187,24 +187,21 @@ export default function HelpPage() {
                   data-testid={`help-tab-${opt.value}`}
                 >
                   <Icon className="size-3.5 me-1" aria-hidden="true" />
-                  {opt.label}
+                  {t(`tabs.${opt.key}`)}
                 </Button>
               );
             })}
           </div>
           {query && (
             <p className="text-xs text-muted-foreground">
-              {totalHits === 1
-                ? `תוצאה אחת עבור "${query}".`
-                : `${totalHits} תוצאות עבור "${query}".`}
+              {tCommon("resultsFor", { count: totalHits, query })}
             </p>
           )}
         </div>
 
-        {/* Platform overview always sits at the top in the All view */}
         {tab === "all" && platform.length > 0 && (
-          <section className="space-y-3" aria-label="סקירת פלטפורמה">
-            <h2 className="text-sm font-semibold text-muted-foreground">פלטפורמה</h2>
+          <section className="space-y-3" aria-label={t("sections.platform")}>
+            <h2 className="text-sm font-semibold text-muted-foreground">{t("sections.platform")}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {platform.map((a) => (
                 <ArticleCard key={a.id} article={a} />
@@ -214,8 +211,8 @@ export default function HelpPage() {
         )}
 
         {showQuickStarts && quickStarts.length > 0 && (
-          <section className="space-y-3" aria-label="התחלה מהירה">
-            <h2 className="text-sm font-semibold text-muted-foreground">התחלה מהירה</h2>
+          <section className="space-y-3" aria-label={t("sections.quickStart")}>
+            <h2 className="text-sm font-semibold text-muted-foreground">{t("sections.quickStart")}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {quickStarts.map((a) => (
                 <ArticleCard key={a.id} article={a} />
@@ -225,15 +222,16 @@ export default function HelpPage() {
         )}
 
         {showAI && results.aiShortcuts.length > 0 && (
-          <section className="space-y-3" aria-label="קיצורי AI">
-            <h2 className="text-sm font-semibold text-muted-foreground">קיצורי AI</h2>
+          <section className="space-y-3" aria-label={t("sections.ai")}>
+            <h2 className="text-sm font-semibold text-muted-foreground">{t("sections.ai")}</h2>
             <p className="text-xs text-muted-foreground">
-              הקלידו את הביטויים הבאים בסייען ה-AI הצף. כל פעולה מוצעת תחילה,
-              מאושרת על ידכם, ואז נרשמת ב-
-              <Link href="/audit-log" className="underline">
-                יומן הביקורת
-              </Link>
-              .
+              {t.rich("aiIntro", {
+                auditLink: (chunks) => (
+                  <Link href="/audit-log" className="underline">
+                    {chunks}
+                  </Link>
+                ),
+              })}
             </p>
             <div className="space-y-2">
               {results.aiShortcuts.map((s) => (
@@ -244,8 +242,8 @@ export default function HelpPage() {
         )}
 
         {showKbd && results.keyboardShortcuts.length > 0 && (
-          <section className="space-y-3" aria-label="קיצורי מקלדת">
-            <h2 className="text-sm font-semibold text-muted-foreground">קיצורי מקלדת</h2>
+          <section className="space-y-3" aria-label={t("sections.keyboard")}>
+            <h2 className="text-sm font-semibold text-muted-foreground">{t("sections.keyboard")}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {results.keyboardShortcuts.map((k, i) => (
                 <KeyboardRow key={i} shortcut={k} />
@@ -256,7 +254,7 @@ export default function HelpPage() {
 
         {totalHits === 0 && (
           <div className="rounded-lg border border-dashed border-border/60 p-6 text-center text-sm text-muted-foreground">
-            לא נמצאו תוצאות עבור &ldquo;{query}&rdquo;. נסו מילת חיפוש אחרת או נקו את החיפוש.
+            {tCommon("noResultsTryAgain", { query })}
           </div>
         )}
       </div>

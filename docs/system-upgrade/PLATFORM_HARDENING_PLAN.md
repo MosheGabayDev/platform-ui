@@ -7,6 +7,105 @@
 
 ---
 
+## Track E — i18n Foundation (BLOCKING — must precede Track B)
+
+**Symptom.** Every "translation" added so far is ad-hoc — `*_he` fields
+scattered through catalogs and Hebrew strings hardcoded inside React
+components. Adding a third language (Arabic, English) means hand-editing
+dozens of files. There is no language switcher, no persisted preference,
+no fallback chain.
+
+**Goal.** A real i18n stack the entire platform sits on:
+
+- `next-intl` (already in `package.json` 4.9.1, never imported)
+- Flat namespaced JSON message catalogs per locale under `i18n/messages/`
+- `useTranslations(namespace)` hook in every page
+- Language switcher in the topbar — choice persists via cap 16 setting
+  `ui.locale` (rides on Track A's localStorage shim)
+- `<html lang>` + `<html dir>` updates dynamically on locale change
+- Default locale: `he`. Initial locales: `he`, `en`. Future-ready for `ar`.
+
+### Architecture
+
+```
+i18n/
+  config.ts              ← locales list, default, RTL flag per locale, type-safe key map
+  request.ts             ← server config for next-intl (when SSR routes need it)
+  messages/
+    he.json              ← Hebrew (default)
+    en.json              ← English fallback
+    ar.json              ← (future)
+
+lib/
+  i18n/
+    locale-store.ts      ← Zustand-persisted locale + language switcher state
+    use-locale.ts        ← convenience hook + html-attr side-effect
+
+components/
+  providers/
+    intl-provider.tsx    ← client-side NextIntlClientProvider that picks
+                           messages from the locale store + applies <html lang dir>
+  shell/
+    language-switcher.tsx ← topbar button (HE | EN | ...)
+```
+
+### Key conventions
+
+- **Namespace per surface**: `common`, `nav`, `help`, `wizard`, `audit`,
+  `helpdesk`, `admin.settings`, `admin.modules`, ...
+- **Identifiers stay as data, not translation keys**: `setting.key`,
+  `provider.id`, `skill.id`, `action_id` are still raw enum strings —
+  they're stable identifiers, not user-facing copy.
+- **Catalog content** (e.g. `lib/docs/content.ts` quick-starts) becomes
+  pure key references; the page resolves via `t("help.modules.helpdesk.title")`.
+- **Fallback chain**: requested locale → `en` (canonical) → key (debugging).
+
+### Sub-tasks
+
+| # | Item | Status |
+|---|---|---|
+| E1 | `i18n/config.ts` (locales + RTL map + type-safe key shape) | [x] |
+| E2 | `i18n/messages/he.json` + `en.json` — initial keys covering existing Hebrew strings | [x] |
+| E3 | `lib/i18n/locale-store.ts` (Zustand persist, default `he`) | [x] |
+| E4 | `components/providers/intl-provider.tsx` (client) + wire into `app/layout.tsx` (incl. dynamic `<html lang dir>` side-effect) | [x] |
+| E5 | Convert `/help` page + `lib/docs/content.ts` to use translation keys (catalog now references keys, not embedded copy) | [x] |
+| E6 | Convert `components/shared/wizard/wizard.tsx` (Skip/Next/Back/Cancel/Finish/validation labels) | [x] |
+| E7 | Convert `components/shell/shortcuts-dialog.tsx` | [x] |
+| E8 | Convert sidebar nav (`components/shell/nav-items.ts` titles) — replace inline Hebrew titles with translation keys | [ ] |
+| E9 | `components/shell/language-switcher.tsx` + topbar slot | [x] |
+| E10 | Persist locale via cap 16 setting `ui.locale` (definition + sync hook) — deferred (Zustand+localStorage already persists; cap 16 sync is a server-source nice-to-have) | [ ] |
+| E11 | Convert `/onboarding` wizard step labels + onboarding-tour dialog copy | [ ] |
+| E12 | Convert `/admin/settings` chrome + filter labels | [ ] |
+| E13 | Convert `/admin/modules` chrome | [ ] |
+| E14 | Convert `/admin/policies` chrome (incl. tester) | [ ] |
+| E15 | Convert `/admin/feature-flags` chrome | [ ] |
+| E16 | Convert `/admin/ai-providers` chrome (incl. Configure dialog) | [ ] |
+| E17 | Convert `/admin/ai-skills` chrome | [ ] |
+| E18 | Convert `/admin/ai-usage` chrome (KPI tiles, range selector, budget banner) | [ ] |
+| E19 | Convert `/audit-log` chrome (KPI tiles, category filter, table headers) | [ ] |
+| E20 | Convert `/helpdesk/*` chrome (root + tickets/technicians/sla/maintenance/batch/approvals/kb) | [ ] |
+| E21 | Convert `/settings/ai` chrome | [ ] |
+| E22 | Tests: 1 test that switches locale and asserts text changes; 1 test that fallback returns the key for missing translations | [partial — `lib/test-utils/intl.tsx` helper added; locale-switch test pending] |
+| E23 | Tracker: ensure no inline Hebrew/English in `/app/(dashboard)/**/*.tsx` (grep audit) | [ ] |
+
+### Done definition
+
+- A user toggling the language switcher sees every chrome string update
+  without a refresh.
+- The `<html lang>` and `<html dir>` attributes update accordingly (rtl
+  for `he` and `ar`, ltr for `en`).
+- A grep for hardcoded Hebrew (`/[א-ת]/`) inside `app/(dashboard)/**/*.tsx`
+  and `components/**/*.tsx` returns zero hits, except for translation
+  message files.
+- Every existing test still passes.
+
+### Order — Track B is folded into E
+
+Track B (the per-page Hebrew chrome work) becomes E12-E20 of this track.
+Don't execute Track B independently anymore.
+
+---
+
 ## Track A — Mock-mode persistence (localStorage shim)
 
 **Symptom.** All admin pages "forget" toggles/edits after a hard refresh.
@@ -160,9 +259,10 @@ and fix in priority order.
 
 ## Execution order
 
-1. **Track A** first — visible win, mostly mechanical, unblocks demo UX
-2. **Track B** next per page — independent, can be batched 2-3 pages per commit
-3. **Track C** in parallel with B — design first, then adoption
-4. **Track D** as a final sweep — produces a clean baseline
+1. **Track A** ✅ done (commit 6f6c575)
+2. **Track E** — i18n foundation (BLOCKING). Track B is folded in here.
+3. **Track C** — Shared RecordDetail primitive (can run after E foundation
+   is in place; the primitive's strings will use `t()`)
+4. **Track D** — Audit shared services usage (final sweep)
 
 Each commit message MUST cite which checklist rows it closes.

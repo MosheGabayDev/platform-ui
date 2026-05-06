@@ -13,6 +13,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, ChevronRight, ChevronLeft, Loader2, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { useWizardState, clearWizardStorage } from "@/lib/hooks/use-wizard-state";
 import type { WizardConfig } from "@/lib/modules/wizard/types";
@@ -24,6 +25,7 @@ interface WizardProps<TState> {
 }
 
 export function Wizard<TState>({ config, preferHebrew = true }: WizardProps<TState>) {
+  const t = useTranslations("wizard");
   // Filter visible steps based on hideWhen, evaluated against current state.
   // We compute this on every render because a step may become hidden after
   // the user changes a preceding choice.
@@ -99,6 +101,7 @@ export function Wizard<TState>({ config, preferHebrew = true }: WizardProps<TSta
           label: (preferHebrew && s.label_he) || s.label,
         }))}
         currentIndex={safeIndex}
+        ariaLabel={t("stepsAria")}
       />
 
       <div
@@ -151,10 +154,10 @@ export function Wizard<TState>({ config, preferHebrew = true }: WizardProps<TSta
           variant="ghost"
           size="sm"
           onClick={handleCancel}
-          aria-label="Cancel wizard"
+          aria-label={t("cancelLabel")}
         >
           <X className="h-3.5 w-3.5 me-1" aria-hidden="true" />
-          Cancel
+          {t("cancel")}
         </Button>
         <div className="flex gap-2">
           {safeIndex > 0 && (
@@ -165,7 +168,7 @@ export function Wizard<TState>({ config, preferHebrew = true }: WizardProps<TSta
               disabled={isCompleting}
             >
               <ChevronRight className="h-3.5 w-3.5 me-1 rtl:rotate-180" aria-hidden="true" />
-              Back
+              {t("back")}
             </Button>
           )}
           {!isLast && step.optional && (
@@ -174,9 +177,9 @@ export function Wizard<TState>({ config, preferHebrew = true }: WizardProps<TSta
               size="sm"
               onClick={wizard.goNext}
               disabled={isCompleting}
-              aria-label="Skip step"
+              aria-label={t("skipLabel")}
             >
-              Skip
+              {t("skip")}
             </Button>
           )}
           {!isLast && (
@@ -185,9 +188,9 @@ export function Wizard<TState>({ config, preferHebrew = true }: WizardProps<TSta
               size="sm"
               onClick={wizard.goNext}
               disabled={!canAdvance || isCompleting}
-              aria-label="Next step"
+              aria-label={t("nextLabel")}
             >
-              Next
+              {t("next")}
               <ChevronLeft className="h-3.5 w-3.5 ms-1 rtl:rotate-180" aria-hidden="true" />
             </Button>
           )}
@@ -203,7 +206,7 @@ export function Wizard<TState>({ config, preferHebrew = true }: WizardProps<TSta
               ) : (
                 <Check className="h-3.5 w-3.5 me-1" aria-hidden="true" />
               )}
-              Finish
+              {t("finish")}
             </Button>
           )}
         </div>
@@ -215,13 +218,14 @@ export function Wizard<TState>({ config, preferHebrew = true }: WizardProps<TSta
 interface StepIndicatorProps {
   steps: Array<{ id: string; label: string }>;
   currentIndex: number;
+  ariaLabel: string;
 }
 
-function StepIndicator({ steps, currentIndex }: StepIndicatorProps) {
+function StepIndicator({ steps, currentIndex, ariaLabel }: StepIndicatorProps) {
   return (
     <ol
       className="flex items-center gap-2 overflow-x-auto pb-1"
-      aria-label="Wizard steps"
+      aria-label={ariaLabel}
     >
       {steps.map((s, i) => {
         const isCurrent = i === currentIndex;

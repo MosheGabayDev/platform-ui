@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { NextAuthSessionProvider } from "@/components/providers/session-provider";
+import { IntlProvider } from "@/components/providers/intl-provider";
 
 const rubik = Rubik({
   variable: "--font-rubik",
@@ -50,17 +51,19 @@ export default function RootLayout({
       </head>
       <body suppressHydrationWarning className="min-h-full flex flex-col font-[family-name:var(--font-rubik)]">
         <NextAuthSessionProvider>
-          <QueryProvider>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="dark"
-              enableSystem
-              disableTransitionOnChange
-            >
-              {children}
-              <Toaster richColors position="top-center" />
-            </ThemeProvider>
-          </QueryProvider>
+          <IntlProvider>
+            <QueryProvider>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="dark"
+                enableSystem
+                disableTransitionOnChange
+              >
+                {children}
+                <Toaster richColors position="top-center" />
+              </ThemeProvider>
+            </QueryProvider>
+          </IntlProvider>
         </NextAuthSessionProvider>
       </body>
     </html>

@@ -1,0 +1,226 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "duplicate": "Duplicate",
+    "viewDetails": "Details",
+    "back": "Back",
+    "next": "Next",
+    "skip": "Skip",
+    "finish": "Finish",
+    "loading": "Loading…",
+    "search": "Search",
+    "filter": "Filter",
+    "clear": "Clear",
+    "confirm": "Confirm",
+    "reject": "Reject",
+    "approve": "Approve",
+    "enable": "Enable",
+    "disable": "Disable",
+    "on": "On",
+    "off": "Off",
+    "yes": "Yes",
+    "no": "No",
+    "all": "All",
+    "actions": "Actions",
+    "status": "Status",
+    "name": "Name",
+    "description": "Description",
+    "category": "Category",
+    "createdAt": "Created",
+    "updatedAt": "Updated",
+    "results": "{count, plural, =0 {No results} =1 {1 result} other {# results}}",
+    "resultsFor": "{count, plural, =0 {No results for \"{query}\"} =1 {1 result for \"{query}\"} other {# results for \"{query}\"}}",
+    "noResultsTryAgain": "No results for \"{query}\". Try a different keyword or clear the search."
+  },
+  "language": {
+    "switcher": "Language",
+    "current": "Current language: {locale}"
+  },
+  "wizard": {
+    "back": "Back",
+    "next": "Next",
+    "nextLabel": "Next step",
+    "skip": "Skip",
+    "skipLabel": "Skip step",
+    "finish": "Finish",
+    "cancel": "Cancel",
+    "cancelLabel": "Cancel wizard",
+    "stepsAria": "Wizard steps"
+  },
+  "shortcuts": {
+    "title": "Keyboard shortcuts",
+    "footer": "Press {key} on any page to open",
+    "items": {
+      "dashboard": "Dashboard",
+      "users": "Users",
+      "tickets": "Tickets",
+      "aiAgents": "AI Agents",
+      "helpdesk": "Helpdesk",
+      "settings": "Settings",
+      "logs": "Logs",
+      "openCommandPalette": "Open Command Palette",
+      "showShortcuts": "Show keyboard shortcuts",
+      "closeOrCancel": "Close / cancel",
+      "focusSearch": "Focus sidebar search"
+    }
+  },
+  "help": {
+    "title": "Help & documentation",
+    "subtitle": "Search the docs, browse module quick-starts, find AI and keyboard shortcuts.",
+    "searchPlaceholder": "Search docs, AI phrases, shortcuts…",
+    "searchAria": "Search documentation",
+    "tabs": {
+      "all": "All",
+      "quickStart": "Quick starts",
+      "aiCheatsheet": "AI shortcuts",
+      "shortcuts": "Keyboard"
+    },
+    "sections": {
+      "platform": "Platform",
+      "quickStart": "Quick starts",
+      "ai": "AI shortcuts",
+      "keyboard": "Keyboard shortcuts"
+    },
+    "aiIntro": "Type these into the floating AI assistant. Every action is proposed first, confirmed, then audited (<auditLink>audit log</auditLink>).",
+    "platform": {
+      "overview": {
+        "title": "Platform overview",
+        "summary": "How the horizontal capabilities fit together.",
+        "body": "The platform is built from horizontal capabilities (settings, modules, feature flags, policies, AI providers, AI skills, audit log) plus optional vertical modules (helpdesk, etc.). Every feature is gated through policies (cap 27) and recorded in the audit log (cap 10). LLM calls go through the provider gateway (cap 2.1) and obey the per-skill enablement (cap 2.2)."
+      },
+      "aiSafety": {
+        "title": "How AI safety works",
+        "summary": "Propose → Confirm → Audit. The AI never executes silently.",
+        "body": "Every AI-initiated action follows three steps: (1) the AI proposes the action with a token-bound expiration; (2) the user reviews and confirms (or rejects); (3) the executor runs and the audit log records the outcome with category=ai. Policies (cap 27) can reject proposals before they ever reach the user."
+      }
+    },
+    "modules": {
+      "helpdesk": {
+        "title": "Helpdesk",
+        "summary": "Manage tickets, technicians, SLAs, KB articles, and batch tasks.",
+        "steps": [
+          "Open /helpdesk to see the dashboard.",
+          "Use Ctrl+K and type a ticket id to jump straight to it.",
+          "Try the AI: open the floating assistant and say 'take ticket 1001'.",
+          "Check audit-log to see the action recorded."
+        ]
+      },
+      "users": {
+        "title": "Users & roles",
+        "summary": "Invite users, assign roles, deactivate accounts.",
+        "steps": [
+          "Open /users to list members of your org.",
+          "Use /roles to manage permissions per role.",
+          "Bulk-deactivate via the AI: 'deactivate user 42' (requires confirm)."
+        ]
+      },
+      "auditLog": {
+        "title": "Audit log",
+        "summary": "Searchable trail of every important platform event.",
+        "steps": [
+          "Open /audit-log to browse recent entries.",
+          "Filter by category (login / create / update / delete / admin / ai / security).",
+          "Each AI action lands here under category=ai with the matched policy decision."
+        ]
+      },
+      "aiAgents": {
+        "title": "AI agents",
+        "summary": "Background AI workers that run on triggers (cron, events).",
+        "steps": [
+          "Open /ai-agents to list configured agents.",
+          "Each agent uses a skill from /admin/ai-skills and obeys policies in /admin/policies."
+        ]
+      },
+      "aiProviders": {
+        "title": "AI providers",
+        "summary": "Pick which LLM providers and models your org uses.",
+        "steps": [
+          "Open /admin/ai-providers (admin only).",
+          "Enable a provider, paste credentials, click Test connection.",
+          "Routing rules pick which provider serves which purpose."
+        ]
+      },
+      "knowledge": {
+        "title": "Knowledge base & RAG",
+        "summary": "Upload documents the AI can ground its answers in.",
+        "steps": [
+          "Open /knowledge to upload PDFs / docs / URLs.",
+          "Indexed chunks become retrievable by AI agents during chat."
+        ]
+      },
+      "voice": {
+        "title": "Voice & ALA",
+        "summary": "Inbound/outbound voice flows with ASR + TTS.",
+        "steps": [
+          "Open /ala to design call flows.",
+          "Inspect /voice for live and historical call sessions."
+        ]
+      },
+      "automation": {
+        "title": "Automation",
+        "summary": "Trigger-condition-action workflows across modules.",
+        "steps": [
+          "Open /automation to build workflows.",
+          "Use the audit-log to confirm runs and inspect failures."
+        ]
+      },
+      "integrations": {
+        "title": "Integrations",
+        "summary": "OAuth/webhook integrations to external systems.",
+        "steps": [
+          "Open /integrations and pick a provider.",
+          "Authorize once; tokens are stored encrypted via cap 16 secrets."
+        ]
+      },
+      "monitoring": {
+        "title": "Monitoring",
+        "summary": "Health, logs, metrics — operations data for the platform itself.",
+        "steps": [
+          "Open /monitoring for system health probes.",
+          "Use /logs for raw application logs and /metrics for time-series."
+        ]
+      },
+      "billing": {
+        "title": "Billing & API keys",
+        "summary": "Plans, invoices, usage caps, API tokens.",
+        "steps": [
+          "Open /billing to view your current plan and invoices.",
+          "Manage tokens at /api-keys — they inherit the org's RBAC."
+        ]
+      },
+      "dataSources": {
+        "title": "Data sources",
+        "summary": "External databases / warehouses the platform can query.",
+        "steps": [
+          "Open /data-sources to register a connection.",
+          "Connections are read-only by default; admin can grant write."
+        ]
+      }
+    },
+    "aiShortcuts": {
+      "takeTicket": "Assigns ticket NNNN to you (the current user).",
+      "resolveTicket": "Marks ticket NNNN resolved.",
+      "cancelMaintenance": "Cancels maintenance window NNNN.",
+      "cancelBatch": "Cancels batch task NNNN.",
+      "searchUsers": "Searches users by name / email / id.",
+      "deactivateUser": "Deactivates user NNNN — they can no longer log in.",
+      "resetPassword": "Sends a password-reset email to user NNNN."
+    },
+    "keyboardShortcuts": {
+      "dashboard": "Dashboard",
+      "users": "Users",
+      "tickets": "Tickets",
+      "aiAgents": "AI agents",
+      "helpdesk": "Helpdesk",
+      "settings": "Settings",
+      "logs": "Logs",
+      "openCommandPalette": "Open command palette",
+      "focusSearch": "Focus sidebar search",
+      "showShortcuts": "Show keyboard shortcuts",
+      "closeOrCancel": "Close / cancel"
+    }
+  }
+}

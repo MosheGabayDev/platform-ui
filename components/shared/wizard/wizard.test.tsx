@@ -5,7 +5,8 @@
  * optional/skip semantics, finish flow with async onComplete.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent, cleanup, waitFor } from "@testing-library/react";
+import { screen, fireEvent, cleanup, waitFor } from "@testing-library/react";
+import { renderWithIntl as render } from "@/lib/test-utils/intl";
 import { Wizard } from "./wizard";
 import type { WizardConfig } from "@/lib/modules/wizard/types";
 
@@ -49,7 +50,7 @@ afterEach(cleanup);
 
 describe("Wizard primitive", () => {
   it("renders the first step body and step indicator", async () => {
-    render(<Wizard config={makeConfig()} preferHebrew={false} />);
+    render(<Wizard config={makeConfig()} preferHebrew={false} />, { locale: "en" });
     await waitFor(() =>
       expect(screen.getByLabelText("name-input")).toBeTruthy(),
     );
@@ -59,14 +60,14 @@ describe("Wizard primitive", () => {
   });
 
   it("Next is disabled while validator returns an error", async () => {
-    render(<Wizard config={makeConfig()} preferHebrew={false} />);
+    render(<Wizard config={makeConfig()} preferHebrew={false} />, { locale: "en" });
     const next = await screen.findByRole("button", { name: /Next step/i });
     expect((next as HTMLButtonElement).disabled).toBe(true);
     expect(screen.getByText("Name too short")).toBeTruthy();
   });
 
   it("Next becomes enabled when validator passes", async () => {
-    render(<Wizard config={makeConfig()} preferHebrew={false} />);
+    render(<Wizard config={makeConfig()} preferHebrew={false} />, { locale: "en" });
     const input = await screen.findByLabelText("name-input");
     fireEvent.change(input, { target: { value: "Acme" } });
     const next = screen.getByRole("button", { name: /Next step/i });
@@ -74,7 +75,7 @@ describe("Wizard primitive", () => {
   });
 
   it("clicking Next advances to the next step", async () => {
-    render(<Wizard config={makeConfig()} preferHebrew={false} />);
+    render(<Wizard config={makeConfig()} preferHebrew={false} />, { locale: "en" });
     const input = await screen.findByLabelText("name-input");
     fireEvent.change(input, { target: { value: "Acme" } });
     fireEvent.click(screen.getByRole("button", { name: /Next step/i }));
@@ -82,7 +83,7 @@ describe("Wizard primitive", () => {
   });
 
   it("Back button appears only after first step", async () => {
-    render(<Wizard config={makeConfig()} preferHebrew={false} />);
+    render(<Wizard config={makeConfig()} preferHebrew={false} />, { locale: "en" });
     expect(screen.queryByRole("button", { name: "Back" })).toBeNull();
     const input = await screen.findByLabelText("name-input");
     fireEvent.change(input, { target: { value: "Acme" } });
@@ -99,6 +100,7 @@ describe("Wizard primitive", () => {
         config={makeConfig({ onComplete })}
         preferHebrew={false}
       />,
+      { locale: "en" },
     );
     const input = await screen.findByLabelText("name-input");
     fireEvent.change(input, { target: { value: "Acme" } });
@@ -113,7 +115,7 @@ describe("Wizard primitive", () => {
   it("optional step renders BOTH Skip and Next so the user can choose", async () => {
     const config = makeConfig();
     config.steps[0]!.optional = true;
-    render(<Wizard config={config} preferHebrew={false} />);
+    render(<Wizard config={config} preferHebrew={false} />, { locale: "en" });
     await waitFor(() =>
       expect(screen.getByRole("button", { name: /Skip step/i })).toBeTruthy(),
     );
@@ -126,12 +128,12 @@ describe("Wizard primitive", () => {
       ...config.steps[1]!,
       hideWhen: () => true,
     };
-    render(<Wizard config={config} preferHebrew={false} />);
+    render(<Wizard config={config} preferHebrew={false} />, { locale: "en" });
     await waitFor(() => expect(screen.queryByText("Step 2")).toBeNull());
   });
 
   it("Cancel button is always visible", async () => {
-    render(<Wizard config={makeConfig()} preferHebrew={false} />);
+    render(<Wizard config={makeConfig()} preferHebrew={false} />, { locale: "en" });
     await waitFor(() =>
       expect(screen.getByRole("button", { name: /Cancel wizard/i })).toBeTruthy(),
     );

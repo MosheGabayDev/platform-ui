@@ -178,7 +178,7 @@ test.describe("Onboarding wizard — Phase 1.5", () => {
     // Step 1 body
     await expect(page.getByLabel(/^Organization name$/i)).toBeVisible();
     // Next disabled with empty name
-    const next = page.getByRole("button", { name: /Next step/i });
+    const next = page.getByRole("button", { name: /Next step|המשך לשלב הבא/i });
     await expect(next).toBeVisible();
     await expect(next).toBeDisabled();
   });
@@ -186,7 +186,7 @@ test.describe("Onboarding wizard — Phase 1.5", () => {
   test("advances through steps once name is valid", async ({ page }) => {
     await page.goto("/onboarding");
     await page.getByLabel(/^Organization name$/i).fill("Acme E2E");
-    await page.getByRole("button", { name: /Next step/i }).click();
+    await page.getByRole("button", { name: /Next step|המשך לשלב הבא/i }).click();
     // Step 2 — AI persona name field appears
     await expect(page.getByLabel(/^AI persona name$/i)).toBeVisible();
   });
@@ -194,19 +194,19 @@ test.describe("Onboarding wizard — Phase 1.5", () => {
   test("step 3 renders modules list (Skip allowed)", async ({ page }) => {
     await page.goto("/onboarding");
     await page.getByLabel(/^Organization name$/i).fill("Acme E2E");
-    await page.getByRole("button", { name: /Next step/i }).click();
+    await page.getByRole("button", { name: /Next step|המשך לשלב הבא/i }).click();
     // Persona is pre-filled with default valid value, so just advance.
-    await page.getByRole("button", { name: /Next step/i }).click();
+    await page.getByRole("button", { name: /Next step|המשך לשלב הבא/i }).click();
     // Step 3 — modules. Skip button visible (because step is optional).
-    const skip = page.getByRole("button", { name: /Skip step/i });
+    const skip = page.getByRole("button", { name: /Skip step|דלג על שלב זה/i });
     await expect(skip).toBeVisible();
   });
 
   test("Back button navigates to previous step", async ({ page }) => {
     await page.goto("/onboarding");
     await page.getByLabel(/^Organization name$/i).fill("Acme E2E");
-    await page.getByRole("button", { name: /Next step/i }).click();
-    await page.getByRole("button", { name: "Back" }).click();
+    await page.getByRole("button", { name: /Next step|המשך לשלב הבא/i }).click();
+    await page.getByRole("button", { name: /^(Back|חזור)$/ }).click();
     await expect(page.getByLabel(/^Organization name$/i)).toBeVisible();
     // Filled value persists when going back
     await expect(page.getByLabel(/^Organization name$/i)).toHaveValue("Acme E2E");
@@ -215,17 +215,17 @@ test.describe("Onboarding wizard — Phase 1.5", () => {
   test("Cancel button is always visible", async ({ page }) => {
     await page.goto("/onboarding");
     await expect(
-      page.getByRole("button", { name: /Cancel wizard/i }),
+      page.getByRole("button", { name: /Cancel wizard|ביטול האשף/i }),
     ).toBeVisible();
   });
 
   test("step 4 (Sample data) shows seed toggle, defaulted On", async ({ page }) => {
     await page.goto("/onboarding");
     await page.getByLabel(/^Organization name$/i).fill("Acme E2E");
-    await page.getByRole("button", { name: /Next step/i }).click();
-    await page.getByRole("button", { name: /Next step/i }).click();
+    await page.getByRole("button", { name: /Next step|המשך לשלב הבא/i }).click();
+    await page.getByRole("button", { name: /Next step|המשך לשלב הבא/i }).click();
     // Skip the modules step (optional)
-    await page.getByRole("button", { name: /Skip step/i }).click();
+    await page.getByRole("button", { name: /Skip step|דלג על שלב זה/i }).click();
     // Sample data step — toggle visible and pressed
     const toggle = page.getByTestId("seed-sample-data-toggle");
     await expect(toggle).toBeVisible();

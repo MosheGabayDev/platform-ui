@@ -1,0 +1,226 @@
+{
+  "common": {
+    "save": "שמור",
+    "cancel": "ביטול",
+    "edit": "ערוך",
+    "delete": "מחק",
+    "duplicate": "שכפל",
+    "viewDetails": "פרטים",
+    "back": "חזור",
+    "next": "המשך",
+    "skip": "דלג",
+    "finish": "סיום",
+    "loading": "טוען…",
+    "search": "חיפוש",
+    "filter": "סינון",
+    "clear": "נקה",
+    "confirm": "אישור",
+    "reject": "דחה",
+    "approve": "אשר",
+    "enable": "הפעל",
+    "disable": "השבת",
+    "on": "פעיל",
+    "off": "כבוי",
+    "yes": "כן",
+    "no": "לא",
+    "all": "הכל",
+    "actions": "פעולות",
+    "status": "סטטוס",
+    "name": "שם",
+    "description": "תיאור",
+    "category": "קטגוריה",
+    "createdAt": "נוצר",
+    "updatedAt": "עודכן",
+    "results": "{count, plural, =0 {אין תוצאות} =1 {תוצאה אחת} other {# תוצאות}}",
+    "resultsFor": "{count, plural, =0 {אין תוצאות עבור \"{query}\"} =1 {תוצאה אחת עבור \"{query}\"} other {# תוצאות עבור \"{query}\"}}",
+    "noResultsTryAgain": "לא נמצאו תוצאות עבור \"{query}\". נסו מילת חיפוש אחרת או נקו את החיפוש."
+  },
+  "language": {
+    "switcher": "שפה",
+    "current": "שפה נוכחית: {locale}"
+  },
+  "wizard": {
+    "back": "חזור",
+    "next": "המשך",
+    "nextLabel": "המשך לשלב הבא",
+    "skip": "דלג",
+    "skipLabel": "דלג על שלב זה",
+    "finish": "סיום",
+    "cancel": "ביטול",
+    "cancelLabel": "ביטול האשף",
+    "stepsAria": "שלבי האשף"
+  },
+  "shortcuts": {
+    "title": "קיצורי מקלדת",
+    "footer": "לחצו {key} בכל עמוד לפתיחה",
+    "items": {
+      "dashboard": "דשבורד",
+      "users": "משתמשים",
+      "tickets": "פניות",
+      "aiAgents": "סוכני AI",
+      "helpdesk": "הלפדסק",
+      "settings": "הגדרות",
+      "logs": "לוגים",
+      "openCommandPalette": "פתח Command Palette",
+      "showShortcuts": "הצג קיצורי מקלדת",
+      "closeOrCancel": "סגור / בטל",
+      "focusSearch": "פוקוס לחיפוש בסייד-בר"
+    }
+  },
+  "help": {
+    "title": "עזרה ותיעוד",
+    "subtitle": "חיפוש בתיעוד, מדריכי התחלה למודולים, קיצורי AI ומקלדת.",
+    "searchPlaceholder": "חיפוש בתיעוד, פקודות AI, קיצורים…",
+    "searchAria": "חיפוש בתיעוד",
+    "tabs": {
+      "all": "הכל",
+      "quickStart": "התחלה מהירה",
+      "aiCheatsheet": "קיצורי AI",
+      "shortcuts": "מקלדת"
+    },
+    "sections": {
+      "platform": "פלטפורמה",
+      "quickStart": "התחלה מהירה",
+      "ai": "קיצורי AI",
+      "keyboard": "קיצורי מקלדת"
+    },
+    "aiIntro": "הקלידו את הביטויים הבאים בסייען ה-AI הצף. כל פעולה מוצעת תחילה, מאושרת על ידכם, ואז נרשמת ב<auditLink>יומן הביקורת</auditLink>.",
+    "platform": {
+      "overview": {
+        "title": "סקירת הפלטפורמה",
+        "summary": "כיצד היכולות האופקיות משתלבות יחד.",
+        "body": "הפלטפורמה בנויה מיכולות אופקיות (הגדרות, מודולים, feature flags, policies, ספקי AI, כישורי AI, יומן ביקורת) ומודולים אנכיים (הלפדסק וכו'). כל פעולה עוברת דרך policies (cap 27) ונרשמת ב-audit log (cap 10)."
+      },
+      "aiSafety": {
+        "title": "כיצד פועל מנגנון בטיחות ה-AI",
+        "summary": "הצעה → אישור → ביקורת. ה-AI לעולם אינו מבצע פעולה בשקט.",
+        "body": "כל פעולה שיוזם ה-AI עוברת שלושה שלבים: (1) ה-AI מציע את הפעולה עם token שפג בזמן קצוב; (2) המשתמש בודק ומאשר (או דוחה); (3) ה-executor מריץ את הפעולה ויומן הביקורת רושם את התוצאה תחת category=ai. Policies (cap 27) יכולים לדחות הצעות עוד לפני שהן מגיעות למשתמש."
+      }
+    },
+    "modules": {
+      "helpdesk": {
+        "title": "הלפדסק",
+        "summary": "ניהול פניות, טכנאים, SLA, מאמרי בסיס ידע ומשימות אצווה.",
+        "steps": [
+          "פתח /helpdesk לדשבורד הראשי.",
+          "השתמש ב-Ctrl+K והקלד מספר פנייה כדי לקפוץ אליה.",
+          "נסה את ה-AI: פתח את הסייען וכתוב 'take ticket 1001'.",
+          "בדוק ב-audit-log שהפעולה נרשמה."
+        ]
+      },
+      "users": {
+        "title": "משתמשים ותפקידים",
+        "summary": "הזמנת משתמשים, שיוך תפקידים, השבתת חשבונות.",
+        "steps": [
+          "פתח /users לרשימת חברי הארגון.",
+          "השתמש ב-/roles לניהול הרשאות לפי תפקיד.",
+          "השבתה מרובה דרך AI: 'deactivate user 42' (דורש אישור)."
+        ]
+      },
+      "auditLog": {
+        "title": "יומן ביקורת",
+        "summary": "יומן ניתן לחיפוש של כל אירוע משמעותי בפלטפורמה.",
+        "steps": [
+          "פתח /audit-log לעיון ברשומות אחרונות.",
+          "סנן לפי קטגוריה (login / create / update / delete / admin / ai / security).",
+          "כל פעולת AI נוחתת כאן תחת category=ai יחד עם החלטת ה-policy שהתאימה."
+        ]
+      },
+      "aiAgents": {
+        "title": "סוכני AI",
+        "summary": "עובדי AI ברקע הרצים על טריגרים (cron, אירועים).",
+        "steps": [
+          "פתח /ai-agents לרשימת הסוכנים המוגדרים.",
+          "כל סוכן משתמש ב-skill מ-/admin/ai-skills וכפוף ל-policies ב-/admin/policies."
+        ]
+      },
+      "aiProviders": {
+        "title": "ספקי AI",
+        "summary": "בחר באילו ספקי LLM ומודלים הארגון שלך משתמש.",
+        "steps": [
+          "פתח /admin/ai-providers (admin בלבד).",
+          "הפעל ספק, הדבק credentials, לחץ Test connection.",
+          "כללי routing בוחרים איזה ספק משרת כל מטרה."
+        ]
+      },
+      "knowledge": {
+        "title": "ידע ו-RAG",
+        "summary": "העלאת מסמכים שה-AI יכול לבסס עליהם תשובות.",
+        "steps": [
+          "פתח /knowledge להעלאת PDFים / מסמכים / כתובות URL.",
+          "ה-chunks המאונדקסים זמינים לאחזור ע\"י סוכני AI במהלך שיחה."
+        ]
+      },
+      "voice": {
+        "title": "ALA — Voice AI",
+        "summary": "תרחישי שיחות נכנסות/יוצאות עם ASR + TTS.",
+        "steps": [
+          "פתח /ala לעיצוב תרחישי שיחה.",
+          "בדוק /voice לסשנים חיים והיסטוריים."
+        ]
+      },
+      "automation": {
+        "title": "אוטומציה",
+        "summary": "תהליכי טריגר-תנאי-פעולה חוצי מודולים.",
+        "steps": [
+          "פתח /automation לבניית תהליכים.",
+          "השתמש ב-audit-log לאישור ריצות ובדיקת כשלונות."
+        ]
+      },
+      "integrations": {
+        "title": "אינטגרציות",
+        "summary": "אינטגרציות OAuth/webhook למערכות חיצוניות.",
+        "steps": [
+          "פתח /integrations ובחר ספק.",
+          "הרשה פעם אחת; ה-tokens נשמרים מוצפנים דרך cap 16 secrets."
+        ]
+      },
+      "monitoring": {
+        "title": "ניטור",
+        "summary": "בריאות, לוגים, מטריקות — נתוני תפעול לפלטפורמה עצמה.",
+        "steps": [
+          "פתח /monitoring לבדיקות בריאות מערכת.",
+          "השתמש ב-/logs ללוגים גולמיים וב-/metrics לסדרות-זמן."
+        ]
+      },
+      "billing": {
+        "title": "חיוב ו-API keys",
+        "summary": "תוכניות, חשבוניות, תקרות שימוש, API tokens.",
+        "steps": [
+          "פתח /billing לצפייה בתוכנית הנוכחית וחשבוניות.",
+          "נהל tokens ב-/api-keys — הם יורשים את ה-RBAC של הארגון."
+        ]
+      },
+      "dataSources": {
+        "title": "מקורות נתונים",
+        "summary": "מסדי נתונים / מחסני נתונים חיצוניים שהפלטפורמה יכולה לתשאל.",
+        "steps": [
+          "פתח /data-sources לרישום חיבור.",
+          "החיבורים read-only כברירת מחדל; admin יכול להעניק כתיבה."
+        ]
+      }
+    },
+    "aiShortcuts": {
+      "takeTicket": "משייך פנייה NNNN למשתמש הנוכחי.",
+      "resolveTicket": "סוגר פנייה NNNN.",
+      "cancelMaintenance": "מבטל חלון תחזוקה NNNN.",
+      "cancelBatch": "מבטל משימת אצווה NNNN.",
+      "searchUsers": "חיפוש משתמשים לפי שם / אימייל / מזהה.",
+      "deactivateUser": "השבתת משתמש NNNN — לא יוכל יותר להתחבר.",
+      "resetPassword": "שולח אימייל לאיפוס סיסמה למשתמש NNNN."
+    },
+    "keyboardShortcuts": {
+      "dashboard": "דשבורד",
+      "users": "משתמשים",
+      "tickets": "פניות",
+      "aiAgents": "סוכני AI",
+      "helpdesk": "הלפדסק",
+      "settings": "הגדרות",
+      "logs": "לוגים",
+      "openCommandPalette": "פתח Command Palette",
+      "focusSearch": "פוקוס לחיפוש",
+      "showShortcuts": "הצג קיצורי מקלדת",
+      "closeOrCancel": "סגור / בטל"
+    }
+  }
+}
