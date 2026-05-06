@@ -137,6 +137,7 @@ export const navGroups: NavGroup[] = [
           { title: "מגבלות שימוש", href: "/settings/usage-limits", icon: Activity },
         ],
       },
+      { title: "עזרה", href: "/help", icon: BookOpen },
     ],
   },
 ];

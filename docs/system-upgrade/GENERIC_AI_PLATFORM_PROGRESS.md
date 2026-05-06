@@ -197,10 +197,12 @@ Spec: `docs/system-upgrade/04-capabilities/platform-self-service-ai-settings-spe
 
 Tests: 2 new E2E specs (renders, persona-name-updates-preview-live).
 
-### 3.3 — Help & documentation surface
-- [ ] In-app docs panel (already partial via `/help`)
-- [ ] Per-module quick-start
-- [ ] AI shortcuts cheatsheet
+### 3.3 — Help & documentation surface — DONE 2026-05-06
+- [x] In-app docs panel — new `/help` page with search, tab filter (All / Quick starts / AI / Keyboard), platform overview articles.
+- [x] Per-module quick-start — every registered module (12) has a quick-start article in `lib/docs/content.ts` with summary + numbered steps. Test enforces 1:1 module→article coverage.
+- [x] AI shortcuts cheatsheet — every recognized AI phrase (7) with action_id + capability level + description. Test enforces every action_id matches a registered skill (cap 2.2).
+
+Spec: `docs/system-upgrade/04-capabilities/platform-help-surface-spec.md`. Static catalog (`lib/docs/content.ts`) — no backend; updates ship via redeploy. Tests: 12 unit (catalog invariants + searchCatalog) + 5 E2E.
 
 ---
 
@@ -259,9 +261,9 @@ When you (the AI) finish a cap and consider marking it DONE: re-read this checkl
 
 | Suite | Last run | Files | Tests | Status |
 |---|---|---|---|---|
-| vitest unit (`npx vitest run`) | 2026-05-06 | 47 | 423 / 423 | ✅ all green (Phase 3.1 added 8 sample-data + 5 onboarding-tour tests) |
+| vitest unit (`npx vitest run`) | 2026-05-06 | 48 | 435 / 435 | ✅ all green (Phase 3.3 added 12 docs catalog tests) |
 | coverage gate (`scripts/check-coverage-baseline.mjs`) | 2026-05-06 | n/a | n/a | ✅ passed |
-| Playwright E2E (`npx playwright test`) | 2026-05-06 | 31 specs | 90 passed / 0 failed / 42 skipped | ✅ all green at last full run (3 new specs added by 3.1: 1 wizard step + 2 tour) |
+| Playwright E2E (`npx playwright test`) | 2026-05-06 | 32 specs | 90 passed / 0 failed / 42 skipped | ✅ all green at last full run (5 new specs added by 3.3: help-page) |
 
 ### E2E specs by surface (Phase 1 coverage)
 
@@ -284,7 +286,7 @@ When you (the AI) finish a cap and consider marking it DONE: re-read this checkl
 |---|---|---|---|---|
 | Phase 1 caps | 13 | 12 | 0 | 0 — cap 23 SSE deferred to Phase 5 |
 | Phase 2 (AI core) | 5 | 5 | 0 | 0 — **PHASE 2 CLOSED** |
-| Phase 3 (onboarding) | 3 | 2 | 0 | 1 (3.3) |
+| Phase 3 (onboarding) | 3 | 3 | 0 | 0 — **PHASE 3 CLOSED** |
 | Phase 4 (helpdesk demo) | 4 | 3 | 0 | 1 |
 | Phase 5 (backend) | n/a (other repo) | — | — | — |
 
