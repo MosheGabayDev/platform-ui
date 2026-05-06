@@ -253,8 +253,8 @@ When you (the AI) finish a cap and consider marking it DONE: re-read this checkl
 
 | Suite | Last run | Files | Tests | Status |
 |---|---|---|---|---|
-| vitest unit (`npx vitest run`) | 2026-05-06 | 45 | 409 / 409 | ✅ all green |
-| coverage gate (`scripts/check-coverage-baseline.mjs`) | 2026-05-06 | n/a | n/a | ✅ passed |
+| vitest unit (`npx vitest run`) | 2026-05-06 | 45 | 410 / 410 | ✅ all green |
+| coverage gate (`scripts/check-coverage-baseline.mjs`) | 2026-05-06 | n/a | n/a | ✅ passed (baselines bumped per Phase 2 Round-2 review MED #4) |
 | Playwright E2E (`npx playwright test`) | 2026-05-06 | 31 specs | 88 passed / 0 failed / 42 skipped | ✅ all green (skipped = cross-tenant tests gated on E2E_ORG_*_ID env vars) |
 
 ### E2E specs by surface (Phase 1 coverage)

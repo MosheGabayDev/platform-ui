@@ -94,7 +94,8 @@ describe("AI demo slice — end-to-end (ADR-038)", () => {
       proposal.params,
       qc,
     );
-    expect(result.message).toMatch(/took ticket|assigned/i);
+    // Round-2 review HIGH #3 — assert against the actual mock output.
+    expect(result.message).toMatch(/Ticket assigned to you/i);
     await flush();
 
     // 5. Audit log received the entry

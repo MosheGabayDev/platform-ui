@@ -96,6 +96,11 @@ ADR-041's gate item #8 is "AI demo slice (ADR-038) in development". It flips fro
 
 When backend (R051 AIActionRegistry + R046 audit + notifications) lands, MOCK_MODE flips and the same E2E spec runs against live services.
 
+**Pre-flip durability gap (Round-2 review MED #5).** The current emitter is fire-and-forget (`void emitExecutorRun(...)` after the mutation resolves). If the user closes the tab between mutation completion and audit fetch reaching the server, the entry is silently lost. On MOCK flip the production path MUST do one of:
+
+- [ ] **Preferred:** executor writes the audit row server-side as part of the mutation transaction (R051 AIActionRegistry handles this). Frontend emission then becomes optional / debug-only.
+- [ ] **Alternative:** frontend switches `recordAuditEntry` to use `navigator.sendBeacon()` with the same payload shape so audits survive page-unload. This is fail-safe but loses the audit on browsers that disable sendBeacon.
+
 ---
 
 ## 6. Test coverage

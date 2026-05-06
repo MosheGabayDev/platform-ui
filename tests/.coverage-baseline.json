@@ -4,11 +4,11 @@
   "_run": "vitest run --coverage (1 test file: lib/utils.test.ts)",
   "layers": {
     "lib/api/": {
-      "lines": 48.29,
+      "lines": 72.74,
       "branches": 24.04,
       "functions": 45.94,
       "target_floor": 90,
-      "note": "Lifted to 48.29% by maintenance + batch + search + auth Flask tests (2026-05-03). Phase C inventory now ~95% covered at the client layer."
+      "note": "Lifted from 48.29% by Phase 2 — ai-providers, ai-skills, ai-usage clients each shipped with comprehensive tests; audit recordAuditEntry write path added. (2026-05-06)"
     },
     "lib/auth/": {
       "lines": 100,
@@ -18,25 +18,25 @@
       "note": "Above ADR-042 95% floor (2026-05-03). options.flask.test.ts adds 19 tests covering authorizeWithFlask happy/error paths, refreshAccessToken (Flask + mock branches), jwt() callback first sign-in/reuse/refresh, session() callback (asserts refreshToken NEVER leaks to client), and signOut event. 24.48% → 100% lines."
     },
     "lib/hooks/": {
-      "lines": 53.37,
+      "lines": 59.61,
       "branches": 44.68,
       "functions": 64.04,
       "target_floor": 80,
-      "note": "Lifted from 32.06% by tests for use-permission, use-feature-flag, use-platform-mutation, use-job-polling, use-count-up (2026-05-03 — 39 new tests). Remaining gaps: use-dangerous-action, use-keyboard-shortcuts, use-nav-history, use-notifications."
+      "note": "Lifted from 53.37% by Phase 2 hook tests (use-policy-decision, use-setting, use-enabled-modules, use-ai-provider-configs/skills/usage). 2026-05-06."
     },
     "lib/modules/": {
-      "lines": 6.06,
+      "lines": 11.11,
       "branches": 100,
       "functions": 100,
       "target_floor": 70,
-      "note": "Lifted from 0% by job-runner/types.ts isTerminalStatus tests (2026-05-03). Most schemas are declarations and don't move the line %."
+      "note": "Lifted from 6.06% by Phase 2 module type files (ai-providers, ai-skills, ai-usage, policies). Most schemas are declarations and don't move the line %; helpers (e.g. isTerminalStatus) do. 2026-05-06."
     },
     "lib/platform/": {
-      "lines": 38.32,
+      "lines": 47.52,
       "branches": 0,
       "functions": 0,
       "target_floor": 70,
-      "note": "Lifted to 38.32% by hook tests pulling permission/RBAC paths through (2026-05-03)."
+      "note": "Lifted from 38.32% by Phase 2.4–2.5 — audit-emitter + executors runActionExecutor + demo-slice integration test all exercise lib/platform/ai-actions/ + ai-skills/registry. 2026-05-06."
     },
     "lib/utils/": {
       "lines": 28.57,
@@ -53,11 +53,11 @@
       "note": "Smoke test added in R-OPS-01 T01 — this file is the only fully-covered surface"
     },
     "components/shared/": {
-      "lines": 12.12,
+      "lines": 24.58,
       "branches": 0,
       "functions": 0,
       "target_floor": 70,
-      "note": "Lifted from 0% by job-runner shared primitives — JobStatusBadge + JobProgress have render tests (2026-05-03)."
+      "note": "Lifted from 12.12% — Wizard primitive component tests + indirect coverage from Phase 2 admin-page render paths (2026-05-06)."
     },
     "components/shell/": {
       "lines": 19.88,

@@ -67,7 +67,11 @@ export async function emitPolicyEvaluation(input: PolicyEvaluationInput): Promis
       metadata: {
         kind: "policy_evaluation",
         evaluated_action_id: input.action_id,
-        params: input.params,
+        // Round-2 review HIGH #2: record KEYS only — full params can hold
+        // user-supplied content (ticket descriptions, search queries) and
+        // the audit log is admin-readable. Mirrors the PII-safe pattern
+        // in emitSkillValidation.
+        param_keys: Object.keys(input.params),
         allowed: input.decision.allowed,
         requires_approval: input.decision.requires_approval,
         matched_rules: input.decision.matched_rules.map((r) => ({

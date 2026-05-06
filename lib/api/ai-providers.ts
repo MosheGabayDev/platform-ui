@@ -296,8 +296,14 @@ const CATALOG: AIProvider[] = [
   },
 ];
 
-function maskCredential(plaintext: string | null | undefined): { has_value: true; masked: string } | "" {
-  if (!plaintext) return "";
+/**
+ * Returns the masked envelope for a non-empty sensitive value, or `null`
+ * for empty input. Round-2 review HIGH #1: this used to return `""` which
+ * is a valid `string` member of `CredentialValue` and could leak plaintext
+ * if the call-site guard ever drifted.
+ */
+function maskCredential(plaintext: string | null | undefined): { has_value: true; masked: string } | null {
+  if (!plaintext) return null;
   const head = plaintext.slice(0, 3);
   const tail = plaintext.slice(-3);
   return { has_value: true, masked: `${head}...${tail}` };
@@ -473,7 +479,7 @@ export async function updateProviderConfig(
           delete nextCreds[k];
         } else if (field?.sensitive) {
           const masked = maskCredential(v);
-          if (masked !== "") nextCreds[k] = masked;
+          if (masked !== null) nextCreds[k] = masked;
         } else {
           nextCreds[k] = v;
         }

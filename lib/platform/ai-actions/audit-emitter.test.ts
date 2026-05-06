@@ -43,6 +43,22 @@ describe("Phase 2.4 — AI audit emission", () => {
     expect(policyEntry!.metadata.evaluated_action_id).toBe(
       "helpdesk.batch.bulk_status",
     );
+    // Round-2 review HIGH #2: param_keys recorded, full params NOT.
+    expect(policyEntry!.metadata.param_keys).toEqual(["affected_count"]);
+    expect(policyEntry!.metadata.params).toBeUndefined();
+  });
+
+  it("policy evaluation never records full params (PII safety)", async () => {
+    await evaluatePolicy({
+      action_id: "helpdesk.ticket.resolve",
+      params: { ticketId: 1, resolution: "PROBE-RESOLUTION-PROBE-XYZ" },
+    });
+    await flushAsync();
+    const recent = await fetchAuditLog({ page: 1, per_page: 20, category: "ai" });
+    const all = recent.data.entries.filter((e) => e.action === "policy.evaluate");
+    for (const e of all) {
+      expect(JSON.stringify(e)).not.toContain("PROBE-RESOLUTION-PROBE-XYZ");
+    }
   });
 
   it("skill validation writes an entry with action=ai_skill.validate", async () => {
