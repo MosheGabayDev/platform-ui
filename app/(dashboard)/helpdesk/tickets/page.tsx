@@ -12,6 +12,7 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
 import {
   HeadphonesIcon,
@@ -64,6 +65,7 @@ const PRIORITY_OPTIONS: Array<{ value: TicketPriority | "all"; label: string }> 
 ];
 
 function TicketsListInner() {
+  const t = useTranslations("helpdesk.tickets");
   const router = useRouter();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -183,7 +185,7 @@ function TicketsListInner() {
 
   return (
     <LazyMotion features={domAnimation}>
-      <PageShell icon={HeadphonesIcon} title="Tickets" subtitle="Helpdesk ticket queue">
+      <PageShell icon={HeadphonesIcon} title={t("title")} subtitle={t("subtitle")}>
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0, transition: { duration: 0.3, ease: PAGE_EASE } }}
@@ -313,20 +315,22 @@ function TicketsListInner() {
   );
 }
 
+function TicketsDisabledFallback() {
+  const t = useTranslations("helpdesk.tickets");
+  return (
+    <PageShell icon={HeadphonesIcon} title={t("title")} subtitle={t("comingSoon")}>
+      <EmptyState
+        icon={AlertCircle}
+        title={t("notEnabled")}
+        description="The Helpdesk module is not enabled for your organization."
+      />
+    </PageShell>
+  );
+}
+
 export default function HelpdeskTicketsPage() {
   return (
-    <FeatureGate
-      flag="helpdesk.enabled"
-      fallback={
-        <PageShell icon={HeadphonesIcon} title="Tickets" subtitle="Coming soon">
-          <EmptyState
-            icon={AlertCircle}
-            title="Helpdesk not enabled"
-            description="The Helpdesk module is not enabled for your organization."
-          />
-        </PageShell>
-      }
-    >
+    <FeatureGate flag="helpdesk.enabled" fallback={<TicketsDisabledFallback />}>
       <TicketsListInner />
     </FeatureGate>
   );

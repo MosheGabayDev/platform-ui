@@ -12,6 +12,7 @@
  */
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
 import {
   Layers,
@@ -67,6 +68,7 @@ function formatRelative(iso: string | null): string {
 }
 
 function BatchInner() {
+  const t = useTranslations("helpdesk.batch");
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState<BatchTaskStatus | "all">("all");
   const [cancelTarget, setCancelTarget] = useState<BatchTask | null>(null);
@@ -203,11 +205,7 @@ function BatchInner() {
 
   return (
     <LazyMotion features={domAnimation}>
-      <PageShell
-        icon={Layers}
-        title="Batch tasks"
-        subtitle="Long-running ticket operations queue"
-      >
+      <PageShell icon={Layers} title={t("title")} subtitle={t("subtitle")}>
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0, transition: { duration: 0.3, ease: PAGE_EASE } }}

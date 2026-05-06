@@ -6,6 +6,7 @@
  */
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
 import { Users as UsersIcon, AlertCircle, CheckCircle, XCircle } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -27,6 +28,7 @@ function utilizationTone(pct: number): string {
 }
 
 function TechniciansInner() {
+  const tt = useTranslations("helpdesk.technicians");
   const { data: list, isLoading: listLoading, error: listError } = useQuery({
     queryKey: queryKeys.helpdesk.technicians(),
     queryFn: () => fetchTechnicians(false),
@@ -121,7 +123,7 @@ function TechniciansInner() {
 
   return (
     <LazyMotion features={domAnimation}>
-      <PageShell icon={UsersIcon} title="Technicians" subtitle="Helpdesk staff + utilization">
+      <PageShell icon={UsersIcon} title={tt("title")} subtitle={tt("subtitle")}>
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0, transition: { duration: 0.3, ease: PAGE_EASE } }}
@@ -161,20 +163,23 @@ function TechniciansInner() {
   );
 }
 
+function TechniciansDisabledFallback() {
+  const tt = useTranslations("helpdesk.technicians");
+  const tHd = useTranslations("helpdesk.tickets");
+  return (
+    <PageShell icon={UsersIcon} title={tt("title")} subtitle={tHd("comingSoon")}>
+      <EmptyState
+        icon={AlertCircle}
+        title={tt("notEnabled")}
+        description="The Helpdesk module is not enabled for your organization."
+      />
+    </PageShell>
+  );
+}
+
 export default function HelpdeskTechniciansPage() {
   return (
-    <FeatureGate
-      flag="helpdesk.enabled"
-      fallback={
-        <PageShell icon={UsersIcon} title="Technicians" subtitle="Coming soon">
-          <EmptyState
-            icon={AlertCircle}
-            title="Helpdesk not enabled"
-            description="The Helpdesk module is not enabled for your organization."
-          />
-        </PageShell>
-      }
-    >
+    <FeatureGate flag="helpdesk.enabled" fallback={<TechniciansDisabledFallback />}>
       <TechniciansInner />
     </FeatureGate>
   );

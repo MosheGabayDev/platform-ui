@@ -6,6 +6,7 @@
  */
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
 import {
   Activity,
@@ -52,6 +53,7 @@ const DAY_LABELS_ISO: Record<number, string> = {
 };
 
 function SLAInner() {
+  const t = useTranslations("helpdesk.sla");
   const { data: policies, isLoading: policiesLoading, error: policiesError } = useQuery({
     queryKey: queryKeys.helpdesk.slaPolicies(),
     queryFn: fetchSLAPolicies,
@@ -149,11 +151,7 @@ function SLAInner() {
 
   return (
     <LazyMotion features={domAnimation}>
-      <PageShell
-        icon={Activity}
-        title="SLA"
-        subtitle="Policies and compliance by priority"
-      >
+      <PageShell icon={Activity} title={t("title")} subtitle={t("subtitle")}>
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0, transition: { duration: 0.3, ease: PAGE_EASE } }}

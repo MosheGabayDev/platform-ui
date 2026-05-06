@@ -83,9 +83,9 @@ components/
 | E17 | Convert `/admin/ai-skills` chrome (title, subtitle, KPI tiles, fallback) | [x] |
 | E18 | Convert `/admin/ai-usage` chrome (title, subtitle, fallback) — KPI tile labels + range selector + budget banner defer | [x] |
 | E19 | Convert `/audit-log` chrome (title, subtitle, fallback) — KPI tiles + category filter + table headers defer | [x] |
-| E20 | Convert `/helpdesk/*` chrome (root + tickets/technicians/sla/maintenance/batch/approvals/kb) | [ ] |
+| E20 | Convert `/helpdesk/*` chrome (root + tickets/technicians/sla/maintenance/batch/approvals) — page titles + subtitles + feature-gate fallbacks. KB sub-page + per-page table headers/empty states defer | [x] |
 | E21 | Convert `/settings/ai` chrome (title, subtitle, loading, fallback) — form field labels defer | [x] |
-| E22 | Tests: 1 test that switches locale and asserts text changes; 1 test that fallback returns the key for missing translations | [partial — `lib/test-utils/intl.tsx` helper added; locale-switch test pending] |
+| E22 | Tests: locale switch + fallback to key when translation is missing + html lang/dir side-effect | [x] (`lib/i18n/locale-store.test.ts` 8 tests, `components/providers/intl-provider.test.tsx` 4 tests) |
 | E23 | Tracker: ensure no inline Hebrew/English in `/app/(dashboard)/**/*.tsx` (grep audit) | [ ] |
 
 ### Done definition

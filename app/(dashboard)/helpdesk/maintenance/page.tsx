@@ -13,6 +13,7 @@
  */
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
 import {
   Wrench,
@@ -81,6 +82,7 @@ function formatRelative(iso: string): string {
 // shared meta map.
 
 function MaintenanceInner() {
+  const t = useTranslations("helpdesk.maintenance");
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<MaintenanceStatus | "all">("all");
@@ -227,11 +229,7 @@ function MaintenanceInner() {
 
   return (
     <LazyMotion features={domAnimation}>
-      <PageShell
-        icon={Wrench}
-        title="Maintenance"
-        subtitle="Planned change windows + alert suppression"
-      >
+      <PageShell icon={Wrench} title={t("title")} subtitle={t("subtitle")}>
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0, transition: { duration: 0.3, ease: PAGE_EASE } }}

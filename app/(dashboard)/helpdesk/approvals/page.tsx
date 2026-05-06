@@ -10,6 +10,7 @@
  */
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
 import {
   CheckCircle,
@@ -130,6 +131,7 @@ function StatusBadge({ status }: { status: ToolInvocationStatus }) {
 }
 
 function ApprovalsInner() {
+  const t = useTranslations("helpdesk.approvals");
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -276,11 +278,7 @@ function ApprovalsInner() {
 
   return (
     <LazyMotion features={domAnimation}>
-      <PageShell
-        icon={ShieldAlert}
-        title="Approvals"
-        subtitle="Tool invocations awaiting human approval"
-      >
+      <PageShell icon={ShieldAlert} title={t("title")} subtitle={t("subtitle")}>
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0, transition: { duration: 0.3, ease: PAGE_EASE } }}

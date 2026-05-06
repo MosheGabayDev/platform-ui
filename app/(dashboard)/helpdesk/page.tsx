@@ -12,6 +12,7 @@
  *       docs/system-upgrade/10-tasks/helpdesk-phase-a/epic.md
  */
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
 import { HeadphonesIcon, AlertTriangle, CheckCircle, Clock } from "lucide-react";
 import { FeatureGate } from "@/components/shared/feature-gate";
@@ -30,6 +31,7 @@ const KPI_FRAMES = {
 };
 
 function HelpdeskPageInner() {
+  const t = useTranslations("helpdesk.root");
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: queryKeys.helpdesk.stats(),
     queryFn: fetchHelpdeskStats,
@@ -49,11 +51,7 @@ function HelpdeskPageInner() {
 
   return (
     <LazyMotion features={domAnimation}>
-      <PageShell
-        icon={HeadphonesIcon}
-        title="Helpdesk"
-        subtitle="Ticket queue + service-level KPIs"
-      >
+      <PageShell icon={HeadphonesIcon} title={t("title")} subtitle={t("subtitle")}>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pb-20 md:pb-0">
           {isLoading && (
             <>
