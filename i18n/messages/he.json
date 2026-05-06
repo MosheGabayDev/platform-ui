@@ -35,6 +35,58 @@
     "resultsFor": "{count, plural, =0 {אין תוצאות עבור \"{query}\"} =1 {תוצאה אחת עבור \"{query}\"} other {# תוצאות עבור \"{query}\"}}",
     "noResultsTryAgain": "לא נמצאו תוצאות עבור \"{query}\". נסו מילת חיפוש אחרת או נקו את החיפוש."
   },
+  "admin": {
+    "common": {
+      "loadingDefinitions": "טוען הגדרות…",
+      "permissionRequired": "נדרשת הרשאה",
+      "restricted": "מוגבל",
+      "deprecated": "הוצא משימוש",
+      "couldNotLoad": "טעינה נכשלה"
+    },
+    "featureFlags": {
+      "title": "Feature flags",
+      "subtitle": "הפעלת יכולות פר-ארגון",
+      "resolutionOrder": "סדר רזולוציה:",
+      "resolutionDescription": "user override ← org override ← plan default ← system default ← static fallback (off). הגדרת override בארגון כאן משפיעה על כל המשתמשים בארגון זה.",
+      "permissionDescription": "נדרש תפקיד system_admin לניהול feature flags.",
+      "couldNotLoad": "טעינת הגדרות ה-flags נכשלה",
+      "categories": {
+        "all": "הכל",
+        "ai": "AI",
+        "modules": "מודולים",
+        "integrations": "אינטגרציות",
+        "platform": "פלטפורמה",
+        "experimental": "ניסיוני"
+      },
+      "sources": {
+        "user": "Override ברמת משתמש",
+        "org": "Override ברמת ארגון",
+        "plan": "ברירת מחדל של מסלול",
+        "system": "ברירת מחדל מערכתית",
+        "default": "Fallback סטטי"
+      },
+      "states": {
+        "enabled": "פעיל",
+        "disabled": "כבוי",
+        "resolving": "טוען…",
+        "via": "דרך",
+        "defaultLabel": "ברירת מחדל",
+        "on": "פעיל",
+        "off": "כבוי"
+      },
+      "buttons": {
+        "on": "פעיל",
+        "off": "כבוי",
+        "enableAria": "הפעל את {name} בארגון",
+        "disableAria": "השבת את {name} בארגון",
+        "clearAria": "נקה override ברמת ארגון עבור {name} — חזרה ל-plan/system",
+        "clearTitle": "ניקוי override (חזרה ל-plan/system default)"
+      },
+      "stats": {
+        "flagCount": "{count, plural, =1 {flag אחד} other {# flags}}"
+      }
+    }
+  },
   "nav": {
     "groups": {
       "main": "ראשי",

@@ -16,6 +16,7 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
 import {
   Flag,
@@ -51,44 +52,18 @@ import { useQueryClient } from "@tanstack/react-query";
 
 const CATEGORY_META: Record<
   FlagDefinition["category"],
-  { icon: LucideIcon; label: string; tone: string }
+  { icon: LucideIcon; tone: string }
 > = {
-  ai: {
-    icon: Bot,
-    label: "AI",
-    tone: "border-violet-500/30 bg-violet-500/15 text-violet-700 dark:text-violet-400",
-  },
-  modules: {
-    icon: Layers,
-    label: "Modules",
-    tone: "border-cyan-500/30 bg-cyan-500/15 text-cyan-700 dark:text-cyan-400",
-  },
-  integrations: {
-    icon: Plug,
-    label: "Integrations",
-    tone: "border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-400",
-  },
-  platform: {
-    icon: Cog,
-    label: "Platform",
-    tone: "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
-  },
-  experimental: {
-    icon: FlaskConical,
-    label: "Experimental",
-    tone: "border-rose-500/30 bg-rose-500/15 text-rose-700 dark:text-rose-400",
-  },
-};
-
-const SOURCE_LABEL: Record<FlagSource, string> = {
-  user: "User override",
-  org: "Org override",
-  plan: "Plan default",
-  system: "System default",
-  default: "Static fallback",
+  ai: { icon: Bot, tone: "border-violet-500/30 bg-violet-500/15 text-violet-700 dark:text-violet-400" },
+  modules: { icon: Layers, tone: "border-cyan-500/30 bg-cyan-500/15 text-cyan-700 dark:text-cyan-400" },
+  integrations: { icon: Plug, tone: "border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-400" },
+  platform: { icon: Cog, tone: "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400" },
+  experimental: { icon: FlaskConical, tone: "border-rose-500/30 bg-rose-500/15 text-rose-700 dark:text-rose-400" },
 };
 
 function FlagRow({ def, orgId }: { def: FlagDefinition; orgId: number }) {
+  const t = useTranslations("admin.featureFlags");
+  const tCommon = useTranslations("admin.common");
   const queryClient = useQueryClient();
   const { data, isLoading } = useQuery({
     queryKey: ["feature-flags", "flag", def.key, "with-chain"],
@@ -124,14 +99,14 @@ function FlagRow({ def, orgId }: { def: FlagDefinition; orgId: number }) {
           </code>
           {def.deprecated && (
             <Badge variant="outline" className="text-[10px] border-rose-500/40 text-rose-600 dark:text-rose-400">
-              Deprecated
+              {tCommon("deprecated")}
             </Badge>
           )}
         </div>
         <p className="text-xs text-muted-foreground mt-1">{def.description}</p>
         <div className="flex items-center gap-2 mt-2 text-xs">
           {isLoading ? (
-            <span className="text-muted-foreground">resolving...</span>
+            <span className="text-muted-foreground">{t("states.resolving")}</span>
           ) : (
             <>
               {enabled ? (
@@ -140,7 +115,7 @@ function FlagRow({ def, orgId }: { def: FlagDefinition; orgId: number }) {
                   className="border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
                 >
                   <CheckCircle2 className="h-3 w-3 me-1" aria-hidden="true" />
-                  Enabled
+                  {t("states.enabled")}
                 </Badge>
               ) : (
                 <Badge
@@ -148,14 +123,14 @@ function FlagRow({ def, orgId }: { def: FlagDefinition; orgId: number }) {
                   className="border-muted text-muted-foreground"
                 >
                   <XCircle className="h-3 w-3 me-1" aria-hidden="true" />
-                  Disabled
+                  {t("states.disabled")}
                 </Badge>
               )}
               <span className="text-muted-foreground">
-                via <strong>{SOURCE_LABEL[source]}</strong>
+                {t("states.via")} <strong>{t(`sources.${source}`)}</strong>
               </span>
               <span className="text-[10px] text-muted-foreground">
-                · default {def.system_default ? "on" : "off"}
+                · {t("states.defaultLabel")} {def.system_default ? t("states.on") : t("states.off")}
               </span>
             </>
           )}
@@ -176,9 +151,9 @@ function FlagRow({ def, orgId }: { def: FlagDefinition; orgId: number }) {
               reason: `Enabled via admin UI`,
             })
           }
-          aria-label={`Enable ${def.label} for this org`}
+          aria-label={t("buttons.enableAria", { name: def.label })}
         >
-          On
+          {t("buttons.on")}
         </Button>
         <Button
           size="sm"
@@ -193,9 +168,9 @@ function FlagRow({ def, orgId }: { def: FlagDefinition; orgId: number }) {
               reason: `Disabled via admin UI`,
             })
           }
-          aria-label={`Disable ${def.label} for this org`}
+          aria-label={t("buttons.disableAria", { name: def.label })}
         >
-          Off
+          {t("buttons.off")}
         </Button>
         <Button
           size="sm"
@@ -210,8 +185,8 @@ function FlagRow({ def, orgId }: { def: FlagDefinition; orgId: number }) {
               reason: `Cleared via admin UI`,
             })
           }
-          aria-label={`Clear org override for ${def.label} — fall back to plan/system`}
-          title="Clear override (fall back to plan/system default)"
+          aria-label={t("buttons.clearAria", { name: def.label })}
+          title={t("buttons.clearTitle")}
         >
           <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
         </Button>
@@ -221,6 +196,8 @@ function FlagRow({ def, orgId }: { def: FlagDefinition; orgId: number }) {
 }
 
 function FeatureFlagsInner() {
+  const t = useTranslations("admin.featureFlags");
+  const tCommon = useTranslations("admin.common");
   const { data: session } = useSession();
   const orgId = session?.user?.org_id ?? 1;
   const [activeCategory, setActiveCategory] = useState<
@@ -261,23 +238,19 @@ function FeatureFlagsInner() {
 
   const categoryFilters: Array<{
     value: FlagDefinition["category"] | "all";
-    label: string;
+    key: string;
   }> = [
-    { value: "all", label: "All" },
-    { value: "ai", label: "AI" },
-    { value: "modules", label: "Modules" },
-    { value: "integrations", label: "Integrations" },
-    { value: "platform", label: "Platform" },
-    { value: "experimental", label: "Experimental" },
+    { value: "all", key: "all" },
+    { value: "ai", key: "ai" },
+    { value: "modules", key: "modules" },
+    { value: "integrations", key: "integrations" },
+    { value: "platform", key: "platform" },
+    { value: "experimental", key: "experimental" },
   ];
 
   return (
     <LazyMotion features={domAnimation}>
-      <PageShell
-        icon={Flag}
-        title="Feature flags"
-        subtitle="Per-org capability rollout"
-      >
+      <PageShell icon={Flag} title={t("title")} subtitle={t("subtitle")}>
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0, transition: { duration: 0.3, ease: PAGE_EASE } }}
@@ -285,9 +258,8 @@ function FeatureFlagsInner() {
         >
           {/* Resolution hierarchy reminder */}
           <div className="glass border-border/50 rounded-xl p-3 text-xs text-muted-foreground">
-            <span className="font-medium text-foreground">Resolution order: </span>
-            user override → org override → plan default → system default → static fallback (off).
-            Setting an org override here affects ALL users in this organization.
+            <span className="font-medium text-foreground">{t("resolutionOrder")} </span>
+            {t("resolutionDescription")}
           </div>
 
           {/* Category filter */}
@@ -299,18 +271,18 @@ function FeatureFlagsInner() {
                 variant={activeCategory === f.value ? "default" : "outline"}
                 onClick={() => setActiveCategory(f.value)}
               >
-                {f.label}
+                {t(`categories.${f.key}`)}
               </Button>
             ))}
           </div>
 
           {isLoading && (
-            <div className="text-sm text-muted-foreground">Loading flag definitions…</div>
+            <div className="text-sm text-muted-foreground">{tCommon("loadingDefinitions")}</div>
           )}
           {error && (
             <EmptyState
               icon={AlertCircle}
-              title="Could not load flag definitions"
+              title={t("couldNotLoad")}
               description={(error as Error).message}
             />
           )}
@@ -323,10 +295,10 @@ function FeatureFlagsInner() {
                 <div className="flex items-center gap-2">
                   <Badge variant="outline" className={meta.tone}>
                     <Icon className="h-3 w-3 me-1" aria-hidden="true" />
-                    {meta.label}
+                    {t(`categories.${category}`)}
                   </Badge>
                   <span className="text-xs text-muted-foreground">
-                    {defs.length} flag{defs.length === 1 ? "" : "s"}
+                    {t("stats.flagCount", { count: defs.length })}
                   </span>
                 </div>
                 <div className="space-y-2">
@@ -343,20 +315,23 @@ function FeatureFlagsInner() {
   );
 }
 
+function FeatureFlagsRestrictedFallback() {
+  const t = useTranslations("admin.featureFlags");
+  const tCommon = useTranslations("admin.common");
+  return (
+    <PageShell icon={Flag} title={t("title")} subtitle={tCommon("restricted")}>
+      <EmptyState
+        icon={AlertCircle}
+        title={tCommon("permissionRequired")}
+        description={t("permissionDescription")}
+      />
+    </PageShell>
+  );
+}
+
 export default function FeatureFlagsAdminPage() {
   return (
-    <PermissionGate
-      role={["system_admin"]}
-      fallback={
-        <PageShell icon={Flag} title="Feature flags" subtitle="Restricted">
-          <EmptyState
-            icon={AlertCircle}
-            title="Permission required"
-            description="You need system_admin role to manage feature flags."
-          />
-        </PageShell>
-      }
-    >
+    <PermissionGate role={["system_admin"]} fallback={<FeatureFlagsRestrictedFallback />}>
       <FeatureFlagsInner />
     </PermissionGate>
   );
