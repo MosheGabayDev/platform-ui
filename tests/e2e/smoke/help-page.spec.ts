@@ -7,7 +7,7 @@ test.describe("Help page — Phase 3.3", () => {
   test("renders header, search box, and tabs", async ({ page }) => {
     await page.goto("/help");
     await expect(
-      page.getByRole("heading", { name: /^Help & documentation$/i }),
+      page.getByRole("heading", { name: /עזרה ותיעוד/ }),
     ).toBeVisible();
     await expect(page.getByTestId("help-search-input")).toBeVisible();
     await expect(page.getByTestId("help-tab-all")).toBeVisible();
@@ -20,7 +20,7 @@ test.describe("Help page — Phase 3.3", () => {
     await page.goto("/help");
     await expect(page.getByTestId("doc-article-quick-start-helpdesk")).toBeVisible();
     await expect(page.getByTestId("ai-shortcut-helpdesk.ticket.take")).toBeVisible();
-    await expect(page.getByText(/^Keyboard shortcuts$/i)).toBeVisible();
+    await expect(page.getByText(/^קיצורי מקלדת$/)).toBeVisible();
   });
 
   test("search filters down to a known phrase", async ({ page }) => {
@@ -42,6 +42,6 @@ test.describe("Help page — Phase 3.3", () => {
   test("nonsense query shows the empty-state message", async ({ page }) => {
     await page.goto("/help");
     await page.getByTestId("help-search-input").fill("zzzz-no-match-zzzz");
-    await expect(page.getByText(/No results for/i)).toBeVisible();
+    await expect(page.getByText(/לא נמצאו תוצאות/)).toBeVisible();
   });
 });

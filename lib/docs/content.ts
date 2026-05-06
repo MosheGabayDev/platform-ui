@@ -17,6 +17,7 @@ const QUICK_STARTS: DocArticle[] = [
     title_he: "הלפדסק",
     summary: "Manage tickets, technicians, SLAs, KB articles, and batch tasks.",
     summary_he: "ניהול פניות, טכנאים, SLA, מאמרי בסיס ידע ומשימות אצווה.",
+    body_he: "כדי לנסות במהירות: פתח /helpdesk לדשבורד הראשי, או נסה לבקש מה-AI 'take ticket 1001'.",
     tags: ["tickets", "support", "sla", "helpdesk"],
     steps: [
       { text: "Open /helpdesk to see the dashboard.", text_he: "פתח /helpdesk לדשבורד הראשי." },
@@ -32,11 +33,12 @@ const QUICK_STARTS: DocArticle[] = [
     title: "Users & roles",
     title_he: "משתמשים ותפקידים",
     summary: "Invite users, assign roles, deactivate accounts.",
+    summary_he: "הזמנת משתמשים, שיוך תפקידים, השבתת חשבונות.",
     tags: ["users", "rbac", "roles"],
     steps: [
-      { text: "Open /users to list members of your org." },
-      { text: "Use /roles to manage permissions per role." },
-      { text: "Bulk-deactivate via the AI: 'deactivate user 42' (requires confirm)." },
+      { text: "Open /users to list members of your org.", text_he: "פתח /users לרשימת חברי הארגון." },
+      { text: "Use /roles to manage permissions per role.", text_he: "השתמש ב-/roles לניהול הרשאות לפי תפקיד." },
+      { text: "Bulk-deactivate via the AI: 'deactivate user 42' (requires confirm).", text_he: "השבתה מרובה דרך AI: 'deactivate user 42' (דורש אישור)." },
     ],
   },
   {
@@ -46,11 +48,12 @@ const QUICK_STARTS: DocArticle[] = [
     title: "Audit log",
     title_he: "יומן ביקורת",
     summary: "Searchable trail of every important platform event.",
+    summary_he: "יומן ניתן לחיפוש של כל אירוע משמעותי בפלטפורמה.",
     tags: ["audit", "logs", "compliance"],
     steps: [
-      { text: "Open /audit-log to browse recent entries." },
-      { text: "Filter by category (login / create / update / delete / admin / ai / security)." },
-      { text: "Each AI action lands here under category=ai with the matched policy decision." },
+      { text: "Open /audit-log to browse recent entries.", text_he: "פתח /audit-log לעיון ברשומות אחרונות." },
+      { text: "Filter by category (login / create / update / delete / admin / ai / security).", text_he: "סנן לפי קטגוריה (login / create / update / delete / admin / ai / security)." },
+      { text: "Each AI action lands here under category=ai with the matched policy decision.", text_he: "כל פעולת AI נוחתת כאן תחת category=ai יחד עם החלטת ה-policy שהתאימה." },
     ],
   },
   {
@@ -60,10 +63,11 @@ const QUICK_STARTS: DocArticle[] = [
     title: "AI agents",
     title_he: "סוכני AI",
     summary: "Background AI workers that run on triggers (cron, events).",
+    summary_he: "עובדי AI ברקע הרצים על טריגרים (cron, אירועים).",
     tags: ["ai", "agents", "automation"],
     steps: [
-      { text: "Open /ai-agents to list configured agents." },
-      { text: "Each agent uses a skill from /admin/ai-skills and obeys policies in /admin/policies." },
+      { text: "Open /ai-agents to list configured agents.", text_he: "פתח /ai-agents לרשימת הסוכנים המוגדרים." },
+      { text: "Each agent uses a skill from /admin/ai-skills and obeys policies in /admin/policies.", text_he: "כל סוכן משתמש ב-skill מ-/admin/ai-skills וכפוף ל-policies ב-/admin/policies." },
     ],
   },
   {
@@ -73,11 +77,12 @@ const QUICK_STARTS: DocArticle[] = [
     title: "AI providers",
     title_he: "ספקי AI",
     summary: "Pick which LLM providers and models your org uses.",
+    summary_he: "בחר באילו ספקי LLM ומודלים הארגון שלך משתמש.",
     tags: ["ai", "providers", "llm"],
     steps: [
-      { text: "Open /admin/ai-providers (admin only)." },
-      { text: "Enable a provider, paste credentials, click Test connection." },
-      { text: "Routing rules pick which provider serves which purpose." },
+      { text: "Open /admin/ai-providers (admin only).", text_he: "פתח /admin/ai-providers (admin בלבד)." },
+      { text: "Enable a provider, paste credentials, click Test connection.", text_he: "הפעל ספק, הדבק credentials, לחץ Test connection." },
+      { text: "Routing rules pick which provider serves which purpose.", text_he: "כללי routing בוחרים איזה ספק משרת כל מטרה." },
     ],
   },
   {
@@ -87,10 +92,11 @@ const QUICK_STARTS: DocArticle[] = [
     title: "Knowledge base & RAG",
     title_he: "ידע ו-RAG",
     summary: "Upload documents the AI can ground its answers in.",
+    summary_he: "העלאת מסמכים שה-AI יכול לבסס עליהם תשובות.",
     tags: ["rag", "knowledge", "ai"],
     steps: [
-      { text: "Open /knowledge to upload PDFs / docs / URLs." },
-      { text: "Indexed chunks become retrievable by AI agents during chat." },
+      { text: "Open /knowledge to upload PDFs / docs / URLs.", text_he: "פתח /knowledge להעלאת PDFים / מסמכים / כתובות URL." },
+      { text: "Indexed chunks become retrievable by AI agents during chat.", text_he: "ה-chunks המאונדקסים זמינים לאחזור ע\"י סוכני AI במהלך שיחה." },
     ],
   },
   {
@@ -100,10 +106,11 @@ const QUICK_STARTS: DocArticle[] = [
     title: "Voice & ALA",
     title_he: "ALA — Voice AI",
     summary: "Inbound/outbound voice flows with ASR + TTS.",
+    summary_he: "תרחישי שיחות נכנסות/יוצאות עם ASR + TTS.",
     tags: ["voice", "ala", "telephony"],
     steps: [
-      { text: "Open /ala to design call flows." },
-      { text: "Inspect /voice for live and historical call sessions." },
+      { text: "Open /ala to design call flows.", text_he: "פתח /ala לעיצוב תרחישי שיחה." },
+      { text: "Inspect /voice for live and historical call sessions.", text_he: "בדוק /voice לסשנים חיים והיסטוריים." },
     ],
   },
   {
@@ -113,10 +120,11 @@ const QUICK_STARTS: DocArticle[] = [
     title: "Automation",
     title_he: "אוטומציה",
     summary: "Trigger-condition-action workflows across modules.",
+    summary_he: "תהליכי טריגר-תנאי-פעולה חוצי מודולים.",
     tags: ["automation", "workflows", "triggers"],
     steps: [
-      { text: "Open /automation to build workflows." },
-      { text: "Use the audit-log to confirm runs and inspect failures." },
+      { text: "Open /automation to build workflows.", text_he: "פתח /automation לבניית תהליכים." },
+      { text: "Use the audit-log to confirm runs and inspect failures.", text_he: "השתמש ב-audit-log לאישור ריצות ובדיקת כשלונות." },
     ],
   },
   {
@@ -126,10 +134,11 @@ const QUICK_STARTS: DocArticle[] = [
     title: "Integrations",
     title_he: "אינטגרציות",
     summary: "OAuth/webhook integrations to external systems.",
+    summary_he: "אינטגרציות OAuth/webhook למערכות חיצוניות.",
     tags: ["integrations", "oauth", "webhooks"],
     steps: [
-      { text: "Open /integrations and pick a provider." },
-      { text: "Authorize once; tokens are stored encrypted via cap 16 secrets." },
+      { text: "Open /integrations and pick a provider.", text_he: "פתח /integrations ובחר ספק." },
+      { text: "Authorize once; tokens are stored encrypted via cap 16 secrets.", text_he: "הרשה פעם אחת; ה-tokens נשמרים מוצפנים דרך cap 16 secrets." },
     ],
   },
   {
@@ -139,10 +148,11 @@ const QUICK_STARTS: DocArticle[] = [
     title: "Monitoring",
     title_he: "ניטור",
     summary: "Health, logs, metrics — operations data for the platform itself.",
+    summary_he: "בריאות, לוגים, מטריקות — נתוני תפעול לפלטפורמה עצמה.",
     tags: ["monitoring", "logs", "metrics"],
     steps: [
-      { text: "Open /monitoring for system health probes." },
-      { text: "Use /logs for raw application logs and /metrics for time-series." },
+      { text: "Open /monitoring for system health probes.", text_he: "פתח /monitoring לבדיקות בריאות מערכת." },
+      { text: "Use /logs for raw application logs and /metrics for time-series.", text_he: "השתמש ב-/logs ללוגים גולמיים וב-/metrics לסדרות-זמן." },
     ],
   },
   {
@@ -152,10 +162,11 @@ const QUICK_STARTS: DocArticle[] = [
     title: "Billing & API keys",
     title_he: "חיוב ו-API keys",
     summary: "Plans, invoices, usage caps, API tokens.",
+    summary_he: "תוכניות, חשבוניות, תקרות שימוש, API tokens.",
     tags: ["billing", "api-keys", "plan"],
     steps: [
-      { text: "Open /billing to view your current plan and invoices." },
-      { text: "Manage tokens at /api-keys — they inherit the org's RBAC." },
+      { text: "Open /billing to view your current plan and invoices.", text_he: "פתח /billing לצפייה בתוכנית הנוכחית וחשבוניות." },
+      { text: "Manage tokens at /api-keys — they inherit the org's RBAC.", text_he: "נהל tokens ב-/api-keys — הם יורשים את ה-RBAC של הארגון." },
     ],
   },
   {
@@ -190,7 +201,9 @@ const PLATFORM_ARTICLES: DocArticle[] = [
     title: "How AI safety works",
     title_he: "כיצד פועל מנגנון בטיחות ה-AI",
     summary: "Propose → Confirm → Audit. The AI never executes silently.",
+    summary_he: "הצעה → אישור → ביקורת. ה-AI לעולם אינו מבצע פעולה בשקט.",
     body: "Every AI-initiated action follows three steps: (1) the AI proposes the action with a token-bound expiration; (2) the user reviews and confirms (or rejects); (3) the executor runs and the audit log records the outcome with category=ai. Policies (cap 27) can reject proposals before they ever reach the user.",
+    body_he: "כל פעולה שיוזם ה-AI עוברת שלושה שלבים: (1) ה-AI מציע את הפעולה עם token שפג בזמן קצוב; (2) המשתמש בודק ומאשר (או דוחה); (3) ה-executor מריץ את הפעולה ויומן הביקורת רושם את התוצאה תחת category=ai. Policies (cap 27) יכולים לדחות הצעות עוד לפני שהן מגיעות למשתמש.",
     tags: ["ai", "safety", "audit"],
   },
 ];

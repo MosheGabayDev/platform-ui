@@ -8,6 +8,11 @@
  * - AI shortcuts cheatsheet
  * - Keyboard shortcuts cheatsheet
  *
+ * Hebrew-first rendering: when an article / step exposes a `*_he`
+ * variant, that's what we render. Page chrome is also Hebrew (the
+ * platform default). English strings remain in the catalog as a
+ * fallback when a translation is missing.
+ *
  * Spec: docs/system-upgrade/04-capabilities/platform-help-surface-spec.md
  */
 import { useMemo, useState } from "react";
@@ -29,10 +34,10 @@ import type {
 type Tab = "all" | "quick-start" | "ai-cheatsheet" | "shortcuts";
 
 const TAB_OPTIONS: Array<{ value: Tab; label: string; icon: React.ElementType }> = [
-  { value: "all", label: "All", icon: Layers },
-  { value: "quick-start", label: "Quick starts", icon: BookOpen },
-  { value: "ai-cheatsheet", label: "AI shortcuts", icon: Sparkles },
-  { value: "shortcuts", label: "Keyboard", icon: Keyboard },
+  { value: "all", label: "הכל", icon: Layers },
+  { value: "quick-start", label: "התחלה מהירה", icon: BookOpen },
+  { value: "ai-cheatsheet", label: "קיצורי AI", icon: Sparkles },
+  { value: "shortcuts", label: "מקלדת", icon: Keyboard },
 ];
 
 const CAPABILITY_TONE: Record<AICapabilityLevel, string> = {
@@ -50,27 +55,28 @@ const CAPABILITY_ICON: Record<AICapabilityLevel, React.ElementType> = {
 };
 
 function ArticleCard({ article }: { article: DocArticle }) {
+  const title = article.title_he ?? article.title;
+  const summary = article.summary_he ?? article.summary;
+  const body = article.body_he ?? article.body;
   return (
     <div
       className="rounded-lg border border-border/60 bg-card/40 p-4 space-y-2"
       data-testid={`doc-article-${article.id}`}
     >
       <div className="flex items-baseline gap-2 flex-wrap">
-        <h3 className="text-sm font-semibold">{article.title}</h3>
+        <h3 className="text-sm font-semibold">{title}</h3>
         {article.module_key && (
           <Badge variant="outline" className="text-[10px]">
             {article.module_key}
           </Badge>
         )}
       </div>
-      <p className="text-xs text-muted-foreground">{article.summary}</p>
-      {article.body && (
-        <p className="text-xs text-muted-foreground/90">{article.body}</p>
-      )}
+      <p className="text-xs text-muted-foreground">{summary}</p>
+      {body && <p className="text-xs text-muted-foreground/90">{body}</p>}
       {article.steps && article.steps.length > 0 && (
         <ol className="space-y-1 text-xs list-decimal ms-5 marker:text-muted-foreground">
           {article.steps.map((s, i) => (
-            <li key={i}>{s.text}</li>
+            <li key={i}>{s.text_he ?? s.text}</li>
           ))}
         </ol>
       )}
@@ -80,6 +86,7 @@ function ArticleCard({ article }: { article: DocArticle }) {
 
 function AIShortcutRow({ shortcut }: { shortcut: AIShortcut }) {
   const Icon = CAPABILITY_ICON[shortcut.capability_level];
+  const description = shortcut.description_he ?? shortcut.description;
   return (
     <div
       className="flex items-start gap-3 p-3 rounded-md border border-border/60 bg-card/40"
@@ -89,14 +96,14 @@ function AIShortcutRow({ shortcut }: { shortcut: AIShortcut }) {
         <Icon className="size-3.5" aria-hidden="true" />
       </div>
       <div className="flex-1 min-w-0 space-y-1">
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap" dir="ltr">
           <code className="text-xs font-mono">{shortcut.phrase}</code>
           <span className="text-[11px] text-muted-foreground">→</span>
           <code className="text-[11px] font-mono text-muted-foreground">
             {shortcut.action_id}
           </code>
         </div>
-        <p className="text-xs text-muted-foreground">{shortcut.description}</p>
+        <p className="text-xs text-muted-foreground">{description}</p>
         <Badge variant="outline" className={cn("text-[10px]", CAPABILITY_TONE[shortcut.capability_level])}>
           {shortcut.capability_level}
         </Badge>
@@ -106,12 +113,13 @@ function AIShortcutRow({ shortcut }: { shortcut: AIShortcut }) {
 }
 
 function KeyboardRow({ shortcut }: { shortcut: KeyboardShortcut }) {
+  const label = shortcut.label_he ?? shortcut.label;
   return (
     <div
       className="flex items-center justify-between gap-3 px-3 py-2 rounded-md border border-border/40 bg-card/30"
     >
-      <span className="text-xs text-foreground">{shortcut.label}</span>
-      <div className="flex items-center gap-1">
+      <span className="text-xs text-foreground">{label}</span>
+      <div className="flex items-center gap-1" dir="ltr">
         {shortcut.keys.map((k, i) => (
           <kbd
             key={i}
@@ -131,8 +139,7 @@ export default function HelpPage() {
 
   const results = useMemo(() => searchCatalog(query), [query]);
 
-  const showQuickStarts =
-    tab === "all" || tab === "quick-start";
+  const showQuickStarts = tab === "all" || tab === "quick-start";
   const showAI = tab === "all" || tab === "ai-cheatsheet";
   const showKbd = tab === "all" || tab === "shortcuts";
 
@@ -150,8 +157,8 @@ export default function HelpPage() {
   return (
     <PageShell
       icon={BookOpen}
-      title="Help & documentation"
-      subtitle="Search the docs, browse module quick-starts, find AI and keyboard shortcuts."
+      title="עזרה ותיעוד"
+      subtitle="חיפוש בתיעוד, מדריכי התחלה למודולים, קיצורי AI ומקלדת."
     >
       <div className="space-y-6 pb-20 md:pb-0">
         {/* Search + tabs */}
@@ -159,11 +166,11 @@ export default function HelpPage() {
           <div className="relative">
             <Search className="absolute start-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" aria-hidden="true" />
             <Input
-              placeholder="Search docs, AI phrases, shortcuts…"
+              placeholder="חיפוש בתיעוד, פקודות AI, קיצורים…"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="ps-9"
-              aria-label="Search documentation"
+              aria-label="חיפוש בתיעוד"
               data-testid="help-search-input"
             />
           </div>
@@ -187,15 +194,17 @@ export default function HelpPage() {
           </div>
           {query && (
             <p className="text-xs text-muted-foreground">
-              {totalHits} result{totalHits === 1 ? "" : "s"} for &ldquo;{query}&rdquo;.
+              {totalHits === 1
+                ? `תוצאה אחת עבור "${query}".`
+                : `${totalHits} תוצאות עבור "${query}".`}
             </p>
           )}
         </div>
 
         {/* Platform overview always sits at the top in the All view */}
         {tab === "all" && platform.length > 0 && (
-          <section className="space-y-3" aria-label="Platform overview">
-            <h2 className="text-sm font-semibold text-muted-foreground">Platform</h2>
+          <section className="space-y-3" aria-label="סקירת פלטפורמה">
+            <h2 className="text-sm font-semibold text-muted-foreground">פלטפורמה</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {platform.map((a) => (
                 <ArticleCard key={a.id} article={a} />
@@ -205,8 +214,8 @@ export default function HelpPage() {
         )}
 
         {showQuickStarts && quickStarts.length > 0 && (
-          <section className="space-y-3" aria-label="Quick starts">
-            <h2 className="text-sm font-semibold text-muted-foreground">Quick starts</h2>
+          <section className="space-y-3" aria-label="התחלה מהירה">
+            <h2 className="text-sm font-semibold text-muted-foreground">התחלה מהירה</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {quickStarts.map((a) => (
                 <ArticleCard key={a.id} article={a} />
@@ -216,15 +225,15 @@ export default function HelpPage() {
         )}
 
         {showAI && results.aiShortcuts.length > 0 && (
-          <section className="space-y-3" aria-label="AI shortcuts">
-            <h2 className="text-sm font-semibold text-muted-foreground">AI shortcuts</h2>
+          <section className="space-y-3" aria-label="קיצורי AI">
+            <h2 className="text-sm font-semibold text-muted-foreground">קיצורי AI</h2>
             <p className="text-xs text-muted-foreground">
-              Type these into the floating AI assistant. Every action is proposed
-              first, confirmed, then audited (
+              הקלידו את הביטויים הבאים בסייען ה-AI הצף. כל פעולה מוצעת תחילה,
+              מאושרת על ידכם, ואז נרשמת ב-
               <Link href="/audit-log" className="underline">
-                audit log
+                יומן הביקורת
               </Link>
-              ).
+              .
             </p>
             <div className="space-y-2">
               {results.aiShortcuts.map((s) => (
@@ -235,8 +244,8 @@ export default function HelpPage() {
         )}
 
         {showKbd && results.keyboardShortcuts.length > 0 && (
-          <section className="space-y-3" aria-label="Keyboard shortcuts">
-            <h2 className="text-sm font-semibold text-muted-foreground">Keyboard shortcuts</h2>
+          <section className="space-y-3" aria-label="קיצורי מקלדת">
+            <h2 className="text-sm font-semibold text-muted-foreground">קיצורי מקלדת</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {results.keyboardShortcuts.map((k, i) => (
                 <KeyboardRow key={i} shortcut={k} />
@@ -247,8 +256,7 @@ export default function HelpPage() {
 
         {totalHits === 0 && (
           <div className="rounded-lg border border-dashed border-border/60 p-6 text-center text-sm text-muted-foreground">
-            No results for &ldquo;{query}&rdquo;. Try a different keyword or
-            clear the search.
+            לא נמצאו תוצאות עבור &ldquo;{query}&rdquo;. נסו מילת חיפוש אחרת או נקו את החיפוש.
           </div>
         )}
       </div>
