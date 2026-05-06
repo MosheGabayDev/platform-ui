@@ -4,10 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import {
-  LayoutDashboard, Users, ShieldCheck, KeyRound, ClipboardList,
-  Activity, BarChart2, Settings, CreditCard, HeadphonesIcon,
-  Bot, Brain, BookOpen, Phone, HardDrive, Building2, Search,
-  TicketIcon, FileText, User as UserIcon, Loader2,
+  Search, TicketIcon, BookOpen, User as UserIcon, Building2, Loader2,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -16,38 +13,26 @@ import {
 } from "@/components/ui/command";
 import { searchGlobal } from "@/lib/api/search";
 import { sanitizeExcerpt } from "@/lib/utils/sanitize-excerpt";
+import { useNavGroups } from "@/lib/hooks/use-nav-groups";
+import { useTranslations } from "next-intl";
 import type {
   SearchResult,
   SearchResultType,
 } from "@/lib/modules/search/types";
 
-const pages = [
-  { title: "דשבורד", href: "/", icon: LayoutDashboard, group: "ניווט" },
-  { title: "משתמשים", href: "/users", icon: Users, group: "ניווט" },
-  { title: "תפקידים והרשאות", href: "/roles", icon: ShieldCheck, group: "ניווט" },
-  { title: "ארגונים", href: "/orgs", icon: Building2, group: "ניווט" },
-  { title: "מפתחות API", href: "/api-keys", icon: KeyRound, group: "מערכת" },
-  { title: "יומן ביקורת", href: "/audit-log", icon: ClipboardList, group: "מערכת" },
-  { title: "גיבויים", href: "/backups", icon: HardDrive, group: "מערכת" },
-  { title: "הגדרות מערכת", href: "/settings/system", icon: Settings, group: "מערכת" },
-  { title: "בריאות המערכת", href: "/health", icon: Activity, group: "ניטור" },
-  { title: "לוגים", href: "/logs", icon: ClipboardList, group: "ניטור" },
-  { title: "מטריקות", href: "/metrics", icon: BarChart2, group: "ניטור" },
-  { title: "חיוב", href: "/billing", icon: CreditCard, group: "עסקי" },
-  { title: "הלפדסק", href: "/helpdesk", icon: HeadphonesIcon, group: "עסקי" },
-  { title: "סוכני AI", href: "/agents", icon: Bot, group: "עסקי" },
-  { title: "ALA", href: "/ala", icon: Brain, group: "עסקי" },
-  { title: "ידע ו-RAG", href: "/knowledge", icon: BookOpen, group: "עסקי" },
-  { title: "שיחות קוליות", href: "/voice", icon: Phone, group: "עסקי" },
-];
+// Icons-only map; the heading text is resolved at render time via t().
+const RESULT_TYPE_ICON: Record<string, LucideIcon> = {
+  ticket: TicketIcon,
+  kb: BookOpen,
+  user: UserIcon,
+  org: Building2,
+};
 
-const groups = ["ניווט", "מערכת", "ניטור", "עסקי"];
-
-const RESULT_TYPE_META: Record<string, { icon: LucideIcon; heading: string }> = {
-  ticket: { icon: TicketIcon, heading: "כרטיסים" },
-  kb: { icon: BookOpen, heading: "בסיס ידע" },
-  user: { icon: UserIcon, heading: "משתמשים" },
-  org: { icon: Building2, heading: "ארגונים" },
+const RESULT_TYPE_KEY: Record<string, string> = {
+  ticket: "ticket",
+  kb: "kb",
+  user: "user",
+  org: "org",
 };
 
 // Sanitizer extracted to lib/utils/sanitize-excerpt so the test imports the
@@ -60,11 +45,7 @@ function SearchResultRow({
   result: SearchResult;
   onSelect: () => void;
 }) {
-  const meta = RESULT_TYPE_META[String(result.type)] ?? {
-    icon: Search,
-    heading: String(result.type),
-  };
-  const Icon = meta.icon;
+  const Icon = RESULT_TYPE_ICON[String(result.type)] ?? Search;
   return (
     <CommandItem
       value={`${result.type}-${result.id}-${result.title}`}
@@ -95,6 +76,8 @@ export function CommandPalette() {
   const [input, setInput] = useState("");
   const [debounced, setDebounced] = useState("");
   const router = useRouter();
+  const navGroups = useNavGroups();
+  const t = useTranslations("commandPalette");
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -152,7 +135,7 @@ export function CommandPalette() {
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
       <CommandInput
-        placeholder="חפש דף, כרטיס, משתמש, מאמר…"
+        placeholder={t("placeholder")}
         value={input}
         onValueChange={setInput}
       />
@@ -162,10 +145,10 @@ export function CommandPalette() {
             <Search className="size-8 opacity-40" />
             <p className="text-sm">
               {searchLoading
-                ? "מחפש..."
+                ? t("searching")
                 : searchEnabled
-                  ? "לא נמצאו תוצאות"
-                  : "התחל להקליד כדי לחפש"}
+                  ? t("noResults")
+                  : t("startTyping")}
             </p>
           </div>
         </CommandEmpty>
@@ -177,7 +160,7 @@ export function CommandPalette() {
             aria-live="polite"
           >
             <Loader2 className="size-3 animate-spin" aria-hidden="true" />
-            מחפש...
+            {t("searching")}
           </div>
         )}
 
@@ -185,12 +168,12 @@ export function CommandPalette() {
         {searchEnabled && totalResults > 0 && (
           <>
             {Array.from(resultsByType.entries()).map(([type, results]) => {
-              const meta = RESULT_TYPE_META[String(type)] ?? {
-                icon: Search,
-                heading: String(type),
-              };
+              const typeKey = RESULT_TYPE_KEY[String(type)];
+              const heading = typeKey
+                ? t(`groupsByType.${typeKey}`)
+                : String(type);
               return (
-                <CommandGroup key={`search-${type}`} heading={meta.heading}>
+                <CommandGroup key={`search-${type}`} heading={heading}>
                   {results.map((r) => (
                     <SearchResultRow
                       key={`${r.type}-${r.id}`}
@@ -205,23 +188,43 @@ export function CommandPalette() {
           </>
         )}
 
-        {/* Nav groups — hidden while a search is active to reduce noise */}
+        {/* Nav groups — sourced from useNavGroups() so the command-palette
+            tracks the sidebar 1:1 (Track E follow-up). Hidden while a search
+            is active to reduce noise. */}
         {showNavGroups &&
-          groups.map((group) => (
-            <CommandGroup key={group} heading={group}>
-              {pages
-                .filter((p) => p.group === group)
-                .map((page) => (
+          navGroups.map((group) => (
+            <CommandGroup key={group.labelKey} heading={group.label}>
+              {group.items.flatMap((item) => {
+                const rows = [
                   <CommandItem
-                    key={page.href}
-                    value={page.title}
-                    onSelect={() => navigate(page.href)}
+                    key={item.href}
+                    value={`${item.title} ${item.href}`}
+                    onSelect={() => navigate(item.href)}
                     className="gap-2.5 cursor-pointer"
                   >
-                    <page.icon className="size-4 text-muted-foreground" />
-                    {page.title}
-                  </CommandItem>
-                ))}
+                    <item.icon className="size-4 text-muted-foreground" />
+                    {item.title}
+                  </CommandItem>,
+                ];
+                // Surface `children` (e.g. /settings/* sub-pages) as flat rows.
+                if (item.children) {
+                  for (const child of item.children) {
+                    rows.push(
+                      <CommandItem
+                        key={child.href}
+                        value={`${item.title} ${child.title} ${child.href}`}
+                        onSelect={() => navigate(child.href)}
+                        className="gap-2.5 cursor-pointer ps-8"
+                      >
+                        <child.icon className="size-4 text-muted-foreground" />
+                        <span className="text-muted-foreground/80">{item.title} ›</span>
+                        {child.title}
+                      </CommandItem>,
+                    );
+                  }
+                }
+                return rows;
+              })}
               <CommandSeparator />
             </CommandGroup>
           ))}

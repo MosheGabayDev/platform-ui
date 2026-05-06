@@ -1,4 +1,16 @@
 {
+  "commandPalette": {
+    "placeholder": "Search a page, ticket, user, article…",
+    "searching": "Searching…",
+    "noResults": "No results",
+    "startTyping": "Start typing to search",
+    "groupsByType": {
+      "ticket": "Tickets",
+      "kb": "Knowledge base",
+      "user": "Users",
+      "org": "Organizations"
+    }
+  },
   "common": {
     "save": "Save",
     "cancel": "Cancel",
@@ -307,6 +319,7 @@
       "logs": "Logs",
       "metrics": "Metrics",
       "auditLog": "Audit log",
+      "approvals": "Approvals",
       "modules": "Modules",
       "platformSettings": "Platform settings",
       "featureFlags": "Feature flags",
@@ -328,6 +341,43 @@
   "language": {
     "switcher": "Language",
     "current": "Current language: {locale}"
+  },
+  "helpdesk": {
+    "root": {
+      "title": "Helpdesk",
+      "subtitle": "Ticket queue + service-level KPIs"
+    },
+    "tickets": {
+      "title": "Tickets",
+      "subtitle": "Helpdesk ticket queue",
+      "comingSoon": "Coming soon",
+      "notEnabled": "Helpdesk not enabled"
+    },
+    "technicians": {
+      "title": "Technicians",
+      "subtitle": "Helpdesk staff + utilization",
+      "notEnabled": "Helpdesk not enabled"
+    },
+    "sla": {
+      "title": "SLA",
+      "subtitle": "Policies and compliance by priority"
+    },
+    "maintenance": {
+      "title": "Maintenance",
+      "subtitle": "Planned change windows + alert suppression"
+    },
+    "batch": {
+      "title": "Batch tasks",
+      "subtitle": "Long-running ticket operations queue"
+    },
+    "approvals": {
+      "title": "Approvals",
+      "subtitle": "Tool invocations awaiting human approval"
+    },
+    "kb": {
+      "title": "Knowledge base",
+      "subtitle": "KB articles and solutions"
+    }
   },
   "selfServiceAi": {
     "title": "AI configuration",

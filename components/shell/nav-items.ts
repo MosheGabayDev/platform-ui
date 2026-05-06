@@ -91,6 +91,7 @@ export const navGroups: NavGroup[] = [
       { title: "SLA", titleKey: "nav.items.sla", href: "/helpdesk/sla", icon: Activity },
       { title: "תחזוקה", titleKey: "nav.items.maintenance", href: "/helpdesk/maintenance", icon: Wrench },
       { title: "משימות אצווה", titleKey: "nav.items.batchTasks", href: "/helpdesk/batch", icon: Layers },
+      { title: "אישורים", titleKey: "nav.items.approvals", href: "/helpdesk/approvals", icon: ShieldCheck },
       { title: "בסיס ידע", titleKey: "nav.items.knowledgeBase", href: "/helpdesk/kb", icon: BookOpen },
     ],
   },

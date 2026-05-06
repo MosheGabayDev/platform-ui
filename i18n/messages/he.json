@@ -1,4 +1,16 @@
 {
+  "commandPalette": {
+    "placeholder": "חפש דף, כרטיס, משתמש, מאמר…",
+    "searching": "מחפש...",
+    "noResults": "לא נמצאו תוצאות",
+    "startTyping": "התחל להקליד כדי לחפש",
+    "groupsByType": {
+      "ticket": "כרטיסים",
+      "kb": "בסיס ידע",
+      "user": "משתמשים",
+      "org": "ארגונים"
+    }
+  },
   "common": {
     "save": "שמור",
     "cancel": "ביטול",
@@ -307,6 +319,7 @@
       "logs": "לוגים",
       "metrics": "מטריקות",
       "auditLog": "יומן ביקורת",
+      "approvals": "אישורים",
       "modules": "מודולים",
       "platformSettings": "הגדרות פלטפורמה",
       "featureFlags": "Feature flags",
@@ -328,6 +341,43 @@
   "language": {
     "switcher": "שפה",
     "current": "שפה נוכחית: {locale}"
+  },
+  "helpdesk": {
+    "root": {
+      "title": "הלפדסק",
+      "subtitle": "תור פניות ו-KPI ברמת שירות"
+    },
+    "tickets": {
+      "title": "פניות",
+      "subtitle": "תור הפניות של הלפדסק",
+      "comingSoon": "בקרוב",
+      "notEnabled": "הלפדסק לא מופעל"
+    },
+    "technicians": {
+      "title": "טכנאים",
+      "subtitle": "צוות הלפדסק וניצולת",
+      "notEnabled": "הלפדסק לא מופעל"
+    },
+    "sla": {
+      "title": "SLA",
+      "subtitle": "מדיניות וציות לפי עדיפות"
+    },
+    "maintenance": {
+      "title": "תחזוקה",
+      "subtitle": "חלונות תחזוקה מתוכננים והשתקת התראות"
+    },
+    "batch": {
+      "title": "משימות אצווה",
+      "subtitle": "תור משימות פנייה ארוכות"
+    },
+    "approvals": {
+      "title": "אישורים",
+      "subtitle": "הפעלות כלים הממתינות לאישור אנושי"
+    },
+    "kb": {
+      "title": "בסיס ידע",
+      "subtitle": "מאמרי בסיס ידע ופתרונות"
+    }
   },
   "selfServiceAi": {
     "title": "תצורת AI",
