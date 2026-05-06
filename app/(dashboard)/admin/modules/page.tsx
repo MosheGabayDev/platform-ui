@@ -14,6 +14,7 @@
  */
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
 import {
   Boxes,
@@ -237,6 +238,7 @@ function ModuleCard({ entry }: { entry: ModuleEntry }) {
 }
 
 function ModulesInner() {
+  const t = useTranslations("admin.modules");
   const [activeCategory, setActiveCategory] = useState<ModuleCategory | "all">("all");
   const { data, isLoading, error } = useQuery({
     queryKey: _moduleRegistryQueryKey,
@@ -263,22 +265,14 @@ function ModulesInner() {
     availableActions: ["admin.module.enable", "admin.module.disable"],
   });
 
-  const filters: Array<{ value: ModuleCategory | "all"; label: string }> = [
-    { value: "all", label: "All" },
-    { value: "core", label: "Core" },
-    { value: "ai", label: "AI" },
-    { value: "operations", label: "Operations" },
-    { value: "growth", label: "Growth" },
-    { value: "experimental", label: "Experimental" },
+  const filters: Array<{ value: ModuleCategory | "all" }> = [
+    { value: "all" }, { value: "core" }, { value: "ai" },
+    { value: "operations" }, { value: "growth" }, { value: "experimental" },
   ];
 
   return (
     <LazyMotion features={domAnimation}>
-      <PageShell
-        icon={Boxes}
-        title="Modules"
-        subtitle="Per-org module enablement"
-      >
+      <PageShell icon={Boxes} title={t("title")} subtitle={t("subtitle")}>
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0, transition: { duration: 0.3, ease: PAGE_EASE } }}
@@ -287,14 +281,14 @@ function ModulesInner() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="glass border-border/50 rounded-xl p-4 flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Registered</span>
+                <span className="text-xs text-muted-foreground">{t("kpi.registered")}</span>
                 <Boxes className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
               </div>
               <span className="text-2xl font-semibold">{modules.length}</span>
             </div>
             <div className="glass border-border/50 rounded-xl p-4 flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Enabled</span>
+                <span className="text-xs text-muted-foreground">{t("kpi.enabled")}</span>
                 <Power className="h-4 w-4 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
               </div>
               <span className="text-2xl font-semibold text-emerald-600 dark:text-emerald-400">
@@ -303,7 +297,7 @@ function ModulesInner() {
             </div>
             <div className="glass border-border/50 rounded-xl p-4 flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Blocked</span>
+                <span className="text-xs text-muted-foreground">{t("kpi.blocked")}</span>
                 <Lock className="h-4 w-4 text-amber-600 dark:text-amber-400" aria-hidden="true" />
               </div>
               <span className="text-2xl font-semibold text-amber-600 dark:text-amber-400">
@@ -320,18 +314,18 @@ function ModulesInner() {
                 variant={activeCategory === f.value ? "default" : "outline"}
                 onClick={() => setActiveCategory(f.value)}
               >
-                {f.label}
+                {t(`categories.${f.value}`)}
               </Button>
             ))}
           </div>
 
           {isLoading && (
-            <div className="text-sm text-muted-foreground">Loading registry…</div>
+            <div className="text-sm text-muted-foreground">{t("loading")}</div>
           )}
           {error && (
             <EmptyState
               icon={AlertCircle}
-              title="Could not load modules"
+              title={t("loading")}
               description={(error as Error).message}
             />
           )}
@@ -345,7 +339,7 @@ function ModulesInner() {
                   <div className="flex items-center gap-2 px-1">
                     <Badge variant="outline" className={meta.tone}>
                       <Icon className="h-3 w-3 me-1" aria-hidden="true" />
-                      {meta.label}
+                      {t(`categories.${entry.manifest.category}`)}
                     </Badge>
                   </div>
                   <ModuleCard entry={entry} />
@@ -359,20 +353,23 @@ function ModulesInner() {
   );
 }
 
+function ModulesRestrictedFallback() {
+  const t = useTranslations("admin.modules");
+  const tCommon = useTranslations("admin.common");
+  return (
+    <PageShell icon={Boxes} title={t("title")} subtitle={tCommon("restricted")}>
+      <EmptyState
+        icon={AlertCircle}
+        title={tCommon("permissionRequired")}
+        description={t("permissionDescription")}
+      />
+    </PageShell>
+  );
+}
+
 export default function ModulesAdminPage() {
   return (
-    <PermissionGate
-      role={["org_admin", "system_admin"]}
-      fallback={
-        <PageShell icon={Boxes} title="Modules" subtitle="Restricted">
-          <EmptyState
-            icon={AlertCircle}
-            title="Permission required"
-            description="You need org_admin or system_admin role to manage modules."
-          />
-        </PageShell>
-      }
-    >
+    <PermissionGate role={["org_admin", "system_admin"]} fallback={<ModulesRestrictedFallback />}>
       <ModulesInner />
     </PermissionGate>
   );

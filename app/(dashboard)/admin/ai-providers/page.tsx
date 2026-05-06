@@ -16,6 +16,7 @@
  */
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
 import {
   Bot,
@@ -367,6 +368,7 @@ function ProviderCard({
 }
 
 function AIProvidersInner() {
+  const t = useTranslations("admin.aiProviders");
   const queryClient = useQueryClient();
   const [activeCategory, setActiveCategory] = useState<ProviderCategory | "all">("all");
 
@@ -419,11 +421,7 @@ function AIProvidersInner() {
 
   return (
     <LazyMotion features={domAnimation}>
-      <PageShell
-        icon={Bot}
-        title="AI providers"
-        subtitle="LLM providers, API keys, default models, routing"
-      >
+      <PageShell icon={Bot} title={t("title")} subtitle={t("subtitle")}>
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0, transition: { duration: 0.3, ease: PAGE_EASE } }}
@@ -432,14 +430,14 @@ function AIProvidersInner() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="glass border-border/50 rounded-xl p-4 flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">In catalog</span>
+                <span className="text-xs text-muted-foreground">{t("kpi.inCatalog")}</span>
                 <Bot className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
               </div>
               <span className="text-2xl font-semibold">{providers.length}</span>
             </div>
             <div className="glass border-border/50 rounded-xl p-4 flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Enabled</span>
+                <span className="text-xs text-muted-foreground">{t("kpi.enabled")}</span>
                 <Power className="h-4 w-4 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
               </div>
               <span className="text-2xl font-semibold text-emerald-600 dark:text-emerald-400">
@@ -448,7 +446,7 @@ function AIProvidersInner() {
             </div>
             <div className="glass border-border/50 rounded-xl p-4 flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Verified</span>
+                <span className="text-xs text-muted-foreground">{t("kpi.verified")}</span>
                 <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
               </div>
               <span className="text-2xl font-semibold">{testedOk}</span>
@@ -504,20 +502,23 @@ function AIProvidersInner() {
   );
 }
 
+function AIProvidersRestrictedFallback() {
+  const t = useTranslations("admin.aiProviders");
+  const tCommon = useTranslations("admin.common");
+  return (
+    <PageShell icon={Bot} title={t("title")} subtitle={tCommon("restricted")}>
+      <EmptyState
+        icon={AlertCircle}
+        title={tCommon("permissionRequired")}
+        description={t("permissionDescription")}
+      />
+    </PageShell>
+  );
+}
+
 export default function AIProvidersAdminPage() {
   return (
-    <PermissionGate
-      role={["org_admin", "system_admin"]}
-      fallback={
-        <PageShell icon={Bot} title="AI providers" subtitle="Restricted">
-          <EmptyState
-            icon={AlertCircle}
-            title="Permission required"
-            description="You need org_admin or system_admin role to manage AI providers."
-          />
-        </PageShell>
-      }
-    >
+    <PermissionGate role={["org_admin", "system_admin"]} fallback={<AIProvidersRestrictedFallback />}>
       <AIProvidersInner />
     </PermissionGate>
   );

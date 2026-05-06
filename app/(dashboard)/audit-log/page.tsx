@@ -11,6 +11,7 @@
  */
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
 import {
   ClipboardList,
@@ -59,6 +60,7 @@ function formatRelative(iso: string): string {
 }
 
 function AuditLogInner() {
+  const t = useTranslations("admin.auditLog");
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<AuditCategory | "all">("all");
@@ -171,11 +173,7 @@ function AuditLogInner() {
 
   return (
     <LazyMotion features={domAnimation}>
-      <PageShell
-        icon={ClipboardList}
-        title="Audit Log"
-        subtitle="Platform-wide activity record"
-      >
+      <PageShell icon={ClipboardList} title={t("title")} subtitle={t("subtitle")}>
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0, transition: { duration: 0.3, ease: PAGE_EASE } }}
@@ -319,20 +317,23 @@ function AuditLogInner() {
   );
 }
 
+function AuditLogRestrictedFallback() {
+  const t = useTranslations("admin.auditLog");
+  const tCommon = useTranslations("admin.common");
+  return (
+    <PageShell icon={ClipboardList} title={t("title")} subtitle={tCommon("restricted")}>
+      <EmptyState
+        icon={AlertCircle}
+        title={tCommon("permissionRequired")}
+        description="You need admin or system_admin role to view the audit log."
+      />
+    </PageShell>
+  );
+}
+
 export default function AuditLogPage() {
   return (
-    <PermissionGate
-      role={["admin", "system_admin"]}
-      fallback={
-        <PageShell icon={ClipboardList} title="Audit Log" subtitle="Restricted">
-          <EmptyState
-            icon={AlertCircle}
-            title="Permission required"
-            description="You need admin or system_admin role to view the audit log."
-          />
-        </PageShell>
-      }
-    >
+    <PermissionGate role={["admin", "system_admin"]} fallback={<AuditLogRestrictedFallback />}>
       <AuditLogInner />
     </PermissionGate>
   );

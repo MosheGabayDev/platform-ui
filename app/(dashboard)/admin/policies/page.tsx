@@ -14,6 +14,7 @@
  */
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
 import {
   Shield,
@@ -300,6 +301,7 @@ function PolicyTester() {
 }
 
 function PoliciesInner() {
+  const t = useTranslations("admin.policies");
   const { data, isLoading, error } = useQuery({
     queryKey: ["policies", "list"],
     queryFn: fetchPolicies,
@@ -326,11 +328,7 @@ function PoliciesInner() {
 
   return (
     <LazyMotion features={domAnimation}>
-      <PageShell
-        icon={Shield}
-        title="Policy engine"
-        subtitle="Guardrails for AI actions — allow / deny / require-approval rules"
-      >
+      <PageShell icon={Shield} title={t("title")} subtitle={t("subtitle")}>
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0, transition: { duration: 0.3, ease: PAGE_EASE } }}
@@ -339,14 +337,14 @@ function PoliciesInner() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="glass border-border/50 rounded-xl p-4 flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Policies</span>
+                <span className="text-xs text-muted-foreground">{t("kpi.policies")}</span>
                 <Shield className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
               </div>
               <span className="text-2xl font-semibold">{policies.length}</span>
             </div>
             <div className="glass border-border/50 rounded-xl p-4 flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Enabled</span>
+                <span className="text-xs text-muted-foreground">{t("kpi.enabled")}</span>
                 <Power className="h-4 w-4 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
               </div>
               <span className="text-2xl font-semibold text-emerald-600 dark:text-emerald-400">
@@ -355,7 +353,7 @@ function PoliciesInner() {
             </div>
             <div className="glass border-border/50 rounded-xl p-4 flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Deny rules</span>
+                <span className="text-xs text-muted-foreground">{t("kpi.denyRules")}</span>
                 <ShieldAlert className="h-4 w-4 text-rose-600 dark:text-rose-400" aria-hidden="true" />
               </div>
               <span className="text-2xl font-semibold text-rose-600 dark:text-rose-400">
@@ -365,18 +363,17 @@ function PoliciesInner() {
           </div>
 
           <div className="glass border-border/50 rounded-xl p-3 text-xs text-muted-foreground">
-            <span className="font-medium text-foreground">Evaluation order: </span>
-            deny precedence — any matching deny rule wins regardless of allow rules.
-            Default behavior when no rule matches: <strong>allow</strong>. RBAC remains the floor.
+            <span className="font-medium text-foreground">{t("evaluationOrder")} </span>
+            {t("evaluationDescription")}
           </div>
 
           {isLoading && (
-            <div className="text-sm text-muted-foreground">Loading policies…</div>
+            <div className="text-sm text-muted-foreground">{t.rich("evaluationOrder")}</div>
           )}
           {error && (
             <EmptyState
               icon={AlertCircle}
-              title="Could not load policies"
+              title={t("title")}
               description={(error as Error).message}
             />
           )}
@@ -394,20 +391,23 @@ function PoliciesInner() {
   );
 }
 
+function PoliciesRestrictedFallback() {
+  const t = useTranslations("admin.policies");
+  const tCommon = useTranslations("admin.common");
+  return (
+    <PageShell icon={Shield} title={t("title")} subtitle={tCommon("restricted")}>
+      <EmptyState
+        icon={AlertCircle}
+        title={tCommon("permissionRequired")}
+        description={t("permissionDescription")}
+      />
+    </PageShell>
+  );
+}
+
 export default function PoliciesAdminPage() {
   return (
-    <PermissionGate
-      role={["org_admin", "system_admin"]}
-      fallback={
-        <PageShell icon={Shield} title="Policy engine" subtitle="Restricted">
-          <EmptyState
-            icon={AlertCircle}
-            title="Permission required"
-            description="You need org_admin or system_admin role to manage policies."
-          />
-        </PageShell>
-      }
-    >
+    <PermissionGate role={["org_admin", "system_admin"]} fallback={<PoliciesRestrictedFallback />}>
       <PoliciesInner />
     </PermissionGate>
   );

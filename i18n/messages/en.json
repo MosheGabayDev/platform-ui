@@ -43,6 +43,190 @@
       "deprecated": "Deprecated",
       "couldNotLoad": "Could not load"
     },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Per-org configuration — AI, branding, notifications, rate limits",
+      "permissionDescription": "You need org_admin or system_admin role to manage settings.",
+      "resolutionOrder": "Resolution order:",
+      "resolutionDescription": "user → org → plan → system → default. Changes here apply at the org scope (affects all users in this organization).",
+      "loading": "Loading settings…",
+      "categories": {
+        "all": "All",
+        "ai": "AI",
+        "branding": "Branding",
+        "notifications": "Notifications",
+        "rate_limits": "Rate limits",
+        "integrations": "Integrations",
+        "experimental": "Experimental"
+      },
+      "stats": {
+        "settingCount": "{count, plural, =1 {1 setting} other {# settings}}"
+      }
+    },
+    "modules": {
+      "title": "Modules",
+      "subtitle": "Vertical modules available to your organization",
+      "permissionDescription": "You need system_admin role to manage modules.",
+      "kpi": {
+        "registered": "Registered",
+        "enabled": "Enabled",
+        "blocked": "Blocked"
+      },
+      "categories": {
+        "all": "All",
+        "core": "Core",
+        "ai": "AI",
+        "operations": "Operations",
+        "growth": "Growth",
+        "experimental": "Experimental"
+      },
+      "blockedReason": "Blocked reason",
+      "requiredFlags": "Required flags",
+      "requiredPlan": "Required plan",
+      "loading": "Loading modules…"
+    },
+    "policies": {
+      "title": "Policy engine",
+      "subtitle": "Per-action guardrails and approval rules",
+      "permissionDescription": "You need system_admin role to manage policies.",
+      "evaluationOrder": "Evaluation order:",
+      "evaluationDescription": "deny precedes allow. First matching rule wins. Default decision: allow.",
+      "kpi": {
+        "policies": "Policies",
+        "enabled": "Enabled",
+        "denyRules": "Deny rules"
+      },
+      "tester": {
+        "title": "Policy tester",
+        "subtitle": "Paste action_id + params — see decision and matched rules",
+        "actionIdLabel": "action_id",
+        "paramsLabel": "Params (JSON)",
+        "evaluate": "Evaluate",
+        "decision": "Decision",
+        "matchedRules": "Matched rules",
+        "noMatch": "No rules matched — default: allow"
+      }
+    },
+    "aiProviders": {
+      "title": "AI providers",
+      "subtitle": "Per-org LLM provider configuration",
+      "permissionDescription": "You need org_admin or system_admin role to manage AI providers.",
+      "kpi": {
+        "inCatalog": "In catalog",
+        "enabled": "Enabled",
+        "verified": "Verified"
+      },
+      "categories": {
+        "all": "All",
+        "cloud": "Cloud",
+        "hosted": "Hosted",
+        "local": "Local"
+      },
+      "buttons": {
+        "configure": "Configure",
+        "testConnection": "Test connection",
+        "save": "Save",
+        "cancel": "Cancel"
+      },
+      "states": {
+        "verified": "Verified",
+        "unverified": "Unverified",
+        "lastTest": "Last test"
+      }
+    },
+    "aiSkills": {
+      "title": "AI skills",
+      "subtitle": "Per-module skill enablement and AI permissions",
+      "permissionDescription": "You need org_admin or system_admin role to manage skills.",
+      "kpi": {
+        "registered": "Registered",
+        "enabled": "Enabled",
+        "availableToAi": "Available to AI"
+      },
+      "filters": {
+        "module": "Module",
+        "aiCallable": "AI-callable"
+      },
+      "states": {
+        "enabled": "Enabled",
+        "disabled": "Disabled",
+        "aiCallable": "AI",
+        "humanOnly": "Humans only"
+      },
+      "fields": {
+        "parameters": "Parameters",
+        "riskLevel": "Risk level",
+        "estimatedCost": "Estimated cost"
+      }
+    },
+    "aiUsage": {
+      "title": "AI usage",
+      "subtitle": "Usage metrics, costs, and per-org budgets",
+      "permissionDescription": "You need org_admin or system_admin role to view usage.",
+      "kpi": {
+        "cost": "Cost",
+        "events": "Events",
+        "tokens": "Tokens",
+        "errors": "Errors"
+      },
+      "ranges": {
+        "24h": "24h",
+        "7d": "7 days",
+        "mtd": "Month-to-date",
+        "30d": "30 days"
+      },
+      "budget": {
+        "title": "Budget",
+        "ok": "Within budget",
+        "warning": "Over 80%",
+        "exceeded": "Budget exceeded!",
+        "unset": "No budget set",
+        "edit": "Edit budget",
+        "monthlyBudget": "Monthly budget (USD)",
+        "save": "Save"
+      },
+      "sections": {
+        "byProvider": "By provider",
+        "byModel": "By model",
+        "byPurpose": "By purpose",
+        "topUsers": "Top users",
+        "recentEvents": "Recent events",
+        "dailyCost": "Daily cost"
+      }
+    },
+    "auditLog": {
+      "title": "Audit log",
+      "subtitle": "Searchable trail of every important platform event",
+      "kpi": {
+        "totalEvents": "Total events",
+        "last24h": "Last 24h",
+        "securityEvents": "Security events",
+        "aiActions": "AI actions"
+      },
+      "filters": {
+        "category": "Category",
+        "search": "Search by action / actor / resource",
+        "all": "All"
+      },
+      "categories": {
+        "login": "Login",
+        "create": "Create",
+        "update": "Update",
+        "delete": "Delete",
+        "admin": "Admin",
+        "ai": "AI",
+        "security": "Security"
+      },
+      "table": {
+        "timestamp": "Time",
+        "action": "Action",
+        "actor": "Actor",
+        "resource": "Resource",
+        "category": "Category",
+        "ip": "IP"
+      },
+      "securityBanner": "{count} security events detected in the last 24h"
+    },
     "featureFlags": {
       "title": "Feature flags",
       "subtitle": "Per-org capability rollout",

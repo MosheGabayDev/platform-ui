@@ -20,6 +20,7 @@
  */
 import { useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
 import {
   AreaChart,
@@ -195,6 +196,7 @@ function BudgetEditor({
 }
 
 function AIUsageInner() {
+  const t = useTranslations("admin.aiUsage");
   const queryClient = useQueryClient();
   const [range, setRange] = useState<UsageRange>("mtd");
   const { stats, isLoading, isError } = useUsageStats(range);
@@ -226,11 +228,7 @@ function AIUsageInner() {
 
   return (
     <LazyMotion features={domAnimation}>
-      <PageShell
-        icon={TrendingUp}
-        title="AI usage"
-        subtitle="Cost, tokens, errors, and budget — across all providers"
-      >
+      <PageShell icon={TrendingUp} title={t("title")} subtitle={t("subtitle")}>
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0, transition: { duration: 0.3, ease: PAGE_EASE } }}
@@ -557,17 +555,23 @@ export default function AIUsageAdminPage() {
   return (
     <PermissionGate
       role={["org_admin", "system_admin"]}
-      fallback={
-        <PageShell icon={TrendingUp} title="AI usage" subtitle="Restricted">
-          <EmptyState
-            icon={AlertCircle}
-            title="Permission required"
-            description="You need org_admin or system_admin role to view AI usage."
-          />
-        </PageShell>
-      }
+      fallback={<AIUsageRestrictedFallback />}
     >
       <AIUsageInner />
     </PermissionGate>
+  );
+}
+
+function AIUsageRestrictedFallback() {
+  const t = useTranslations("admin.aiUsage");
+  const tCommon = useTranslations("admin.common");
+  return (
+    <PageShell icon={TrendingUp} title={t("title")} subtitle={tCommon("restricted")}>
+      <EmptyState
+        icon={AlertCircle}
+        title={tCommon("permissionRequired")}
+        description={t("permissionDescription")}
+      />
+    </PageShell>
   );
 }

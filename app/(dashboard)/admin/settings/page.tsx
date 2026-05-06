@@ -20,6 +20,7 @@
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
 import {
   Cog,
@@ -391,6 +392,7 @@ function SettingEditor({
 }
 
 function SettingsInner() {
+  const t = useTranslations("admin.settings");
   const queryClient = useQueryClient();
   const { data: session } = useSession();
   const orgId = session?.user?.org_id ?? 1;
@@ -457,20 +459,15 @@ function SettingsInner() {
 
   return (
     <LazyMotion features={domAnimation}>
-      <PageShell
-        icon={Cog}
-        title="Settings"
-        subtitle="Per-org configuration — AI, branding, notifications, rate limits"
-      >
+      <PageShell icon={Cog} title={t("title")} subtitle={t("subtitle")}>
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0, transition: { duration: 0.3, ease: PAGE_EASE } }}
           className="space-y-4 pb-20 md:pb-0"
         >
           <div className="glass border-border/50 rounded-xl p-3 text-xs text-muted-foreground">
-            <span className="font-medium text-foreground">Resolution order: </span>
-            user → org → plan → system → default. Changes here apply at the <strong>org</strong>{" "}
-            scope (affects all users in this organization).
+            <span className="font-medium text-foreground">{t("resolutionOrder")} </span>
+            {t("resolutionDescription")}
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -481,13 +478,13 @@ function SettingsInner() {
                 variant={activeCategory === f.value ? "default" : "outline"}
                 onClick={() => setActiveCategory(f.value)}
               >
-                {f.label}
+                {t(`categories.${f.value}`)}
               </Button>
             ))}
           </div>
 
           {defsLoading && (
-            <div className="text-sm text-muted-foreground">Loading settings…</div>
+            <div className="text-sm text-muted-foreground">{t("loading")}</div>
           )}
 
           {Array.from(grouped.entries()).map(([category, defs]) => {
@@ -498,10 +495,10 @@ function SettingsInner() {
                 <div className="flex items-center gap-2">
                   <Badge variant="outline" className={meta.tone}>
                     <Icon className="h-3 w-3 me-1" aria-hidden="true" />
-                    {meta.label}
+                    {t(`categories.${category}`)}
                   </Badge>
                   <span className="text-xs text-muted-foreground">
-                    {defs.length} setting{defs.length === 1 ? "" : "s"}
+                    {t("stats.settingCount", { count: defs.length })}
                   </span>
                 </div>
                 <div className="space-y-2">
@@ -525,20 +522,23 @@ function SettingsInner() {
   );
 }
 
+function SettingsRestrictedFallback() {
+  const t = useTranslations("admin.settings");
+  const tCommon = useTranslations("admin.common");
+  return (
+    <PageShell icon={Cog} title={t("title")} subtitle={tCommon("restricted")}>
+      <EmptyState
+        icon={AlertCircle}
+        title={tCommon("permissionRequired")}
+        description={t("permissionDescription")}
+      />
+    </PageShell>
+  );
+}
+
 export default function SettingsAdminPage() {
   return (
-    <PermissionGate
-      role={["org_admin", "system_admin"]}
-      fallback={
-        <PageShell icon={Cog} title="Settings" subtitle="Restricted">
-          <EmptyState
-            icon={AlertCircle}
-            title="Permission required"
-            description="You need org_admin or system_admin role to manage settings."
-          />
-        </PageShell>
-      }
-    >
+    <PermissionGate role={["org_admin", "system_admin"]} fallback={<SettingsRestrictedFallback />}>
       <SettingsInner />
     </PermissionGate>
   );

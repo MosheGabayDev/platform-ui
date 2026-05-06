@@ -43,6 +43,190 @@
       "deprecated": "הוצא משימוש",
       "couldNotLoad": "טעינה נכשלה"
     },
+    "settings": {
+      "title": "הגדרות פלטפורמה",
+      "subtitle": "תצורה פר-ארגון — AI, מיתוג, התראות, מגבלות שימוש",
+      "permissionDescription": "נדרש תפקיד org_admin או system_admin לניהול הגדרות.",
+      "resolutionOrder": "סדר רזולוציה:",
+      "resolutionDescription": "user ← org ← plan ← system ← default. שינויים כאן חלים ברמת ה-org (משפיעים על כל המשתמשים בארגון).",
+      "loading": "טוען הגדרות…",
+      "categories": {
+        "all": "הכל",
+        "ai": "AI",
+        "branding": "מיתוג",
+        "notifications": "התראות",
+        "rate_limits": "מגבלות שימוש",
+        "integrations": "אינטגרציות",
+        "experimental": "ניסיוני"
+      },
+      "stats": {
+        "settingCount": "{count, plural, =1 {הגדרה אחת} other {# הגדרות}}"
+      }
+    },
+    "modules": {
+      "title": "מודולים",
+      "subtitle": "מודולים אנכיים זמינים לארגון",
+      "permissionDescription": "נדרש תפקיד system_admin לניהול מודולים.",
+      "kpi": {
+        "registered": "רשומים",
+        "enabled": "מופעלים",
+        "blocked": "חסומים"
+      },
+      "categories": {
+        "all": "הכל",
+        "core": "ליבה",
+        "ai": "AI",
+        "operations": "תפעול",
+        "growth": "צמיחה",
+        "experimental": "ניסיוני"
+      },
+      "blockedReason": "סיבה לחסימה",
+      "requiredFlags": "Flags נדרשים",
+      "requiredPlan": "מסלול נדרש",
+      "loading": "טוען מודולים…"
+    },
+    "policies": {
+      "title": "Policy engine",
+      "subtitle": "הערכת בקרות וכללי אישור פר-פעולה",
+      "permissionDescription": "נדרש תפקיד system_admin לניהול policies.",
+      "evaluationOrder": "סדר הערכה:",
+      "evaluationDescription": "deny תקדים allow. החלטה ראשונה מתאימה זוכה. החלטה דיפולטית: allow.",
+      "kpi": {
+        "policies": "Policies",
+        "enabled": "מופעלים",
+        "denyRules": "כללי deny"
+      },
+      "tester": {
+        "title": "בודק policies",
+        "subtitle": "הדבק action_id ופרמטרים — תראה את ההחלטה והכללים שהתאימו",
+        "actionIdLabel": "action_id",
+        "paramsLabel": "פרמטרים (JSON)",
+        "evaluate": "הערך",
+        "decision": "החלטה",
+        "matchedRules": "כללים שהתאימו",
+        "noMatch": "לא נמצאו כללים תואמים — דיפולט: allow"
+      }
+    },
+    "aiProviders": {
+      "title": "ספקי AI",
+      "subtitle": "הגדרת ספקי LLM פר-ארגון",
+      "permissionDescription": "נדרש תפקיד org_admin או system_admin לניהול ספקי AI.",
+      "kpi": {
+        "inCatalog": "בקטלוג",
+        "enabled": "מופעלים",
+        "verified": "מאומתים"
+      },
+      "categories": {
+        "all": "הכל",
+        "cloud": "ענן",
+        "hosted": "מארח",
+        "local": "מקומי"
+      },
+      "buttons": {
+        "configure": "הגדר",
+        "testConnection": "בדוק חיבור",
+        "save": "שמור",
+        "cancel": "ביטול"
+      },
+      "states": {
+        "verified": "מאומת",
+        "unverified": "לא מאומת",
+        "lastTest": "בדיקה אחרונה"
+      }
+    },
+    "aiSkills": {
+      "title": "כישורי AI",
+      "subtitle": "הפעלת כישורים פר-מודול וניהול הרשאות AI",
+      "permissionDescription": "נדרש תפקיד org_admin או system_admin לניהול כישורים.",
+      "kpi": {
+        "registered": "רשומים",
+        "enabled": "מופעלים",
+        "availableToAi": "זמינים ל-AI"
+      },
+      "filters": {
+        "module": "מודול",
+        "aiCallable": "ניתן לקריאה ע\"י AI"
+      },
+      "states": {
+        "enabled": "מופעל",
+        "disabled": "כבוי",
+        "aiCallable": "AI",
+        "humanOnly": "רק בני אדם"
+      },
+      "fields": {
+        "parameters": "פרמטרים",
+        "riskLevel": "רמת סיכון",
+        "estimatedCost": "עלות מוערכת"
+      }
+    },
+    "aiUsage": {
+      "title": "צריכת AI",
+      "subtitle": "מדדי שימוש, עלויות ותקציבים פר-ארגון",
+      "permissionDescription": "נדרש תפקיד org_admin או system_admin לצפייה בצריכה.",
+      "kpi": {
+        "cost": "עלות",
+        "events": "אירועים",
+        "tokens": "Tokens",
+        "errors": "שגיאות"
+      },
+      "ranges": {
+        "24h": "24 שעות",
+        "7d": "7 ימים",
+        "mtd": "החודש",
+        "30d": "30 ימים"
+      },
+      "budget": {
+        "title": "תקציב",
+        "ok": "במסגרת התקציב",
+        "warning": "חורג מ-80%",
+        "exceeded": "עברת את התקציב!",
+        "unset": "לא הוגדר תקציב",
+        "edit": "ערוך תקציב",
+        "monthlyBudget": "תקציב חודשי (USD)",
+        "save": "שמור"
+      },
+      "sections": {
+        "byProvider": "פר ספק",
+        "byModel": "פר מודל",
+        "byPurpose": "פר מטרה",
+        "topUsers": "משתמשים מובילים",
+        "recentEvents": "אירועים אחרונים",
+        "dailyCost": "עלות יומית"
+      }
+    },
+    "auditLog": {
+      "title": "יומן ביקורת",
+      "subtitle": "מעקב אחר כל אירוע משמעותי בפלטפורמה",
+      "kpi": {
+        "totalEvents": "סה\"כ אירועים",
+        "last24h": "24 שעות אחרונות",
+        "securityEvents": "אירועי אבטחה",
+        "aiActions": "פעולות AI"
+      },
+      "filters": {
+        "category": "קטגוריה",
+        "search": "חיפוש לפי action / actor / resource",
+        "all": "הכל"
+      },
+      "categories": {
+        "login": "כניסה",
+        "create": "יצירה",
+        "update": "עדכון",
+        "delete": "מחיקה",
+        "admin": "Admin",
+        "ai": "AI",
+        "security": "אבטחה"
+      },
+      "table": {
+        "timestamp": "זמן",
+        "action": "פעולה",
+        "actor": "מבצע",
+        "resource": "אובייקט",
+        "category": "קטגוריה",
+        "ip": "IP"
+      },
+      "securityBanner": "זוהו {count} אירועי אבטחה ב-24 שעות האחרונות"
+    },
     "featureFlags": {
       "title": "Feature flags",
       "subtitle": "הפעלת יכולות פר-ארגון",

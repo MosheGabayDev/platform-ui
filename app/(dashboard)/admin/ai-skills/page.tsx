@@ -12,6 +12,7 @@
  * ai_callable). Admin can flip per-skill enablement.
  */
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
 import {
@@ -226,6 +227,7 @@ function SkillCard({ entry }: { entry: SkillEntry }) {
 }
 
 function AISkillsInner() {
+  const t = useTranslations("admin.aiSkills");
   const [activeModule, setActiveModule] = useState<string | "all">("all");
   const [aiCallableOnly, setAiCallableOnly] = useState(false);
 
@@ -262,11 +264,7 @@ function AISkillsInner() {
 
   return (
     <LazyMotion features={domAnimation}>
-      <PageShell
-        icon={Sparkles}
-        title="AI skills"
-        subtitle="Catalog of actions the AI can propose, with per-org enablement"
-      >
+      <PageShell icon={Sparkles} title={t("title")} subtitle={t("subtitle")}>
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0, transition: { duration: 0.3, ease: PAGE_EASE } }}
@@ -275,14 +273,14 @@ function AISkillsInner() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="glass border-border/50 rounded-xl p-4 flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Registered</span>
+                <span className="text-xs text-muted-foreground">{t("kpi.registered")}</span>
                 <Sparkles className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
               </div>
               <span className="text-2xl font-semibold">{entries.length}</span>
             </div>
             <div className="glass border-border/50 rounded-xl p-4 flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Enabled</span>
+                <span className="text-xs text-muted-foreground">{t("kpi.enabled")}</span>
                 <Power className="h-4 w-4 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
               </div>
               <span className="text-2xl font-semibold text-emerald-600 dark:text-emerald-400">
@@ -291,7 +289,7 @@ function AISkillsInner() {
             </div>
             <div className="glass border-border/50 rounded-xl p-4 flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Available to AI</span>
+                <span className="text-xs text-muted-foreground">{t("kpi.availableToAi")}</span>
                 <CheckCircle2 className="h-4 w-4 text-cyan-600 dark:text-cyan-400" aria-hidden="true" />
               </div>
               <span className="text-2xl font-semibold text-cyan-600 dark:text-cyan-400">
@@ -358,19 +356,25 @@ function AISkillsInner() {
   );
 }
 
+function AISkillsRestrictedFallback() {
+  const t = useTranslations("admin.aiSkills");
+  const tCommon = useTranslations("admin.common");
+  return (
+    <PageShell icon={Sparkles} title={t("title")} subtitle={tCommon("restricted")}>
+      <EmptyState
+        icon={AlertCircle}
+        title={tCommon("permissionRequired")}
+        description={t("permissionDescription")}
+      />
+    </PageShell>
+  );
+}
+
 export default function AISkillsAdminPage() {
   return (
     <PermissionGate
       role={["org_admin", "system_admin"]}
-      fallback={
-        <PageShell icon={Sparkles} title="AI skills" subtitle="Restricted">
-          <EmptyState
-            icon={AlertCircle}
-            title="Permission required"
-            description="You need org_admin or system_admin role to manage AI skills."
-          />
-        </PageShell>
-      }
+      fallback={<AISkillsRestrictedFallback />}
     >
       <AISkillsInner />
     </PermissionGate>
