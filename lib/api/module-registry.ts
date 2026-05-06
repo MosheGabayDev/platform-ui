@@ -21,8 +21,16 @@ import type {
 const BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api/proxy";
 export const MOCK_MODE = true;
 
-// Mock per-org enablement. Defaults below match a "Pro" tenant.
-const MOCK_ENABLEMENT = new Map<string, boolean>([
+// Track A: localStorage-backed persistence for mock state.
+import {
+  loadMockState,
+  saveMockState,
+  clearMockState,
+} from "@/lib/api/_mock-storage";
+const STORAGE_KEY = "mock:module-registry:enablement";
+const STORAGE_VERSION = 1;
+
+const FIXTURE_ENABLEMENT: Array<[string, boolean]> = [
   ["helpdesk", true],
   ["audit-log", true],
   ["users", true],
@@ -35,7 +43,23 @@ const MOCK_ENABLEMENT = new Map<string, boolean>([
   ["monitoring", true],
   ["billing", true],
   ["data-sources", false],
-]);
+];
+
+// Mock per-org enablement. Defaults below match a "Pro" tenant.
+const MOCK_ENABLEMENT = new Map<string, boolean>(
+  loadMockState<Array<[string, boolean]>>(STORAGE_KEY, STORAGE_VERSION, FIXTURE_ENABLEMENT),
+);
+
+function persistEnablement(): void {
+  saveMockState(STORAGE_KEY, STORAGE_VERSION, Array.from(MOCK_ENABLEMENT.entries()));
+}
+
+/** Test helper — restores fixtures + clears localStorage. */
+export function _resetModuleRegistryMockState(): void {
+  MOCK_ENABLEMENT.clear();
+  for (const [k, v] of FIXTURE_ENABLEMENT) MOCK_ENABLEMENT.set(k, v);
+  clearMockState("mock:module-registry:");
+}
 
 const MOCK_PLAN = "pro" as const;
 const PLAN_GRANTS: Record<string, string[]> = {
@@ -134,6 +158,7 @@ export async function setModuleEnablement(
     }
 
     MOCK_ENABLEMENT.set(input.key, input.enabled);
+    persistEnablement();
     const entry = await resolveEntry(input.key);
     return {
       success: true,

@@ -30,11 +30,30 @@ import type {
 const BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api/proxy";
 export const MOCK_MODE = true;
 
+// Track A: localStorage-backed persistence for mock state.
+import {
+  loadMockState,
+  saveMockState,
+  clearMockState,
+} from "@/lib/api/_mock-storage";
+const STORAGE_KEY = "mock:ai-skills:enablement";
+const STORAGE_VERSION = 1;
+type EnablementValue = { enabled: boolean; set_by_user_id: number; set_at: string };
+
 // Per-org override store. Keyed by `${org_id}:${skill_id}`.
-const MOCK_ENABLEMENT = new Map<
-  string,
-  { enabled: boolean; set_by_user_id: number; set_at: string }
->();
+const MOCK_ENABLEMENT = new Map<string, EnablementValue>(
+  loadMockState<Array<[string, EnablementValue]>>(STORAGE_KEY, STORAGE_VERSION, []),
+);
+
+function persistEnablement(): void {
+  saveMockState(STORAGE_KEY, STORAGE_VERSION, Array.from(MOCK_ENABLEMENT.entries()));
+}
+
+/** Test helper — clears localStorage + override map. */
+export function _resetAISkillsMockState(): void {
+  MOCK_ENABLEMENT.clear();
+  clearMockState("mock:ai-skills:");
+}
 
 const DEFAULT_ORG_ID = 1;
 
@@ -189,6 +208,7 @@ export async function setSkillEnablement(
       set_by_user_id: 1,
       set_at: new Date().toISOString(),
     });
+    persistEnablement();
     const enablement = resolveEnablement(skill, DEFAULT_ORG_ID);
     const moduleEntries = (await fetchModules()).data.modules;
     const moduleEnabled = moduleEntries.some(

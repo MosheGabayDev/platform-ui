@@ -29,6 +29,26 @@ import { emitPolicyEvaluation } from "@/lib/platform/ai-actions/audit-emitter";
 const BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api/proxy";
 export const MOCK_MODE = true;
 
+// Track A: localStorage-backed persistence for mock state.
+import {
+  loadMockState,
+  saveMockState,
+  clearMockState,
+} from "@/lib/api/_mock-storage";
+const STORAGE_KEY = "mock:policies:enabled-overrides";
+const STORAGE_VERSION = 1;
+const ENABLED_OVERRIDES = new Map<string, boolean>(
+  loadMockState<Array<[string, boolean]>>(STORAGE_KEY, STORAGE_VERSION, []),
+);
+function persistEnabledOverrides(): void {
+  saveMockState(STORAGE_KEY, STORAGE_VERSION, Array.from(ENABLED_OVERRIDES.entries()));
+}
+/** Test helper — clears localStorage + override map. */
+export function _resetPoliciesMockState(): void {
+  ENABLED_OVERRIDES.clear();
+  clearMockState("mock:policies:");
+}
+
 // ---------------------------------------------------------------------------
 // Glob matching for action_pattern / resource_pattern
 // ---------------------------------------------------------------------------
@@ -536,12 +556,22 @@ const DEFAULT_SESSION = {
   permissions: [],
 };
 
+function applyOverrides(policies: Policy[]): Policy[] {
+  if (ENABLED_OVERRIDES.size === 0) return policies;
+  return policies.map((p) =>
+    ENABLED_OVERRIDES.has(p.id)
+      ? { ...p, enabled: ENABLED_OVERRIDES.get(p.id)! }
+      : p,
+  );
+}
+
 export async function fetchPolicies(): Promise<PolicyListResponse> {
   if (MOCK_MODE) {
     await new Promise((r) => setTimeout(r, 80));
+    const policies = applyOverrides(MOCK_POLICIES);
     return {
       success: true,
-      data: { policies: MOCK_POLICIES, total: MOCK_POLICIES.length },
+      data: { policies, total: policies.length },
     };
   }
   const res = await fetch(`${BASE}/policies`, { credentials: "include" });
@@ -552,7 +582,7 @@ export async function fetchPolicies(): Promise<PolicyListResponse> {
 export async function fetchPolicy(id: string): Promise<PolicyResponse> {
   if (MOCK_MODE) {
     await new Promise((r) => setTimeout(r, 50));
-    const policy = MOCK_POLICIES.find((p) => p.id === id);
+    const policy = applyOverrides(MOCK_POLICIES).find((p) => p.id === id);
     if (!policy) throw new Error(`404: policy '${id}' not found`);
     return { success: true, data: { policy } };
   }
@@ -571,12 +601,14 @@ export async function setPolicyEnabled(
     await new Promise((r) => setTimeout(r, 100));
     const idx = MOCK_POLICIES.findIndex((p) => p.id === id);
     if (idx < 0) throw new Error(`404: policy '${id}' not found`);
-    MOCK_POLICIES[idx] = {
+    ENABLED_OVERRIDES.set(id, enabled);
+    persistEnabledOverrides();
+    const policy: Policy = {
       ...MOCK_POLICIES[idx]!,
       enabled,
       updated_at: new Date().toISOString(),
     };
-    return { success: true, data: { policy: MOCK_POLICIES[idx]! } };
+    return { success: true, data: { policy } };
   }
   const res = await fetch(`${BASE}/policies/${encodeURIComponent(id)}`, {
     method: "PUT",
@@ -598,7 +630,7 @@ export async function evaluatePolicy(input: EvaluateInput): Promise<EvaluateResp
       resource: input.resource ?? null,
       evaluated_at: new Date().toISOString(),
     };
-    const decision = evaluatePoliciesAgainstContext(MOCK_POLICIES, ctx);
+    const decision = evaluatePoliciesAgainstContext(applyOverrides(MOCK_POLICIES), ctx);
     // Phase 2.4: emit AI audit entry per spec §12.
     void emitPolicyEvaluation({
       action_id: input.action_id,

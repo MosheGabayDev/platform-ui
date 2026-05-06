@@ -22,6 +22,17 @@ import type {
 
 export const MOCK_MODE = true;
 
+// Track A: localStorage-backed persistence for runtime-appended entries.
+// Only entries written via recordAuditEntry persist — fixtures stay in code
+// so we never duplicate them across reloads.
+import {
+  loadMockState,
+  saveMockState,
+  clearMockState,
+} from "@/lib/api/_mock-storage";
+const STORAGE_KEY = "mock:audit:appended";
+const STORAGE_VERSION = 1;
+
 // ---------------------------------------------------------------------------
 // Mock fixtures
 // ---------------------------------------------------------------------------
@@ -269,7 +280,25 @@ const MOCK_ENTRIES: AuditLogEntry[] = [
     ip: "10.0.0.18",
     user_agent: "Mozilla/5.0",
   },
+  // Hydrate persisted runtime entries (recorded via recordAuditEntry).
+  ...loadMockState<AuditLogEntry[]>(STORAGE_KEY, STORAGE_VERSION, []),
 ];
+
+function persistAppendedEntries(): void {
+  // Anything with id < 1000 is fixture-seeded. Persist only runtime entries
+  // (recordAuditEntry uses random ids in the 100_000+ range).
+  const appended = MOCK_ENTRIES.filter((e) => e.id >= 100_000);
+  saveMockState(STORAGE_KEY, STORAGE_VERSION, appended);
+}
+
+/** Test helper — clears localStorage + drops appended entries from memory. */
+export function _resetAuditMockState(): void {
+  // Drop runtime-appended entries (id >= 100_000); fixtures stay.
+  for (let i = MOCK_ENTRIES.length - 1; i >= 0; i--) {
+    if (MOCK_ENTRIES[i]!.id >= 100_000) MOCK_ENTRIES.splice(i, 1);
+  }
+  clearMockState("mock:audit:");
+}
 
 function applyAuditFilters(
   entries: AuditLogEntry[],
@@ -423,6 +452,7 @@ export async function recordAuditEntry(
       user_agent: null,
     };
     MOCK_ENTRIES.unshift(entry);
+    persistAppendedEntries();
     return { success: true, data: { entry } };
   }
   const res = await fetch("/api/proxy/audit-log", {

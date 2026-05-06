@@ -104,6 +104,15 @@ export const STATIC_FLAG_DEFAULTS: Record<FlagKey, false> = {
 
 export const MOCK_MODE = true;
 
+// Track A: localStorage-backed persistence for mock state.
+import {
+  loadMockState,
+  saveMockState,
+  clearMockState,
+} from "@/lib/api/_mock-storage";
+const STORAGE_KEY = "mock:feature-flags:org-overrides";
+const STORAGE_VERSION = 1;
+
 // ---------------------------------------------------------------------------
 // Mock state
 // ---------------------------------------------------------------------------
@@ -211,10 +220,25 @@ const MOCK_DEFINITIONS: FlagDefinition[] = [
 ];
 
 /** Mock per-org state. Mutated by setFeatureFlagOverride in mock mode. */
-const MOCK_ORG_OVERRIDES: Map<FlagKey, boolean> = new Map([
+const FIXTURE_OVERRIDES: Array<[FlagKey, boolean]> = [
   ["helpdesk.enabled", true],
   ["global_assistant.enabled", true],
-]);
+];
+
+const MOCK_ORG_OVERRIDES: Map<FlagKey, boolean> = new Map(
+  loadMockState<Array<[FlagKey, boolean]>>(STORAGE_KEY, STORAGE_VERSION, FIXTURE_OVERRIDES),
+);
+
+function persistOverrides(): void {
+  saveMockState(STORAGE_KEY, STORAGE_VERSION, Array.from(MOCK_ORG_OVERRIDES.entries()));
+}
+
+/** Test helper — restores fixtures + clears localStorage. */
+export function _resetFeatureFlagsMockState(): void {
+  MOCK_ORG_OVERRIDES.clear();
+  for (const [k, v] of FIXTURE_OVERRIDES) MOCK_ORG_OVERRIDES.set(k, v);
+  clearMockState("mock:feature-flags:");
+}
 
 /** Mock plan defaults — pretend the current org is on "pro". */
 const MOCK_PLAN_FEATURES: Record<FlagKey, boolean | undefined> = {
@@ -333,6 +357,7 @@ export async function setFeatureFlagOverride(
     } else {
       MOCK_ORG_OVERRIDES.set(input.key, input.value);
     }
+    persistOverrides();
     const { enabled, source } = resolveMockFlag(input.key);
     return {
       success: true,

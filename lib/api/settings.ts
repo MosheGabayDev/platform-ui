@@ -20,9 +20,18 @@ import type {
   SettingSource,
   SettingCategory,
 } from "@/lib/modules/settings/types";
+import {
+  loadMockState,
+  saveMockState,
+  clearMockState,
+} from "@/lib/api/_mock-storage";
 
 const BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api/proxy";
 export const MOCK_MODE = true;
+
+// Track A: localStorage-backed persistence for mock state.
+const STORAGE_KEY = "mock:settings:overrides";
+const STORAGE_VERSION = 1;
 
 // ---------------------------------------------------------------------------
 // Mock catalog — 13 settings across 4 categories (matches spec §10)
@@ -289,13 +298,28 @@ const MOCK_DEFINITIONS: SettingDefinition[] = [
  * For secrets we store plaintext here only because mock — real backend
  * never has plaintext at rest.
  */
-const MOCK_VALUES = new Map<string, unknown>([
+const FIXTURE_OVERRIDES: Array<[string, unknown]> = [
   ["org:1:branding.org_name", "Acme Corporation"],
   ["org:1:branding.accent_color", "violet"],
   ["org:1:ai.persona_name", "Acme AI Helper"],
   ["plan:pro:ai.max_tokens_per_message", 4096],
   ["org:1:ai.openai_api_key", "sk-acme-test-12345-XYZ"],
-]);
+];
+
+const MOCK_VALUES = new Map<string, unknown>(
+  loadMockState<Array<[string, unknown]>>(STORAGE_KEY, STORAGE_VERSION, FIXTURE_OVERRIDES),
+);
+
+function persist(): void {
+  saveMockState(STORAGE_KEY, STORAGE_VERSION, Array.from(MOCK_VALUES.entries()));
+}
+
+/** Test helper — restores fixtures + clears localStorage. */
+export function _resetSettingsMockState(): void {
+  MOCK_VALUES.clear();
+  for (const [k, v] of FIXTURE_OVERRIDES) MOCK_VALUES.set(k, v);
+  clearMockState("mock:settings:");
+}
 
 function storageKey(scope: SettingScope, scopeId: number | null, key: string) {
   return `${scope}:${scopeId ?? "null"}:${key}`;
@@ -471,6 +495,7 @@ export async function setSetting(input: SetSettingInput): Promise<SetSettingResp
     const sk = storageKey(input.scope, input.scope_id, input.key);
     if (input.value === null) MOCK_VALUES.delete(sk);
     else MOCK_VALUES.set(sk, input.value);
+    persist();
     return {
       success: true,
       message:

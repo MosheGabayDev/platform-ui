@@ -331,10 +331,16 @@ function makeDefaultConfig(provider_id: string, org_id: number): ProviderConfig 
   };
 }
 
-const MOCK_CONFIGS = new Map<string, ProviderConfig>();
+// Track A: localStorage-backed persistence for mock state.
+import {
+  loadMockState,
+  saveMockState,
+  clearMockState,
+} from "@/lib/api/_mock-storage";
+const STORAGE_KEY = "mock:ai-providers:configs";
+const STORAGE_VERSION = 1;
 
-// Seed: org 1 has anthropic enabled with a fake key + one routing rule.
-{
+function buildFixtureConfigs(): Array<[string, ProviderConfig]> {
   const cfg = makeDefaultConfig("anthropic", 1);
   cfg.enabled = true;
   cfg.credentials = {
@@ -352,7 +358,26 @@ const MOCK_CONFIGS = new Map<string, ProviderConfig>();
       priority: 100,
     },
   ];
-  MOCK_CONFIGS.set("1:anthropic", cfg);
+  return [["1:anthropic", cfg]];
+}
+
+const MOCK_CONFIGS = new Map<string, ProviderConfig>(
+  loadMockState<Array<[string, ProviderConfig]>>(
+    STORAGE_KEY,
+    STORAGE_VERSION,
+    buildFixtureConfigs(),
+  ),
+);
+
+function persistConfigs(): void {
+  saveMockState(STORAGE_KEY, STORAGE_VERSION, Array.from(MOCK_CONFIGS.entries()));
+}
+
+/** Test helper — restores fixtures + clears localStorage. */
+export function _resetAIProvidersMockState(): void {
+  MOCK_CONFIGS.clear();
+  for (const [k, v] of buildFixtureConfigs()) MOCK_CONFIGS.set(k, v);
+  clearMockState("mock:ai-providers:");
 }
 
 function configKey(org_id: number, provider_id: string) {
@@ -500,6 +525,7 @@ export async function updateProviderConfig(
       updated_at: new Date().toISOString(),
     };
     MOCK_CONFIGS.set(key, next);
+    persistConfigs();
     return { success: true, data: { config: next } };
   }
   const res = await fetch(
@@ -548,6 +574,7 @@ export async function testProviderConnection(
       updated_at: new Date().toISOString(),
     };
     MOCK_CONFIGS.set(configKey(DEFAULT_ORG_ID, providerId), next);
+    persistConfigs();
     return {
       success: true,
       data: {
