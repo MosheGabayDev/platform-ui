@@ -264,21 +264,22 @@ exception per ADR-028.
 
 | # | Rule | Audit method | Status |
 |---|---|---|---|
-| D1 | Tables: every page uses `DataTable<T>` (no hand-rolled `<table>`) | grep for `<table` outside `components/ui` | [ ] |
-| D2 | Forms: every form uses `PlatformForm` + `usePlatformMutation` | grep for `useState.*loading` adjacent to `try/catch` + toast | [ ] |
-| D3 | Mutations: no inline `useState(loading)+catch+toast` patterns | grep for the anti-pattern | [ ] |
-| D4 | Permissions: no inline `session.user.role ===` checks | grep for `session.user.role ===` | [ ] |
-| D5 | Layout: every page uses `PageShell` | grep for module pages without PageShell import | [ ] |
-| D6 | Confirms: no `window.confirm` / `alert` | grep | [ ] |
-| D7 | API calls: no raw `fetch` in components | grep for `fetch(` outside `lib/api/` | [ ] |
-| D8 | Query keys: no inline string-array keys | grep for `queryKey: [` literal arrays | [ ] |
-| D9 | org_id: never in form state for auth | grep for `org_id` in form schemas | [ ] |
-| D10 | LLM: no provider SDK in frontend | grep for `OpenAI`/`Anthropic` SDK imports | [ ] |
-| D11 | Status badges: every status badge uses `JobStatusBadge` | grep for local `StatusBadge` components | [ ] |
+| D1 | Tables: every page uses `DataTable<T>` (no hand-rolled `<table>`) | grep for `<table` outside `components/ui` | [x] 1 found, fixed |
+| D2 | Forms: every form uses `PlatformForm` + `usePlatformMutation` | grep for `useState.*loading` adjacent to `try/catch` + toast | [x] 0 found ✅ |
+| D3 | Mutations: no inline `useState(loading)+catch+toast` patterns | grep for the anti-pattern | [x] 0 found ✅ |
+| D4 | Permissions: no inline `session.user.role ===` checks | grep for `session.user.role ===` | [x] 0 found ✅ |
+| D5 | Layout: every page uses `PageShell` | grep for module pages without PageShell import | [x] 5 false-positives (detail-view + dashboard root + catch-all) |
+| D6 | Confirms: no `window.confirm` / `alert` | grep | [x] 0 found ✅ |
+| D7 | API calls: no raw `fetch` in components | grep for `fetch(` outside `lib/api/` | [x] 0 found ✅ |
+| D8 | Query keys: no inline string-array keys | grep for `queryKey: [` literal arrays | [x] 14 found, fixed |
+| D9 | org_id: never in form state for auth | grep for `org_id` in form schemas | [x] 0 found ✅ |
+| D10 | LLM: no provider SDK in frontend | grep for `OpenAI`/`Anthropic` SDK imports | [x] 0 found ✅ |
+| D11 | Status badges: every status badge uses `JobStatusBadge` | grep for local `StatusBadge` components | [x] 2 found, fixed |
 
-For each violation found: file path, line, fix or exception. Write
-findings to `docs/system-upgrade/06-governance/shared-services-audit.md`
-and fix in priority order.
+**Audit complete.** Findings document:
+`docs/system-upgrade/06-governance/shared-services-audit.md` (Track D
+fully closed — 17 violations across 3 rules, all fixed; 8 of 11 rules
+returned ZERO violations on first grep).
 
 ---
 

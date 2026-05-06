@@ -12,6 +12,7 @@ import {
   CommandItem, CommandList, CommandSeparator,
 } from "@/components/ui/command";
 import { searchGlobal } from "@/lib/api/search";
+import { queryKeys } from "@/lib/api/query-keys";
 import { sanitizeExcerpt } from "@/lib/utils/sanitize-excerpt";
 import { useNavGroups } from "@/lib/hooks/use-nav-groups";
 import { useTranslations } from "next-intl";
@@ -107,7 +108,7 @@ export function CommandPalette() {
   const trimmed = debounced.trim();
   const searchEnabled = trimmed.length >= 2;
   const { data: searchData, isFetching: searchLoading } = useQuery({
-    queryKey: ["search", "global", trimmed],
+    queryKey: queryKeys.search.global(trimmed),
     queryFn: () => searchGlobal({ q: trimmed }),
     enabled: searchEnabled,
     staleTime: 30_000,

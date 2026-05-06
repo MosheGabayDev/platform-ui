@@ -49,6 +49,35 @@ export const queryKeys = {
     stats:  () => ["audit", "stats"]                         as const,
   },
 
+  // Cap 16: PlatformSettings Engine
+  settings: {
+    all:        () => ["settings"]                                          as const,
+    definitions: () => ["settings", "definitions"]                          as const,
+    byCategory: (category: string) => ["settings", "category", category]    as const,
+    allCategories: () => ["settings", "all-categories"]                     as const,
+    one:        (key: string) => ["settings", "key", key]                   as const,
+  },
+
+  // Cap 17: PlatformFeatureFlags
+  featureFlags: {
+    all:         () => ["feature-flags"]                                    as const,
+    definitions: () => ["feature-flags", "definitions"]                     as const,
+    flag:        (key: string) => ["feature-flags", "flag", key]            as const,
+    flagWithChain: (key: string) => ["feature-flags", "flag", key, "with-chain"] as const,
+  },
+
+  // Cap 27: PlatformPolicy Engine
+  policies: {
+    all:    () => ["policies"]                                              as const,
+    list:   () => ["policies", "list"]                                      as const,
+    detail: (id: string) => ["policies", "detail", id]                      as const,
+  },
+
+  // Cap 11: PlatformSearch / Command Palette
+  search: {
+    global: (q: string) => ["search", "global", q]                          as const,
+  },
+
   // Module 04: Helpdesk (Phase A — list + KPI dashboard)
   helpdesk: {
     all:         () => ["helpdesk"]                                    as const,

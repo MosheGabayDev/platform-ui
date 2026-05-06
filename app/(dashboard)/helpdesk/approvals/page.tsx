@@ -29,6 +29,7 @@ import { PageShell } from "@/components/shared/page-shell";
 import { DataTable } from "@/components/shared/data-table";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ActionButton } from "@/components/shared/action-button";
+import { JobStatusBadge } from "@/components/shared/job-runner/job-status-badge";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -89,46 +90,9 @@ function formatRelative(iso: string): string {
   return `${Math.floor(hours / 24)}d ago`;
 }
 
-function StatusBadge({ status }: { status: ToolInvocationStatus }) {
-  if (status === "pending_approval") {
-    return (
-      <Badge
-        variant="outline"
-        className="border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-400"
-      >
-        <Clock className="h-3 w-3 me-1" aria-hidden="true" />
-        Pending
-      </Badge>
-    );
-  }
-  if (status === "approved" || status === "success") {
-    return (
-      <Badge
-        variant="outline"
-        className="border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
-      >
-        <CheckCircle className="h-3 w-3 me-1" aria-hidden="true" />
-        {status === "approved" ? "Approved" : "Success"}
-      </Badge>
-    );
-  }
-  if (status === "rejected") {
-    return (
-      <Badge
-        variant="outline"
-        className="border-rose-500/30 bg-rose-500/15 text-rose-700 dark:text-rose-400"
-      >
-        <XCircle className="h-3 w-3 me-1" aria-hidden="true" />
-        Rejected
-      </Badge>
-    );
-  }
-  return (
-    <Badge variant="outline" className="border-muted text-muted-foreground">
-      {status}
-    </Badge>
-  );
-}
+// D11 audit fix — approval statuses now flow through the shared
+// JobStatusBadge meta map (cap 14 PlatformJobRunner). Local component
+// eliminated; consumers call <JobStatusBadge status={...} />.
 
 function ApprovalsInner() {
   const t = useTranslations("helpdesk.approvals");
@@ -216,7 +180,7 @@ function ApprovalsInner() {
       {
         accessorKey: "status",
         header: "Status",
-        cell: ({ row }) => <StatusBadge status={row.original.status} />,
+        cell: ({ row }) => <JobStatusBadge status={row.original.status} />,
       },
       {
         accessorKey: "requested_by_name",

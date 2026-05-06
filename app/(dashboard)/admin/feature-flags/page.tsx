@@ -15,6 +15,7 @@
  */
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/api/query-keys";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
@@ -66,7 +67,7 @@ function FlagRow({ def, orgId }: { def: FlagDefinition; orgId: number }) {
   const tCommon = useTranslations("admin.common");
   const queryClient = useQueryClient();
   const { data, isLoading } = useQuery({
-    queryKey: ["feature-flags", "flag", def.key, "with-chain"],
+    queryKey: queryKeys.featureFlags.flagWithChain(def.key),
     queryFn: () => fetchFeatureFlag(def.key, { includeChain: true }),
     staleTime: 5 * 60_000,
   });
@@ -76,10 +77,10 @@ function FlagRow({ def, orgId }: { def: FlagDefinition; orgId: number }) {
     onSuccess: (d) => {
       toast.success(d.message);
       void queryClient.invalidateQueries({
-        queryKey: ["feature-flags", "flag", def.key, "with-chain"],
+        queryKey: queryKeys.featureFlags.flagWithChain(def.key),
       });
       void queryClient.invalidateQueries({
-        queryKey: ["feature-flags", "flag", def.key],
+        queryKey: queryKeys.featureFlags.flag(def.key),
       });
     },
   });
@@ -205,7 +206,7 @@ function FeatureFlagsInner() {
   >("all");
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["feature-flags", "definitions"],
+    queryKey: queryKeys.featureFlags.definitions(),
     queryFn: fetchFeatureFlagDefinitions,
     staleTime: 10 * 60_000,
   });

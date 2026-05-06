@@ -50,6 +50,8 @@ import { toast } from "sonner";
 import { PermissionGate } from "@/components/shared/permission-gate";
 import { PageShell } from "@/components/shared/page-shell";
 import { EmptyState } from "@/components/shared/empty-state";
+import { DataTable } from "@/components/shared/data-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -59,9 +61,61 @@ import { usePlatformMutation } from "@/lib/hooks/use-platform-mutation";
 import { useRegisterPageContext } from "@/lib/hooks/use-register-page-context";
 import { PAGE_EASE } from "@/lib/ui/motion";
 import type {
+  UsageEvent,
   UsageRange,
   BudgetStatus,
 } from "@/lib/modules/ai-usage/types";
+
+// D1 audit fix — shared DataTable column defs for the Recent Events table.
+const recentEventsColumns: ColumnDef<UsageEvent>[] = [
+  {
+    accessorKey: "timestamp",
+    header: "When",
+    cell: ({ row }) => (
+      <span className="font-mono text-[10px]">
+        {new Date(row.original.timestamp).toLocaleString()}
+      </span>
+    ),
+  },
+  {
+    accessorKey: "user_name",
+    header: "User",
+    cell: ({ row }) => row.original.user_name ?? "—",
+  },
+  {
+    id: "provider_model",
+    header: "Provider · model",
+    cell: ({ row }) => (
+      <span className="font-mono text-[10px]">
+        {row.original.provider_id} · {row.original.model}
+      </span>
+    ),
+  },
+  { accessorKey: "purpose", header: "Purpose" },
+  {
+    id: "tokens",
+    header: "Tokens",
+    cell: ({ row }) => (
+      <span className="text-end font-mono block">
+        {row.original.input_tokens + row.original.output_tokens}
+      </span>
+    ),
+  },
+  {
+    accessorKey: "cost_usd",
+    header: "Cost",
+    cell: ({ row }) => (
+      <span className="text-end font-mono block">
+        ${row.original.cost_usd.toFixed(4)}
+      </span>
+    ),
+  },
+  {
+    accessorKey: "outcome",
+    header: "Outcome",
+    cell: ({ row }) => <OutcomeBadge outcome={row.original.outcome} />,
+  },
+];
 
 const RANGE_OPTIONS: Array<{ value: UsageRange; label: string }> = [
   { value: "24h", label: "Last 24h" },
@@ -357,7 +411,7 @@ function AIUsageInner() {
                 <Section title="By purpose" rows={stats.by_purpose} valueKey="cost_usd" />
               </div>
 
-              {/* Recent events table */}
+              {/* Recent events — D1 audit: now uses shared DataTable. */}
               <div className="glass border-border/50 rounded-xl p-4 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="font-medium text-sm">Recent events</span>
@@ -365,44 +419,11 @@ function AIUsageInner() {
                     Showing {events.events.length} of {events.total}
                   </span>
                 </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs">
-                    <thead>
-                      <tr className="text-start text-muted-foreground border-b border-border/50">
-                        <th className="text-start py-1 pe-2">When</th>
-                        <th className="text-start py-1 pe-2">User</th>
-                        <th className="text-start py-1 pe-2">Provider · model</th>
-                        <th className="text-start py-1 pe-2">Purpose</th>
-                        <th className="text-end py-1 pe-2">Tokens</th>
-                        <th className="text-end py-1 pe-2">Cost</th>
-                        <th className="text-start py-1 pe-2">Outcome</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {events.events.map((e) => (
-                        <tr key={e.id} className="border-b border-border/30">
-                          <td className="py-1 pe-2 font-mono text-[10px]">
-                            {new Date(e.timestamp).toLocaleString()}
-                          </td>
-                          <td className="py-1 pe-2">{e.user_name ?? "—"}</td>
-                          <td className="py-1 pe-2 font-mono text-[10px]">
-                            {e.provider_id} · {e.model}
-                          </td>
-                          <td className="py-1 pe-2">{e.purpose}</td>
-                          <td className="py-1 pe-2 text-end font-mono">
-                            {e.input_tokens + e.output_tokens}
-                          </td>
-                          <td className="py-1 pe-2 text-end font-mono">
-                            ${e.cost_usd.toFixed(4)}
-                          </td>
-                          <td className="py-1 pe-2">
-                            <OutcomeBadge outcome={e.outcome} />
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <DataTable
+                  columns={recentEventsColumns}
+                  data={events.events}
+                  emptyMessage="No usage events yet"
+                />
               </div>
             </>
           )}

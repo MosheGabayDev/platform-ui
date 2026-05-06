@@ -15,6 +15,7 @@
  */
 import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/api/query-keys";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
@@ -118,7 +119,7 @@ function AISettingsInner() {
     },
     onSuccess: () => {
       toast.success("AI settings saved.");
-      void queryClient.invalidateQueries({ queryKey: ["settings"] });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.settings.all() });
     },
   });
 

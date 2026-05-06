@@ -58,4 +58,39 @@ describe("JobStatusBadge", () => {
     expect(screen.getByText("Completed")).toBeTruthy();
     expect(container.querySelector("[class*='border-emerald']")).toBeTruthy();
   });
+
+  it("pending_approval renders 'Pending' and amber tone (Track D)", () => {
+    const { container } = render(<JobStatusBadge status="pending_approval" />);
+    expect(screen.getByText("Pending")).toBeTruthy();
+    expect(container.querySelector("[class*='border-amber']")).toBeTruthy();
+  });
+
+  it("approved renders 'Approved' and emerald tone (Track D)", () => {
+    const { container } = render(<JobStatusBadge status="approved" />);
+    expect(screen.getByText("Approved")).toBeTruthy();
+    expect(container.querySelector("[class*='border-emerald']")).toBeTruthy();
+  });
+
+  it("rejected renders 'Rejected' and rose tone (Track D)", () => {
+    const { container } = render(<JobStatusBadge status="rejected" />);
+    expect(screen.getByText("Rejected")).toBeTruthy();
+    expect(container.querySelector("[class*='border-rose']")).toBeTruthy();
+  });
+
+  it("healthy renders 'Healthy' and emerald tone (Track D)", () => {
+    const { container } = render(<JobStatusBadge status="healthy" />);
+    expect(screen.getByText("Healthy")).toBeTruthy();
+    expect(container.querySelector("[class*='border-emerald']")).toBeTruthy();
+  });
+
+  it("disabled_by_flag renders 'Flag-disabled' (Track D)", () => {
+    render(<JobStatusBadge status="disabled_by_flag" />);
+    expect(screen.getByText("Flag-disabled")).toBeTruthy();
+  });
+
+  it("unavailable renders 'Plan-locked' and rose tone (Track D)", () => {
+    const { container } = render(<JobStatusBadge status="unavailable" />);
+    expect(screen.getByText("Plan-locked")).toBeTruthy();
+    expect(container.querySelector("[class*='border-rose']")).toBeTruthy();
+  });
 });

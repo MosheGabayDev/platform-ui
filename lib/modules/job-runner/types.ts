@@ -41,6 +41,14 @@ export type JobStatus =
   | "scheduled"
   | "in_progress"
   | "completed"
+  // Approval-flow statuses (Track D consolidation).
+  | "pending_approval"
+  | "approved"
+  | "rejected"
+  // Module-registry statuses (Track D consolidation).
+  | "healthy"
+  | "disabled_by_flag"
+  | "unavailable"
   | (string & {});
 
 /**

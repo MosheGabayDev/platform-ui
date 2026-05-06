@@ -14,6 +14,7 @@
  */
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/api/query-keys";
 import { useTranslations } from "next-intl";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
 import {
@@ -108,7 +109,7 @@ function PolicyCard({ policy }: { policy: Policy }) {
       setPolicyEnabled(id, enabled),
     onSuccess: () => {
       toast.success(`Policy ${policy.enabled ? "disabled" : "enabled"}.`);
-      void queryClient.invalidateQueries({ queryKey: ["policies"] });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.policies.all() });
     },
   });
 
@@ -303,7 +304,7 @@ function PolicyTester() {
 function PoliciesInner() {
   const t = useTranslations("admin.policies");
   const { data, isLoading, error } = useQuery({
-    queryKey: ["policies", "list"],
+    queryKey: queryKeys.policies.list(),
     queryFn: fetchPolicies,
     staleTime: 5 * 60_000,
   });

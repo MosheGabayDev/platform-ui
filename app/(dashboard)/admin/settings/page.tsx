@@ -19,6 +19,7 @@
  */
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/api/query-keys";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
@@ -400,7 +401,7 @@ function SettingsInner() {
   const [activeCategory, setActiveCategory] = useState<SettingCategory | "all">("all");
 
   const { data: defsData, isLoading: defsLoading } = useQuery({
-    queryKey: ["settings", "definitions"],
+    queryKey: queryKeys.settings.definitions(),
     queryFn: fetchSettingDefinitions,
     staleTime: 10 * 60_000,
   });
@@ -408,7 +409,7 @@ function SettingsInner() {
 
   // Fetch all categories at once so the page is one big tree.
   const categoryQueries = useQuery({
-    queryKey: ["settings", "all-categories"],
+    queryKey: queryKeys.settings.allCategories(),
     queryFn: async () => {
       const cats: SettingCategory[] = ["ai", "branding", "notifications", "rate_limits"];
       const results = await Promise.all(
@@ -454,7 +455,7 @@ function SettingsInner() {
   });
 
   function invalidateAll() {
-    void queryClient.invalidateQueries({ queryKey: ["settings"] });
+    void queryClient.invalidateQueries({ queryKey: queryKeys.settings.all() });
   }
 
   return (

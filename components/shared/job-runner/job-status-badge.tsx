@@ -14,6 +14,8 @@ import {
   CircleSlash2,
   CalendarClock,
   CircleDot,
+  Lock,
+  ShieldCheck,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -81,6 +83,38 @@ const STATUS_META: Record<string, StatusMeta> = {
     icon: CheckCircle2,
     tone: "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
     label: "Completed",
+  },
+  // Approval-flow statuses (cap 13)
+  pending_approval: {
+    icon: Clock,
+    tone: "border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-400",
+    label: "Pending",
+  },
+  approved: {
+    icon: ShieldCheck,
+    tone: "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
+    label: "Approved",
+  },
+  rejected: {
+    icon: XCircle,
+    tone: "border-rose-500/30 bg-rose-500/15 text-rose-700 dark:text-rose-400",
+    label: "Rejected",
+  },
+  // Module-registry statuses (cap 18)
+  healthy: {
+    icon: CheckCircle2,
+    tone: "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
+    label: "Healthy",
+  },
+  disabled_by_flag: {
+    icon: AlertTriangle,
+    tone: "border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-400",
+    label: "Flag-disabled",
+  },
+  unavailable: {
+    icon: Lock,
+    tone: "border-rose-500/30 bg-rose-500/15 text-rose-700 dark:text-rose-400",
+    label: "Plan-locked",
   },
 };
 

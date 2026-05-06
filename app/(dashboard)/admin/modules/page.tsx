@@ -34,6 +34,7 @@ import { toast } from "sonner";
 import { PermissionGate } from "@/components/shared/permission-gate";
 import { PageShell } from "@/components/shared/page-shell";
 import { EmptyState } from "@/components/shared/empty-state";
+import { JobStatusBadge } from "@/components/shared/job-runner/job-status-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { fetchModules, setModuleEnablement } from "@/lib/api/module-registry";
@@ -78,50 +79,9 @@ const CATEGORY_META: Record<
   },
 };
 
-function StatusBadge({ status }: { status: ModuleStatus }) {
-  if (status === "healthy") {
-    return (
-      <Badge
-        variant="outline"
-        className="border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
-      >
-        <CheckCircle2 className="h-3 w-3 me-1" aria-hidden="true" />
-        Healthy
-      </Badge>
-    );
-  }
-  if (status === "disabled_by_flag") {
-    return (
-      <Badge
-        variant="outline"
-        className="border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-400"
-      >
-        <AlertTriangle className="h-3 w-3 me-1" aria-hidden="true" />
-        Flag-disabled
-      </Badge>
-    );
-  }
-  if (status === "unavailable") {
-    return (
-      <Badge
-        variant="outline"
-        className="border-rose-500/30 bg-rose-500/15 text-rose-700 dark:text-rose-400"
-      >
-        <Lock className="h-3 w-3 me-1" aria-hidden="true" />
-        Plan-locked
-      </Badge>
-    );
-  }
-  return (
-    <Badge
-      variant="outline"
-      className="border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-400"
-    >
-      <AlertTriangle className="h-3 w-3 me-1" aria-hidden="true" />
-      {status}
-    </Badge>
-  );
-}
+// D11 audit fix — module-registry statuses now flow through the shared
+// JobStatusBadge meta map (cap 14 PlatformJobRunner). Local rendering
+// component eliminated; consumers call <JobStatusBadge status={...} />.
 
 function ModuleCard({ entry }: { entry: ModuleEntry }) {
   const queryClient = useQueryClient();
@@ -153,7 +113,7 @@ function ModuleCard({ entry }: { entry: ModuleEntry }) {
           <p className="text-xs text-muted-foreground mt-1">{m.description}</p>
 
           <div className="flex items-center gap-2 mt-2">
-            <StatusBadge status={entry.status} />
+            <JobStatusBadge status={entry.status} />
             {entry.enablement.enabled ? (
               <Badge
                 variant="outline"
