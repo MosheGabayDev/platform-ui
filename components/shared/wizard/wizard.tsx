@@ -168,15 +168,26 @@ export function Wizard<TState>({ config, preferHebrew = true }: WizardProps<TSta
               Back
             </Button>
           )}
+          {!isLast && step.optional && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={wizard.goNext}
+              disabled={isCompleting}
+              aria-label="Skip step"
+            >
+              Skip
+            </Button>
+          )}
           {!isLast && (
             <Button
               variant="default"
               size="sm"
               onClick={wizard.goNext}
               disabled={!canAdvance || isCompleting}
-              aria-label={step.optional ? "Skip step" : "Next step"}
+              aria-label="Next step"
             >
-              {step.optional ? "Skip" : "Next"}
+              Next
               <ChevronLeft className="h-3.5 w-3.5 ms-1 rtl:rotate-180" aria-hidden="true" />
             </Button>
           )}

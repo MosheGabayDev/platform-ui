@@ -110,13 +110,14 @@ describe("Wizard primitive", () => {
     );
   });
 
-  it("optional step renders Skip instead of Next", async () => {
+  it("optional step renders BOTH Skip and Next so the user can choose", async () => {
     const config = makeConfig();
     config.steps[0]!.optional = true;
     render(<Wizard config={config} preferHebrew={false} />);
     await waitFor(() =>
       expect(screen.getByRole("button", { name: /Skip step/i })).toBeTruthy(),
     );
+    expect(screen.getByRole("button", { name: /Next step/i })).toBeTruthy();
   });
 
   it("hideWhen step is filtered out of the indicator", async () => {
