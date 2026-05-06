@@ -131,9 +131,9 @@ export const navGroups: NavGroup[] = [
         href: "/settings",
         icon: Settings,
         children: [
+          { title: "AI", href: "/settings/ai", icon: Bot },
           { title: "כללי", href: "/settings/general", icon: Settings },
           { title: "אימייל", href: "/settings/email", icon: Bell },
-          { title: "ספקי AI", href: "/settings/ai-providers", icon: Bot },
           { title: "מגבלות שימוש", href: "/settings/usage-limits", icon: Activity },
         ],
       },

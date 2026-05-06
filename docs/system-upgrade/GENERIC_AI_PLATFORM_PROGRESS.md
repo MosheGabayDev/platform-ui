@@ -185,11 +185,15 @@ returns to chatting_idle.
 - [ ] Sample data seeding per module
 - [ ] First-AI-conversation guided tour
 
-### 3.2 — Self-service settings
-- [ ] AI persona / system prompt editor
-- [ ] Default model + rate limits
-- [ ] Branding (logo, accent color — already partial via theme-store)
-- [ ] Notification preferences
+### 3.2 — Self-service settings — DONE 2026-05-06 (AI section)
+- [x] AI persona / system prompt editor — `/settings/ai` page
+- [x] Default model + max tokens — sourced from cap 2.1 catalog
+- [ ] Branding (logo, accent color — partial via theme-store + onboarding wizard) — defer to a follow-up
+- [ ] Notification preferences — defer
+
+Spec: `docs/system-upgrade/04-capabilities/platform-self-service-ai-settings-spec.md`. Page reads/writes via cap 16 Settings Engine at scope=org; model dropdown sourced from cap 2.1 catalog; live preview reflects unsaved changes; save batches 4 mutations via `Promise.all`. Validation per spec §4. RBAC via PermissionGate org_admin/system_admin.
+
+Tests: 2 new E2E specs (renders, persona-name-updates-preview-live).
 
 ### 3.3 — Help & documentation surface
 - [ ] In-app docs panel (already partial via `/help`)
@@ -255,7 +259,7 @@ When you (the AI) finish a cap and consider marking it DONE: re-read this checkl
 |---|---|---|---|---|
 | vitest unit (`npx vitest run`) | 2026-05-06 | 45 | 410 / 410 | ✅ all green |
 | coverage gate (`scripts/check-coverage-baseline.mjs`) | 2026-05-06 | n/a | n/a | ✅ passed (baselines bumped per Phase 2 Round-2 review MED #4) |
-| Playwright E2E (`npx playwright test`) | 2026-05-06 | 31 specs | 88 passed / 0 failed / 42 skipped | ✅ all green (skipped = cross-tenant tests gated on E2E_ORG_*_ID env vars) |
+| Playwright E2E (`npx playwright test`) | 2026-05-06 | 31 specs | 90 passed / 0 failed / 42 skipped | ✅ all green (skipped = cross-tenant tests gated on E2E_ORG_*_ID env vars) |
 
 ### E2E specs by surface (Phase 1 coverage)
 
@@ -278,7 +282,7 @@ When you (the AI) finish a cap and consider marking it DONE: re-read this checkl
 |---|---|---|---|---|
 | Phase 1 caps | 13 | 12 | 0 | 0 — cap 23 SSE deferred to Phase 5 |
 | Phase 2 (AI core) | 5 | 5 | 0 | 0 — **PHASE 2 CLOSED** |
-| Phase 3 (onboarding) | 3 | 0 | 0 | 3 |
+| Phase 3 (onboarding) | 3 | 1 | 0 | 2 (3.1 finish, 3.3) |
 | Phase 4 (helpdesk demo) | 4 | 3 | 0 | 1 |
 | Phase 5 (backend) | n/a (other repo) | — | — | — |
 

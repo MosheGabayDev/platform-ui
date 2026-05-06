@@ -128,6 +128,34 @@ test.describe("Admin pages — Phase 1 smoke", () => {
     ).toBeVisible({ timeout: 5_000 });
   });
 
+  test("/settings/ai self-service form renders with persona + model + preview", async ({ page }) => {
+    await page.goto("/settings/ai");
+    await expect(
+      page.getByRole("heading", { name: /^AI configuration$/i }),
+    ).toBeVisible();
+    // Section headings
+    await expect(page.getByText(/^Persona$/i).first()).toBeVisible();
+    await expect(page.getByText(/^Model$/i).first()).toBeVisible();
+    await expect(page.getByText(/^Preview$/i).first()).toBeVisible();
+    // Form fields
+    await expect(page.getByLabel(/^Display name$/i)).toBeVisible();
+    await expect(page.getByLabel(/^System prompt$/i)).toBeVisible();
+    await expect(page.getByLabel(/^Default model$/i)).toBeVisible();
+    await expect(page.getByLabel(/^Max tokens per response$/i)).toBeVisible();
+    // Live preview present
+    await expect(page.getByTestId("ai-settings-preview")).toBeVisible();
+  });
+
+  test("/settings/ai persona name updates preview live", async ({ page }) => {
+    await page.goto("/settings/ai");
+    const nameField = page.getByLabel(/^Display name$/i);
+    await expect(nameField).toBeVisible();
+    await nameField.fill("Probe Bot 9000");
+    await expect(page.getByTestId("ai-settings-preview")).toContainText(
+      /Probe Bot 9000/i,
+    );
+  });
+
   test("/admin/policies tester evaluates a request and shows decision", async ({ page }) => {
     await page.goto("/admin/policies");
     // Default action+params already populated (helpdesk.batch.bulk_status, affected_count=100).
