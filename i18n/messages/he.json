@@ -329,6 +329,58 @@
     "switcher": "שפה",
     "current": "שפה נוכחית: {locale}"
   },
+  "selfServiceAi": {
+    "title": "תצורת AI",
+    "subtitle": "הגדרת התנהגות סייען ה-AI עבור הארגון",
+    "loading": "טוען…",
+    "permissionDescription": "נדרש תפקיד org_admin או system_admin להגדרת AI."
+  },
+  "onboarding": {
+    "title": "ברוך הבא — נגדיר יחד את הפלטפורמה",
+    "subtitle": "הקמת ה-tenant ב-4 שלבים",
+    "header": "Onboarding",
+    "headerSubtitle": "Configure your tenant in 4 steps",
+    "steps": {
+      "org": {
+        "label": "ארגון",
+        "description": "בחר שם תצוגה וצבע הדגשה ל-tenant שלך."
+      },
+      "ai": {
+        "label": "תצורת AI",
+        "description": "מודל ברירת מחדל ו-persona לסייען ה-AI."
+      },
+      "modules": {
+        "label": "מודולים",
+        "description": "בחר אילו מודולים להפעיל כעת. ניתן לשנות אחר כך."
+      },
+      "sampleData": {
+        "label": "נתוני דוגמה",
+        "description": "אכלוס המודולים המופעלים בנתונים ראליסטיים."
+      },
+      "summary": {
+        "label": "סיכום",
+        "description": "בדיקה אחרונה לפני החלה."
+      }
+    },
+    "validation": {
+      "orgNameTooShort": "שם הארגון חייב לכלול לפחות 2 תווים.",
+      "personaNameTooShort": "שם ה-persona חייב לכלול לפחות 2 תווים."
+    },
+    "completion": {
+      "seeded": "אוכלסו {count} משאבי דוגמה ב-{modules} מודולים.",
+      "setupComplete": "ההגדרה הושלמה! ברוך הבא לפלטפורמה."
+    },
+    "tour": {
+      "title": "נסה את פקודת ה-AI הראשונה שלך",
+      "description": "הפלטפורמה הוגדרה. בוא נראה את סייען ה-AI בפעולה.",
+      "propose": "<b>הצעה</b> — ה-AI לעולם אינו מבצע פעולה בשקט. הוא מציע פעולה עם פרמטרים.",
+      "confirm": "<b>אישור</b> — אתה בודק את ההצעה וכפתור confirm מוגן ב-token מריץ אותה.",
+      "audit": "<b>ביקורת</b> — כל פעולת AI נוחתת ביומן הביקורת תחת <code>category=ai</code>.",
+      "tryThis": "נסה זאת:",
+      "skip": "דלג",
+      "openAssistant": "פתח את סייען ה-AI"
+    }
+  },
   "wizard": {
     "back": "חזור",
     "next": "המשך",

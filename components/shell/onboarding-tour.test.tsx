@@ -2,7 +2,8 @@
  * Tests for OnboardingTour (Phase 3.1).
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
+import { screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
+import { renderWithIntl as render } from "@/lib/test-utils/intl";
 
 const replaceMock = vi.fn();
 let searchString = "";
@@ -56,7 +57,7 @@ describe("OnboardingTour", () => {
     await waitFor(() => {
       expect(screen.queryByTestId("onboarding-tour-dialog")).toBeTruthy();
     });
-    expect(screen.getByText(/Try your first AI command/i)).toBeTruthy();
+    expect(screen.getByText(/Try your first AI command|נסה את פקודת ה-AI/i)).toBeTruthy();
   });
 
   it("Skip closes the dialog and strips ?tour=first-ai", async () => {

@@ -10,6 +10,7 @@
  */
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
 import { Sparkles, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
@@ -295,56 +296,53 @@ function SummaryStep({ state }: { state: OnboardingState }) {
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const t = useTranslations("onboarding");
 
   const config: WizardConfig<OnboardingState> = {
     storageKey: "wizard:onboarding:v1",
-    title: "Welcome — let's set up your platform",
-    title_he: "ברוך הבא — נגדיר יחד את הפלטפורמה",
+    title: t("title"),
+    title_he: t("title"),
     initialState: INITIAL_STATE,
     steps: [
       {
         id: "org",
-        label: "Organization",
-        label_he: "ארגון",
-        description: "Pick a display name and accent color for your tenant.",
+        label: t("steps.org.label"),
+        label_he: t("steps.org.label"),
+        description: t("steps.org.description"),
         render: (props) => <OrgStep {...props} />,
         validate: (s) =>
-          s.org_name.trim().length < 2
-            ? "Organization name must be at least 2 characters."
-            : null,
+          s.org_name.trim().length < 2 ? t("validation.orgNameTooShort") : null,
       },
       {
         id: "ai",
-        label: "AI configuration",
-        label_he: "תצורת AI",
-        description: "Default model and persona for the AI assistant.",
+        label: t("steps.ai.label"),
+        label_he: t("steps.ai.label"),
+        description: t("steps.ai.description"),
         render: (props) => <AIStep {...props} />,
         validate: (s) =>
-          s.persona_name.trim().length < 2
-            ? "Persona name must be at least 2 characters."
-            : null,
+          s.persona_name.trim().length < 2 ? t("validation.personaNameTooShort") : null,
       },
       {
         id: "modules",
-        label: "Modules",
-        label_he: "מודולים",
-        description: "Pick which modules to enable now. You can change this later.",
+        label: t("steps.modules.label"),
+        label_he: t("steps.modules.label"),
+        description: t("steps.modules.description"),
         render: (props) => <ModulesStep {...props} />,
         optional: true,
       },
       {
         id: "sample-data",
-        label: "Sample data",
-        label_he: "נתוני דוגמה",
-        description: "Seed your enabled modules with realistic content.",
+        label: t("steps.sampleData.label"),
+        label_he: t("steps.sampleData.label"),
+        description: t("steps.sampleData.description"),
         render: (props) => <SampleDataStep {...props} />,
         optional: true,
       },
       {
         id: "summary",
-        label: "Review",
-        label_he: "סיכום",
-        description: "Final check before applying.",
+        label: t("steps.summary.label"),
+        label_he: t("steps.summary.label"),
+        description: t("steps.summary.description"),
         render: (props) => <SummaryStep state={props.state} />,
       },
     ],
@@ -373,12 +371,15 @@ export default function OnboardingPage() {
         if (enabledKeys.length > 0) {
           const seedRes = await seedSampleData({ modules: enabledKeys });
           toast.success(
-            `Seeded ${seedRes.data.total_resources} sample resources across ${seedRes.data.seeded.filter((s) => !s.not_seedable).length} modules.`,
+            t("completion.seeded", {
+              count: seedRes.data.total_resources,
+              modules: seedRes.data.seeded.filter((s) => !s.not_seedable).length,
+            }),
           );
         }
       }
 
-      toast.success("Setup complete! Welcome to your platform.");
+      toast.success(t("completion.setupComplete"));
       router.push("/?tour=first-ai");
     },
     onCancel: () => {
@@ -388,11 +389,7 @@ export default function OnboardingPage() {
 
   return (
     <LazyMotion features={domAnimation}>
-      <PageShell
-        icon={CheckCircle2}
-        title="Onboarding"
-        subtitle="Configure your tenant in 4 steps"
-      >
+      <PageShell icon={CheckCircle2} title={t("header")} subtitle={t("headerSubtitle")}>
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0, transition: { duration: 0.3, ease: PAGE_EASE } }}

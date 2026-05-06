@@ -16,6 +16,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
 import {
   Bot,
@@ -56,6 +57,7 @@ interface ModelOption {
 }
 
 function AISettingsInner() {
+  const t = useTranslations("selfServiceAi");
   const queryClient = useQueryClient();
   const { data: session } = useSession();
   const orgId = session?.user?.org_id ?? 1;
@@ -176,18 +178,14 @@ function AISettingsInner() {
 
   return (
     <LazyMotion features={domAnimation}>
-      <PageShell
-        icon={Bot}
-        title="AI configuration"
-        subtitle="Configure how your AI assistant behaves for your org"
-      >
+      <PageShell icon={Bot} title={t("title")} subtitle={t("subtitle")}>
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0, transition: { duration: 0.3, ease: PAGE_EASE } }}
           className="space-y-4 pb-20 md:pb-0"
         >
           {isLoading || !draft ? (
-            <div className="text-sm text-muted-foreground">Loading…</div>
+            <div className="text-sm text-muted-foreground">{t("loading")}</div>
           ) : (
             <>
               {/* Persona card */}
@@ -375,17 +373,23 @@ export default function SelfServiceAISettingsPage() {
   return (
     <PermissionGate
       role={["org_admin", "system_admin"]}
-      fallback={
-        <PageShell icon={Bot} title="AI configuration" subtitle="Restricted">
-          <EmptyState
-            icon={AlertCircle}
-            title="Permission required"
-            description="You need org_admin or system_admin role to configure AI settings."
-          />
-        </PageShell>
-      }
+      fallback={<AISettingsRestrictedFallback />}
     >
       <AISettingsInner />
     </PermissionGate>
+  );
+}
+
+function AISettingsRestrictedFallback() {
+  const t = useTranslations("selfServiceAi");
+  const tCommon = useTranslations("admin.common");
+  return (
+    <PageShell icon={Bot} title={t("title")} subtitle={tCommon("restricted")}>
+      <EmptyState
+        icon={AlertCircle}
+        title={tCommon("permissionRequired")}
+        description={t("permissionDescription")}
+      />
+    </PageShell>
   );
 }

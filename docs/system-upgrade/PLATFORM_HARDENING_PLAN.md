@@ -74,7 +74,7 @@ components/
 | E8 | Convert sidebar nav (`components/shell/nav-items.ts` titles) — replace inline Hebrew titles with translation keys via `useNavGroups()` hook | [x] |
 | E9 | `components/shell/language-switcher.tsx` + topbar slot | [x] |
 | E10 | Persist locale via cap 16 setting `ui.locale` (definition + sync hook) — deferred (Zustand+localStorage already persists; cap 16 sync is a server-source nice-to-have) | [ ] |
-| E11 | Convert `/onboarding` wizard step labels + onboarding-tour dialog copy | [ ] |
+| E11 | Convert `/onboarding` wizard step labels + onboarding-tour dialog copy + completion toasts | [x] |
 | E12 | Convert `/admin/settings` chrome (title, subtitle, resolution banner, category filter, KPI labels) | [x] |
 | E13 | Convert `/admin/modules` chrome (title, subtitle, KPI tiles, category filter, fallback) | [x] |
 | E14 | Convert `/admin/policies` chrome (title, subtitle, KPI tiles, evaluation banner, fallback) — tester + per-policy card defer | [x] |
@@ -84,7 +84,7 @@ components/
 | E18 | Convert `/admin/ai-usage` chrome (title, subtitle, fallback) — KPI tile labels + range selector + budget banner defer | [x] |
 | E19 | Convert `/audit-log` chrome (title, subtitle, fallback) — KPI tiles + category filter + table headers defer | [x] |
 | E20 | Convert `/helpdesk/*` chrome (root + tickets/technicians/sla/maintenance/batch/approvals/kb) | [ ] |
-| E21 | Convert `/settings/ai` chrome | [ ] |
+| E21 | Convert `/settings/ai` chrome (title, subtitle, loading, fallback) — form field labels defer | [x] |
 | E22 | Tests: 1 test that switches locale and asserts text changes; 1 test that fallback returns the key for missing translations | [partial — `lib/test-utils/intl.tsx` helper added; locale-switch test pending] |
 | E23 | Tracker: ensure no inline Hebrew/English in `/app/(dashboard)/**/*.tsx` (grep audit) | [ ] |
 

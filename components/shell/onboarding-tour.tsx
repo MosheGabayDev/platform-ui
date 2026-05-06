@@ -12,6 +12,7 @@
  */
 import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Sparkles, Shield, ListChecks } from "lucide-react";
 import {
   Dialog,
@@ -30,6 +31,7 @@ const QUERY_VALUE = "first-ai";
 const MARKER_KEY = "onboarding.first_ai_tour_completed";
 
 export function OnboardingTour() {
+  const t = useTranslations("onboarding.tour");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -106,35 +108,36 @@ export function OnboardingTour() {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-violet-500" aria-hidden="true" />
-            Try your first AI command
+            {t("title")}
           </DialogTitle>
-          <DialogDescription>
-            Your platform is configured. Now let&apos;s see the AI assistant in action.
-          </DialogDescription>
+          <DialogDescription>{t("description")}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-3 py-2">
           <div className="flex gap-3 items-start">
             <Sparkles className="h-4 w-4 mt-0.5 text-cyan-500 shrink-0" aria-hidden="true" />
             <p className="text-sm">
-              <strong>Propose</strong> — the AI never executes silently. It proposes an action with parameters.
+              {t.rich("propose", { b: (chunks) => <strong>{chunks}</strong> })}
             </p>
           </div>
           <div className="flex gap-3 items-start">
             <Shield className="h-4 w-4 mt-0.5 text-amber-500 shrink-0" aria-hidden="true" />
             <p className="text-sm">
-              <strong>Confirm</strong> — you review the proposal and a token-bound confirm button runs it.
+              {t.rich("confirm", { b: (chunks) => <strong>{chunks}</strong> })}
             </p>
           </div>
           <div className="flex gap-3 items-start">
             <ListChecks className="h-4 w-4 mt-0.5 text-emerald-500 shrink-0" aria-hidden="true" />
             <p className="text-sm">
-              <strong>Audit</strong> — every AI action lands in the audit log under <code>category=ai</code>.
+              {t.rich("audit", {
+                b: (chunks) => <strong>{chunks}</strong>,
+                code: (chunks) => <code>{chunks}</code>,
+              })}
             </p>
           </div>
           <div className="rounded-md border border-border/50 bg-muted/40 p-3 text-sm">
-            Try this:
-            <pre className="mt-1 text-xs"><code>take ticket 1001</code></pre>
+            {t("tryThis")}
+            <pre className="mt-1 text-xs" dir="ltr"><code>take ticket 1001</code></pre>
           </div>
         </div>
 
@@ -144,13 +147,13 @@ export function OnboardingTour() {
             onClick={() => void dismiss(false)}
             data-testid="onboarding-tour-skip"
           >
-            Skip
+            {t("skip")}
           </Button>
           <Button
             onClick={() => void dismiss(true)}
             data-testid="onboarding-tour-open"
           >
-            Open AI assistant
+            {t("openAssistant")}
           </Button>
         </DialogFooter>
       </DialogContent>

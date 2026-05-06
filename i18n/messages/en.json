@@ -329,6 +329,58 @@
     "switcher": "Language",
     "current": "Current language: {locale}"
   },
+  "selfServiceAi": {
+    "title": "AI configuration",
+    "subtitle": "Configure how your AI assistant behaves for your org",
+    "loading": "Loading…",
+    "permissionDescription": "You need org_admin or system_admin role to configure AI."
+  },
+  "onboarding": {
+    "title": "Welcome — let's set up your platform",
+    "subtitle": "Configure your tenant in 4 steps",
+    "header": "Onboarding",
+    "headerSubtitle": "Configure your tenant in 4 steps",
+    "steps": {
+      "org": {
+        "label": "Organization",
+        "description": "Pick a display name and accent color for your tenant."
+      },
+      "ai": {
+        "label": "AI configuration",
+        "description": "Default model and persona for the AI assistant."
+      },
+      "modules": {
+        "label": "Modules",
+        "description": "Pick which modules to enable now. You can change this later."
+      },
+      "sampleData": {
+        "label": "Sample data",
+        "description": "Seed your enabled modules with realistic content."
+      },
+      "summary": {
+        "label": "Review",
+        "description": "Final check before applying."
+      }
+    },
+    "validation": {
+      "orgNameTooShort": "Organization name must be at least 2 characters.",
+      "personaNameTooShort": "Persona name must be at least 2 characters."
+    },
+    "completion": {
+      "seeded": "Seeded {count} sample resources across {modules} modules.",
+      "setupComplete": "Setup complete! Welcome to your platform."
+    },
+    "tour": {
+      "title": "Try your first AI command",
+      "description": "Your platform is configured. Now let's see the AI assistant in action.",
+      "propose": "<b>Propose</b> — the AI never executes silently. It proposes an action with parameters.",
+      "confirm": "<b>Confirm</b> — you review the proposal and a token-bound confirm button runs it.",
+      "audit": "<b>Audit</b> — every AI action lands in the audit log under <code>category=ai</code>.",
+      "tryThis": "Try this:",
+      "skip": "Skip",
+      "openAssistant": "Open AI assistant"
+    }
+  },
   "wizard": {
     "back": "Back",
     "next": "Next",
