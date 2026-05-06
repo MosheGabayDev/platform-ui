@@ -13,13 +13,12 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchModules } from "@/lib/api/module-registry";
+import { queryKeys } from "@/lib/api/query-keys";
 import type { ModuleEntry } from "@/lib/modules/module-registry/types";
-
-const QUERY_KEY = ["module-registry", "modules"] as const;
 
 export function useEnabledModules() {
   const { data, isLoading, isError } = useQuery({
-    queryKey: QUERY_KEY,
+    queryKey: queryKeys.moduleRegistry.modules(),
     queryFn: fetchModules,
     staleTime: 10 * 60_000,
     retry: false,
@@ -49,4 +48,4 @@ export function useModuleStatus(key: string) {
   return { entry, isLoading };
 }
 
-export const _moduleRegistryQueryKey = QUERY_KEY;
+export const _moduleRegistryQueryKey = queryKeys.moduleRegistry.modules();

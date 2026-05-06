@@ -38,7 +38,7 @@ Per module the seed call returns deterministic counts. Real backend will materia
 | Module key | Sample resources | Count |
 |---|---|---|
 | `helpdesk` | tickets, technicians, KB articles | 8, 3, 4 |
-| `users` | demo users, roles | 5, 2 |
+| `users` | combined: demo users + roles | 7 (5 + 2 in the live backend; the mock returns the combined integer) |
 | `audit-log` | replays existing fixture entries — count returned | (existing) |
 | `monitoring` | demo health probes | 4 |
 | `knowledge` | demo KB articles | 6 |
@@ -67,7 +67,19 @@ Endpoints (when MOCK_MODE flips):
 - `POST /api/proxy/onboarding/sample-data` — body `{ modules: string[] }`
 - `GET  /api/proxy/onboarding/sample-data/status` — returns array of `SampleDataStatus`
 
-The mock client persists markers to `onboarding.sample_data.<module_key>` settings (cap 16) at scope=org with the seed timestamp ISO string. Idempotent: seeding a module twice updates the marker but does not duplicate fixtures.
+The mock client persists markers as a **single JSON-typed setting**
+`onboarding.sample_data` (cap 16, scope=org) whose value is
+`Record<module_key, ISO_timestamp>`. We chose a single JSON blob over
+per-module string settings to keep the cap 16 catalog small (one
+definition instead of N) and avoid registering a new setting every time
+we seed a new module. Idempotent: seeding a module twice updates the
+marker but does not duplicate fixtures (mock-only — the live backend
+will materialize rows once and skip subsequent calls).
+
+> **Round-2 reviewer note (2026-05-06):** earlier draft of this spec
+> proposed per-module keys (`onboarding.sample_data.<module_key>`).
+> Implementation chose the JSON-blob approach for the reasons above; spec
+> updated to match. Backend MUST mirror the JSON-blob shape on flip.
 
 ---
 
@@ -125,7 +137,7 @@ No additional gate; any authenticated user who lands on `/?tour=first-ai` sees i
 - [ ] Backend implements `POST /api/proxy/onboarding/sample-data` with idempotent seeding per module, body `{ modules: string[] }`, returns the response shape in §4.
 - [ ] Backend implements `GET /api/proxy/onboarding/sample-data/status` returning the marker timestamps from `Setting`.
 - [ ] Backend writes one `category=admin` audit entry per seed call.
-- [ ] Marker settings (`onboarding.sample_data.<module_key>`) registered in cap 16 catalog with `is_sensitive: false`, `type: string`, scope=org.
+- [ ] Single setting `onboarding.sample_data` registered in cap 16 catalog with `is_sensitive: false`, `type: json`, scope=org. Value shape: `Record<module_key, ISO_timestamp>`.
 - [ ] `MOCK_MODE` flipped to `false` in `lib/api/sample-data.ts`.
 
 ---

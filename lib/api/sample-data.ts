@@ -62,6 +62,7 @@ export async function seedSampleData(
     const markers = await readMarkers();
     const seeded: SeededModule[] = [];
     let total = 0;
+    let dirty = false;
 
     for (const moduleKey of input.modules) {
       if (!isSeedable(moduleKey)) {
@@ -72,6 +73,7 @@ export async function seedSampleData(
       seeded.push({ module_key: moduleKey, count });
       total += count;
       markers[moduleKey] = now;
+      dirty = true;
       // Audit per module
       void recordAuditEntry({
         action: "onboarding.sample_data.seed",
@@ -82,7 +84,10 @@ export async function seedSampleData(
       });
     }
 
-    if (Object.keys(markers).length > 0) {
+    // Round-2 H2: only persist when at least one seedable module was
+    // processed. Without `dirty`, a previously-seeded org would re-write
+    // identical markers on every "all unknown modules" call.
+    if (dirty) {
       await writeMarkers(markers);
     }
 

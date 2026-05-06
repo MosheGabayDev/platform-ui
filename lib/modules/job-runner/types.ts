@@ -35,6 +35,12 @@ export type JobStatus =
   | "partial"
   | "failed"
   | "cancelled"
+  // Long-running lifecycle statuses (e.g. maintenance windows). Phase 4
+  // consolidated their badge rendering into JobStatusBadge so the union
+  // is now the source of truth for both job-runner and lifecycle events.
+  | "scheduled"
+  | "in_progress"
+  | "completed"
   | (string & {});
 
 /**
@@ -53,6 +59,9 @@ export const TERMINAL_STATUSES = new Set<string>([
   "partial",
   "failed",
   "cancelled",
+  // Lifecycle statuses (Phase 4). `completed` is terminal; `scheduled`
+  // and `in_progress` are not.
+  "completed",
 ]);
 
 export function isTerminalStatus(status: string): boolean {

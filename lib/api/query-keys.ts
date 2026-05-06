@@ -29,6 +29,13 @@ export const queryKeys = {
     permissions: () => ["roles", "permissions"]                    as const,
   },
 
+  // Cap 18: PlatformModuleRegistry
+  moduleRegistry: {
+    all:     () => ["module-registry"]                  as const,
+    modules: () => ["module-registry", "modules"]       as const,
+    status:  (key: string) => ["module-registry", "status", key] as const,
+  },
+
   // Cap 12: Notifications (shell-level — polling 30s)
   notifications: {
     all:  () => ["notifications"]         as const,

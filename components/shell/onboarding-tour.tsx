@@ -70,6 +70,7 @@ export function OnboardingTour() {
   const dismiss = useCallback(
     async (alsoOpenDrawer: boolean) => {
       setOpen(false);
+      let markerSaved = false;
       try {
         await setSetting({
           key: MARKER_KEY,
@@ -77,11 +78,19 @@ export function OnboardingTour() {
           scope_id: 1,
           value: true,
         });
+        markerSaved = true;
       } catch {
-        // Best-effort — if the marker write fails the user can dismiss again.
+        // Marker write failed — leave the query param in place so the user
+        // can re-dismiss; otherwise they would lose the tour permanently
+        // without the setting being persisted (Round-2 H3).
       }
-      stripQueryParam();
+      // Always run the side-effect the user asked for (opening the drawer)
+      // so the visible behavior of the button is preserved.
       if (alsoOpenDrawer) openDrawer();
+      // Only strip the query param when the marker is durable. A future
+      // visit will then re-trigger the tour if the user comes back via the
+      // same URL.
+      if (markerSaved) stripQueryParam();
     },
     [openDrawer, stripQueryParam],
   );

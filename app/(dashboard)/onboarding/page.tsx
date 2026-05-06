@@ -24,6 +24,7 @@ import {
   setModuleEnablement,
 } from "@/lib/api/module-registry";
 import { seedSampleData } from "@/lib/api/sample-data";
+import { queryKeys } from "@/lib/api/query-keys";
 import { PAGE_EASE } from "@/lib/ui/motion";
 import type { WizardConfig } from "@/lib/modules/wizard/types";
 
@@ -150,7 +151,7 @@ function ModulesStep({
   update: (patch: Partial<OnboardingState>) => void;
 }) {
   const { data, isLoading } = useQuery({
-    queryKey: ["module-registry", "modules"],
+    queryKey: queryKeys.moduleRegistry.modules(),
     queryFn: fetchModules,
     staleTime: 5 * 60_000,
   });

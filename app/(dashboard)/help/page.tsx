@@ -139,10 +139,13 @@ export default function HelpPage() {
   const quickStarts = results.articles.filter((a) => a.category === "quick-start");
   const platform = results.articles.filter((a) => a.category === "platform");
 
+  // Round-2 H1: scope the empty-state count to the currently visible
+  // sections so the message reflects what the user can actually see for
+  // their active tab + query.
   const totalHits =
-    results.articles.length +
-    results.aiShortcuts.length +
-    results.keyboardShortcuts.length;
+    (showQuickStarts ? quickStarts.length + (tab === "all" ? platform.length : 0) : 0) +
+    (showAI ? results.aiShortcuts.length : 0) +
+    (showKbd ? results.keyboardShortcuts.length : 0);
 
   return (
     <PageShell
@@ -150,7 +153,7 @@ export default function HelpPage() {
       title="Help & documentation"
       subtitle="Search the docs, browse module quick-starts, find AI and keyboard shortcuts."
     >
-      <div className="space-y-6">
+      <div className="space-y-6 pb-20 md:pb-0">
         {/* Search + tabs */}
         <div className="space-y-3">
           <div className="relative">
