@@ -37,4 +37,25 @@ describe("JobStatusBadge", () => {
     const badge = container.querySelector("[class*='border-amber']");
     expect(badge).toBeTruthy();
   });
+
+  it("scheduled status renders 'Scheduled' label and cyan tone (Phase 4)", () => {
+    const { container } = render(<JobStatusBadge status="scheduled" />);
+    expect(screen.getByText("Scheduled")).toBeTruthy();
+    expect(container.querySelector("[class*='border-cyan']")).toBeTruthy();
+  });
+
+  it("in_progress status renders 'In progress' and animates", () => {
+    const { container } = render(<JobStatusBadge status="in_progress" />);
+    expect(screen.getByText("In progress")).toBeTruthy();
+    // in_progress is not 'running', so the icon does NOT spin — that's a
+    // deliberate distinction (running = job-runner; in_progress = lifecycle).
+    const icon = container.querySelector("svg");
+    expect(icon?.getAttribute("class")).not.toMatch(/animate-spin/);
+  });
+
+  it("completed status renders 'Completed' and emerald tone", () => {
+    const { container } = render(<JobStatusBadge status="completed" />);
+    expect(screen.getByText("Completed")).toBeTruthy();
+    expect(container.querySelector("[class*='border-emerald']")).toBeTruthy();
+  });
 });

@@ -206,13 +206,12 @@ Spec: `docs/system-upgrade/04-capabilities/platform-help-surface-spec.md`. Stati
 
 ---
 
-## Phase 4 — Vertical Demonstration (Helpdesk)
+## Phase 4 — Vertical Demonstration (Helpdesk) — DONE 2026-05-06
 
-Already mostly done in mock. Remaining:
-- [ ] All helpdesk pages use shared primitives (DataTable ✅, JobRunner partial, no module-local copies)
-- [ ] AI shell can run all 4 helpdesk action executors (take/resolve/maintenance.cancel/batch.cancel) ✅
-- [ ] Cross-tenant test scaffolded ✅ → flips green when 2 test orgs exist
-- [ ] Helpdesk-specific AI skills registered in capability registry (Phase 2.2 dependency)
+- [x] All helpdesk pages use shared primitives — every page uses PageShell + DataTable + ConfirmActionDialog + usePlatformMutation. Maintenance page's local StatusBadge consolidated into the shared `JobStatusBadge` (extended with `scheduled` / `in_progress` / `completed` lifecycle statuses, Phase 4). Batch page already used JobStatusBadge + JobProgress.
+- [x] AI shell can run all 4 helpdesk action executors (take/resolve/maintenance.cancel/batch.cancel) — wired via `runActionExecutor` in cap 2.4.
+- [x] Cross-tenant test scaffolded — `tests/e2e/security/tenant-isolation*.spec.ts` (skipped without E2E_ORG_*_ID env vars).
+- [x] Helpdesk-specific AI skills registered in capability registry — `lib/modules/helpdesk/skills.ts` ships 4 skills aggregated by `lib/platform/ai-skills/registry.ts` (cap 2.2).
 
 ---
 
@@ -261,7 +260,7 @@ When you (the AI) finish a cap and consider marking it DONE: re-read this checkl
 
 | Suite | Last run | Files | Tests | Status |
 |---|---|---|---|---|
-| vitest unit (`npx vitest run`) | 2026-05-06 | 48 | 435 / 435 | ✅ all green (Phase 3.3 added 12 docs catalog tests) |
+| vitest unit (`npx vitest run`) | 2026-05-06 | 48 | 438 / 438 | ✅ all green (Phase 4 added 3 JobStatusBadge tests for new lifecycle statuses) |
 | coverage gate (`scripts/check-coverage-baseline.mjs`) | 2026-05-06 | n/a | n/a | ✅ passed |
 | Playwright E2E (`npx playwright test`) | 2026-05-06 | 32 specs | 90 passed / 0 failed / 42 skipped | ✅ all green at last full run (5 new specs added by 3.3: help-page) |
 
@@ -287,7 +286,7 @@ When you (the AI) finish a cap and consider marking it DONE: re-read this checkl
 | Phase 1 caps | 13 | 12 | 0 | 0 — cap 23 SSE deferred to Phase 5 |
 | Phase 2 (AI core) | 5 | 5 | 0 | 0 — **PHASE 2 CLOSED** |
 | Phase 3 (onboarding) | 3 | 3 | 0 | 0 — **PHASE 3 CLOSED** |
-| Phase 4 (helpdesk demo) | 4 | 3 | 0 | 1 |
+| Phase 4 (helpdesk demo) | 4 | 4 | 0 | 0 — **PHASE 4 CLOSED** |
 | Phase 5 (backend) | n/a (other repo) | — | — | — |
 
 **Overall Phase 1 completion: 100% of in-scope caps (12/12; cap 23 SSE deferred to backend phase).** 🎉

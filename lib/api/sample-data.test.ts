@@ -66,26 +66,23 @@ describe("seedSampleData", () => {
 
   it("idempotent: second seed updates timestamp without adding fixtures count", async () => {
     const first = await seedSampleData({ modules: ["helpdesk"] });
-    const t1 = (await fetchSetting("onboarding.sample_data")).data.value as Record<
-      string,
-      string
-    >;
+    const t1 = (await fetchSetting("onboarding.sample_data")).data as unknown as {
+      value: Record<string, string>;
+    };
     await new Promise((r) => setTimeout(r, 25));
     const second = await seedSampleData({ modules: ["helpdesk"] });
-    const t2 = (await fetchSetting("onboarding.sample_data")).data.value as Record<
-      string,
-      string
-    >;
+    const t2 = (await fetchSetting("onboarding.sample_data")).data as unknown as {
+      value: Record<string, string>;
+    };
     expect(first.data.seeded[0].count).toBe(second.data.seeded[0].count);
-    expect(t2.helpdesk).not.toBe(t1.helpdesk);
+    expect(t2.value.helpdesk).not.toBe(t1.value.helpdesk);
   });
 
   it("does NOT write markers when only unknown modules are passed", async () => {
     await seedSampleData({ modules: ["unknown-x"] });
-    const markers = (await fetchSetting("onboarding.sample_data")).data.value as Record<
-      string,
-      string
-    >;
+    const markers = ((await fetchSetting("onboarding.sample_data")).data as unknown as {
+      value: Record<string, string>;
+    }).value;
     expect(markers["unknown-x"]).toBeUndefined();
   });
 });

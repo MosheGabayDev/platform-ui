@@ -12,6 +12,8 @@ import {
   AlertTriangle,
   XCircle,
   CircleSlash2,
+  CalendarClock,
+  CircleDot,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -63,6 +65,22 @@ const STATUS_META: Record<string, StatusMeta> = {
     icon: CircleSlash2,
     tone: "border-muted text-muted-foreground",
     label: "Cancelled",
+  },
+  // Long-running lifecycle statuses (e.g. maintenance windows)
+  scheduled: {
+    icon: CalendarClock,
+    tone: "border-cyan-500/30 bg-cyan-500/15 text-cyan-700 dark:text-cyan-400",
+    label: "Scheduled",
+  },
+  in_progress: {
+    icon: CircleDot,
+    tone: "border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-400",
+    label: "In progress",
+  },
+  completed: {
+    icon: CheckCircle2,
+    tone: "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
+    label: "Completed",
   },
 };
 

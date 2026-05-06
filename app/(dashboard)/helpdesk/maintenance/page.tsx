@@ -20,7 +20,6 @@ import {
   Clock,
   CalendarClock,
   CircleSlash2,
-  CheckCircle2,
   CircleDot,
   BellOff,
 } from "lucide-react";
@@ -31,6 +30,7 @@ import { PageShell } from "@/components/shared/page-shell";
 import { DataTable } from "@/components/shared/data-table";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ConfirmActionDialog } from "@/components/shared/confirm-action-dialog";
+import { JobStatusBadge } from "@/components/shared/job-runner/job-status-badge";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -76,37 +76,9 @@ function formatRelative(iso: string): string {
   return `${direction === "in" ? "in " : ""}${days}d${direction === "ago" ? " ago" : ""}`;
 }
 
-function StatusBadge({ status }: { status: MaintenanceStatus }) {
-  const meta = {
-    in_progress: {
-      icon: CircleDot,
-      tone: "border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-400",
-      label: "In progress",
-    },
-    scheduled: {
-      icon: CalendarClock,
-      tone: "border-cyan-500/30 bg-cyan-500/15 text-cyan-700 dark:text-cyan-400",
-      label: "Scheduled",
-    },
-    completed: {
-      icon: CheckCircle2,
-      tone: "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
-      label: "Completed",
-    },
-    cancelled: {
-      icon: CircleSlash2,
-      tone: "border-muted text-muted-foreground",
-      label: "Cancelled",
-    },
-  }[status];
-  const Icon = meta.icon;
-  return (
-    <Badge variant="outline" className={meta.tone}>
-      <Icon className="h-3 w-3 me-1" aria-hidden="true" />
-      {meta.label}
-    </Badge>
-  );
-}
+// Maintenance status rendering uses the shared JobStatusBadge (Phase 4) —
+// scheduled / in_progress / completed / cancelled are all covered by the
+// shared meta map.
 
 function MaintenanceInner() {
   const [page, setPage] = useState(1);
@@ -165,7 +137,7 @@ function MaintenanceInner() {
       {
         accessorKey: "status",
         header: "Status",
-        cell: ({ row }) => <StatusBadge status={row.original.status} />,
+        cell: ({ row }) => <JobStatusBadge status={row.original.status} />,
       },
       {
         accessorKey: "impact",
