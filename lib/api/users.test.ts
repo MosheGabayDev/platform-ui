@@ -90,8 +90,62 @@ describe("users client (mock mode)", () => {
     expect(res.success).toBe(true);
   });
 
-  // updateUser requires the full EditUserInput (20+ fields). The setUserActive
-  // / approveUser paths cover the common admin actions; full-form edits are
-  // covered by component-level tests on the Edit User page.
-  void updateUser; // referenced to keep the import alive
+  it("fetchUsers filters by role", async () => {
+    const res = await fetchUsers({ role: "technician" });
+    expect(res.data.users.every((u) => u.role === "technician")).toBe(true);
+    expect(res.data.users.length).toBeGreaterThan(0);
+  });
+
+  it("fetchUsers filters by is_active=true", async () => {
+    const res = await fetchUsers({ is_active: true });
+    expect(res.data.users.every((u) => u.is_active === true)).toBe(true);
+  });
+
+  it("fetchUsers filters by is_active=false", async () => {
+    const res = await fetchUsers({ is_active: false });
+    expect(res.data.users.every((u) => u.is_active === false)).toBe(true);
+  });
+
+  it("fetchUsers search matches name (case-insensitive)", async () => {
+    const res = await fetchUsers({ search: "TECH" });
+    expect(res.data.users.length).toBeGreaterThan(0);
+  });
+
+  it("fetchUsers search matches email", async () => {
+    const res = await fetchUsers({ search: "admin@platform" });
+    expect(res.data.users.length).toBeGreaterThan(0);
+  });
+
+  it("fetchUsers search matches username", async () => {
+    const res = await fetchUsers({ search: "techtim" });
+    expect(res.data.users.length).toBeGreaterThan(0);
+  });
+
+  it("fetchUsers search returns empty list when no match", async () => {
+    const res = await fetchUsers({ search: "zzzzzzzz_no_match" });
+    expect(res.data.users).toHaveLength(0);
+    expect(res.data.total).toBe(0);
+  });
+
+  it("fetchUsers default pagination defaults to page 1, per_page 25", async () => {
+    const res = await fetchUsers();
+    expect(res.data.page).toBe(1);
+    expect(res.data.per_page).toBe(25);
+    expect(res.data.total_pages).toBeGreaterThanOrEqual(1);
+  });
+
+  it("setUserActive accepts an explicit reason", async () => {
+    const res = await setUserActive(1, false, "compliance review");
+    expect(res.success).toBe(true);
+  });
+
+  it("updateUser returns a success envelope", async () => {
+    const res = await updateUser(1, {
+      email: "x@y.z",
+      first_name: "X",
+      last_name: "Y",
+      is_active: true,
+    } as never);
+    expect(res.success).toBe(true);
+  });
 });

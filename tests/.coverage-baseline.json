@@ -4,11 +4,11 @@
   "_run": "vitest run --coverage (1 test file: lib/utils.test.ts)",
   "layers": {
     "lib/api/": {
-      "lines": 72.74,
+      "lines": 77.92,
       "branches": 24.04,
       "functions": 45.94,
       "target_floor": 90,
-      "note": "Lifted from 48.29% by Phase 2 — ai-providers, ai-skills, ai-usage clients each shipped with comprehensive tests; audit recordAuditEntry write path added. (2026-05-06)"
+      "note": "Lifted from 72.74% by coverage sprint — added client.test.ts (dashboard mock paths), query-keys.test.ts (every key shape, 100%), extended users/organizations/roles tests with filter/search/branch coverage. Remaining gap (-12pp to floor) is non-MOCK apiFetch branches — requires MOCK_MODE refactor to env-driven. 2026-05-07."
     },
     "lib/auth/": {
       "lines": 100,

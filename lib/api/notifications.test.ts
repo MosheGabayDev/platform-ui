@@ -26,4 +26,9 @@ describe("notifications client (mock mode)", () => {
     const res = await markAllNotificationsRead();
     expect(res.success).toBe(true);
   });
+
+  it("markNotificationRead echoes the id in the message", async () => {
+    const res = await markNotificationRead("note-42");
+    expect(res.message ?? "").toContain("note-42");
+  });
 });
