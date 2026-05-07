@@ -31,6 +31,7 @@ import { useRegisterPageContext } from "@/lib/hooks/use-register-page-context";
 
 export default function OrganizationsPage() {
   const t = useTranslations("organizations");
+  const tList = useTranslations("organizations.list");
   const router = useRouter();
 
   const [params, setParams] = useState<OrgsListParams>({ page: 1, per_page: 25 });
@@ -72,7 +73,7 @@ export default function OrganizationsPage() {
   return (
     <PermissionGate systemAdminOnly fallback={
       <div className="flex items-center justify-center h-64 text-muted-foreground text-sm">
-        אין הרשאה לצפות בעמוד זה
+        {tList("noPermission")}
       </div>
     }>
       <PageShell
@@ -82,21 +83,21 @@ export default function OrganizationsPage() {
         actions={
           <Button size="sm" onClick={() => setCreateOpen(true)}>
             <Plus className="size-4 me-1.5" />
-            ארגון חדש
+            {tList("addOrg")}
           </Button>
         }
         stats={
           <>
-            <StatCard value={stats?.total} label='סה"כ' />
+            <StatCard value={stats?.total} label={tList("kpi.total")} />
             <StatCard
               value={stats?.active}
-              label="פעילים"
+              label={tList("kpi.active")}
               color="border-emerald-500/30 text-emerald-600 dark:text-emerald-400"
             />
             {(stats?.inactive ?? 0) > 0 && (
               <StatCard
                 value={stats?.inactive}
-                label="לא פעילים"
+                label={tList("kpi.inactive")}
                 color="border-muted text-muted-foreground"
               />
             )}
@@ -107,7 +108,7 @@ export default function OrganizationsPage() {
           <ErrorState
             error={error}
             onRetry={refetch}
-            messages={{ default: "שגיאה בטעינת הארגונים" }}
+            messages={{ default: tList("loadError") }}
           />
         )}
 
@@ -120,8 +121,8 @@ export default function OrganizationsPage() {
           {!isLoading && !error && list?.total === 0 && !search ? (
             <EmptyState
               icon={Building2}
-              title="אין ארגונים עדיין"
-              description="ארגונים שייווצרו יופיעו כאן"
+              title={tList("empty.title")}
+              description={tList("empty.description")}
             />
           ) : (
             <OrgsTable

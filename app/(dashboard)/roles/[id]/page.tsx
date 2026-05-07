@@ -12,6 +12,7 @@
 import { use, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
 import { ShieldCheck, Users, Lock, Calendar, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,7 @@ import { hasRole } from "@/lib/auth/rbac";
 import { PAGE_EASE } from "@/lib/ui/motion";
 
 export default function RoleDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const t = useTranslations("roles.detail");
   const { id } = use(params);
   const roleId = parseInt(id, 10);
   const { data: session } = useSession();
@@ -49,7 +51,7 @@ export default function RoleDetailPage({ params }: { params: Promise<{ id: strin
   const role = data?.data?.role;
   const grouped = role ? groupPermissions(role.permissions) : new Map();
 
-  if (isNaN(roleId)) return <ErrorState error={new Error("404")} messages={{ 404: "מזהה תפקיד לא חוקי" }} />;
+  if (isNaN(roleId)) return <ErrorState error={new Error("404")} messages={{ 404: t("invalidId") }} />;
 
   return (
     <LazyMotion features={domAnimation}>
@@ -60,7 +62,7 @@ export default function RoleDetailPage({ params }: { params: Promise<{ id: strin
           {isSystemAdmin && role && (
             <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
               <Pencil className="size-3.5 me-1.5" />
-              ערוך תפקיד
+              {t("editButton")}
             </Button>
           )}
         </div>
@@ -72,9 +74,9 @@ export default function RoleDetailPage({ params }: { params: Promise<{ id: strin
             error={error}
             onRetry={refetch}
             messages={{
-              403: "אין הרשאה לצפות בתפקיד זה",
-              404: "תפקיד לא נמצא",
-              default: "שגיאה בטעינת פרטי התפקיד",
+              403: t("forbidden"),
+              404: t("notFound"),
+              default: t("loadError"),
             }}
           />
         )}
@@ -92,10 +94,10 @@ export default function RoleDetailPage({ params }: { params: Promise<{ id: strin
               badges={
                 <>
                   <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-violet-500/15 text-violet-600 border border-violet-500/30">
-                    {role.permission_count} הרשאות
+                    {t("stats.permissions", { count: role.permission_count })}
                   </span>
                   <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-blue-500/15 text-blue-600 border border-blue-500/30">
-                    {role.user_count} משתמשים
+                    {t("stats.users", { count: role.user_count })}
                   </span>
                 </>
               }
@@ -106,12 +108,12 @@ export default function RoleDetailPage({ params }: { params: Promise<{ id: strin
               }
             />
 
-            <DetailSection title="פרטי תפקיד">
-              <InfoRow icon={Lock} label="הרשאות" value={String(role.permission_count)} />
-              <InfoRow icon={Users} label="משתמשים" value={String(role.user_count)} />
+            <DetailSection title={t("section")}>
+              <InfoRow icon={Lock} label={t("fields.permissions")} value={String(role.permission_count)} />
+              <InfoRow icon={Users} label={t("fields.users")} value={String(role.user_count)} />
               <InfoRow
                 icon={Calendar}
-                label="נוצר"
+                label={t("fields.createdAt")}
                 value={
                   role.created_at
                     ? new Date(role.created_at).toLocaleDateString("he-IL")
@@ -121,14 +123,14 @@ export default function RoleDetailPage({ params }: { params: Promise<{ id: strin
               {role.updated_at && (
                 <InfoRow
                   icon={Calendar}
-                  label="עודכן"
+                  label={t("fields.updatedAt")}
                   value={new Date(role.updated_at).toLocaleDateString("he-IL")}
                 />
               )}
             </DetailSection>
 
             {role.permissions.length > 0 && (
-              <DetailSection title="הרשאות מוקצות">
+              <DetailSection title={t("permissionsSection")}>
                 <Separator className="mb-3" />
                 <div className="space-y-4">
                   {Array.from(grouped.entries()).map(([ns, perms]) => (
@@ -148,8 +150,8 @@ export default function RoleDetailPage({ params }: { params: Promise<{ id: strin
             )}
 
             {role.permissions.length === 0 && (
-              <DetailSection title="הרשאות מוקצות">
-                <p className="text-sm text-muted-foreground py-2">לא הוקצו הרשאות לתפקיד זה</p>
+              <DetailSection title={t("permissionsSection")}>
+                <p className="text-sm text-muted-foreground py-2">{t("noPermissions")}</p>
               </DetailSection>
             )}
           </motion.div>

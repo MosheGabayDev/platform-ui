@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
 import {
   Users, HeadphonesIcon, Bot, Activity,
@@ -62,7 +63,12 @@ const STATUS_BADGE: Record<ServiceStatus, string> = {
   degraded: "text-amber-400 border-amber-500/30 bg-amber-500/10",
   error:    "text-red-400 border-red-500/30 bg-red-500/10",
 };
-const STATUS_LABEL: Record<ServiceStatus, string> = { ok: "תקין", degraded: "דעוך", error: "שגיאה" };
+// Status-key map; the user-facing label is resolved at render time via t().
+const STATUS_KEY: Record<ServiceStatus, "Ok" | "Degraded" | "Error"> = {
+  ok: "Ok",
+  degraded: "Degraded",
+  error: "Error",
+};
 
 const SERVICE_ICONS: Record<string, React.ElementType> = {
   database:      Database,
@@ -79,6 +85,7 @@ function buildSpark(series: TimeSeriesData | undefined, key: "sessions" | "actio
 
 /* ─── Main Dashboard ─────────────────────────────────────────── */
 export default function DashboardPage() {
+  const t = useTranslations("dashboard");
   const { data: stats, isLoading: statsLoading, error: statsError, refetch: refetchStats } =
     useQuery({ queryKey: queryKeys.dashboardStats, queryFn: fetchDashboardStats, refetchInterval: 60_000 });
 
@@ -127,24 +134,24 @@ export default function DashboardPage() {
           className="flex flex-wrap items-start sm:items-end justify-between gap-3"
         >
           <div>
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest mb-1">סקירה כללית</p>
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest mb-1">{t("overlineTitle")}</p>
             <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-l from-foreground to-foreground/60 bg-clip-text text-transparent">
-              לוח הבקרה
+              {t("title")}
             </h1>
           </div>
           <div className="flex items-center gap-2">
             {statsError && (
               <Badge variant="outline" className="text-amber-400 border-amber-500/30 bg-amber-500/10 gap-1.5">
-                <AlertCircle className="size-3" /> לא מחובר ל-API
+                <AlertCircle className="size-3" /> {t("apiDisconnected")}
               </Badge>
             )}
             {!statsError && !statsLoading && (
               <Badge variant="outline" className="gap-1.5 text-emerald-400 border-emerald-500/30 bg-emerald-500/10">
                 <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                מערכת תקינה
+                {t("systemHealthy")}
               </Badge>
             )}
-            <Button variant="ghost" size="icon" className="size-8" onClick={() => refetchStats()} title="רענן">
+            <Button variant="ghost" size="icon" className="size-8" onClick={() => refetchStats()} title={t("refresh")}>
               <RefreshCw className={`size-3.5 ${statsLoading ? "animate-spin" : ""}`} />
             </Button>
           </div>
@@ -156,20 +163,20 @@ export default function DashboardPage() {
             Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} index={i} />)
           ) : (
             <>
-              <KpiCard title="שיחות AI — סה״כ" numericValue={sessionsTotal}
-                change={`+${sessions24h} היום`} up icon={Bot}
+              <KpiCard title={t("kpi.aiSessions")} numericValue={sessionsTotal}
+                change={t("kpi.aiSessionsChange", { count: sessions24h })} up icon={Bot}
                 color="from-blue-500/20 to-blue-600/5" accent="text-blue-400" border="border-blue-500/20"
                 spark={sparkSessions} sparkColor="#60a5fa" index={0} />
-              <KpiCard title="פעולות AI" numericValue={actionsTotal}
-                change={`${errorRate}% שגיאות`} up={errorRate < 5} icon={HeadphonesIcon}
+              <KpiCard title={t("kpi.aiActions")} numericValue={actionsTotal}
+                change={t("kpi.aiActionsChange", { rate: errorRate })} up={errorRate < 5} icon={HeadphonesIcon}
                 color="from-amber-500/20 to-amber-600/5" accent="text-amber-400" border="border-amber-500/20"
                 spark={sparkActions} sparkColor="#fbbf24" index={1} />
-              <KpiCard title="פרופילים פעילים" numericValue={profilesActive}
-                change="+1 השבוע" up icon={Users}
+              <KpiCard title={t("kpi.activeProfiles")} numericValue={profilesActive}
+                change={t("kpi.activeProfilesChange")} up icon={Users}
                 color="from-purple-500/20 to-purple-600/5" accent="text-purple-400" border="border-purple-500/20"
                 spark={sparkSessions.map(s => ({ ...s, v: Math.max(1, s.v % 15) }))} sparkColor="#c084fc" index={2} />
-              <KpiCard title="שיחות 7 ימים" numericValue={stats?.sessions.last_7d ?? 0}
-                change={`${stats?.knowledge.ready ?? 0} מקורות RAG`} up icon={Zap}
+              <KpiCard title={t("kpi.sessions7d")} numericValue={stats?.sessions.last_7d ?? 0}
+                change={t("kpi.sessions7dChange", { count: stats?.knowledge.ready ?? 0 })} up icon={Zap}
                 color="from-emerald-500/20 to-emerald-600/5" accent="text-emerald-400" border="border-emerald-500/20"
                 spark={sparkActions.map(s => ({ ...s, v: Math.max(1, s.v % 20) }))} sparkColor="#34d399" index={3} />
             </>
@@ -187,9 +194,9 @@ export default function DashboardPage() {
             <Card className="glass border-border/50">
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-semibold">שיחות AI — 30 יום אחרונים</CardTitle>
+                  <CardTitle className="text-sm font-semibold">{t("chart.title")}</CardTitle>
                   <Badge variant="secondary" className="text-xs">
-                    {seriesLoading ? "טוען..." : "בזמן אמת"}
+                    {seriesLoading ? t("chart.loading") : t("chart.live")}
                   </Badge>
                 </div>
               </CardHeader>
@@ -210,7 +217,7 @@ export default function DashboardPage() {
                         contentStyle={{ background: "oklch(0.2 0 0)", border: "1px solid oklch(1 0 0 / 10%)", borderRadius: 8, fontSize: 12 }}
                         labelStyle={{ color: "oklch(0.7 0 0)" }}
                         itemStyle={{ color: "oklch(0.85 0 0)" }}
-                        formatter={(v) => [`${v} שיחות`, ""]}
+                        formatter={(v) => [t("chart.tooltipUnit", { n: Number(v) }), ""]}
                       />
                       <Area type="monotone" dataKey="v" stroke="var(--color-primary, #6366f1)"
                         strokeWidth={2} fill="url(#chartGrad)" dot={false}
@@ -225,7 +232,7 @@ export default function DashboardPage() {
             {/* Actions breakdown */}
             <Card className="glass border-border/50">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-semibold">סטטוס פעולות AI</CardTitle>
+                <CardTitle className="text-sm font-semibold">{t("actionsBreakdown.title")}</CardTitle>
               </CardHeader>
               <CardContent className="py-2">
                 {statsLoading ? (
@@ -233,10 +240,10 @@ export default function DashboardPage() {
                 ) : (
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {[
-                      { label: "הצלחות", value: stats?.actions.success ?? 0, color: "text-emerald-400", icon: CheckCircle2 },
-                      { label: "שגיאות", value: stats?.actions.error ?? 0, color: "text-red-400", icon: AlertCircle },
-                      { label: "פעולות כתיבה", value: stats?.actions.write_actions ?? 0, color: "text-amber-400", icon: Activity },
-                      { label: "מקורות RAG", value: stats?.knowledge.total ?? 0, color: "text-sky-400", icon: Database },
+                      { label: t("actionsBreakdown.success"), value: stats?.actions.success ?? 0, color: "text-emerald-400", icon: CheckCircle2 },
+                      { label: t("actionsBreakdown.error"), value: stats?.actions.error ?? 0, color: "text-red-400", icon: AlertCircle },
+                      { label: t("actionsBreakdown.writeActions"), value: stats?.actions.write_actions ?? 0, color: "text-amber-400", icon: Activity },
+                      { label: t("actionsBreakdown.ragSources"), value: stats?.knowledge.total ?? 0, color: "text-sky-400", icon: Database },
                     ].map((item, i) => (
                       <motion.div key={item.label} custom={i} variants={fadeUp} initial="hidden" animate="show"
                         className="flex items-center gap-2.5 p-3 rounded-lg bg-muted/20 border border-border/30"
@@ -266,9 +273,11 @@ export default function DashboardPage() {
             <Card className="glass border-border/50 h-full">
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-semibold">בריאות שירותים</CardTitle>
+                  <CardTitle className="text-sm font-semibold">{t("services.title")}</CardTitle>
                   <span className="text-xs text-muted-foreground">
-                    {healthLoading ? "בודק..." : `${healthyCount}/${totalServices} תקינים`}
+                    {healthLoading
+                      ? t("services.checking")
+                      : t("services.healthyOf", { healthy: healthyCount, total: totalServices })}
                   </span>
                 </div>
               </CardHeader>
@@ -293,7 +302,9 @@ export default function DashboardPage() {
                             <span className="text-xs text-muted-foreground/60 font-mono">{svc.latency_ms}ms</span>
                           )}
                           <Badge variant="outline" className={`text-[10px] h-4 px-1.5 ${STATUS_BADGE[status] ?? STATUS_BADGE.error}`}>
-                            {STATUS_LABEL[status] ?? "לא ידוע"}
+                            {STATUS_KEY[status]
+                              ? t(`services.status${STATUS_KEY[status]}`)
+                              : t("services.statusUnknown")}
                           </Badge>
                         </div>
                       </motion.div>
@@ -327,11 +338,11 @@ export default function DashboardPage() {
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
                   {[
-                    { label: "שיחות AI סה״כ",      value: actionsTotal,                           icon: Bot },
-                    { label: "אחוז הצלחה",          value: stats?.actions.success ?? 0,            suffix: "%", icon: Activity },
-                    { label: "מקורות RAG",           value: stats?.knowledge.total_chunks ?? 0,    icon: Zap },
-                    { label: "פרופילים פעילים",      value: profilesActive,                         icon: Users },
-                    { label: "שגיאות 7 ימים",       value: stats?.actions.error ?? 0,              icon: Shield },
+                    { label: t("quickStats.totalSessions"),  value: actionsTotal,                          icon: Bot },
+                    { label: t("quickStats.successRate"),    value: stats?.actions.success ?? 0,           suffix: "%", icon: Activity },
+                    { label: t("quickStats.ragSources"),     value: stats?.knowledge.total_chunks ?? 0,   icon: Zap },
+                    { label: t("quickStats.activeProfiles"), value: profilesActive,                        icon: Users },
+                    { label: t("quickStats.errors7d"),       value: stats?.actions.error ?? 0,             icon: Shield },
                   ].map((item, i) => (
                     <AnimatedStatItem key={item.label} {...item} delay={600 + i * 100} />
                   ))}

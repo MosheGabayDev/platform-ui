@@ -73,6 +73,10 @@
       },
       "stats": {
         "settingCount": "{count, plural, =1 {1 setting} other {# settings}}"
+      },
+      "errors": {
+        "mustBeNumber": "Value must be a number",
+        "invalidJson": "Invalid JSON"
       }
     },
     "modules": {
@@ -343,6 +347,56 @@
     "current": "Current language: {locale}"
   },
   "users": {
+    "detail": {
+      "deactivateSuccess": "User deactivated successfully",
+      "activateSuccess": "User reactivated",
+      "invalidId": "Invalid user id",
+      "forbidden": "You do not have permission to view this user",
+      "notFound": "User not found",
+      "loadError": "Failed to load user details",
+      "neverLoggedIn": "Never",
+      "sections": {
+        "account": "Account details",
+        "security": "Security & settings",
+        "notifications": "Notification preferences",
+        "activity": "Activity history"
+      },
+      "activityFilter": {
+        "all": "All",
+        "login": "Login",
+        "security": "Security",
+        "profile": "Profile"
+      },
+      "buttons": {
+        "deactivate": "Deactivate",
+        "reactivate": "Reactivate",
+        "edit": "Edit"
+      },
+      "fields": {
+        "name": "Name",
+        "displayName": "Display name",
+        "username": "Username",
+        "email": "Email",
+        "phone": "Phone",
+        "org": "Organization",
+        "role": "Role",
+        "jobTitle": "Job title",
+        "bio": "Bio",
+        "preferredLanguage": "Preferred language",
+        "timezone": "Timezone",
+        "lastLogin": "Last login",
+        "createdAt": "Created",
+        "emailConfirmed": "Email verified",
+        "admin": "Admin",
+        "manager": "Manager",
+        "systemAdmin": "System admin",
+        "aiAgent": "AI agent",
+        "emailNotifications": "Email notifications",
+        "securityAlerts": "Security alerts",
+        "systemUpdates": "System updates",
+        "permissions": "Permissions"
+      }
+    },
     "title": "User management",
     "subtitle": "Org members, roles, and approval status",
     "addUser": "Add user",
@@ -370,15 +424,129 @@
   },
   "roles": {
     "title": "Roles & permissions",
-    "subtitle": "Per-org role + permission configuration"
+    "subtitle": "Per-org role + permission configuration",
+    "list": {
+      "addRole": "New role",
+      "kpi": {
+        "totalRoles": "Total roles",
+        "activePermissions": "Active permissions",
+        "assignedUsers": "Assigned users"
+      },
+      "loadError": "Failed to load roles",
+      "empty": {
+        "title": "No roles yet",
+        "description": "Create your first role to start managing permissions"
+      }
+    },
+    "detail": {
+      "invalidId": "Invalid role id",
+      "forbidden": "You do not have permission to view this role",
+      "notFound": "Role not found",
+      "loadError": "Failed to load role details",
+      "section": "Role details",
+      "permissionsSection": "Assigned permissions",
+      "editButton": "Edit role",
+      "noPermissions": "No permissions are assigned to this role",
+      "stats": {
+        "permissions": "{count} permissions",
+        "users": "{count} users"
+      },
+      "fields": {
+        "permissions": "Permissions",
+        "users": "Users",
+        "createdAt": "Created",
+        "updatedAt": "Updated"
+      }
+    }
   },
   "organizations": {
     "title": "Organizations",
-    "subtitle": "Manage organizations and plans"
+    "subtitle": "Manage organizations and plans",
+    "list": {
+      "noPermission": "You do not have permission to view this page",
+      "addOrg": "New organization",
+      "kpi": {
+        "total": "Total",
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "loadError": "Failed to load organizations",
+      "empty": {
+        "title": "No organizations yet",
+        "description": "Newly created organizations appear here"
+      }
+    },
+    "detail": {
+      "deactivateSuccess": "Organization deactivated",
+      "activateSuccess": "Organization reactivated",
+      "invalidId": "Invalid organization id",
+      "forbidden": "You do not have permission to view this organization",
+      "notFound": "Organization not found",
+      "loadError": "Failed to load organization details",
+      "section": "Organization details",
+      "buttons": {
+        "deactivate": "Deactivate org",
+        "reactivate": "Reactivate org",
+        "edit": "Edit org"
+      },
+      "fields": {
+        "id": "ID",
+        "name": "Name",
+        "description": "Description",
+        "users": "Members",
+        "active": "Active",
+        "createdAt": "Created"
+      }
+    }
+  },
+  "comingSoon": {
+    "body": "This page is still in development and will be available soon."
   },
   "dashboard": {
-    "title": "Dashboard",
-    "subtitle": "Platform-wide overview"
+    "overlineTitle": "Overview",
+    "title": "Control panel",
+    "apiDisconnected": "Disconnected from API",
+    "systemHealthy": "System healthy",
+    "refresh": "Refresh",
+    "kpi": {
+      "aiSessions": "AI sessions — total",
+      "aiSessionsChange": "+{count} today",
+      "aiActions": "AI actions",
+      "aiActionsChange": "{rate}% errors",
+      "activeProfiles": "Active profiles",
+      "activeProfilesChange": "+1 this week",
+      "sessions7d": "Sessions, 7 days",
+      "sessions7dChange": "{count} RAG sources"
+    },
+    "chart": {
+      "title": "AI sessions — last 30 days",
+      "loading": "Loading…",
+      "live": "Live",
+      "tooltipUnit": "{n} sessions"
+    },
+    "actionsBreakdown": {
+      "title": "AI action status",
+      "success": "Success",
+      "error": "Errors",
+      "writeActions": "Write actions",
+      "ragSources": "RAG sources"
+    },
+    "services": {
+      "title": "Service health",
+      "checking": "Checking…",
+      "healthyOf": "{healthy}/{total} healthy",
+      "statusOk": "OK",
+      "statusDegraded": "Degraded",
+      "statusError": "Error",
+      "statusUnknown": "Unknown"
+    },
+    "quickStats": {
+      "totalSessions": "Total AI sessions",
+      "successRate": "Success rate",
+      "ragSources": "RAG sources",
+      "activeProfiles": "Active profiles",
+      "errors7d": "Errors, 7 days"
+    }
   },
   "helpdesk": {
     "root": {

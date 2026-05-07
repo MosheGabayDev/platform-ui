@@ -73,6 +73,10 @@
       },
       "stats": {
         "settingCount": "{count, plural, =1 {הגדרה אחת} other {# הגדרות}}"
+      },
+      "errors": {
+        "mustBeNumber": "ערך חייב להיות מספר",
+        "invalidJson": "JSON לא תקין"
       }
     },
     "modules": {
@@ -343,6 +347,56 @@
     "current": "שפה נוכחית: {locale}"
   },
   "users": {
+    "detail": {
+      "deactivateSuccess": "המשתמש הושבת בהצלחה",
+      "activateSuccess": "המשתמש הופעל מחדש",
+      "invalidId": "מזהה משתמש לא חוקי",
+      "forbidden": "אין הרשאה לצפות בפרטי משתמש זה",
+      "notFound": "משתמש לא נמצא",
+      "loadError": "שגיאה בטעינת פרטי המשתמש",
+      "neverLoggedIn": "מעולם לא",
+      "sections": {
+        "account": "פרטי חשבון",
+        "security": "אבטחה והגדרות",
+        "notifications": "הגדרות התראות",
+        "activity": "היסטוריית פעילות"
+      },
+      "activityFilter": {
+        "all": "הכל",
+        "login": "כניסה",
+        "security": "אבטחה",
+        "profile": "פרופיל"
+      },
+      "buttons": {
+        "deactivate": "השבת",
+        "reactivate": "הפעל מחדש",
+        "edit": "ערוך"
+      },
+      "fields": {
+        "name": "שם",
+        "displayName": "שם תצוגה",
+        "username": "שם משתמש",
+        "email": "אימייל",
+        "phone": "טלפון",
+        "org": "ארגון",
+        "role": "תפקיד",
+        "jobTitle": "כותרת תפקיד",
+        "bio": "ביוגרפיה",
+        "preferredLanguage": "שפה מועדפת",
+        "timezone": "אזור זמן",
+        "lastLogin": "כניסה אחרונה",
+        "createdAt": "נוצר",
+        "emailConfirmed": "אימייל אומת",
+        "admin": "אדמין",
+        "manager": "מנהל",
+        "systemAdmin": "מנהל מערכת",
+        "aiAgent": "סוכן AI",
+        "emailNotifications": "התראות במייל",
+        "securityAlerts": "התראות אבטחה",
+        "systemUpdates": "עדכוני מערכת",
+        "permissions": "הרשאות"
+      }
+    },
     "title": "ניהול משתמשים",
     "subtitle": "משתמשי הארגון, תפקידים וסטטוס אישור",
     "addUser": "הוסף משתמש",
@@ -370,15 +424,129 @@
   },
   "roles": {
     "title": "תפקידים והרשאות",
-    "subtitle": "הגדרת תפקידים והרשאות פר-ארגון"
+    "subtitle": "הגדרת תפקידים והרשאות פר-ארגון",
+    "list": {
+      "addRole": "תפקיד חדש",
+      "kpi": {
+        "totalRoles": "סה\"כ תפקידים",
+        "activePermissions": "הרשאות פעילות",
+        "assignedUsers": "משתמשים משויכים"
+      },
+      "loadError": "שגיאה בטעינת התפקידים",
+      "empty": {
+        "title": "אין תפקידים עדיין",
+        "description": "צור תפקיד ראשון כדי להתחיל לנהל הרשאות"
+      }
+    },
+    "detail": {
+      "invalidId": "מזהה תפקיד לא חוקי",
+      "forbidden": "אין הרשאה לצפות בתפקיד זה",
+      "notFound": "תפקיד לא נמצא",
+      "loadError": "שגיאה בטעינת פרטי התפקיד",
+      "section": "פרטי תפקיד",
+      "permissionsSection": "הרשאות מוקצות",
+      "editButton": "ערוך תפקיד",
+      "noPermissions": "לא הוקצו הרשאות לתפקיד זה",
+      "stats": {
+        "permissions": "{count} הרשאות",
+        "users": "{count} משתמשים"
+      },
+      "fields": {
+        "permissions": "הרשאות",
+        "users": "משתמשים",
+        "createdAt": "נוצר",
+        "updatedAt": "עודכן"
+      }
+    }
   },
   "organizations": {
     "title": "ארגונים",
-    "subtitle": "ניהול ארגונים ומסלולים"
+    "subtitle": "ניהול ארגונים ומסלולים",
+    "list": {
+      "noPermission": "אין הרשאה לצפות בעמוד זה",
+      "addOrg": "ארגון חדש",
+      "kpi": {
+        "total": "סה\"כ",
+        "active": "פעילים",
+        "inactive": "לא פעילים"
+      },
+      "loadError": "שגיאה בטעינת הארגונים",
+      "empty": {
+        "title": "אין ארגונים עדיין",
+        "description": "ארגונים שייווצרו יופיעו כאן"
+      }
+    },
+    "detail": {
+      "deactivateSuccess": "הארגון הושבת בהצלחה",
+      "activateSuccess": "הארגון הופעל מחדש",
+      "invalidId": "מזהה ארגון לא חוקי",
+      "forbidden": "אין הרשאה לצפות בארגון זה",
+      "notFound": "ארגון לא נמצא",
+      "loadError": "שגיאה בטעינת פרטי הארגון",
+      "section": "פרטי ארגון",
+      "buttons": {
+        "deactivate": "השבת ארגון",
+        "reactivate": "הפעל ארגון",
+        "edit": "ערוך ארגון"
+      },
+      "fields": {
+        "id": "מזהה",
+        "name": "שם",
+        "description": "תיאור",
+        "users": "משתמשים",
+        "active": "פעיל",
+        "createdAt": "נוצר"
+      }
+    }
+  },
+  "comingSoon": {
+    "body": "דף זה עדיין בפיתוח ויהיה זמין בקרוב"
   },
   "dashboard": {
-    "title": "דשבורד",
-    "subtitle": "סקירה כללית של הפלטפורמה"
+    "overlineTitle": "סקירה כללית",
+    "title": "לוח הבקרה",
+    "apiDisconnected": "לא מחובר ל-API",
+    "systemHealthy": "מערכת תקינה",
+    "refresh": "רענן",
+    "kpi": {
+      "aiSessions": "שיחות AI — סה\"כ",
+      "aiSessionsChange": "+{count} היום",
+      "aiActions": "פעולות AI",
+      "aiActionsChange": "{rate}% שגיאות",
+      "activeProfiles": "פרופילים פעילים",
+      "activeProfilesChange": "+1 השבוע",
+      "sessions7d": "שיחות 7 ימים",
+      "sessions7dChange": "{count} מקורות RAG"
+    },
+    "chart": {
+      "title": "שיחות AI — 30 יום אחרונים",
+      "loading": "טוען...",
+      "live": "בזמן אמת",
+      "tooltipUnit": "{n} שיחות"
+    },
+    "actionsBreakdown": {
+      "title": "סטטוס פעולות AI",
+      "success": "הצלחות",
+      "error": "שגיאות",
+      "writeActions": "פעולות כתיבה",
+      "ragSources": "מקורות RAG"
+    },
+    "services": {
+      "title": "בריאות שירותים",
+      "checking": "בודק...",
+      "healthyOf": "{healthy}/{total} תקינים",
+      "statusOk": "תקין",
+      "statusDegraded": "דעוך",
+      "statusError": "שגיאה",
+      "statusUnknown": "לא ידוע"
+    },
+    "quickStats": {
+      "totalSessions": "שיחות AI סה\"כ",
+      "successRate": "אחוז הצלחה",
+      "ragSources": "מקורות RAG",
+      "activeProfiles": "פרופילים פעילים",
+      "errors7d": "שגיאות 7 ימים"
+    }
   },
   "helpdesk": {
     "root": {

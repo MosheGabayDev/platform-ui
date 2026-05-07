@@ -12,6 +12,7 @@
 import { use, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
 import { User, Mail, Building2, Shield, Clock, CheckCircle, Key, Pencil, UserX, UserCheck, Tag, Bot, Globe, MapPin, FileText, Phone, Briefcase, Bell, AlertTriangle, Newspaper } from "lucide-react";
@@ -39,6 +40,7 @@ import { useUserActivity } from "@/lib/modules/users/hooks";
 import type { ActivityTypeFilter } from "@/lib/modules/users/types";
 
 export default function UserDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const t = useTranslations("users.detail");
   const { id } = use(params);
   const userId = parseInt(id, 10);
   const { data: session } = useSession();
@@ -81,17 +83,17 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
     action: USER_ACTIONS.deactivate,
     mutationFn: (payload) => setUserActive(userId, false, payload.reason),
     invalidateKeys: [queryKeys.users.detail(userId), queryKeys.users.all()],
-    onSuccess: () => { toast.success("המשתמש הושבת בהצלחה"); refetch(); },
+    onSuccess: () => { toast.success(t("deactivateSuccess")); refetch(); },
   });
 
   const reactivate = useDangerousAction({
     action: USER_ACTIONS.reactivate,
     mutationFn: (payload) => setUserActive(userId, true, payload.reason),
     invalidateKeys: [queryKeys.users.detail(userId), queryKeys.users.all()],
-    onSuccess: () => { toast.success("המשתמש הופעל מחדש"); refetch(); },
+    onSuccess: () => { toast.success(t("activateSuccess")); refetch(); },
   });
 
-  if (isNaN(userId)) return <ErrorState error={new Error("404")} messages={{ 404: "מזהה משתמש לא חוקי" }} />;
+  if (isNaN(userId)) return <ErrorState error={new Error("404")} messages={{ 404: t("invalidId") }} />;
 
   return (
     <LazyMotion features={domAnimation}>
@@ -110,7 +112,7 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
                   className="text-amber-600 border-amber-300 hover:bg-amber-50 dark:text-amber-400 dark:border-amber-700 dark:hover:bg-amber-950"
                 >
                   <UserX className="size-3.5 me-1.5" />
-                  השבת
+                  {t("buttons.deactivate")}
                 </ActionButton>
               ) : (
                 <ActionButton
@@ -121,14 +123,14 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
                   className="text-blue-600 border-blue-300 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-700 dark:hover:bg-blue-950"
                 >
                   <UserCheck className="size-3.5 me-1.5" />
-                  הפעל מחדש
+                  {t("buttons.reactivate")}
                 </ActionButton>
               )
             )}
             {canEdit && user && (
               <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
                 <Pencil className="size-3.5 me-1.5" />
-                ערוך
+                {t("buttons.edit")}
               </Button>
             )}
           </div>
@@ -141,9 +143,9 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
             error={error}
             onRetry={refetch}
             messages={{
-              403: "אין הרשאה לצפות בפרטי משתמש זה",
-              404: "משתמש לא נמצא",
-              default: "שגיאה בטעינת פרטי המשתמש",
+              403: t("forbidden"),
+              404: t("notFound"),
+              default: t("loadError"),
             }}
           />
         )}
@@ -177,56 +179,56 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
               }
             />
 
-            <DetailSection title="פרטי חשבון">
+            <DetailSection title={t("sections.account")}>
               {(user.first_name || user.last_name) && (
-                <InfoRow icon={User} label="שם" value={[user.first_name, user.last_name].filter(Boolean).join(" ")} />
+                <InfoRow icon={User} label={t("fields.name")} value={[user.first_name, user.last_name].filter(Boolean).join(" ")} />
               )}
-              {user.display_name && <InfoRow icon={User} label="שם תצוגה" value={user.display_name} />}
-              <InfoRow icon={User} label="שם משתמש" value={user.username} />
-              <InfoRow icon={Mail} label="אימייל" value={user.email} />
+              {user.display_name && <InfoRow icon={User} label={t("fields.displayName")} value={user.display_name} />}
+              <InfoRow icon={User} label={t("fields.username")} value={user.username} />
+              <InfoRow icon={Mail} label={t("fields.email")} value={user.email} />
               {user.phone && (
-                <InfoRow icon={Phone} label="טלפון" value={
+                <InfoRow icon={Phone} label={t("fields.phone")} value={
                   <span className="flex items-center gap-1.5">
                     {user.phone}
                     {user.phone_verified && <CheckCircle className="size-3 text-emerald-500" />}
                   </span>
                 } />
               )}
-              <InfoRow icon={Building2} label="ארגון" value={`#${user.org_id}`} />
-              {user.role && <InfoRow icon={Tag} label="תפקיד" value={user.role} />}
-              {user.job_title && <InfoRow icon={Briefcase} label="כותרת תפקיד" value={user.job_title} />}
-              {user.bio && <InfoRow icon={FileText} label="ביוגרפיה" value={user.bio} />}
-              {user.preferred_language && <InfoRow icon={Globe} label="שפה מועדפת" value={user.preferred_language} />}
-              {user.timezone && <InfoRow icon={MapPin} label="אזור זמן" value={user.timezone} />}
+              <InfoRow icon={Building2} label={t("fields.org")} value={`#${user.org_id}`} />
+              {user.role && <InfoRow icon={Tag} label={t("fields.role")} value={user.role} />}
+              {user.job_title && <InfoRow icon={Briefcase} label={t("fields.jobTitle")} value={user.job_title} />}
+              {user.bio && <InfoRow icon={FileText} label={t("fields.bio")} value={user.bio} />}
+              {user.preferred_language && <InfoRow icon={Globe} label={t("fields.preferredLanguage")} value={user.preferred_language} />}
+              {user.timezone && <InfoRow icon={MapPin} label={t("fields.timezone")} value={user.timezone} />}
               <InfoRow
                 icon={Clock}
-                label="כניסה אחרונה"
-                value={user.last_login ? new Date(user.last_login).toLocaleString("he-IL") : "מעולם לא"}
+                label={t("fields.lastLogin")}
+                value={user.last_login ? new Date(user.last_login).toLocaleString() : t("neverLoggedIn")}
               />
               <InfoRow
                 icon={Clock}
-                label="נוצר"
-                value={user.created_at ? new Date(user.created_at).toLocaleDateString("he-IL") : "—"}
+                label={t("fields.createdAt")}
+                value={user.created_at ? new Date(user.created_at).toLocaleDateString() : "—"}
               />
             </DetailSection>
 
-            <DetailSection title="אבטחה והגדרות">
-              <InfoRow icon={CheckCircle} label="אימייל אומת" value={<BoolBadge value={user.email_confirmed} />} />
+            <DetailSection title={t("sections.security")}>
+              <InfoRow icon={CheckCircle} label={t("fields.emailConfirmed")} value={<BoolBadge value={user.email_confirmed} />} />
               <InfoRow icon={Shield} label="MFA" value={<BoolBadge value={user.mfa_enabled} />} />
-              <InfoRow icon={Shield} label="אדמין" value={<BoolBadge value={user.is_admin} />} />
-              <InfoRow icon={Shield} label="מנהל" value={<BoolBadge value={user.is_manager} />} />
-              <InfoRow icon={Shield} label="מנהל מערכת" value={<BoolBadge value={user.is_system_admin} />} />
-              <InfoRow icon={Bot} label="סוכן AI" value={<BoolBadge value={user.is_ai_agent} />} />
+              <InfoRow icon={Shield} label={t("fields.admin")} value={<BoolBadge value={user.is_admin} />} />
+              <InfoRow icon={Shield} label={t("fields.manager")} value={<BoolBadge value={user.is_manager} />} />
+              <InfoRow icon={Shield} label={t("fields.systemAdmin")} value={<BoolBadge value={user.is_system_admin} />} />
+              <InfoRow icon={Bot} label={t("fields.aiAgent")} value={<BoolBadge value={user.is_ai_agent} />} />
             </DetailSection>
 
-            <DetailSection title="הגדרות התראות">
-              <InfoRow icon={Bell} label="התראות במייל" value={<BoolBadge value={user.email_notifications} />} />
-              <InfoRow icon={AlertTriangle} label="התראות אבטחה" value={<BoolBadge value={user.security_alerts} />} />
-              <InfoRow icon={Newspaper} label="עדכוני מערכת" value={<BoolBadge value={user.system_updates} />} />
+            <DetailSection title={t("sections.notifications")}>
+              <InfoRow icon={Bell} label={t("fields.emailNotifications")} value={<BoolBadge value={user.email_notifications} />} />
+              <InfoRow icon={AlertTriangle} label={t("fields.securityAlerts")} value={<BoolBadge value={user.security_alerts} />} />
+              <InfoRow icon={Newspaper} label={t("fields.systemUpdates")} value={<BoolBadge value={user.system_updates} />} />
             </DetailSection>
 
             {user.permissions.length > 0 && (
-              <DetailSection title="הרשאות">
+              <DetailSection title={t("fields.permissions")}>
                 <Separator className="mb-2" />
                 <div className="flex flex-wrap gap-1.5 pt-1">
                   {user.permissions.map((perm) => (
@@ -242,20 +244,20 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
               </DetailSection>
             )}
 
-            <DetailSection title="היסטוריית פעילות">
+            <DetailSection title={t("sections.activity")}>
               <div className="flex gap-1.5 pb-3 flex-wrap">
-                {([undefined, "login", "security", "profile"] as const).map((t) => (
+                {([undefined, "login", "security", "profile"] as const).map((kind) => (
                   <button
-                    key={t ?? "all"}
+                    key={kind ?? "all"}
                     type="button"
-                    onClick={() => setActivityType(t)}
+                    onClick={() => setActivityType(kind)}
                     className={`rounded-full px-3 py-1 text-xs font-medium transition-colors border ${
-                      activityType === t
+                      activityType === kind
                         ? "bg-primary text-primary-foreground border-primary"
                         : "bg-transparent text-muted-foreground border-border hover:text-foreground"
                     }`}
                   >
-                    {t === undefined ? "הכל" : t === "login" ? "כניסה" : t === "security" ? "אבטחה" : "פרופיל"}
+                    {t(`activityFilter.${kind ?? "all"}`)}
                   </button>
                 ))}
               </div>

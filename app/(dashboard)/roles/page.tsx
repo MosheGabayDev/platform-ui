@@ -32,6 +32,7 @@ import { useRegisterPageContext } from "@/lib/hooks/use-register-page-context";
 
 export default function RolesPage() {
   const t = useTranslations("roles");
+  const tList = useTranslations("roles.list");
   const router = useRouter();
   const { data: session } = useSession();
   const isSystemAdmin = hasRole(session, "system_admin");
@@ -77,23 +78,23 @@ export default function RolesPage() {
         isSystemAdmin ? (
           <Button size="sm" onClick={() => setCreateOpen(true)}>
             <Plus className="size-4 me-1.5" />
-            תפקיד חדש
+            {tList("addRole")}
           </Button>
         ) : undefined
       }
       stats={
         <>
-          <StatCard icon={ShieldCheck} value={total} label='סה"כ תפקידים' />
+          <StatCard icon={ShieldCheck} value={total} label={tList("kpi.totalRoles")} />
           <StatCard
             icon={Lock}
             value={totalPermissions}
-            label="הרשאות פעילות"
+            label={tList("kpi.activePermissions")}
             color="border-violet-500/30 text-violet-600 dark:text-violet-400"
           />
           <StatCard
             icon={Users}
             value={totalUsers}
-            label="משתמשים משויכים"
+            label={tList("kpi.assignedUsers")}
             color="border-blue-500/30 text-blue-600 dark:text-blue-400"
           />
         </>
@@ -103,7 +104,7 @@ export default function RolesPage() {
         <ErrorState
           error={error}
           onRetry={refetch}
-          messages={{ default: "שגיאה בטעינת התפקידים" }}
+          messages={{ default: tList("loadError") }}
         />
       )}
 
@@ -116,8 +117,8 @@ export default function RolesPage() {
         {!isLoading && !error && total === 0 && !search ? (
           <EmptyState
             icon={ShieldCheck}
-            title="אין תפקידים עדיין"
-            description="צור תפקיד ראשון כדי להתחיל לנהל הרשאות"
+            title={tList("empty.title")}
+            description={tList("empty.description")}
           />
         ) : (
           <RolesTable

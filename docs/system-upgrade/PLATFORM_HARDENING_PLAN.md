@@ -86,7 +86,7 @@ components/
 | E20 | Convert `/helpdesk/*` chrome (root + tickets/technicians/sla/maintenance/batch/approvals) — page titles + subtitles + feature-gate fallbacks. KB sub-page + per-page table headers/empty states defer | [x] |
 | E21 | Convert `/settings/ai` chrome (title, subtitle, loading, fallback) — form field labels defer | [x] |
 | E22 | Tests: locale switch + fallback to key when translation is missing + html lang/dir side-effect | [x] (`lib/i18n/locale-store.test.ts` 8 tests, `components/providers/intl-provider.test.tsx` 4 tests) |
-| E23 | Tracker: grep audit of remaining inline Hebrew | [partial — see audit below] |
+| E23 | Tracker: grep audit of remaining inline Hebrew — **ZERO hits** as of 2026-05-07 | [x] |
 
 ### E23 grep audit results (2026-05-06)
 

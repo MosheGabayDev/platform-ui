@@ -12,6 +12,7 @@
 import { use, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
 import { Building2, Hash, FileText, Users, Clock, CheckCircle, Pencil, PowerOff, Power } from "lucide-react";
@@ -34,6 +35,7 @@ import { formatDate } from "@/lib/utils/format";
 import { PAGE_EASE } from "@/lib/ui/motion";
 
 export default function OrgDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const t = useTranslations("organizations.detail");
   const { id } = use(params);
   const orgId = parseInt(id, 10);
   const { data: session } = useSession();
@@ -53,17 +55,17 @@ export default function OrgDetailPage({ params }: { params: Promise<{ id: string
     action: ORG_ACTIONS.deactivate,
     mutationFn: (payload) => setOrgActive(orgId, false, payload.reason),
     invalidateKeys: [queryKeys.orgs.detail(orgId), queryKeys.orgs.all()],
-    onSuccess: () => { toast.success("הארגון הושבת בהצלחה"); refetch(); },
+    onSuccess: () => { toast.success(t("deactivateSuccess")); refetch(); },
   });
 
   const reactivate = useDangerousAction({
     action: ORG_ACTIONS.reactivate,
     mutationFn: (payload) => setOrgActive(orgId, true, payload.reason),
     invalidateKeys: [queryKeys.orgs.detail(orgId), queryKeys.orgs.all()],
-    onSuccess: () => { toast.success("הארגון הופעל מחדש"); refetch(); },
+    onSuccess: () => { toast.success(t("activateSuccess")); refetch(); },
   });
 
-  if (isNaN(orgId)) return <ErrorState error={new Error("404")} messages={{ 404: "מזהה ארגון לא חוקי" }} />;
+  if (isNaN(orgId)) return <ErrorState error={new Error("404")} messages={{ 404: t("invalidId") }} />;
 
   return (
     <LazyMotion features={domAnimation}>
@@ -82,7 +84,7 @@ export default function OrgDetailPage({ params }: { params: Promise<{ id: string
                   className="text-orange-600 border-orange-300 hover:bg-orange-50 dark:text-orange-400 dark:border-orange-700 dark:hover:bg-orange-950"
                 >
                   <PowerOff className="size-3.5 me-1.5" />
-                  השבת ארגון
+                  {t("buttons.deactivate")}
                 </ActionButton>
               ) : (
                 <ActionButton
@@ -93,14 +95,14 @@ export default function OrgDetailPage({ params }: { params: Promise<{ id: string
                   className="text-blue-600 border-blue-300 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-700 dark:hover:bg-blue-950"
                 >
                   <Power className="size-3.5 me-1.5" />
-                  הפעל ארגון
+                  {t("buttons.reactivate")}
                 </ActionButton>
               )
             )}
             {isSystemAdmin && org && (
               <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
                 <Pencil className="size-3.5 me-1.5" />
-                ערוך ארגון
+                {t("buttons.edit")}
               </Button>
             )}
           </div>
@@ -113,9 +115,9 @@ export default function OrgDetailPage({ params }: { params: Promise<{ id: string
             error={error}
             onRetry={refetch}
             messages={{
-              403: "אין הרשאה לצפות בארגון זה",
-              404: "ארגון לא נמצא",
-              default: "שגיאה בטעינת פרטי הארגון",
+              403: t("forbidden"),
+              404: t("notFound"),
+              default: t("loadError"),
             }}
           />
         )}
@@ -139,20 +141,20 @@ export default function OrgDetailPage({ params }: { params: Promise<{ id: string
               }
             />
 
-            <DetailSection title="פרטי ארגון">
-              <InfoRow icon={Hash} label="מזהה" value={org.id} />
-              <InfoRow icon={Building2} label="שם" value={org.name} />
+            <DetailSection title={t("section")}>
+              <InfoRow icon={Hash} label={t("fields.id")} value={org.id} />
+              <InfoRow icon={Building2} label={t("fields.name")} value={org.name} />
               <InfoRow
                 icon={FileText}
                 label="Slug"
                 value={<span className="font-mono text-xs">{org.slug}</span>}
               />
               {org.description && (
-                <InfoRow icon={FileText} label="תיאור" value={org.description} />
+                <InfoRow icon={FileText} label={t("fields.description")} value={org.description} />
               )}
-              <InfoRow icon={Users} label="משתמשים" value={org.user_count} />
-              <InfoRow icon={CheckCircle} label="פעיל" value={<BoolBadge value={org.is_active} />} />
-              <InfoRow icon={Clock} label="נוצר" value={formatDate(org.created_at)} />
+              <InfoRow icon={Users} label={t("fields.users")} value={org.user_count} />
+              <InfoRow icon={CheckCircle} label={t("fields.active")} value={<BoolBadge value={org.is_active} />} />
+              <InfoRow icon={Clock} label={t("fields.createdAt")} value={formatDate(org.created_at)} />
             </DetailSection>
           </motion.div>
         )}

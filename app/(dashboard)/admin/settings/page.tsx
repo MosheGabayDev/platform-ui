@@ -116,6 +116,7 @@ function SettingRow({
   userId: number;
   onSaved: () => void;
 }) {
+  const tErr = useTranslations("admin.settings.errors");
   const writeScope = def.allowed_scopes.includes("org") ? "org" : def.allowed_scopes[0];
   const writeScopeId = writeScope === "org" ? orgId : writeScope === "user" ? userId : null;
 
@@ -153,7 +154,7 @@ function SettingRow({
     if (def.type === "int") {
       const n = Number(draft);
       if (!Number.isFinite(n)) {
-        toast.error("ערך חייב להיות מספר");
+        toast.error(tErr("mustBeNumber"));
         return;
       }
       outValue = Math.trunc(n);
@@ -162,7 +163,7 @@ function SettingRow({
       try {
         outValue = typeof draft === "string" ? JSON.parse(draft) : draft;
       } catch {
-        toast.error("JSON לא תקין");
+        toast.error(tErr("invalidJson"));
         return;
       }
     }
