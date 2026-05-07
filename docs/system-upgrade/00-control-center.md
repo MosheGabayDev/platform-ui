@@ -145,7 +145,7 @@ Full vision: [`03-roadmap/master-roadmap.md §2`](03-roadmap/master-roadmap.md)
 | 5 | One Helpdesk action audited via platform AuditLog Service | 🔴 |
 | 6 | Cross-tenant test passes: org A cannot see org B Helpdesk data | 🟡 Scaffolded 2026-05-03 — `tests/e2e/security/tenant-isolation-helpdesk.spec.ts` covers 11 probes across tickets/technicians/SLA/approvals/maintenance/batch/audit/search. Skipped until 2 real test orgs exist; flips green via env-var only. |
 | 7 | `check_no_direct_llm_imports.py` warn-only AND non-increasing 7 days | 🔴 |
-| 8 | AI demo slice (ADR-038) in development (epic + ≥2 tasks complete) | 🔴 |
+| 8 | AI demo slice (ADR-038) in development (epic + ≥2 tasks complete) | 🟢 DONE 2026-05-06 — see `GENERIC_AI_PLATFORM_PROGRESS.md §2.5`. AIProviderGateway + AISkillRegistry + AIUsage shipped (frontend) with full E2E coverage. |
 
 > Until ALL 8 pass: no new module work, no new shared capabilities. Round selection constrained to gate items only.
 
