@@ -154,6 +154,17 @@ Every primitive in the catalog is implemented and consumed somewhere:
 - typecheck: clean ✅
 - coverage gate: PASS ✅
 
+## Hard-rule audit (CLAUDE.md non-negotiables) — 2026-05-07
+
+| Rule | Result |
+|---|---|
+| `pb-20 md:pb-0` on every dashboard page | ✅ PageShell injects it for all pages that use it; the only direct-rendered page (`[...slug]` catch-all) updated to add it explicitly. |
+| `mounted` guard on theme-dependent rendering | ✅ Both `useTheme()` consumers (`app-sidebar`, `topbar`) gate on `mounted` state. |
+| `LEGACY_INVENTORY.md` + `E2E_COVERAGE.md` per module | ✅ helpdesk has both. /users wasn't *rewritten* (only extended with new menu actions), so the rule doesn't trigger; flagged for if a full users rewrite is scheduled later. |
+| `suppressHydrationWarning` on `<html>` + `<body>` | ✅ both present in root layout. |
+| `dir="rtl"` on root | ✅ via IntlProvider side-effect; Track E sets it dynamically per locale. |
+| ADR-043 patches to `components/ui/` annotated | n/a — no patches landed in this audit window. |
+
 ## Open follow-ups (not audit violations, but worth tracking)
 
 - `KpiCard` component test coverage is partial — the card is used on

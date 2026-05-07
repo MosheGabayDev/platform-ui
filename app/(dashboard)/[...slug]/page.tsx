@@ -44,7 +44,7 @@ export default function ComingSoonPage({
   const label = ROUTE_LABELS[path] ?? path;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 text-center px-4">
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 text-center px-4 pb-20 md:pb-0">
       <div className="size-16 rounded-2xl bg-muted/50 border border-border/50 flex items-center justify-center">
         <Construction className="size-8 text-muted-foreground" />
       </div>
