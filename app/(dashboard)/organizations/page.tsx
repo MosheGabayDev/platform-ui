@@ -12,6 +12,7 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { Building2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ import type { OrgsListParams } from "@/lib/modules/organizations/types";
 import { useRegisterPageContext } from "@/lib/hooks/use-register-page-context";
 
 export default function OrganizationsPage() {
+  const t = useTranslations("organizations");
   const router = useRouter();
 
   const [params, setParams] = useState<OrgsListParams>({ page: 1, per_page: 25 });
@@ -75,8 +77,8 @@ export default function OrganizationsPage() {
     }>
       <PageShell
         icon={Building2}
-        title="ניהול ארגונים"
-        subtitle="כל הארגונים בפלטפורמה — גישת מנהל מערכת בלבד"
+        title={t("title")}
+        subtitle={t("subtitle")}
         actions={
           <Button size="sm" onClick={() => setCreateOpen(true)}>
             <Plus className="size-4 me-1.5" />

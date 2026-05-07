@@ -14,6 +14,7 @@ import { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { Users, UserPlus, Clock, ShieldCheck, UserMinus } from "lucide-react";
 import { toast } from "sonner";
@@ -33,6 +34,7 @@ import type { UserSummary, UsersListParams } from "@/lib/modules/users/types";
 import { useRegisterPageContext } from "@/lib/hooks/use-register-page-context";
 
 export default function UsersPage() {
+  const t = useTranslations("users");
   const router = useRouter();
   const { data: session } = useSession();
   const isAdmin = hasRole(session, "admin", "system_admin");
@@ -83,65 +85,64 @@ export default function UsersPage() {
       {
         id: "view",
         kind: "view",
-        label: "צפייה בפרטים",
+        label: t("actions.view"),
         onInvoke: (u) => router.push(`/users/${u.id}`),
       },
       {
         id: "edit",
         kind: "edit",
-        label: "עריכה",
+        label: t("actions.edit"),
         requiredRoles: ["admin", "system_admin"],
         onInvoke: (u) => router.push(`/users/${u.id}?edit=1`),
       },
       {
         id: "deactivate",
         kind: "delete",
-        label: "השבת חשבון",
+        label: t("actions.deactivate"),
         icon: UserMinus,
         requiredRoles: ["admin", "system_admin"],
         visibleWhen: (u) => u.is_active,
         destructive: true,
-        confirmTitle: "השבתת משתמש",
-        confirmDescription:
-          "המשתמש לא יוכל יותר להתחבר עד שהחשבון יופעל מחדש.",
+        confirmTitle: t("actions.deactivateTitle"),
+        confirmDescription: t("actions.deactivateDescription"),
         confirmTypedName: (u) => u.email,
         onInvoke: async (u) => {
           await setUserActive(u.id, false);
-          toast.success(`המשתמש ${u.name} הושבת.`);
+          toast.success(t("actions.deactivateSuccess", { name: u.name }));
           await queryClient.invalidateQueries({ queryKey: queryKeys.users.all() });
         },
       },
     ],
-    [router, queryClient],
+    [router, queryClient, t],
   );
 
   return (
     <PageShell
       icon={Users}
-      title="ניהול משתמשים"
-      subtitle="משתמשי הארגון, תפקידים וסטטוס אישור"
+      title={t("title")}
+      subtitle={t("subtitle")}
       actions={
         isAdmin ? (
           <Button size="sm" onClick={() => setCreateOpen(true)}>
             <UserPlus className="size-4 me-1.5" />
-            הוסף משתמש
+            {t("addUser")}
           </Button>
         ) : undefined
       }
       stats={
         <>
-          <StatCard icon={Users} value={stats?.total} label='סה"כ' />
+          <StatCard icon={Users} value={stats?.total} label={t("kpi.total")} />
           <StatCard
             icon={ShieldCheck}
             value={stats?.active}
-            label="פעילים"
+            label={t("kpi.active")}
             color="border-emerald-500/30 text-emerald-600 dark:text-emerald-400"
           />
           {(stats?.pending ?? 0) > 0 && (
             <StatCard
               icon={Clock}
               value={stats?.pending}
-              label="ממתינים"
+              label={t("kpi.pending")}
               color="border-amber-500/30 text-amber-600 dark:text-amber-400"
             />
           )}
@@ -157,7 +158,7 @@ export default function UsersPage() {
           <div className="flex items-center gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3">
             <Clock className="size-4 text-amber-500 shrink-0" />
             <span className="text-sm text-amber-700 dark:text-amber-400">
-              {stats?.pending} משתמשים ממתינים לאישור
+              {t("pendingBanner", { count: stats?.pending ?? 0 })}
             </span>
             <Button
               variant="outline"
@@ -165,7 +166,7 @@ export default function UsersPage() {
               className="me-auto h-7 text-xs border-amber-500/40 text-amber-700 dark:text-amber-400 hover:bg-amber-500/10"
               onClick={() => router.push("/users/pending")}
             >
-              צפייה בתור
+              {t("viewQueue")}
             </Button>
           </div>
         </motion.div>
@@ -175,7 +176,7 @@ export default function UsersPage() {
         <ErrorState
           error={listError}
           onRetry={refetch}
-          messages={{ default: "שגיאה בטעינת המשתמשים" }}
+          messages={{ default: t("loadError") }}
         />
       )}
 
@@ -188,8 +189,8 @@ export default function UsersPage() {
         {!listLoading && !listError && list?.total === 0 && !search ? (
           <EmptyState
             icon={UserPlus}
-            title="אין משתמשים עדיין"
-            description="משתמשים שנרשמים יופיעו כאן"
+            title={t("empty.title")}
+            description={t("empty.description")}
           />
         ) : (
           <UsersTable

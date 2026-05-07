@@ -342,6 +342,44 @@
     "switcher": "Language",
     "current": "Current language: {locale}"
   },
+  "users": {
+    "title": "User management",
+    "subtitle": "Org members, roles, and approval status",
+    "addUser": "Add user",
+    "kpi": {
+      "total": "Total",
+      "active": "Active",
+      "pending": "Pending"
+    },
+    "pendingBanner": "{count} users awaiting approval",
+    "viewQueue": "View queue",
+    "empty": {
+      "title": "No users yet",
+      "description": "Users who sign up will appear here"
+    },
+    "loadError": "Failed to load users",
+    "actions": {
+      "view": "View details",
+      "edit": "Edit",
+      "deactivate": "Deactivate account",
+      "deactivateTitle": "Deactivate user",
+      "deactivateDescription": "The user will no longer be able to log in until the account is re-enabled.",
+      "deactivateSuccess": "User {name} deactivated.",
+      "menuLabel": "User actions"
+    }
+  },
+  "roles": {
+    "title": "Roles & permissions",
+    "subtitle": "Per-org role + permission configuration"
+  },
+  "organizations": {
+    "title": "Organizations",
+    "subtitle": "Manage organizations and plans"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Platform-wide overview"
+  },
   "helpdesk": {
     "root": {
       "title": "Helpdesk",

@@ -13,6 +13,7 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { ShieldCheck, Plus, Users, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ import type { RoleSummary } from "@/lib/modules/roles/types";
 import { useRegisterPageContext } from "@/lib/hooks/use-register-page-context";
 
 export default function RolesPage() {
+  const t = useTranslations("roles");
   const router = useRouter();
   const { data: session } = useSession();
   const isSystemAdmin = hasRole(session, "system_admin");
@@ -69,8 +71,8 @@ export default function RolesPage() {
   return (
     <PageShell
       icon={ShieldCheck}
-      title="תפקידים והרשאות"
-      subtitle="תפקידים גלובליים המשותפים לכל הארגונים"
+      title={t("title")}
+      subtitle={t("subtitle")}
       actions={
         isSystemAdmin ? (
           <Button size="sm" onClick={() => setCreateOpen(true)}>

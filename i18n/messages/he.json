@@ -342,6 +342,44 @@
     "switcher": "שפה",
     "current": "שפה נוכחית: {locale}"
   },
+  "users": {
+    "title": "ניהול משתמשים",
+    "subtitle": "משתמשי הארגון, תפקידים וסטטוס אישור",
+    "addUser": "הוסף משתמש",
+    "kpi": {
+      "total": "סה\"כ",
+      "active": "פעילים",
+      "pending": "ממתינים"
+    },
+    "pendingBanner": "{count} משתמשים ממתינים לאישור",
+    "viewQueue": "צפייה בתור",
+    "empty": {
+      "title": "אין משתמשים עדיין",
+      "description": "משתמשים שנרשמים יופיעו כאן"
+    },
+    "loadError": "שגיאה בטעינת המשתמשים",
+    "actions": {
+      "view": "צפייה בפרטים",
+      "edit": "עריכה",
+      "deactivate": "השבת חשבון",
+      "deactivateTitle": "השבתת משתמש",
+      "deactivateDescription": "המשתמש לא יוכל יותר להתחבר עד שהחשבון יופעל מחדש.",
+      "deactivateSuccess": "המשתמש {name} הושבת.",
+      "menuLabel": "פעולות על משתמש"
+    }
+  },
+  "roles": {
+    "title": "תפקידים והרשאות",
+    "subtitle": "הגדרת תפקידים והרשאות פר-ארגון"
+  },
+  "organizations": {
+    "title": "ארגונים",
+    "subtitle": "ניהול ארגונים ומסלולים"
+  },
+  "dashboard": {
+    "title": "דשבורד",
+    "subtitle": "סקירה כללית של הפלטפורמה"
+  },
   "helpdesk": {
     "root": {
       "title": "הלפדסק",
