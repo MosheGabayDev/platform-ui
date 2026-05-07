@@ -15,6 +15,7 @@ import { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import {
@@ -56,6 +57,7 @@ function PermissionChecklist({
   onChange: (ids: number[]) => void;
   disabled?: boolean;
 }) {
+  const t = useTranslations("roles.form.permissions");
   const { data, isLoading } = useQuery({
     queryKey: queryKeys.roles.permissions(),
     queryFn: fetchAllPermissions,
@@ -68,7 +70,7 @@ function PermissionChecklist({
   );
 
   if (isLoading) {
-    return <p className="text-xs text-muted-foreground py-2">טוען הרשאות...</p>;
+    return <p className="text-xs text-muted-foreground py-2">{t("loading")}</p>;
   }
 
   const toggle = (id: number) => {
@@ -121,6 +123,8 @@ export interface RoleCreateSheetProps {
 }
 
 export function RoleCreateSheet({ open, onOpenChange, onSuccess }: RoleCreateSheetProps) {
+  const t = useTranslations("roles.form");
+  const tFields = useTranslations("roles.form.fields");
   const form = useForm<CreateRoleInput>({
     resolver: zodResolver(createRoleSchema),
     defaultValues: {
@@ -134,7 +138,7 @@ export function RoleCreateSheet({ open, onOpenChange, onSuccess }: RoleCreateShe
     mutationFn: createRole,
     invalidateKeys: [queryKeys.roles.all()],
     onSuccess: (data) => {
-      toast.success(`תפקיד "${data.data.role.name}" נוצר בהצלחה`);
+      toast.success(t("create.toast", { name: data.data.role.name }));
       onSuccess?.(data.data.role);
       onOpenChange(false);
     },
@@ -160,39 +164,41 @@ export function RoleCreateSheet({ open, onOpenChange, onSuccess }: RoleCreateShe
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto">
         <SheetHeader className="mb-4">
-          <SheetTitle>יצירת תפקיד חדש</SheetTitle>
-          <SheetDescription>תפקידים הם גלובליים ומשותפים לכל הארגונים</SheetDescription>
+          <SheetTitle>{t("create.title")}</SheetTitle>
+          <SheetDescription>{t("create.description")}</SheetDescription>
         </SheetHeader>
 
-        <PlatformForm onSubmit={onSubmit} isSubmitting={isPending} ariaLabel="טופס יצירת תפקיד">
+        <PlatformForm onSubmit={onSubmit} isSubmitting={isPending} ariaLabel={t("create.aria")}>
           <FormError error={serverError} />
 
           <FieldRow>
             <Label htmlFor="role_name">
-              שם תפקיד <span className="text-destructive">*</span>
+              {tFields("name")} <span className="text-destructive">*</span>
             </Label>
             <Input
               id="role_name"
               {...form.register("name")}
               disabled={isPending}
-              placeholder='לדוגמה: "טכנאי בכיר"'
+              placeholder={tFields("namePlaceholder")}
             />
             <FieldError message={errors.name?.message} />
           </FieldRow>
 
           <FieldRow>
-            <Label htmlFor="role_description">תיאור</Label>
+            <Label htmlFor="role_description">{tFields("description")}</Label>
             <Input
               id="role_description"
               {...form.register("description")}
               disabled={isPending}
-              placeholder="תיאור קצר של התפקיד (אופציונלי)"
+              placeholder={tFields("descriptionPlaceholder")}
             />
             <FieldError message={errors.description?.message} />
           </FieldRow>
 
           <div className="space-y-2 pt-1">
-            <Label className="text-xs text-muted-foreground uppercase tracking-wide">הרשאות</Label>
+            <Label className="text-xs text-muted-foreground uppercase tracking-wide">
+              {tFields("permissions")}
+            </Label>
             <PermissionChecklist
               selected={form.watch("permission_ids") ?? []}
               onChange={(ids) => form.setValue("permission_ids", ids)}
@@ -201,7 +207,7 @@ export function RoleCreateSheet({ open, onOpenChange, onSuccess }: RoleCreateShe
           </div>
 
           <FormActions
-            submitLabel="צור תפקיד"
+            submitLabel={t("create.cta")}
             onCancel={() => onOpenChange(false)}
             isSubmitting={isPending}
           />
@@ -221,6 +227,8 @@ export interface RoleEditSheetProps {
 }
 
 export function RoleEditSheet({ role, open, onOpenChange, onSuccess }: RoleEditSheetProps) {
+  const t = useTranslations("roles.form");
+  const tFields = useTranslations("roles.form.fields");
   const form = useForm<EditRoleInput>({
     resolver: zodResolver(editRoleSchema),
     defaultValues: buildEditDefaults(role),
@@ -237,7 +245,7 @@ export function RoleEditSheet({ role, open, onOpenChange, onSuccess }: RoleEditS
       ? [queryKeys.roles.detail(role.id), queryKeys.roles.all()]
       : [],
     onSuccess: (data) => {
-      toast.success("פרטי התפקיד עודכנו");
+      toast.success(t("edit.toast"));
       onSuccess?.(data.data.role);
       onOpenChange(false);
     },
@@ -251,7 +259,7 @@ export function RoleEditSheet({ role, open, onOpenChange, onSuccess }: RoleEditS
         ? [queryKeys.roles.detail(role.id), queryKeys.roles.all()]
         : [],
       onSuccess: (data) => {
-        toast.success("הרשאות התפקיד עודכנו");
+        toast.success(t("edit.toastPerms"));
         onSuccess?.(data.data.role);
       },
     });
@@ -278,29 +286,31 @@ export function RoleEditSheet({ role, open, onOpenChange, onSuccess }: RoleEditS
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto">
         <SheetHeader className="mb-4">
-          <SheetTitle>עריכת תפקיד</SheetTitle>
+          <SheetTitle>{t("edit.title")}</SheetTitle>
           {role && <SheetDescription>{role.name}</SheetDescription>}
         </SheetHeader>
 
-        <PlatformForm onSubmit={handleSubmit} isSubmitting={busy} ariaLabel="טופס עריכת תפקיד">
+        <PlatformForm onSubmit={handleSubmit} isSubmitting={busy} ariaLabel={t("edit.aria")}>
           <FormError error={combinedError} />
 
           <FieldRow>
             <Label htmlFor="edit_role_name">
-              שם תפקיד <span className="text-destructive">*</span>
+              {tFields("name")} <span className="text-destructive">*</span>
             </Label>
             <Input id="edit_role_name" {...form.register("name")} disabled={busy} />
             <FieldError message={errors.name?.message} />
           </FieldRow>
 
           <FieldRow>
-            <Label htmlFor="edit_role_description">תיאור</Label>
+            <Label htmlFor="edit_role_description">{tFields("description")}</Label>
             <Input id="edit_role_description" {...form.register("description")} disabled={busy} />
             <FieldError message={errors.description?.message} />
           </FieldRow>
 
           <div className="space-y-2 pt-1">
-            <Label className="text-xs text-muted-foreground uppercase tracking-wide">הרשאות</Label>
+            <Label className="text-xs text-muted-foreground uppercase tracking-wide">
+              {tFields("permissions")}
+            </Label>
             <PermissionChecklist
               selected={form.watch("permission_ids") ?? []}
               onChange={(ids) => form.setValue("permission_ids", ids)}
@@ -309,7 +319,7 @@ export function RoleEditSheet({ role, open, onOpenChange, onSuccess }: RoleEditS
           </div>
 
           <FormActions
-            submitLabel="שמור שינויים"
+            submitLabel={t("edit.cta")}
             onCancel={() => onOpenChange(false)}
             isSubmitting={busy}
           />

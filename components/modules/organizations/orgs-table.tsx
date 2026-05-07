@@ -8,8 +8,10 @@
  * Calls no APIs — receives data from parent via props.
  */
 
+import { useMemo } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DataTable } from "@/components/shared/data-table";
@@ -30,49 +32,51 @@ interface OrgsTableProps {
   onRowClick?: (org: OrgSummary) => void;
 }
 
-const columns: ColumnDef<OrgSummary>[] = [
-  {
-    accessorKey: "name",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        size="sm"
-        className="-me-3 h-8 font-medium"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        שם
-        <ArrowUpDown className="me-2 size-3.5 opacity-50" />
-      </Button>
-    ),
-    cell: ({ row }) => (
-      <div className="flex flex-col gap-0.5">
-        <span className="font-medium text-sm">{row.original.name}</span>
-        <span className="text-xs text-muted-foreground font-mono">{row.original.slug}</span>
-      </div>
-    ),
-  },
-  {
-    accessorKey: "is_active",
-    header: "סטטוס",
-    cell: ({ row }) => <OrgStatusBadge isActive={row.original.is_active} />,
-  },
-  {
-    accessorKey: "user_count",
-    header: "משתמשים",
-    cell: ({ row }) => (
-      <span className="text-sm tabular-nums">{row.original.user_count}</span>
-    ),
-  },
-  {
-    accessorKey: "created_at",
-    header: "נוצר",
-    cell: ({ row }) => (
-      <span className="text-xs text-muted-foreground">
-        {formatDate(row.original.created_at)}
-      </span>
-    ),
-  },
-];
+function buildColumns(tCols: (k: string) => string): ColumnDef<OrgSummary>[] {
+  return [
+    {
+      accessorKey: "name",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="-me-3 h-8 font-medium"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          {tCols("name")}
+          <ArrowUpDown className="me-2 size-3.5 opacity-50" />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className="flex flex-col gap-0.5">
+          <span className="font-medium text-sm">{row.original.name}</span>
+          <span className="text-xs text-muted-foreground font-mono">{row.original.slug}</span>
+        </div>
+      ),
+    },
+    {
+      accessorKey: "is_active",
+      header: tCols("status"),
+      cell: ({ row }) => <OrgStatusBadge isActive={row.original.is_active} />,
+    },
+    {
+      accessorKey: "user_count",
+      header: tCols("users"),
+      cell: ({ row }) => (
+        <span className="text-sm tabular-nums">{row.original.user_count}</span>
+      ),
+    },
+    {
+      accessorKey: "created_at",
+      header: tCols("createdAt"),
+      cell: ({ row }) => (
+        <span className="text-xs text-muted-foreground">
+          {formatDate(row.original.created_at)}
+        </span>
+      ),
+    },
+  ];
+}
 
 export function OrgsTable({
   orgs,
@@ -86,18 +90,22 @@ export function OrgsTable({
   onPageChange,
   onRowClick,
 }: OrgsTableProps) {
+  const tCols = useTranslations("organizations.table.columns");
+  const tSearch = useTranslations("organizations.table.search");
+  const columns = useMemo(() => buildColumns((k) => tCols(k)), [tCols]);
+
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-3">
         <Input
-          placeholder="חיפוש לפי שם, slug..."
+          placeholder={tSearch("placeholder")}
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           className="max-w-xs h-8 text-sm"
           dir="rtl"
         />
         <span className="text-xs text-muted-foreground me-auto">
-          {total} ארגונים סה״כ
+          {tSearch("total", { count: total })}
         </span>
       </div>
 
@@ -107,7 +115,7 @@ export function OrgsTable({
         isLoading={isLoading}
         pagination={{ page, totalPages, total, perPage, onPageChange }}
         onRowClick={onRowClick}
-        emptyMessage="לא נמצאו ארגונים"
+        emptyMessage={tSearch("empty")}
         loadingRows={5}
       />
     </div>

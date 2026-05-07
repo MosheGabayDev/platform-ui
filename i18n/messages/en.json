@@ -420,6 +420,82 @@
       "deactivateDescription": "The user will no longer be able to log in until the account is re-enabled.",
       "deactivateSuccess": "User {name} deactivated.",
       "menuLabel": "User actions"
+    },
+    "form": {
+      "create": {
+        "title": "Add new user",
+        "description": "The user will be created with a password and will be active + approved immediately",
+        "cta": "Create user",
+        "aria": "Create user form",
+        "toast": "User \"{username}\" created successfully"
+      },
+      "edit": {
+        "title": "Edit user",
+        "cta": "Save changes",
+        "aria": "Edit user form",
+        "toast": "User profile updated"
+      },
+      "sections": {
+        "profile": "Profile",
+        "notifications": "Notifications",
+        "account": "Account",
+        "permissions": "Permissions",
+        "security": "Security",
+        "systemAdmin": "System admin only"
+      },
+      "fields": {
+        "firstName": "First name",
+        "lastName": "Last name",
+        "username": "Username",
+        "email": "Email",
+        "password": "Password",
+        "role": "Role",
+        "displayName": "Display name",
+        "phone": "Phone",
+        "bio": "Bio",
+        "preferredLanguage": "Preferred language",
+        "timezone": "Timezone",
+        "jobTitle": "Job title",
+        "noRole": "No role",
+        "emailNotifications": "Email notifications",
+        "securityAlerts": "Security alerts",
+        "systemUpdates": "System updates",
+        "admin": "Admin",
+        "manager": "Manager",
+        "isActive": "Active account",
+        "isApproved": "Approved",
+        "mfaEnabled": "MFA enabled",
+        "mfaExempt": "MFA exempt",
+        "emailConfirmed": "Email confirmed",
+        "isSystemAdmin": "System administrator",
+        "autoApprove": "Auto-approve commands"
+      },
+      "descriptions": {
+        "admin": "Access to all areas and user management",
+        "manager": "Ticket approval and team supervision",
+        "isActive": "Unchecking will block account login",
+        "isApproved": "Unapproved users cannot sign in",
+        "mfaEnabled": "Two-factor authentication — can be reset/enabled manually",
+        "mfaExempt": "User will not be required to authenticate with MFA even if enabled at the org level",
+        "emailConfirmed": "Manual flag — confirms the email address without sending a message",
+        "isSystemAdmin": "Access to all organizations and ability to manage admins",
+        "autoApprove": "This user's commands will be auto-approved without admin review — sensitive action"
+      }
+    },
+    "table": {
+      "columns": {
+        "name": "Name",
+        "role": "Role",
+        "status": "Status",
+        "lastLogin": "Last login",
+        "createdAt": "Created"
+      },
+      "search": {
+        "placeholder": "Search by name, email...",
+        "total": "{count} users total",
+        "empty": "No users found"
+      },
+      "actionsAria": "User actions"
     }
   },
   "roles": {
@@ -456,6 +532,45 @@
         "users": "Users",
         "createdAt": "Created",
         "updatedAt": "Updated"
+      }
+    },
+    "form": {
+      "create": {
+        "title": "Create new role",
+        "description": "Roles are global and shared across all organizations",
+        "cta": "Create role",
+        "aria": "Create role form",
+        "toast": "Role \"{name}\" created successfully"
+      },
+      "edit": {
+        "title": "Edit role",
+        "cta": "Save changes",
+        "aria": "Edit role form",
+        "toast": "Role updated",
+        "toastPerms": "Role permissions updated"
+      },
+      "fields": {
+        "name": "Role name",
+        "description": "Description",
+        "permissions": "Permissions",
+        "namePlaceholder": "e.g., \"Senior technician\"",
+        "descriptionPlaceholder": "Short description of the role (optional)"
+      },
+      "permissions": {
+        "loading": "Loading permissions..."
+      }
+    },
+    "table": {
+      "columns": {
+        "name": "Role name",
+        "permissions": "Permissions",
+        "users": "Users",
+        "createdAt": "Created"
+      },
+      "search": {
+        "placeholder": "Search by role name...",
+        "total": "{count} roles total",
+        "empty": "No roles found"
       }
     }
   },
@@ -496,6 +611,46 @@
         "users": "Members",
         "active": "Active",
         "createdAt": "Created"
+      }
+    },
+    "form": {
+      "create": {
+        "title": "Create new organization",
+        "description": "Organizations are a secure space for a group of users",
+        "cta": "Create org",
+        "aria": "Create organization form",
+        "toast": "Organization \"{name}\" created successfully"
+      },
+      "edit": {
+        "title": "Edit organization",
+        "cta": "Save changes",
+        "aria": "Edit organization form",
+        "toast": "Organization updated"
+      },
+      "fields": {
+        "name": "Organization name",
+        "slug": "Slug",
+        "slugReadonly": "Slug (immutable)",
+        "slugHelp": "Unique identifier — lowercase letters, numbers and hyphens only. Cannot be changed after creation.",
+        "description": "Description",
+        "namePlaceholder": "e.g., \"Acme Corp\"",
+        "slugPlaceholder": "acme-corp",
+        "descriptionPlaceholder": "Short description of the organization (optional)",
+        "isActive": "Active organization",
+        "isActiveDescription": "Unchecking will block all users of this organization"
+      }
+    },
+    "table": {
+      "columns": {
+        "name": "Name",
+        "status": "Status",
+        "users": "Users",
+        "createdAt": "Created"
+      },
+      "search": {
+        "placeholder": "Search by name, slug...",
+        "total": "{count} orgs total",
+        "empty": "No organizations found"
       }
     }
   },
@@ -820,5 +975,23 @@
       "showShortcuts": "Show keyboard shortcuts",
       "closeOrCancel": "Close / cancel"
     }
+  },
+  "statusBadge": {
+    "user": {
+      "pending": "Pending",
+      "inactive": "Inactive",
+      "active": "Active"
+    },
+    "org": {
+      "inactive": "Inactive",
+      "active": "Active"
+    }
+  },
+  "roleBadge": {
+    "admin": "Admin",
+    "system_admin": "System admin",
+    "manager": "Manager",
+    "technician": "Technician",
+    "user": "User"
   }
 }

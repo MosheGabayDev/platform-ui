@@ -420,6 +420,82 @@
       "deactivateDescription": "המשתמש לא יוכל יותר להתחבר עד שהחשבון יופעל מחדש.",
       "deactivateSuccess": "המשתמש {name} הושבת.",
       "menuLabel": "פעולות על משתמש"
+    },
+    "form": {
+      "create": {
+        "title": "הוספת משתמש חדש",
+        "description": "המשתמש יווצר עם סיסמה ויהיה פעיל ומאושר מיד",
+        "cta": "צור משתמש",
+        "aria": "טופס יצירת משתמש",
+        "toast": "משתמש \"{username}\" נוצר בהצלחה"
+      },
+      "edit": {
+        "title": "עריכת משתמש",
+        "cta": "שמור שינויים",
+        "aria": "טופס עריכת משתמש",
+        "toast": "פרטי המשתמש עודכנו"
+      },
+      "sections": {
+        "profile": "פרופיל",
+        "notifications": "התראות",
+        "account": "חשבון",
+        "permissions": "הרשאות",
+        "security": "אבטחה",
+        "systemAdmin": "מנהל מערכת בלבד"
+      },
+      "fields": {
+        "firstName": "שם פרטי",
+        "lastName": "שם משפחה",
+        "username": "שם משתמש",
+        "email": "אימייל",
+        "password": "סיסמה",
+        "role": "תפקיד",
+        "displayName": "שם תצוגה",
+        "phone": "טלפון",
+        "bio": "ביוגרפיה",
+        "preferredLanguage": "שפה מועדפת",
+        "timezone": "אזור זמן",
+        "jobTitle": "כותרת תפקיד",
+        "noRole": "ללא תפקיד",
+        "emailNotifications": "התראות במייל",
+        "securityAlerts": "התראות אבטחה",
+        "systemUpdates": "עדכוני מערכת",
+        "admin": "אדמין",
+        "manager": "מנהל",
+        "isActive": "חשבון פעיל",
+        "isApproved": "מאושר",
+        "mfaEnabled": "MFA מופעל",
+        "mfaExempt": "פטור מ-MFA",
+        "emailConfirmed": "אימייל אומת",
+        "isSystemAdmin": "מנהל מערכת",
+        "autoApprove": "אישור אוטומטי פקודות"
+      },
+      "descriptions": {
+        "admin": "גישה לכל האזורים וניהול משתמשים",
+        "manager": "אישור כרטיסים ופיקוח על צוות",
+        "isActive": "ביטול הסימון יחסום כניסה לחשבון",
+        "isApproved": "משתמש שלא אושר לא יכול להיכנס למערכת",
+        "mfaEnabled": "אימות דו-שלבי — ניתן לאפס/להפעיל ידנית",
+        "mfaExempt": "המשתמש לא יידרש לאמות ב-MFA גם אם מופעל ברמת ארגון",
+        "emailConfirmed": "סימון ידני — מאשר את כתובת האימייל ללא שליחת מייל",
+        "isSystemAdmin": "גישה לכל הארגונים ויכולת לנהל מנהלים",
+        "autoApprove": "הפקודות של משתמש זה יאושרו אוטומטית ללא בקרת אדמין — פעולה רגישה"
+      }
+    },
+    "table": {
+      "columns": {
+        "name": "שם",
+        "role": "תפקיד",
+        "status": "סטטוס",
+        "lastLogin": "כניסה אחרונה",
+        "createdAt": "נוצר"
+      },
+      "search": {
+        "placeholder": "חיפוש לפי שם, אימייל...",
+        "total": "{count} משתמשים סה״כ",
+        "empty": "לא נמצאו משתמשים"
+      },
+      "actionsAria": "פעולות על משתמש"
     }
   },
   "roles": {
@@ -456,6 +532,45 @@
         "users": "משתמשים",
         "createdAt": "נוצר",
         "updatedAt": "עודכן"
+      }
+    },
+    "form": {
+      "create": {
+        "title": "יצירת תפקיד חדש",
+        "description": "תפקידים הם גלובליים ומשותפים לכל הארגונים",
+        "cta": "צור תפקיד",
+        "aria": "טופס יצירת תפקיד",
+        "toast": "תפקיד \"{name}\" נוצר בהצלחה"
+      },
+      "edit": {
+        "title": "עריכת תפקיד",
+        "cta": "שמור שינויים",
+        "aria": "טופס עריכת תפקיד",
+        "toast": "פרטי התפקיד עודכנו",
+        "toastPerms": "הרשאות התפקיד עודכנו"
+      },
+      "fields": {
+        "name": "שם תפקיד",
+        "description": "תיאור",
+        "permissions": "הרשאות",
+        "namePlaceholder": "לדוגמה: \"טכנאי בכיר\"",
+        "descriptionPlaceholder": "תיאור קצר של התפקיד (אופציונלי)"
+      },
+      "permissions": {
+        "loading": "טוען הרשאות..."
+      }
+    },
+    "table": {
+      "columns": {
+        "name": "שם תפקיד",
+        "permissions": "הרשאות",
+        "users": "משתמשים",
+        "createdAt": "נוצר"
+      },
+      "search": {
+        "placeholder": "חיפוש לפי שם תפקיד...",
+        "total": "{count} תפקידים סה״כ",
+        "empty": "לא נמצאו תפקידים"
       }
     }
   },
@@ -496,6 +611,46 @@
         "users": "משתמשים",
         "active": "פעיל",
         "createdAt": "נוצר"
+      }
+    },
+    "form": {
+      "create": {
+        "title": "יצירת ארגון חדש",
+        "description": "ארגונים הם מרחב מאובטח לקבוצת משתמשים",
+        "cta": "צור ארגון",
+        "aria": "טופס יצירת ארגון",
+        "toast": "ארגון \"{name}\" נוצר בהצלחה"
+      },
+      "edit": {
+        "title": "עריכת ארגון",
+        "cta": "שמור שינויים",
+        "aria": "טופס עריכת ארגון",
+        "toast": "פרטי הארגון עודכנו"
+      },
+      "fields": {
+        "name": "שם ארגון",
+        "slug": "Slug",
+        "slugReadonly": "Slug (לא ניתן לשינוי)",
+        "slugHelp": "מזהה ייחודי — אותיות קטנות, מספרים ומקפים בלבד. לא ניתן לשינוי לאחר יצירה.",
+        "description": "תיאור",
+        "namePlaceholder": "לדוגמה: \"Acme Corp\"",
+        "slugPlaceholder": "acme-corp",
+        "descriptionPlaceholder": "תיאור קצר של הארגון (אופציונלי)",
+        "isActive": "ארגון פעיל",
+        "isActiveDescription": "ביטול הסימון ינעל גישה לכל משתמשי הארגון"
+      }
+    },
+    "table": {
+      "columns": {
+        "name": "שם",
+        "status": "סטטוס",
+        "users": "משתמשים",
+        "createdAt": "נוצר"
+      },
+      "search": {
+        "placeholder": "חיפוש לפי שם, slug...",
+        "total": "{count} ארגונים סה״כ",
+        "empty": "לא נמצאו ארגונים"
       }
     }
   },
@@ -820,5 +975,23 @@
       "showShortcuts": "הצג קיצורי מקלדת",
       "closeOrCancel": "סגור / בטל"
     }
+  },
+  "statusBadge": {
+    "user": {
+      "pending": "ממתין",
+      "inactive": "לא פעיל",
+      "active": "פעיל"
+    },
+    "org": {
+      "inactive": "לא פעיל",
+      "active": "פעיל"
+    }
+  },
+  "roleBadge": {
+    "admin": "אדמין",
+    "system_admin": "אדמין מערכת",
+    "manager": "מנהל",
+    "technician": "טכנאי",
+    "user": "משתמש"
   }
 }

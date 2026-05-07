@@ -1,10 +1,12 @@
+"use client";
 /**
  * @module components/modules/users/user-role-badge
  * Displays user role as a colored badge.
  * Maps known Flask role names to colors. Falls back to muted for unknown roles.
- * Pure presentational — no data fetching, no side effects.
+ * Labels resolve via i18n (`roleBadge.<role>`); unknown roles show the raw key.
  */
 
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 interface UserRoleBadgeProps {
@@ -22,18 +24,14 @@ const ROLE_STYLES: Record<string, string> = {
   user: "bg-muted text-muted-foreground border-border",
 };
 
-const ROLE_LABELS: Record<string, string> = {
-  admin: "אדמין",
-  system_admin: "אדמין מערכת",
-  manager: "מנהל",
-  technician: "טכנאי",
-  user: "משתמש",
-};
+const KNOWN_ROLES = new Set(Object.keys(ROLE_STYLES));
 
 export function UserRoleBadge({ role, isAdmin, isSystemAdmin, className }: UserRoleBadgeProps) {
+  const t = useTranslations("roleBadge");
   const effectiveRole = isSystemAdmin ? "system_admin" : (isAdmin ? "admin" : role ?? "user");
   const style = ROLE_STYLES[effectiveRole] ?? ROLE_STYLES.user;
-  const label = ROLE_LABELS[effectiveRole] ?? effectiveRole;
+  // Fall back to the raw role identifier for unknown roles (data, not copy).
+  const label = KNOWN_ROLES.has(effectiveRole) ? t(effectiveRole) : effectiveRole;
 
   return (
     <span className={cn(

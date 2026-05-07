@@ -1,9 +1,11 @@
+"use client";
 /**
  * @module components/modules/users/user-status-badge
  * Displays user active/inactive/pending status as a colored badge.
  * Pure presentational — no data fetching, no side effects.
  */
 
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 interface UserStatusBadgeProps {
@@ -13,6 +15,7 @@ interface UserStatusBadgeProps {
 }
 
 export function UserStatusBadge({ isActive, isApproved, className }: UserStatusBadgeProps) {
+  const t = useTranslations("statusBadge.user");
   if (!isApproved) {
     return (
       <span className={cn(
@@ -20,7 +23,7 @@ export function UserStatusBadge({ isActive, isApproved, className }: UserStatusB
         "bg-amber-500/15 text-amber-500 border border-amber-500/30",
         className
       )}>
-        ממתין
+        {t("pending")}
       </span>
     );
   }
@@ -32,7 +35,7 @@ export function UserStatusBadge({ isActive, isApproved, className }: UserStatusB
         "bg-muted text-muted-foreground border border-border",
         className
       )}>
-        לא פעיל
+        {t("inactive")}
       </span>
     );
   }
@@ -43,7 +46,7 @@ export function UserStatusBadge({ isActive, isApproved, className }: UserStatusB
       "bg-emerald-500/15 text-emerald-500 border border-emerald-500/30",
       className
     )}>
-      פעיל
+      {t("active")}
     </span>
   );
 }

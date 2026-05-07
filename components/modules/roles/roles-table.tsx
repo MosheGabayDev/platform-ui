@@ -5,8 +5,10 @@
  * Calls no APIs — receives data via props.
  */
 
+import { useMemo } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, Pencil } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DataTable } from "@/components/shared/data-table";
@@ -25,6 +27,7 @@ interface RolesTableProps {
 }
 
 function buildColumns(
+  tCols: (k: string) => string,
   onEditClick?: (role: RoleSummary) => void,
   canEdit?: boolean,
 ): ColumnDef<RoleSummary>[] {
@@ -38,7 +41,7 @@ function buildColumns(
           className="-me-3 h-8 font-medium"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          שם תפקיד
+          {tCols("name")}
           <ArrowUpDown className="me-2 size-3.5 opacity-50" />
         </Button>
       ),
@@ -55,7 +58,7 @@ function buildColumns(
     },
     {
       accessorKey: "permission_count",
-      header: "הרשאות",
+      header: tCols("permissions"),
       cell: ({ row }) => (
         <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-violet-500/15 text-violet-600 border border-violet-500/30">
           {row.original.permission_count}
@@ -64,7 +67,7 @@ function buildColumns(
     },
     {
       accessorKey: "user_count",
-      header: "משתמשים",
+      header: tCols("users"),
       cell: ({ row }) => (
         <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-blue-500/15 text-blue-600 border border-blue-500/30">
           {row.original.user_count}
@@ -73,7 +76,7 @@ function buildColumns(
     },
     {
       accessorKey: "created_at",
-      header: "נוצר",
+      header: tCols("createdAt"),
       cell: ({ row }) => (
         <span className="text-xs text-muted-foreground">
           {formatDate(row.original.created_at)}
@@ -115,20 +118,25 @@ export function RolesTable({
   onEditClick,
   canEdit,
 }: RolesTableProps) {
-  const columns = buildColumns(onEditClick, canEdit);
+  const tCols = useTranslations("roles.table.columns");
+  const tSearch = useTranslations("roles.table.search");
+  const columns = useMemo(
+    () => buildColumns((k) => tCols(k), onEditClick, canEdit),
+    [tCols, onEditClick, canEdit],
+  );
 
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-3">
         <Input
-          placeholder="חיפוש לפי שם תפקיד..."
+          placeholder={tSearch("placeholder")}
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           className="max-w-xs h-8 text-sm"
           dir="rtl"
         />
         <span className="text-xs text-muted-foreground me-auto">
-          {total} תפקידים סה״כ
+          {tSearch("total", { count: total })}
         </span>
       </div>
 
@@ -137,7 +145,7 @@ export function RolesTable({
         data={roles}
         isLoading={isLoading}
         onRowClick={onRowClick}
-        emptyMessage="לא נמצאו תפקידים"
+        emptyMessage={tSearch("empty")}
         loadingRows={5}
       />
     </div>

@@ -16,6 +16,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import {
@@ -55,6 +56,7 @@ function ActiveToggle({
   onChange: (v: boolean) => void;
   disabled?: boolean;
 }) {
+  const t = useTranslations("organizations.form.fields");
   return (
     <label className="flex items-start gap-3 rounded-lg border border-border/50 px-3 py-2.5 cursor-pointer hover:bg-muted/40 transition-colors">
       <input
@@ -65,10 +67,8 @@ function ActiveToggle({
         className="mt-0.5 size-4 rounded border-border accent-primary"
       />
       <div className="leading-none">
-        <span className="text-sm font-medium">ארגון פעיל</span>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          ביטול הסימון ינעל גישה לכל משתמשי הארגון
-        </p>
+        <span className="text-sm font-medium">{t("isActive")}</span>
+        <p className="text-xs text-muted-foreground mt-0.5">{t("isActiveDescription")}</p>
       </div>
     </label>
   );
@@ -95,6 +95,8 @@ export interface OrgCreateSheetProps {
 }
 
 export function OrgCreateSheet({ open, onOpenChange, onSuccess }: OrgCreateSheetProps) {
+  const t = useTranslations("organizations.form");
+  const tFields = useTranslations("organizations.form.fields");
   const router = useRouter();
 
   const form = useForm<CreateOrgInput>({
@@ -112,7 +114,7 @@ export function OrgCreateSheet({ open, onOpenChange, onSuccess }: OrgCreateSheet
     invalidateKeys: [queryKeys.orgs.all(), queryKeys.orgs.stats()],
     onSuccess: (data) => {
       const { id, name } = data.data.org;
-      toast.success(`ארגון "${name}" נוצר בהצלחה`);
+      toast.success(t("create.toast", { name }));
       onSuccess?.(id);
       onOpenChange(false);
       router.push(`/organizations/${id}`);
@@ -151,22 +153,22 @@ export function OrgCreateSheet({ open, onOpenChange, onSuccess }: OrgCreateSheet
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
         <SheetHeader className="mb-4">
-          <SheetTitle>יצירת ארגון חדש</SheetTitle>
-          <SheetDescription>ארגונים הם מרחב מאובטח לקבוצת משתמשים</SheetDescription>
+          <SheetTitle>{t("create.title")}</SheetTitle>
+          <SheetDescription>{t("create.description")}</SheetDescription>
         </SheetHeader>
 
-        <PlatformForm onSubmit={onSubmit} isSubmitting={isPending} ariaLabel="טופס יצירת ארגון">
+        <PlatformForm onSubmit={onSubmit} isSubmitting={isPending} ariaLabel={t("create.aria")}>
           <FormError error={serverError} />
 
           <FieldRow>
             <Label htmlFor="org_name">
-              שם ארגון <span className="text-destructive">*</span>
+              {tFields("name")} <span className="text-destructive">*</span>
             </Label>
             <Input
               id="org_name"
               {...form.register("name")}
               disabled={isPending}
-              placeholder='לדוגמה: "Acme Corp"'
+              placeholder={tFields("namePlaceholder")}
               dir="rtl"
             />
             <FieldError message={errors.name?.message} />
@@ -174,29 +176,27 @@ export function OrgCreateSheet({ open, onOpenChange, onSuccess }: OrgCreateSheet
 
           <FieldRow>
             <Label htmlFor="org_slug">
-              Slug <span className="text-destructive">*</span>
+              {tFields("slug")} <span className="text-destructive">*</span>
             </Label>
             <Input
               id="org_slug"
               {...form.register("slug")}
               disabled={isPending}
-              placeholder="acme-corp"
+              placeholder={tFields("slugPlaceholder")}
               dir="ltr"
               className="font-mono text-sm"
             />
-            <p className="text-xs text-muted-foreground">
-              מזהה ייחודי — אותיות קטנות, מספרים ומקפים בלבד. לא ניתן לשינוי לאחר יצירה.
-            </p>
+            <p className="text-xs text-muted-foreground">{tFields("slugHelp")}</p>
             <FieldError message={errors.slug?.message} />
           </FieldRow>
 
           <FieldRow>
-            <Label htmlFor="org_description">תיאור</Label>
+            <Label htmlFor="org_description">{tFields("description")}</Label>
             <Input
               id="org_description"
               {...form.register("description")}
               disabled={isPending}
-              placeholder="תיאור קצר של הארגון (אופציונלי)"
+              placeholder={tFields("descriptionPlaceholder")}
               dir="rtl"
             />
             <FieldError message={errors.description?.message} />
@@ -209,7 +209,7 @@ export function OrgCreateSheet({ open, onOpenChange, onSuccess }: OrgCreateSheet
           />
 
           <FormActions
-            submitLabel="צור ארגון"
+            submitLabel={t("create.cta")}
             onCancel={() => onOpenChange(false)}
             isSubmitting={isPending}
           />
@@ -229,6 +229,8 @@ export interface OrgEditSheetProps {
 }
 
 export function OrgEditSheet({ org, open, onOpenChange, onSuccess }: OrgEditSheetProps) {
+  const t = useTranslations("organizations.form");
+  const tFields = useTranslations("organizations.form.fields");
   const form = useForm<EditOrgInput>({
     resolver: zodResolver(editOrgSchema),
     defaultValues: buildEditDefaults(org),
@@ -244,7 +246,7 @@ export function OrgEditSheet({ org, open, onOpenChange, onSuccess }: OrgEditShee
       ? [queryKeys.orgs.detail(org.id), queryKeys.orgs.all(), queryKeys.orgs.stats()]
       : [],
     onSuccess: (data) => {
-      toast.success("פרטי הארגון עודכנו");
+      toast.success(t("edit.toast"));
       onSuccess?.(data.data.org);
       onOpenChange(false);
     },
@@ -267,7 +269,7 @@ export function OrgEditSheet({ org, open, onOpenChange, onSuccess }: OrgEditShee
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
         <SheetHeader className="mb-4">
-          <SheetTitle>עריכת ארגון</SheetTitle>
+          <SheetTitle>{t("edit.title")}</SheetTitle>
           {org && (
             <SheetDescription>
               {org.name}
@@ -277,12 +279,12 @@ export function OrgEditSheet({ org, open, onOpenChange, onSuccess }: OrgEditShee
           )}
         </SheetHeader>
 
-        <PlatformForm onSubmit={onSubmit} isSubmitting={isPending} ariaLabel="טופס עריכת ארגון">
+        <PlatformForm onSubmit={onSubmit} isSubmitting={isPending} ariaLabel={t("edit.aria")}>
           <FormError error={serverError} />
 
           <FieldRow>
             <Label htmlFor="edit_org_name">
-              שם ארגון <span className="text-destructive">*</span>
+              {tFields("name")} <span className="text-destructive">*</span>
             </Label>
             <Input
               id="edit_org_name"
@@ -296,7 +298,7 @@ export function OrgEditSheet({ org, open, onOpenChange, onSuccess }: OrgEditShee
           {/* Slug is immutable — shown read-only for transparency */}
           {org && (
             <FieldRow>
-              <Label className="text-muted-foreground">Slug (לא ניתן לשינוי)</Label>
+              <Label className="text-muted-foreground">{tFields("slugReadonly")}</Label>
               <div className="rounded-md border border-border/50 bg-muted/30 px-3 py-2 text-sm font-mono text-muted-foreground">
                 {org.slug}
               </div>
@@ -304,7 +306,7 @@ export function OrgEditSheet({ org, open, onOpenChange, onSuccess }: OrgEditShee
           )}
 
           <FieldRow>
-            <Label htmlFor="edit_org_description">תיאור</Label>
+            <Label htmlFor="edit_org_description">{tFields("description")}</Label>
             <Input
               id="edit_org_description"
               {...form.register("description")}
@@ -321,7 +323,7 @@ export function OrgEditSheet({ org, open, onOpenChange, onSuccess }: OrgEditShee
           />
 
           <FormActions
-            submitLabel="שמור שינויים"
+            submitLabel={t("edit.cta")}
             onCancel={() => onOpenChange(false)}
             isSubmitting={isPending}
           />

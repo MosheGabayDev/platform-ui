@@ -1,9 +1,11 @@
+"use client";
 /**
  * @module components/modules/organizations/org-status-badge
  * Displays organization active/inactive status as a colored badge.
  * Pure presentational — no data fetching, no side effects.
  */
 
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 interface OrgStatusBadgeProps {
@@ -12,6 +14,7 @@ interface OrgStatusBadgeProps {
 }
 
 export function OrgStatusBadge({ isActive, className }: OrgStatusBadgeProps) {
+  const t = useTranslations("statusBadge.org");
   if (!isActive) {
     return (
       <span className={cn(
@@ -19,7 +22,7 @@ export function OrgStatusBadge({ isActive, className }: OrgStatusBadgeProps) {
         "bg-muted text-muted-foreground border border-border",
         className
       )}>
-        לא פעיל
+        {t("inactive")}
       </span>
     );
   }
@@ -30,7 +33,7 @@ export function OrgStatusBadge({ isActive, className }: OrgStatusBadgeProps) {
       "bg-emerald-500/15 text-emerald-500 border border-emerald-500/30",
       className
     )}>
-      פעיל
+      {t("active")}
     </span>
   );
 }

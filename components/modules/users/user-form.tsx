@@ -16,6 +16,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import {
@@ -115,6 +116,7 @@ function RoleSelect({
   onChange: (v: number | null) => void;
   disabled?: boolean;
 }) {
+  const t = useTranslations("users.form.fields");
   const { data } = useQuery({
     queryKey: queryKeys.roles.list(),
     queryFn: fetchRoles,
@@ -130,7 +132,7 @@ function RoleSelect({
       disabled={disabled}
       className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50"
     >
-      <option value="">ללא תפקיד</option>
+      <option value="">{t("noRole")}</option>
       {roles.map((r) => (
         <option key={r.id} value={r.id}>
           {r.name}
@@ -149,6 +151,10 @@ export interface UserCreateSheetProps {
 }
 
 export function UserCreateSheet({ open, onOpenChange, onSuccess }: UserCreateSheetProps) {
+  const t = useTranslations("users.form");
+  const tFields = useTranslations("users.form.fields");
+  const tDesc = useTranslations("users.form.descriptions");
+
   const form = useForm<CreateUserInput>({
     resolver: zodResolver(createUserSchema),
     defaultValues: {
@@ -167,19 +173,18 @@ export function UserCreateSheet({ open, onOpenChange, onSuccess }: UserCreateShe
     mutationFn: createUser,
     invalidateKeys: [queryKeys.users.all(), queryKeys.users.stats()],
     onSuccess: (data) => {
-      toast.success(`משתמש "${data.data.user.username}" נוצר בהצלחה`);
+      toast.success(t("create.toast", { username: data.data.user.username }));
       onSuccess?.(data.data.user);
       onOpenChange(false);
     },
   });
 
-  // Reset form + mutation state when sheet closes
   useEffect(() => {
     if (!open) {
       form.reset();
       reset();
     }
-  }, [open, reset]); // form.reset stable (RHF)
+  }, [open, reset]);
 
   const onSubmit = form.handleSubmit(async (values) => {
     await mutateAsync({
@@ -195,27 +200,25 @@ export function UserCreateSheet({ open, onOpenChange, onSuccess }: UserCreateShe
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto px-6 pt-6 pb-6">
         <SheetHeader className="mb-4 px-0 pt-0">
-          <SheetTitle>הוספת משתמש חדש</SheetTitle>
-          <SheetDescription>
-            המשתמש יווצר עם סיסמה ויהיה פעיל ומאושר מיד
-          </SheetDescription>
+          <SheetTitle>{t("create.title")}</SheetTitle>
+          <SheetDescription>{t("create.description")}</SheetDescription>
         </SheetHeader>
 
         <PlatformForm
           onSubmit={onSubmit}
           isSubmitting={isPending}
-          ariaLabel="טופס יצירת משתמש"
+          ariaLabel={t("create.aria")}
         >
           <FormError error={serverError} />
 
           <div className="grid grid-cols-2 gap-3">
             <FieldRow>
-              <Label htmlFor="first_name">שם פרטי</Label>
+              <Label htmlFor="first_name">{tFields("firstName")}</Label>
               <Input id="first_name" {...form.register("first_name")} disabled={isPending} />
               <FieldError message={errors.first_name?.message} />
             </FieldRow>
             <FieldRow>
-              <Label htmlFor="last_name">שם משפחה</Label>
+              <Label htmlFor="last_name">{tFields("lastName")}</Label>
               <Input id="last_name" {...form.register("last_name")} disabled={isPending} />
               <FieldError message={errors.last_name?.message} />
             </FieldRow>
@@ -223,7 +226,7 @@ export function UserCreateSheet({ open, onOpenChange, onSuccess }: UserCreateShe
 
           <FieldRow>
             <Label htmlFor="username">
-              שם משתמש <span className="text-destructive">*</span>
+              {tFields("username")} <span className="text-destructive">*</span>
             </Label>
             <Input
               id="username"
@@ -236,7 +239,7 @@ export function UserCreateSheet({ open, onOpenChange, onSuccess }: UserCreateShe
 
           <FieldRow>
             <Label htmlFor="email">
-              אימייל <span className="text-destructive">*</span>
+              {tFields("email")} <span className="text-destructive">*</span>
             </Label>
             <Input
               id="email"
@@ -250,7 +253,7 @@ export function UserCreateSheet({ open, onOpenChange, onSuccess }: UserCreateShe
 
           <FieldRow>
             <Label htmlFor="password">
-              סיסמה <span className="text-destructive">*</span>
+              {tFields("password")} <span className="text-destructive">*</span>
             </Label>
             <Input
               id="password"
@@ -263,7 +266,7 @@ export function UserCreateSheet({ open, onOpenChange, onSuccess }: UserCreateShe
           </FieldRow>
 
           <FieldRow>
-            <Label htmlFor="role_id">תפקיד</Label>
+            <Label htmlFor="role_id">{tFields("role")}</Label>
             <RoleSelect
               value={form.watch("role_id")}
               onChange={(v) => form.setValue("role_id", v, { shouldValidate: true })}
@@ -272,19 +275,21 @@ export function UserCreateSheet({ open, onOpenChange, onSuccess }: UserCreateShe
           </FieldRow>
 
           <div className="space-y-2 pt-1">
-            <Label className="text-xs text-muted-foreground uppercase tracking-wide">הרשאות</Label>
+            <Label className="text-xs text-muted-foreground uppercase tracking-wide">
+              {t("sections.permissions")}
+            </Label>
             <CheckRow
               id="is_admin"
-              label="אדמין"
-              description="גישה לכל האזורים וניהול משתמשים"
+              label={tFields("admin")}
+              description={tDesc("admin")}
               checked={form.watch("is_admin")}
               onChange={(v) => form.setValue("is_admin", v)}
               disabled={isPending}
             />
             <CheckRow
               id="is_manager"
-              label="מנהל"
-              description="אישור כרטיסים ופיקוח על צוות"
+              label={tFields("manager")}
+              description={tDesc("manager")}
               checked={form.watch("is_manager")}
               onChange={(v) => form.setValue("is_manager", v)}
               disabled={isPending}
@@ -292,7 +297,7 @@ export function UserCreateSheet({ open, onOpenChange, onSuccess }: UserCreateShe
           </div>
 
           <FormActions
-            submitLabel="צור משתמש"
+            submitLabel={t("create.cta")}
             onCancel={() => onOpenChange(false)}
             isSubmitting={isPending}
           />
@@ -326,12 +331,15 @@ export function UserEditSheet({
   isSystemAdmin = false,
   onSuccess,
 }: UserEditSheetProps) {
+  const t = useTranslations("users.form");
+  const tFields = useTranslations("users.form.fields");
+  const tDesc = useTranslations("users.form.descriptions");
+
   const form = useForm<EditUserInput>({
     resolver: zodResolver(editUserSchema),
     defaultValues: buildEditDefaults(user),
   });
 
-  // Re-populate when `user` changes (e.g. navigating between users)
   useEffect(() => {
     if (user) form.reset(buildEditDefaults(user));
   }, [user, form]);
@@ -342,7 +350,7 @@ export function UserEditSheet({
       ? [queryKeys.users.detail(user.id), queryKeys.users.all(), queryKeys.users.stats()]
       : [],
     onSuccess: (data) => {
-      toast.success("פרטי המשתמש עודכנו");
+      toast.success(t("edit.toast"));
       onSuccess?.(data.data.user);
       onOpenChange(false);
     },
@@ -366,7 +374,7 @@ export function UserEditSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto px-6 pt-6 pb-6">
         <SheetHeader className="mb-4 px-0 pt-0">
-          <SheetTitle>עריכת משתמש</SheetTitle>
+          <SheetTitle>{t("edit.title")}</SheetTitle>
           {user && (
             <SheetDescription>
               {user.name} · {user.email}
@@ -377,78 +385,78 @@ export function UserEditSheet({
         <PlatformForm
           onSubmit={onSubmit}
           isSubmitting={isPending}
-          ariaLabel="טופס עריכת משתמש"
+          ariaLabel={t("edit.aria")}
         >
           <FormError error={serverError} />
 
-          <FormSection title="פרופיל">
+          <FormSection title={t("sections.profile")}>
             <div className="grid grid-cols-2 gap-3">
               <FieldRow>
-                <Label htmlFor="edit_first_name">שם פרטי</Label>
+                <Label htmlFor="edit_first_name">{tFields("firstName")}</Label>
                 <Input id="edit_first_name" {...form.register("first_name")} disabled={isPending} />
                 <FieldError message={errors.first_name?.message} />
               </FieldRow>
               <FieldRow>
-                <Label htmlFor="edit_last_name">שם משפחה</Label>
+                <Label htmlFor="edit_last_name">{tFields("lastName")}</Label>
                 <Input id="edit_last_name" {...form.register("last_name")} disabled={isPending} />
                 <FieldError message={errors.last_name?.message} />
               </FieldRow>
             </div>
             <FieldRow>
-              <Label htmlFor="edit_display_name">שם תצוגה</Label>
+              <Label htmlFor="edit_display_name">{tFields("displayName")}</Label>
               <Input id="edit_display_name" {...form.register("display_name")} disabled={isPending} />
               <FieldError message={errors.display_name?.message} />
             </FieldRow>
             <FieldRow>
-              <Label htmlFor="edit_phone">טלפון</Label>
+              <Label htmlFor="edit_phone">{tFields("phone")}</Label>
               <Input id="edit_phone" type="tel" dir="ltr" {...form.register("phone")} disabled={isPending} />
               <FieldError message={errors.phone?.message} />
             </FieldRow>
             <FieldRow>
-              <Label htmlFor="edit_bio">ביוגרפיה</Label>
+              <Label htmlFor="edit_bio">{tFields("bio")}</Label>
               <Textarea id="edit_bio" rows={3} {...form.register("bio")} disabled={isPending} className="resize-none" />
               <FieldError message={errors.bio?.message} />
             </FieldRow>
             <div className="grid grid-cols-2 gap-3">
               <FieldRow>
-                <Label htmlFor="edit_language">שפה מועדפת</Label>
+                <Label htmlFor="edit_language">{tFields("preferredLanguage")}</Label>
                 <Input id="edit_language" placeholder="he / en" dir="ltr" {...form.register("preferred_language")} disabled={isPending} />
                 <FieldError message={errors.preferred_language?.message} />
               </FieldRow>
               <FieldRow>
-                <Label htmlFor="edit_timezone">אזור זמן</Label>
+                <Label htmlFor="edit_timezone">{tFields("timezone")}</Label>
                 <Input id="edit_timezone" placeholder="Asia/Jerusalem" dir="ltr" {...form.register("timezone")} disabled={isPending} />
                 <FieldError message={errors.timezone?.message} />
               </FieldRow>
             </div>
           </FormSection>
 
-          <FormSection title="התראות">
-            <CheckRow id="edit_email_notifications" label="התראות במייל" checked={form.watch("email_notifications")} onChange={(v) => form.setValue("email_notifications", v)} disabled={isPending} />
-            <CheckRow id="edit_security_alerts" label="התראות אבטחה" checked={form.watch("security_alerts")} onChange={(v) => form.setValue("security_alerts", v)} disabled={isPending} />
-            <CheckRow id="edit_system_updates" label="עדכוני מערכת" checked={form.watch("system_updates")} onChange={(v) => form.setValue("system_updates", v)} disabled={isPending} />
+          <FormSection title={t("sections.notifications")}>
+            <CheckRow id="edit_email_notifications" label={tFields("emailNotifications")} checked={form.watch("email_notifications")} onChange={(v) => form.setValue("email_notifications", v)} disabled={isPending} />
+            <CheckRow id="edit_security_alerts" label={tFields("securityAlerts")} checked={form.watch("security_alerts")} onChange={(v) => form.setValue("security_alerts", v)} disabled={isPending} />
+            <CheckRow id="edit_system_updates" label={tFields("systemUpdates")} checked={form.watch("system_updates")} onChange={(v) => form.setValue("system_updates", v)} disabled={isPending} />
           </FormSection>
 
           {isAdmin && (
             <>
-              <FormSection title="חשבון">
+              <FormSection title={t("sections.account")}>
                 <FieldRow>
-                  <Label htmlFor="edit_username">שם משתמש</Label>
+                  <Label htmlFor="edit_username">{tFields("username")}</Label>
                   <Input id="edit_username" dir="ltr" {...form.register("username")} disabled={isPending} />
                   <FieldError message={errors.username?.message} />
                 </FieldRow>
                 <FieldRow>
-                  <Label htmlFor="edit_email">אימייל</Label>
+                  <Label htmlFor="edit_email">{tFields("email")}</Label>
                   <Input id="edit_email" type="email" dir="ltr" {...form.register("email")} disabled={isPending} />
                   <FieldError message={errors.email?.message} />
                 </FieldRow>
                 <FieldRow>
-                  <Label htmlFor="edit_job_title">כותרת תפקיד</Label>
+                  <Label htmlFor="edit_job_title">{tFields("jobTitle")}</Label>
                   <Input id="edit_job_title" {...form.register("job_title")} disabled={isPending} />
                   <FieldError message={errors.job_title?.message} />
                 </FieldRow>
                 <FieldRow>
-                  <Label htmlFor="edit_role_id">תפקיד</Label>
+                  <Label htmlFor="edit_role_id">{tFields("role")}</Label>
                   <RoleSelect
                     value={form.watch("role_id")}
                     onChange={(v) => form.setValue("role_id", v, { shouldValidate: true })}
@@ -457,36 +465,36 @@ export function UserEditSheet({
                 </FieldRow>
               </FormSection>
 
-              <FormSection title="הרשאות">
+              <FormSection title={t("sections.permissions")}>
                 {!isSelf && (
-                  <CheckRow id="edit_is_admin" label="אדמין" description="גישה לכל האזורים וניהול משתמשים" checked={form.watch("is_admin")} onChange={(v) => form.setValue("is_admin", v)} disabled={isPending} />
+                  <CheckRow id="edit_is_admin" label={tFields("admin")} description={tDesc("admin")} checked={form.watch("is_admin")} onChange={(v) => form.setValue("is_admin", v)} disabled={isPending} />
                 )}
-                <CheckRow id="edit_is_manager" label="מנהל" description="אישור כרטיסים ופיקוח על צוות" checked={form.watch("is_manager")} onChange={(v) => form.setValue("is_manager", v)} disabled={isPending} />
+                <CheckRow id="edit_is_manager" label={tFields("manager")} description={tDesc("manager")} checked={form.watch("is_manager")} onChange={(v) => form.setValue("is_manager", v)} disabled={isPending} />
                 {!isSelf && (
-                  <CheckRow id="edit_is_active" label="חשבון פעיל" description="ביטול הסימון יחסום כניסה לחשבון" checked={form.watch("is_active")} onChange={(v) => form.setValue("is_active", v)} disabled={isPending} />
+                  <CheckRow id="edit_is_active" label={tFields("isActive")} description={tDesc("isActive")} checked={form.watch("is_active")} onChange={(v) => form.setValue("is_active", v)} disabled={isPending} />
                 )}
                 {!isSelf && (
-                  <CheckRow id="edit_is_approved" label="מאושר" description="משתמש שלא אושר לא יכול להיכנס למערכת" checked={form.watch("is_approved")} onChange={(v) => form.setValue("is_approved", v)} disabled={isPending} />
+                  <CheckRow id="edit_is_approved" label={tFields("isApproved")} description={tDesc("isApproved")} checked={form.watch("is_approved")} onChange={(v) => form.setValue("is_approved", v)} disabled={isPending} />
                 )}
               </FormSection>
 
-              <FormSection title="אבטחה">
-                <CheckRow id="edit_mfa_enabled" label="MFA מופעל" description="אימות דו-שלבי — ניתן לאפס/להפעיל ידנית" checked={form.watch("mfa_enabled")} onChange={(v) => form.setValue("mfa_enabled", v)} disabled={isPending} />
-                <CheckRow id="edit_mfa_exempt" label="פטור מ-MFA" description="המשתמש לא יידרש לאמות ב-MFA גם אם מופעל ברמת ארגון" checked={form.watch("mfa_exempt")} onChange={(v) => form.setValue("mfa_exempt", v)} disabled={isPending} />
-                <CheckRow id="edit_email_confirmed" label="אימייל אומת" description="סימון ידני — מאשר את כתובת האימייל ללא שליחת מייל" checked={form.watch("email_confirmed")} onChange={(v) => form.setValue("email_confirmed", v)} disabled={isPending} />
+              <FormSection title={t("sections.security")}>
+                <CheckRow id="edit_mfa_enabled" label={tFields("mfaEnabled")} description={tDesc("mfaEnabled")} checked={form.watch("mfa_enabled")} onChange={(v) => form.setValue("mfa_enabled", v)} disabled={isPending} />
+                <CheckRow id="edit_mfa_exempt" label={tFields("mfaExempt")} description={tDesc("mfaExempt")} checked={form.watch("mfa_exempt")} onChange={(v) => form.setValue("mfa_exempt", v)} disabled={isPending} />
+                <CheckRow id="edit_email_confirmed" label={tFields("emailConfirmed")} description={tDesc("emailConfirmed")} checked={form.watch("email_confirmed")} onChange={(v) => form.setValue("email_confirmed", v)} disabled={isPending} />
               </FormSection>
             </>
           )}
 
           {isSystemAdmin && !isSelf && (
-            <FormSection title="מנהל מערכת בלבד" variant="warning">
-              <CheckRow id="edit_is_system_admin" label="מנהל מערכת" description="גישה לכל הארגונים ויכולת לנהל מנהלים" checked={form.watch("is_system_admin")} onChange={(v) => form.setValue("is_system_admin", v)} disabled={isPending} />
-              <CheckRow id="edit_auto_approve_commands" label="אישור אוטומטי פקודות" description="הפקודות של משתמש זה יאושרו אוטומטית ללא בקרת אדמין — פעולה רגישה" checked={form.watch("auto_approve_commands")} onChange={(v) => form.setValue("auto_approve_commands", v)} disabled={isPending} />
+            <FormSection title={t("sections.systemAdmin")} variant="warning">
+              <CheckRow id="edit_is_system_admin" label={tFields("isSystemAdmin")} description={tDesc("isSystemAdmin")} checked={form.watch("is_system_admin")} onChange={(v) => form.setValue("is_system_admin", v)} disabled={isPending} />
+              <CheckRow id="edit_auto_approve_commands" label={tFields("autoApprove")} description={tDesc("autoApprove")} checked={form.watch("auto_approve_commands")} onChange={(v) => form.setValue("auto_approve_commands", v)} disabled={isPending} />
             </FormSection>
           )}
 
           <FormActions
-            submitLabel="שמור שינויים"
+            submitLabel={t("edit.cta")}
             onCancel={() => onOpenChange(false)}
             isSubmitting={isPending}
           />
