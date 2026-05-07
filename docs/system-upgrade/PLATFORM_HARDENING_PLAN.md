@@ -232,16 +232,16 @@ edit / delete / duplicate" affordance, and they're scattered or absent.
 
 | # | Item | Status |
 |---|---|---|
-| C1 | `components/shared/record-detail/types.ts` — `RecordAction<T>`, `RecordDetailConfig<T>` | [ ] |
-| C2 | `components/shared/record-detail/record-detail-pane.tsx` — slide-over with sections + footer actions | [ ] |
-| C3 | `components/shared/record-detail/record-actions-menu.tsx` — DropdownMenu for table rows | [ ] |
-| C4 | `components/shared/record-detail/use-record-actions.ts` — hook wiring confirm + mutation + toast | [ ] |
-| C5 | RBAC: each action gates on `usePermission(action.requiredPermission)` | [ ] |
+| C1 | `components/shared/record-detail/types.ts` — `RecordAction<T>`, `RecordDetailConfig<T>` | [x] |
+| C2 | `components/shared/record-detail/record-detail-pane.tsx` — slide-over with sections + footer actions | [x] |
+| C3 | `components/shared/record-detail/record-actions-menu.tsx` — DropdownMenu for table rows | [x] |
+| C4 | `components/shared/record-detail/use-record-actions.ts` — hook wiring confirm + mutation + toast | [x] |
+| C5 | RBAC: each action gates on `requiredRoles` / `requiredPermission` via `usePermission` | [x] |
 | C6 | Adoption: `/users` (view + edit + deactivate + duplicate as new-user template) | [ ] |
 | C7 | Adoption: `/helpdesk/tickets` (view + edit + delete (admin) + duplicate) | [ ] |
 | C8 | Adoption: `/admin/policies` (view + edit + duplicate; delete only system_admin) | [ ] |
 | C9 | Adoption: `/admin/ai-skills` (view; edit/delete are out of scope for now) | [ ] |
-| C10 | Tests: 1 component test + 1 RBAC integration test per action kind | [ ] |
+| C10 | Tests: hook tests cover RBAC + visibleWhen + invocation + pending + cancel; menu has render-smoke tests (Radix Portal interactions deferred to E2E) | [x] (14 tests) |
 
 ### Action semantics
 
