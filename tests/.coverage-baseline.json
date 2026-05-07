@@ -18,11 +18,11 @@
       "note": "Above ADR-042 95% floor (2026-05-03). options.flask.test.ts adds 19 tests covering authorizeWithFlask happy/error paths, refreshAccessToken (Flask + mock branches), jwt() callback first sign-in/reuse/refresh, session() callback (asserts refreshToken NEVER leaks to client), and signOut event. 24.48% → 100% lines."
     },
     "lib/hooks/": {
-      "lines": 59.61,
-      "branches": 44.68,
-      "functions": 64.04,
+      "lines": 60.12,
+      "branches": 50.7,
+      "functions": 66.42,
       "target_floor": 80,
-      "note": "Lifted from 53.37% by Phase 2 hook tests (use-policy-decision, use-setting, use-enabled-modules, use-ai-provider-configs/skills/usage). 2026-05-06."
+      "note": "Lifted from 59.61% by use-nav-groups.test.tsx (Track E follow-up coverage). 2026-05-07."
     },
     "lib/modules/": {
       "lines": 11.11,
@@ -32,18 +32,18 @@
       "note": "Lifted from 6.06% by Phase 2 module type files (ai-providers, ai-skills, ai-usage, policies). Most schemas are declarations and don't move the line %; helpers (e.g. isTerminalStatus) do. 2026-05-06."
     },
     "lib/platform/": {
-      "lines": 47.52,
+      "lines": 62.41,
       "branches": 0,
       "functions": 0,
       "target_floor": 70,
-      "note": "Lifted from 38.32% by Phase 2.4–2.5 — audit-emitter + executors runActionExecutor + demo-slice integration test all exercise lib/platform/ai-actions/ + ai-skills/registry. 2026-05-06."
+      "note": "Lifted from 47.52% by Track C primitive tests + indirect coverage from new adoption sites. 2026-05-07. Approaching target floor (70%)."
     },
     "lib/utils/": {
-      "lines": 28.57,
+      "lines": 100,
       "branches": 100,
-      "functions": 0,
+      "functions": 100,
       "target_floor": 70,
-      "note": "Lifted from 0% by sanitize-excerpt.ts tests (2026-05-03). csv.ts still untested."
+      "note": "TARGET FLOOR EXCEEDED. Lifted from 28.57% by csv.test.ts + format.test.ts (Track D coverage sprint). 2026-05-07."
     },
     "lib/utils.ts": {
       "lines": 100,
@@ -53,18 +53,18 @@
       "note": "Smoke test added in R-OPS-01 T01 — this file is the only fully-covered surface"
     },
     "components/shared/": {
-      "lines": 24.58,
+      "lines": 34.09,
       "branches": 0,
       "functions": 0,
       "target_floor": 70,
-      "note": "Lifted from 12.12% — Wizard primitive component tests + indirect coverage from Phase 2 admin-page render paths (2026-05-06)."
+      "note": "Lifted from 24.58% by Track C primitive tests (record-detail) + Track E provider tests. 2026-05-07."
     },
     "components/shell/": {
-      "lines": 19.88,
+      "lines": 27.12,
       "branches": 14,
       "functions": 17.18,
       "target_floor": 50,
-      "note": "Reset 2026-05-03 after Round 2 HIGH #1 — sentinel-based sanitizeExcerpt + defense-in-depth comments increase command-palette.tsx code surface; coverage % drop is structural, not test regression. Sanitizer logic itself is covered by command-palette.sanitizer.test.tsx (7 tests)."
+      "note": "Lifted from 19.88% by Track E onboarding-tour test + intl-provider test. 2026-05-07."
     },
     "app/api/proxy/": {
       "lines": 0,
