@@ -27,6 +27,23 @@ export interface UsageSummary {
   seats: { used: number; limit: number };
 }
 
+/**
+ * Daily usage point for the per-org metering chart (cap 19 + §3 task 6.11).
+ * Backend MUST aggregate by day in the org's billing timezone (UTC for
+ * mock; configurable per org once 5B Settings BE lands).
+ */
+export interface UsagePoint {
+  /** ISO date prefix YYYY-MM-DD. */
+  date: string;
+  tokens: number;
+  api_calls: number;
+}
+
+export interface UsageSeriesResponse {
+  success: boolean;
+  data: { series: UsagePoint[] };
+}
+
 export interface Invoice {
   id: string;
   /** ISO timestamp the invoice closed. */

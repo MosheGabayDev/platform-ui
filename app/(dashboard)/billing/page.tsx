@@ -22,6 +22,7 @@ import { ErrorState } from "@/components/shared/error-state";
 import { fetchBillingOverview, MOCK_MODE } from "@/lib/api/billing";
 import { queryKeys } from "@/lib/api/query-keys";
 import { formatDate } from "@/lib/utils/format";
+import { UsageChart } from "@/components/modules/billing/usage-chart";
 import type { Invoice, PlanTier, InvoiceStatus } from "@/lib/modules/billing/types";
 
 const PLAN_TIER_BADGE: Record<PlanTier, string> = {
@@ -182,6 +183,8 @@ export default function BillingPage() {
               <UsageGauge label={tUsage("seats")} used={overview.usage.seats.used} limit={overview.usage.seats.limit} of={tUsage("of")} />
             </div>
           </div>
+
+          <UsageChart />
 
           <div className="glass border-border/50 rounded-xl overflow-hidden">
             <div className="px-5 py-3 border-b border-border/40">

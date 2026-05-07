@@ -54,6 +54,18 @@ describe("DOCS_CATALOG invariants", () => {
     }
     expect(counts.get("quick-start")).toBeGreaterThan(0);
     expect(counts.get("platform")).toBeGreaterThan(0);
+    // 2026-05-07 §7 task 10.08 — KB scaffolding categories.
+    expect(counts.get("troubleshooting")).toBeGreaterThanOrEqual(3);
+    expect(counts.get("best-practices")).toBeGreaterThanOrEqual(3);
+    expect(counts.get("faq")).toBeGreaterThanOrEqual(3);
+  });
+
+  it("KB scaffolding articles all have body keys (full content, not just summary)", () => {
+    for (const a of DOCS_CATALOG.articles) {
+      if (a.category === "troubleshooting" || a.category === "best-practices" || a.category === "faq") {
+        expect(a.bodyKey, `article ${a.id} missing bodyKey`).toBeTruthy();
+      }
+    }
   });
 
   it("aiShortcuts and keyboardShortcuts are non-empty", () => {

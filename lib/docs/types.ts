@@ -13,7 +13,11 @@ export type DocCategory =
   | "quick-start"
   | "ai-cheatsheet"
   | "shortcuts"
-  | "platform";
+  | "platform"
+  // Added 2026-05-07 for §7 task 10.08 KB scaffolding.
+  | "troubleshooting"
+  | "best-practices"
+  | "faq";
 
 export interface DocArticle {
   id: string;

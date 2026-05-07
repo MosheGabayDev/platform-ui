@@ -82,8 +82,10 @@ export const queryKeys = {
 
   // Phase 6: Billing (mock pre-Stripe — see PRODUCT_LAUNCH_PLAN.md §3)
   billing: {
-    all:      () => ["billing"]                  as const,
-    overview: () => ["billing", "overview"]      as const,
+    all:         () => ["billing"]                          as const,
+    overview:    () => ["billing", "overview"]              as const,
+    usageSeries: (days: number) =>
+      ["billing", "usage-series", days]                     as const,
   },
 
   // Module 04: Helpdesk (Phase A — list + KPI dashboard)

@@ -285,6 +285,25 @@
       "stats": {
         "flagCount": "{count, plural, =1 {flag אחד} other {# flags}}"
       }
+    },
+    "ipAllowlist": {
+      "title": "רשימת IP מותרים",
+      "subtitle": "הגבל גישה לארגון לפי טווחי IP",
+      "intro": "כשהרשימה לא ריקה, רק קריאות מ-IP אחד מהטווחים יקבלו לוגין. עוזר לעמידה ב-SOC 2 ובמדיניות אבטחת רשת ארגונית.",
+      "enterpriseOnly": "תכונה זו זמינה רק לארגונים בתוכנית Enterprise. שדרג כדי להפעיל.",
+      "upgradeCta": "שדרג ל-Enterprise",
+      "add": "הוסף טווח",
+      "placeholder": "10.0.0.0/8",
+      "remove": "הסר",
+      "save": "שמור שינויים",
+      "saved": "הרשימה נשמרה",
+      "invalidCidr": "CIDR לא תקין. דוגמאות: 192.168.1.0/24 או 10.0.0.0/8",
+      "empty": "אין כתובות ברשימה. כל ה-IPs מותרים.",
+      "columns": {
+        "cidr": "CIDR",
+        "label": "תיאור",
+        "addedAt": "נוסף בתאריך"
+      }
     }
   },
   "nav": {
@@ -978,6 +997,57 @@
       "focusSearch": "פוקוס לחיפוש",
       "showShortcuts": "הצג קיצורי מקלדת",
       "closeOrCancel": "סגור / בטל"
+    },
+    "troubleshooting": {
+      "aiNoResponse": {
+        "title": "הסוכן AI לא מגיב",
+        "summary": "אם הסוכן לא חוזר תוצאה, התחל מבדיקת הספק שמוגדר ב-/admin/ai-providers.",
+        "body": "בדוק את הסטטוס של הספק ב-/admin/ai-providers. אם הוא במצב error, פתח את ה-Configure dialog וודא שמפתח ה-API תקף. אם הוא במצב ok אך התשובות לא מגיעות, ייתכן שיש budget overage — בדוק ב-/admin/ai-usage."
+      },
+      "forbidden403": {
+        "title": "שגיאת 403 בזמן ביצוע פעולה",
+        "summary": "הרשאה חסרה. בדוק תפקיד משתמש או policy חוסמת.",
+        "body": "שגיאת 403 משמעותה שהפעולה דחתה ע״י backend. הסיבות הנפוצות: (1) למשתמש אין את הר ההרשאה הנדרשת — בדוק את התפקיד ב-/users/<id>; (2) פוליסי חוסמת — ראה /admin/policies. אם זוהי AI action, היא עשויה לדרוש אישור — בדוק ב-/helpdesk/approvals."
+      },
+      "sessionExpired": {
+        "title": "הסשן פג בזמן עבודה",
+        "summary": "התחבר מחדש; ה-tokens מתחדשים אוטומטית בדרך כלל.",
+        "body": "אם הסשן נפסק באמצע העבודה, ייתכן שיש בעיה ב-refresh token. נקה cookies של האתר והתחבר מחדש. אם זה ממשיך, פנה לתמיכה."
+      }
+    },
+    "bestPractices": {
+      "secureMfa": {
+        "title": "הפעל MFA לכל אדמין",
+        "summary": "הצעד היחיד החשוב ביותר לאבטחת הארגון.",
+        "body": "בכל ארגון בייצור, ודא ש-MFA פעיל לכל המשתמשים עם is_admin=true. ניתן לאכוף ע״י mfa_required במדיניות הארגון. ראה /admin/settings → \"אבטחה\"."
+      },
+      "apiKeyRotation": {
+        "title": "סובבו מפתחות API לפחות אחת לרבעון",
+        "summary": "מפתחות חיים נצברים אצל לקוחות, על וקטורי attack.",
+        "body": "מפתח שלא חודש יותר מ-90 יום צריך להיות מסומן ברשימה של ה-admin. השתמש ב-/api-keys כדי ליצור מפתח חדש, להעתיק את המפתח החדש לכל הצרכנים, ולחסום את הישן."
+      },
+      "auditLogReview": {
+        "title": "בדקו את audit-log שבועית",
+        "summary": "דגלים אדומים מופיעים שם לפני שיש נזק.",
+        "body": "הקצו שעה שבועית לסקירת /audit-log. סנן לפי category=ai לפעולות אחרות, ובחנו פעולות DESTRUCTIVE לא מוכרות. ייצא ל-CSV (Pro+) לצורך תיעוד compliance."
+      }
+    },
+    "faq": {
+      "pricing": {
+        "title": "איך התמחור עובד?",
+        "summary": "3 רמות: Free / Pro / Enterprise. ראה /billing למצב הנוכחי.",
+        "body": "תמחור מבוסס כמות מושבים + טוקנים בחודש. ראה את ה-/billing לפרטים על התוכנית הנוכחית. שדרוג נעשה דרך פורטל Stripe; downgrade דורש פנייה למכירות."
+      },
+      "dataPrivacy": {
+        "title": "מה קורה עם הנתונים שלי?",
+        "summary": "הנתונים נשארים בארגון שלך; ספקי משנה מוגדרים מראש.",
+        "body": "אנו לא משתפים נתונים בין ארגונים. ראה את רשימת הספקים בכתובת /legal/subprocessors. בנוסף, /legal/security מתעדת מדיניות חשיפת פגיעויות."
+      },
+      "gdpr": {
+        "title": "האם המוצר תואם GDPR?",
+        "summary": "כן — DPA זמין ויש endpoints לייצוא ומחיקה.",
+        "body": "אנו מספקים DPA סטנדרטי ללקוחות EU. ייצוא נתוני משתמש זמין דרך /api/me/export (יופעל ב-§4 7.05). מחיקה (Right to be Forgotten) דרך /api/me/delete (§4 7.06)."
+      }
     }
   },
   "statusBadge": {
@@ -1176,7 +1246,13 @@
         "failed": "נכשל"
       }
     },
-    "backendNotice": "אינטגרציית Stripe תופעל בהשקה. הנתונים המוצגים כאן הם דמו."
+    "backendNotice": "אינטגרציית Stripe תופעל בהשקה. הנתונים המוצגים כאן הם דמו.",
+    "chart": {
+      "title": "שימוש ב-30 הימים האחרונים",
+      "tokens": "טוקנים",
+      "apiCalls": "קריאות API",
+      "loading": "טוען נתוני שימוש..."
+    }
   },
   "upgradeCta": {
     "nearLimit": "אתה משתמש ב-{pct}% מהמכסה החודשית של {metric}. שדרג כדי להמשיך לעבוד ללא הגבלות.",

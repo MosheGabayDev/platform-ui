@@ -481,6 +481,12 @@ describe("module-registry, settings, feature-flags, policies, search, sample-dat
     await m.fetchBillingOverview();
     expect(fetchMock.mock.calls[0]![0]).toContain("/overview");
   });
+  it("billing: fetchUsageSeries GET /usage/series?days=7", async () => {
+    fetchMock.mockResolvedValue(okJson({ data: { series: [] } }));
+    const m = await import("./billing");
+    await m.fetchUsageSeries(7);
+    expect(fetchMock.mock.calls[0]![0]).toContain("/usage/series?days=7");
+  });
   it("signup: submitSignup POSTs to /api/proxy/signup with body", async () => {
     fetchMock.mockResolvedValue(okJson({ success: true }));
     const m = await import("./signup");

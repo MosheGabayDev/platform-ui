@@ -171,6 +171,92 @@ const QUICK_STARTS: DocArticle[] = [
   },
 ];
 
+// 2026-05-07 §7 task 10.08 — KB scaffolding. Three new categories added
+// (troubleshooting / best-practices / faq) with 3 articles each. Tech-
+// writing track owns long-form bodies via the i18n catalog; adding an
+// article = one entry here + matching `help.<category>.<id>.*` keys.
+
+const TROUBLESHOOTING: DocArticle[] = [
+  {
+    id: "ts-ai-no-response",
+    category: "troubleshooting",
+    titleKey: "help.troubleshooting.aiNoResponse.title",
+    summaryKey: "help.troubleshooting.aiNoResponse.summary",
+    bodyKey: "help.troubleshooting.aiNoResponse.body",
+    tags: ["ai", "providers", "error", "troubleshooting"],
+  },
+  {
+    id: "ts-403-forbidden",
+    category: "troubleshooting",
+    titleKey: "help.troubleshooting.forbidden403.title",
+    summaryKey: "help.troubleshooting.forbidden403.summary",
+    bodyKey: "help.troubleshooting.forbidden403.body",
+    tags: ["403", "permissions", "policy", "rbac", "troubleshooting"],
+  },
+  {
+    id: "ts-session-expired",
+    category: "troubleshooting",
+    titleKey: "help.troubleshooting.sessionExpired.title",
+    summaryKey: "help.troubleshooting.sessionExpired.summary",
+    bodyKey: "help.troubleshooting.sessionExpired.body",
+    tags: ["session", "auth", "refresh", "troubleshooting"],
+  },
+];
+
+const BEST_PRACTICES: DocArticle[] = [
+  {
+    id: "bp-secure-mfa",
+    category: "best-practices",
+    titleKey: "help.bestPractices.secureMfa.title",
+    summaryKey: "help.bestPractices.secureMfa.summary",
+    bodyKey: "help.bestPractices.secureMfa.body",
+    tags: ["mfa", "security", "admin", "best-practices"],
+  },
+  {
+    id: "bp-api-key-rotation",
+    category: "best-practices",
+    titleKey: "help.bestPractices.apiKeyRotation.title",
+    summaryKey: "help.bestPractices.apiKeyRotation.summary",
+    bodyKey: "help.bestPractices.apiKeyRotation.body",
+    tags: ["api-keys", "rotation", "security", "best-practices"],
+  },
+  {
+    id: "bp-audit-log-review",
+    category: "best-practices",
+    titleKey: "help.bestPractices.auditLogReview.title",
+    summaryKey: "help.bestPractices.auditLogReview.summary",
+    bodyKey: "help.bestPractices.auditLogReview.body",
+    tags: ["audit", "compliance", "review", "best-practices"],
+  },
+];
+
+const FAQ: DocArticle[] = [
+  {
+    id: "faq-pricing",
+    category: "faq",
+    titleKey: "help.faq.pricing.title",
+    summaryKey: "help.faq.pricing.summary",
+    bodyKey: "help.faq.pricing.body",
+    tags: ["pricing", "plans", "billing", "stripe", "faq"],
+  },
+  {
+    id: "faq-data-privacy",
+    category: "faq",
+    titleKey: "help.faq.dataPrivacy.title",
+    summaryKey: "help.faq.dataPrivacy.summary",
+    bodyKey: "help.faq.dataPrivacy.body",
+    tags: ["privacy", "data", "subprocessors", "faq"],
+  },
+  {
+    id: "faq-gdpr",
+    category: "faq",
+    titleKey: "help.faq.gdpr.title",
+    summaryKey: "help.faq.gdpr.summary",
+    bodyKey: "help.faq.gdpr.body",
+    tags: ["gdpr", "compliance", "eu", "dpa", "faq"],
+  },
+];
+
 const PLATFORM_ARTICLES: DocArticle[] = [
   {
     id: "platform-overview",
@@ -250,7 +336,13 @@ const KEYBOARD_SHORTCUTS: KeyboardShortcut[] = [
 ];
 
 export const DOCS_CATALOG: DocsCatalog = {
-  articles: [...QUICK_STARTS, ...PLATFORM_ARTICLES],
+  articles: [
+    ...QUICK_STARTS,
+    ...TROUBLESHOOTING,
+    ...BEST_PRACTICES,
+    ...FAQ,
+    ...PLATFORM_ARTICLES,
+  ],
   aiShortcuts: AI_SHORTCUTS,
   keyboardShortcuts: KEYBOARD_SHORTCUTS,
 };

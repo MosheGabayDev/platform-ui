@@ -2,7 +2,7 @@
  * Billing client (mock mode) — Stripe-shaped overview envelope.
  */
 import { describe, it, expect } from "vitest";
-import { fetchBillingOverview, MOCK_MODE } from "./billing";
+import { fetchBillingOverview, fetchUsageSeries, buildMockUsageSeries, MOCK_MODE } from "./billing";
 
 describe("billing client (mock mode)", () => {
   it("MOCK_MODE is true until backend lands", () => {
@@ -43,5 +43,41 @@ describe("billing client (mock mode)", () => {
       expect(typeof u.limit).toBe("number");
       expect(u.limit).toBeGreaterThanOrEqual(u.used);
     }
+  });
+});
+
+describe("buildMockUsageSeries (pure helper)", () => {
+  it("returns the requested number of days", () => {
+    expect(buildMockUsageSeries(30)).toHaveLength(30);
+    expect(buildMockUsageSeries(7)).toHaveLength(7);
+  });
+  it("dates are ISO YYYY-MM-DD prefix and ascending", () => {
+    const series = buildMockUsageSeries(5);
+    for (const p of series) {
+      expect(p.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    }
+    for (let i = 1; i < series.length; i++) {
+      expect(series[i]!.date >= series[i - 1]!.date).toBe(true);
+    }
+  });
+  it("each point has positive integer tokens + api_calls", () => {
+    for (const p of buildMockUsageSeries(10)) {
+      expect(p.tokens).toBeGreaterThan(0);
+      expect(p.api_calls).toBeGreaterThan(0);
+      expect(Number.isInteger(p.tokens)).toBe(true);
+      expect(Number.isInteger(p.api_calls)).toBe(true);
+    }
+  });
+});
+
+describe("fetchUsageSeries (mock mode)", () => {
+  it("returns 30 points by default", async () => {
+    const res = await fetchUsageSeries();
+    expect(res.success).toBe(true);
+    expect(res.data.series).toHaveLength(30);
+  });
+  it("respects custom days arg", async () => {
+    const res = await fetchUsageSeries(7);
+    expect(res.data.series).toHaveLength(7);
   });
 });

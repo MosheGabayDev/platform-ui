@@ -135,7 +135,7 @@ without human touch.
 | 6.08 | Email verification: magic link via SES/Postmark | BE | [ ] | |
 | 6.09 | Onboarding email sequence (D0/D1/D7/D14) | Marketing | [ ] | |
 | 6.10 | Trial → paid conversion flow + dunning emails | BE | [ ] | |
-| 6.11 | Usage metering: tokens / API calls / seats per tenant | BE | [ ] | Feeds Stripe metered usage |
+| 6.11 | Usage metering: tokens / API calls / seats per tenant | BE | [partial] 2026-05-07 | FE display shipped — `components/modules/billing/usage-chart.tsx` renders a 30-day dual-series Recharts area chart (tokens left axis, api_calls right) on /billing. Subscribes to `queryKeys.billing.usageSeries(days)`. New `lib/api/billing.ts.fetchUsageSeries()` + `buildMockUsageSeries()` pure helper. New types `UsagePoint` + `UsageSeriesResponse`. 9 tests (4 chart smoke + 3 helper invariants + 2 client). Stripe metered-usage write path still BE-side — FE is read-only display. |
 | 6.12 | Cap 19 PlatformTenantContext extension: plan tier + entitlements | FE+BE | [partial] 2026-05-07 | FE side complete: `lib/hooks/use-tenant-context.ts` returns `{ org_id, user_id, role, is_admin, tier, entitlements, isLoading, isAnonymous }` by combining session + billing + tier helpers from 6.01. Fail-closed to "free" tier while billing loads or errors (no premium-feature flash). 8 tests cover loading/anonymous/authenticated, every tier shape, fail-closed paths. Backend tier source-of-truth still depends on Stripe webhook → cache (6.04). |
 | 6.13 | In-product upgrade CTA when usage > 80% of plan budget | FE | [x] 2026-05-07 | `components/shared/upgrade-cta.tsx` — banner that subscribes to `queryKeys.billing.overview()` and shows the highest-utilized metric (tokens/api_calls/seats) when ≥80%. Two severity tiers: warning (amber) ≥80%, destructive ≥100%. Per-metric+bucket dismissal in localStorage so dismissed banners reappear when a NEW threshold crosses. Wired into `(dashboard)/layout.tsx` (hidden on /billing itself). 12 unit tests cover pure helper + render paths. |
 | 6.14 | Coupon / promo code handling | BE | [ ] | |
@@ -211,7 +211,7 @@ live; one DR drill passed; 99.5% uptime SLA achievable on staging metrics.
 | 9.03 | SCIM 2.0 user provisioning | BE | [ ] | Required for Okta / Azure AD |
 | 9.04 | Custom domain / vanity URL support | DevOps | [ ] | |
 | 9.05 | Audit log export (CSV / SIEM webhook) | BE | [partial] 2026-05-07 | CSV export was already shipped in audit-log page; this batch wraps it in `<FeatureGate flag="audit_log.export">` so Free-tier orgs no longer see the button (per 6.06 tier-flag mapping). Extended `FlagKey` union + `STATIC_FLAG_DEFAULTS` + `MOCK_DEFINITIONS` + `MOCK_PLAN_FEATURES` with the 9 plan-driven flags introduced in 6.01. Backend SIEM webhook still pending. |
-| 9.06 | IP allowlist per org | BE | [ ] | |
+| 9.06 | IP allowlist per org | BE | [partial] 2026-05-07 | FE admin shell shipped at `/admin/ip-allowlist`. Wraps in `<FeatureGate flag="ip_allowlist.enabled">` so Free/Pro orgs see an upgrade nudge linking to /billing; Enterprise tenants see the editor. Editor adds/removes CIDR ranges with FE validation (pure helper `lib/platform/security/cidr.ts.isValidIpv4Cidr()`). Persists to localStorage via the cap-A `_mock-storage.ts` shim. 13 CIDR helper tests cover canonical/octet-range/prefix-range/IPv6/empty/non-string. Backend persistence + actual IP gating still BE/DevOps work. |
 | 9.07 | SLA contract: uptime + support response times | Sales+Legal | [ ] | |
 | 9.08 | Data residency choice (US / EU) | DevOps | [ ] | Multi-region deployment |
 | 9.09 | Customer-managed encryption keys (BYOK) | BE | [ ] | Late-stage; can defer |
@@ -235,7 +235,7 @@ completed without blockers.
 | 10.05 | Beta feedback → backlog conversion process | Product | [ ] | Linear / GitHub Issues |
 | 10.06 | Customer support tooling (Intercom / Crisp / built-in) | Product | [partial] 2026-05-07 | Mount point shipped — `components/shell/support-widget.tsx` is env-driven (NEXT_PUBLIC_SUPPORT_PROVIDER=intercom\|crisp\|plain\|none). No-op by default; lazy-injects vendor loader script when configured. Intercom + Crisp paths covered by 6 unit tests with vi.stubEnv. Mounted in `(dashboard)/layout.tsx`. Public pages (login/signup/legal) intentionally do not load the widget. Vendor decision deferred to product team. |
 | 10.07 | Documentation site: API reference + admin guide + AI agent guide | Tech writing | [partial] 2026-05-07 | Public landing page shipped at `/docs` with 5 section cards (Getting Started / Admin / AI / API Reference / Release Notes) routing to placeholder sub-paths. i18n in he/en — adding a section is a catalog edit + one row in `SECTIONS`. Each card is a Link with hover affordance. 5 render tests. Tech-writing track owns the actual MDX content; this gives them a stable URL structure to ship into. |
-| 10.08 | Self-service knowledge base populated | CS | [ ] | Cap 09 already has the surface |
+| 10.08 | Self-service knowledge base populated | CS | [partial] 2026-05-07 | KB scaffolded — extended `DocCategory` with troubleshooting / best-practices / faq. Added 9 sample articles (3 per category) with full bodyKey content in `lib/docs/content.ts` + i18n in he/en for all titles, summaries, and bodies. Updated `content.test.ts` invariants to require ≥3 articles per new category and bodyKey present. Tech-writing track owns the long-form content evolution; the catalog format + URL structure are the contract. |
 | 10.09 | Launch readiness review: security, legal, ops, support all green | All | [ ] | Final go/no-go gate |
 | 10.10 | Announce GA: blog post, press release, social, email to waitlist | Marketing | [ ] | |
 | 10.11 | First paying customer signs without a sales call | All | [ ] | True self-service proof |
@@ -263,6 +263,51 @@ When a row changes status:
 ## Test Status Log
 
 Append-only. Newest entries at the top.
+
+### 2026-05-07 — Fifth execution batch (10.08 + 6.11 + 9.06)
+
+Three more rows. Each builds on infrastructure shipped earlier today.
+
+| Closed | Task | Files added / modified | Tests added |
+|---|---|---|---|
+| 10.08 | KB content scaffolding (partial) | `lib/docs/types.ts` (3 new categories), `lib/docs/content.ts` (+9 articles), `i18n/messages/{he,en}.json` (full bodies), `content.test.ts` (+invariant) | 2 |
+| 6.11 | Usage metering chart (partial) | `components/modules/billing/usage-chart.tsx` + `.test.tsx`, `lib/api/billing.ts` (+`fetchUsageSeries`, `buildMockUsageSeries`), `lib/modules/billing/types.ts` (UsagePoint + UsageSeriesResponse), queryKeys + real-fetch + billing tests | 9 |
+| 9.06 | IP allowlist admin shell (partial) | `app/(dashboard)/admin/ip-allowlist/page.tsx`, `lib/platform/security/cidr.ts` + `.test.ts` | 10 |
+
+**Suites:**
+- `npx vitest run` — 112 files / **1020 tests ✓** (was 999, +21 net — 1000-test milestone passed)
+- `npx tsc --noEmit` — clean ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+- Layer changes vs prior baseline:
+  - lib/platform 93.37% → **94.02%** (+0.65pp from cidr helpers)
+  - All other layers stable
+
+**Cumulative across five 2026-05-07 batches:** 15 PRODUCT_LAUNCH_PLAN
+rows touched (5 fully closed, 10 partial). 111 new tests added
+(16 + 28 + 34 + 12 + 21). **Test count: 909 → 1020 (+111).**
+Zero regressions across all five batches.
+
+**Fully-closed-row map by phase:**
+- §3 Commercial: 6.05 ✅, 6.13 ✅, 6.01 ✅
+- §4 Compliance: 7.04 ✅, 7.13 ✅
+
+**Partial-row map (FE shipped, BE/external pending):**
+- §3 Commercial: 6.06, 6.07, 6.11, 6.12
+- §4 Compliance: 7.10
+- §6 Enterprise: 9.05, 9.06
+- §7 GA: 10.06, 10.07, 10.08
+
+**FE-only rows still pickable in this repo:**
+- 9.07 SLA contract — Sales+Legal owned
+- 9.08 Data residency — DevOps owned
+- 9.09/9.10 BYOK + VPC peering — late-stage, BE/Sec
+- 10.09 Launch readiness review — multi-team gate
+- 10.10 GA announcement — Marketing
+- 10.11 First paying customer — outcome metric
+
+The remaining items are largely outside this repo's scope. Frontend
+foundation for product launch is now feature-complete pending the
+backend rounds (Phase 5A) which remain blocked.
 
 ### 2026-05-07 — Fourth execution batch (9.05 + 6.12 + 10.07)
 

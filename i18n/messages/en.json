@@ -285,6 +285,25 @@
       "stats": {
         "flagCount": "{count, plural, =1 {1 flag} other {# flags}}"
       }
+    },
+    "ipAllowlist": {
+      "title": "IP Allowlist",
+      "subtitle": "Restrict org access by IP CIDR ranges",
+      "intro": "When the list is non-empty, only requests from one of the listed ranges may sign in. Useful for SOC 2 + corporate network-segmentation policy.",
+      "enterpriseOnly": "This feature is available on the Enterprise plan only. Upgrade to enable it.",
+      "upgradeCta": "Upgrade to Enterprise",
+      "add": "Add range",
+      "placeholder": "10.0.0.0/8",
+      "remove": "Remove",
+      "save": "Save changes",
+      "saved": "Allowlist saved",
+      "invalidCidr": "Invalid CIDR. Examples: 192.168.1.0/24 or 10.0.0.0/8",
+      "empty": "List is empty. All IPs allowed.",
+      "columns": {
+        "cidr": "CIDR",
+        "label": "Label",
+        "addedAt": "Added"
+      }
     }
   },
   "nav": {
@@ -978,6 +997,57 @@
       "focusSearch": "Focus sidebar search",
       "showShortcuts": "Show keyboard shortcuts",
       "closeOrCancel": "Close / cancel"
+    },
+    "troubleshooting": {
+      "aiNoResponse": {
+        "title": "AI agent does not respond",
+        "summary": "If the agent stops returning answers, start by checking the provider configured in /admin/ai-providers.",
+        "body": "Check provider status in /admin/ai-providers. If error, open the Configure dialog and verify the API key. If status is ok but answers still don’t arrive, you may have hit a budget cap — check /admin/ai-usage."
+      },
+      "forbidden403": {
+        "title": "403 error performing an action",
+        "summary": "Missing permission. Check user role or a blocking policy.",
+        "body": "403 means the backend denied the action. Common causes: (1) the user lacks the required permission — check /users/<id>; (2) a policy denies it — see /admin/policies. If this is an AI action, it may require approval — check /helpdesk/approvals."
+      },
+      "sessionExpired": {
+        "title": "Session expires while working",
+        "summary": "Sign in again; tokens normally refresh automatically.",
+        "body": "If the session breaks mid-task, the refresh token may be stuck. Clear site cookies and sign in again. If it persists, contact support."
+      }
+    },
+    "bestPractices": {
+      "secureMfa": {
+        "title": "Enable MFA for every admin",
+        "summary": "The single highest-impact step to secure the org.",
+        "body": "In any production org, ensure MFA is enabled for every user with is_admin=true. Enforce via mfa_required in org settings. See /admin/settings → Security."
+      },
+      "apiKeyRotation": {
+        "title": "Rotate API keys at least quarterly",
+        "summary": "Long-lived keys accumulate at customer sites, expanding attack surface.",
+        "body": "Any key older than 90 days should be flagged for rotation. Use /api-keys to mint a new key, distribute it to consumers, and revoke the old one."
+      },
+      "auditLogReview": {
+        "title": "Review the audit log weekly",
+        "summary": "Red flags surface there before they cause damage.",
+        "body": "Allocate a weekly hour to /audit-log. Filter by category=ai for AI actions and scan for unusual DESTRUCTIVE entries. Export to CSV (Pro+) for compliance evidence."
+      }
+    },
+    "faq": {
+      "pricing": {
+        "title": "How does pricing work?",
+        "summary": "3 tiers: Free / Pro / Enterprise. See /billing for current state.",
+        "body": "Pricing is based on seats + monthly tokens. See /billing for current plan details. Upgrade via the Stripe portal; downgrade requires sales contact."
+      },
+      "dataPrivacy": {
+        "title": "What happens to my data?",
+        "summary": "Data stays in your org; subprocessors are listed publicly.",
+        "body": "We do not share data across orgs. See /legal/subprocessors for the provider list. Our /legal/security page documents the disclosure policy."
+      },
+      "gdpr": {
+        "title": "Is the product GDPR-compliant?",
+        "summary": "Yes — DPA available; export and delete endpoints planned.",
+        "body": "We provide a standard DPA to EU customers. User-data export will be available at /api/me/export (§4 7.05). Right-to-be-Forgotten deletion at /api/me/delete (§4 7.06)."
+      }
     }
   },
   "statusBadge": {
@@ -1176,7 +1246,13 @@
         "failed": "Failed"
       }
     },
-    "backendNotice": "Stripe integration goes live at launch. Data shown here is demo."
+    "backendNotice": "Stripe integration goes live at launch. Data shown here is demo.",
+    "chart": {
+      "title": "Usage over the last 30 days",
+      "tokens": "Tokens",
+      "apiCalls": "API calls",
+      "loading": "Loading usage data..."
+    }
   },
   "upgradeCta": {
     "nearLimit": "You are using {pct}% of your monthly {metric} quota. Upgrade to keep going without limits.",

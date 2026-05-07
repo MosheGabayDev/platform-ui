@@ -104,6 +104,7 @@ describe("queryKeys registry", () => {
   it("billing keys", () => {
     expect(queryKeys.billing.all()).toEqual(["billing"]);
     expect(queryKeys.billing.overview()).toEqual(["billing", "overview"]);
+    expect(queryKeys.billing.usageSeries(30)).toEqual(["billing", "usage-series", 30]);
   });
 
   it("helpdesk keys", () => {

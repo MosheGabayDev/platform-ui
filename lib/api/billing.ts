@@ -15,7 +15,7 @@
  *      mutate plan + usage; frontend just refetches via TanStack Query.
  */
 
-import type { BillingOverviewResponse } from "@/lib/modules/billing/types";
+import type { BillingOverviewResponse, UsageSeriesResponse, UsagePoint } from "@/lib/modules/billing/types";
 
 export const MOCK_MODE = process.env.NEXT_PUBLIC_MOCK_API !== "false";
 
@@ -64,4 +64,42 @@ export async function fetchBillingOverview(): Promise<BillingOverviewResponse> {
     return MOCK_OVERVIEW;
   }
   return apiFetch<BillingOverviewResponse>("/overview");
+}
+
+/**
+ * Generate a deterministic-ish daily usage series over `days` days,
+ * trending up so the chart looks plausible. Pure function — exported
+ * for tests.
+ */
+export function buildMockUsageSeries(days = 30): UsagePoint[] {
+  const out: UsagePoint[] = [];
+  const now = Date.now();
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(now - i * 86_400_000);
+    const date = d.toISOString().slice(0, 10);
+    const trend = 1 + (days - i) / days;
+    // Sine-wave wobble so weekend dips show in the chart.
+    const wobble = 0.85 + 0.3 * Math.sin((days - i) / 2.5);
+    out.push({
+      date,
+      tokens: Math.round(38_000 * trend * wobble),
+      api_calls: Math.round(450 * trend * wobble),
+    });
+  }
+  return out;
+}
+
+/**
+ * Fetch the per-day usage series for the per-org metering chart on
+ * the /billing page. Defaults to a 30-day window.
+ *
+ * MOCK_MODE: returns a deterministic-ish trending series so the chart
+ * looks plausible in demos.
+ */
+export async function fetchUsageSeries(days = 30): Promise<UsageSeriesResponse> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 80));
+    return { success: true, data: { series: buildMockUsageSeries(days) } };
+  }
+  return apiFetch<UsageSeriesResponse>(`/usage/series?days=${days}`);
 }
