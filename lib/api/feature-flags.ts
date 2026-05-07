@@ -102,7 +102,7 @@ export const STATIC_FLAG_DEFAULTS: Record<FlagKey, false> = {
   "wizard.enabled": false,
 };
 
-export const MOCK_MODE = true;
+export const MOCK_MODE = process.env.NEXT_PUBLIC_MOCK_API !== "false";
 
 // Track A: localStorage-backed persistence for mock state.
 import {

@@ -12,7 +12,7 @@
  */
 import type { NotificationsListResponse, MarkReadResponse } from "@/lib/modules/notifications/types";
 
-export const MOCK_MODE = true;
+export const MOCK_MODE = process.env.NEXT_PUBLIC_MOCK_API !== "false";
 
 const BASE = "/api/proxy/notifications";
 

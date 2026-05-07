@@ -10,7 +10,13 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "happy-dom",
-    include: ["lib/**/*.test.ts", "lib/**/*.test.tsx", "components/**/*.test.tsx"],
+    include: [
+      "lib/**/*.test.ts",
+      "lib/**/*.test.tsx",
+      "components/**/*.test.tsx",
+      "components/**/*.test.ts",
+      "app/api/**/*.test.ts",
+    ],
     exclude: ["tests/e2e/**", "node_modules/**", ".next/**"],
     coverage: {
       provider: "v8",

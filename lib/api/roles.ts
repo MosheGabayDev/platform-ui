@@ -17,7 +17,7 @@ import type {
 } from "@/lib/modules/roles/types";
 import type { CreateRoleInput, EditRoleInput } from "@/lib/modules/roles/schemas";
 
-export const MOCK_MODE = true;
+export const MOCK_MODE = process.env.NEXT_PUBLIC_MOCK_API !== "false";
 
 const BASE = "/api/proxy/roles";
 

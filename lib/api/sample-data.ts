@@ -17,7 +17,7 @@ import type {
 import { fetchSetting, setSetting } from "@/lib/api/settings";
 import { recordAuditEntry } from "@/lib/api/audit";
 
-export const MOCK_MODE = true;
+export const MOCK_MODE = process.env.NEXT_PUBLIC_MOCK_API !== "false";
 
 const COUNTS: Record<string, number> = {
   helpdesk: 15, // 8 tickets + 3 technicians + 4 KB articles

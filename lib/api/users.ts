@@ -41,7 +41,7 @@ import type {
 } from "@/lib/modules/users/types";
 import type { CreateUserInput, EditUserInput } from "@/lib/modules/users/schemas";
 
-export const MOCK_MODE = true;
+export const MOCK_MODE = process.env.NEXT_PUBLIC_MOCK_API !== "false";
 
 const BASE = "/api/proxy/users";
 

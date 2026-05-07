@@ -27,7 +27,7 @@ import {
 } from "@/lib/api/_mock-storage";
 
 const BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api/proxy";
-export const MOCK_MODE = true;
+export const MOCK_MODE = process.env.NEXT_PUBLIC_MOCK_API !== "false";
 
 // Track A: localStorage-backed persistence for mock state.
 const STORAGE_KEY = "mock:settings:overrides";

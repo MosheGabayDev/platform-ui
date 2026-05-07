@@ -1,5 +1,16 @@
 import { describe, it, expect } from "vitest";
-import { isTerminalStatus, TERMINAL_STATUSES } from "./types";
+import { isTerminalStatus, TERMINAL_STATUSES, normalizeJobStatus } from "./types";
+
+describe("normalizeJobStatus", () => {
+  it("collapses 'success' to 'succeeded'", () => {
+    expect(normalizeJobStatus("success")).toBe("succeeded");
+  });
+  it("passes through other canonical and unknown statuses", () => {
+    expect(normalizeJobStatus("succeeded")).toBe("succeeded");
+    expect(normalizeJobStatus("failed")).toBe("failed");
+    expect(normalizeJobStatus("paused")).toBe("paused");
+  });
+});
 
 describe("job-runner status helpers", () => {
   it("recognizes the 6 terminal statuses (5 job-runner + completed lifecycle)", () => {

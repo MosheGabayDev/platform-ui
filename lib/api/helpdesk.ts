@@ -33,7 +33,7 @@ import type {
   SLAComplianceResponse,
 } from "@/lib/modules/helpdesk/types";
 
-export const MOCK_MODE = true;
+export const MOCK_MODE = process.env.NEXT_PUBLIC_MOCK_API !== "false";
 
 // ---------------------------------------------------------------------------
 // Schema mapping — Flask ↔ Frontend boundary

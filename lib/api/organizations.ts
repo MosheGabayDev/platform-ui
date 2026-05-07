@@ -17,7 +17,7 @@ import type {
 } from "@/lib/modules/organizations/types";
 import type { CreateOrgInput, EditOrgInput } from "@/lib/modules/organizations/schemas";
 
-export const MOCK_MODE = true;
+export const MOCK_MODE = process.env.NEXT_PUBLIC_MOCK_API !== "false";
 
 const BASE = "/api/proxy/organizations";
 

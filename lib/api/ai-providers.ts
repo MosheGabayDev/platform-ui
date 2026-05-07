@@ -24,7 +24,7 @@ import type {
 } from "@/lib/modules/ai-providers/types";
 
 const BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api/proxy";
-export const MOCK_MODE = true;
+export const MOCK_MODE = process.env.NEXT_PUBLIC_MOCK_API !== "false";
 
 // ---------------------------------------------------------------------------
 // Catalog (system-wide, static)

@@ -20,7 +20,7 @@ import type {
   AuditCategory,
 } from "@/lib/modules/audit/types";
 
-export const MOCK_MODE = true;
+export const MOCK_MODE = process.env.NEXT_PUBLIC_MOCK_API !== "false";
 
 // Track A: localStorage-backed persistence for runtime-appended entries.
 // Only entries written via recordAuditEntry persist — fixtures stay in code

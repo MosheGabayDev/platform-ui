@@ -20,7 +20,7 @@ import type {
   ActionProposal,
 } from "@/lib/hooks/use-assistant-session";
 
-export const MOCK_MODE = true;
+export const MOCK_MODE = process.env.NEXT_PUBLIC_MOCK_API !== "false";
 
 export interface ChatRequest {
   message: string;
