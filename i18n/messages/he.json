@@ -1220,5 +1220,34 @@
       "message": "בדוק את האימייל שלך לאישור הכתובת. ברגע שתאשר, תוכל להתחבר."
     },
     "backendNotice": "הרשמה אוטומטית תופעל בהשקה. כרגע — דמו בלבד."
+  },
+  "docs": {
+    "title": "מרכז תיעוד",
+    "subtitle": "מדריכים, התייחסות API, ואיך-עושים-את-זה לפלטפורמה",
+    "intro": "כל מה שצריך כדי להתחיל. המסמכים הציבוריים ב-Hebrew + English; ה-API reference לאנגלית בלבד (זהות בקוד).",
+    "sections": {
+      "gettingStarted": {
+        "title": "התחלה מהירה",
+        "description": "הצעדים הראשונים — צור ארגון, הזמן משתמשים, חבר ספק AI."
+      },
+      "adminGuide": {
+        "title": "מדריך אדמין",
+        "description": "הגדרות, מודולים, מדיניות אבטחה, ניהול משתמשים."
+      },
+      "aiGuide": {
+        "title": "מדריך AI",
+        "description": "איך הסוכן עובד, איזה Skills זמינים, ואיך לכתוב Skill חדש."
+      },
+      "apiReference": {
+        "title": "API Reference",
+        "description": "כל ה-endpoints, הפרמטרים והדוגמאות."
+      },
+      "releaseNotes": {
+        "title": "הערות שחרור",
+        "description": "מה חדש, מה השתנה, ומה הוסר בכל גרסה."
+      }
+    },
+    "comingSoon": "תוכן מלא ייכתב במהלך תוכנית ה-pilot.",
+    "footer": "התיעוד ב-MDX ובסיס הידע מנוהל בנפרד דרך cap 09 PlatformKnowledge."
   }
 }

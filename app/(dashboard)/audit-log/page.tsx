@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { PermissionGate } from "@/components/shared/permission-gate";
+import { FeatureGate } from "@/components/shared/feature-gate";
 import { PageShell } from "@/components/shared/page-shell";
 import { DataTable } from "@/components/shared/data-table";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -257,44 +258,52 @@ function AuditLogInner() {
               ))}
             </select>
 
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                exportToCsv(
-                  entries.map((e) => ({
-                    timestamp: e.timestamp,
-                    category: e.category,
-                    action: e.action,
-                    actor_id: e.actor_id ?? "",
-                    actor_name: e.actor_name ?? "",
-                    resource_type: e.resource_type ?? "",
-                    resource_id: e.resource_id ?? "",
-                    ip: e.ip ?? "",
-                    metadata: JSON.stringify(e.metadata ?? {}),
-                  })),
-                  [
-                    { key: "timestamp", label: "When" },
-                    { key: "category", label: "Category" },
-                    { key: "action", label: "Action" },
-                    { key: "actor_id", label: "Actor ID" },
-                    { key: "actor_name", label: "Actor name" },
-                    { key: "resource_type", label: "Resource type" },
-                    { key: "resource_id", label: "Resource ID" },
-                    { key: "ip", label: "IP" },
-                    { key: "metadata", label: "Metadata" },
-                  ],
-                  "audit-log",
-                );
-              }}
-              disabled={entries.length === 0}
-              className="ms-auto"
-              aria-label="Export current view to CSV"
-            >
-              <Download className="h-4 w-4 me-1.5" aria-hidden="true" />
-              Export CSV
-            </Button>
+            {/*
+              Audit-log export is a Pro+ tier feature per
+              docs/system-upgrade/04-capabilities/pricing-tiers-spec.md.
+              FeatureGate fail-closes when the flag is missing or loading,
+              so Free-tier orgs simply do not see this button.
+            */}
+            <FeatureGate flag="audit_log.export">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  exportToCsv(
+                    entries.map((e) => ({
+                      timestamp: e.timestamp,
+                      category: e.category,
+                      action: e.action,
+                      actor_id: e.actor_id ?? "",
+                      actor_name: e.actor_name ?? "",
+                      resource_type: e.resource_type ?? "",
+                      resource_id: e.resource_id ?? "",
+                      ip: e.ip ?? "",
+                      metadata: JSON.stringify(e.metadata ?? {}),
+                    })),
+                    [
+                      { key: "timestamp", label: "When" },
+                      { key: "category", label: "Category" },
+                      { key: "action", label: "Action" },
+                      { key: "actor_id", label: "Actor ID" },
+                      { key: "actor_name", label: "Actor name" },
+                      { key: "resource_type", label: "Resource type" },
+                      { key: "resource_id", label: "Resource ID" },
+                      { key: "ip", label: "IP" },
+                      { key: "metadata", label: "Metadata" },
+                    ],
+                    "audit-log",
+                  );
+                }}
+                disabled={entries.length === 0}
+                className="ms-auto"
+                aria-label="Export current view to CSV"
+              >
+                <Download className="h-4 w-4 me-1.5" aria-hidden="true" />
+                Export CSV
+              </Button>
+            </FeatureGate>
           </div>
 
           <DataTable

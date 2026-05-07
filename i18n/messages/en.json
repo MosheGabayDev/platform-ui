@@ -1220,5 +1220,34 @@
       "message": "Check your email to confirm the address. Once confirmed, you can sign in."
     },
     "backendNotice": "Self-service signup goes live at launch. Demo only for now."
+  },
+  "docs": {
+    "title": "Documentation",
+    "subtitle": "Guides, API reference, and how-to for the platform",
+    "intro": "Everything you need to get started. Public docs in English + Hebrew; API reference is English-only (matches code).",
+    "sections": {
+      "gettingStarted": {
+        "title": "Getting Started",
+        "description": "First steps — create an org, invite users, connect an AI provider."
+      },
+      "adminGuide": {
+        "title": "Admin Guide",
+        "description": "Settings, modules, security policies, user management."
+      },
+      "aiGuide": {
+        "title": "AI Guide",
+        "description": "How the agent works, which Skills are available, and how to write a new Skill."
+      },
+      "apiReference": {
+        "title": "API Reference",
+        "description": "All endpoints, parameters, and examples."
+      },
+      "releaseNotes": {
+        "title": "Release Notes",
+        "description": "What is new, changed, and removed in every release."
+      }
+    },
+    "comingSoon": "Full content will be written during the pilot programme.",
+    "footer": "Docs are MDX; the knowledge base is managed separately via cap 09 PlatformKnowledge."
   }
 }

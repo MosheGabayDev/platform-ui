@@ -29,7 +29,19 @@ export type FlagKey =
   | "ai_providers.enabled"
   | "knowledge.enabled"
   | "policy_engine.enabled"
-  | "wizard.enabled";
+  | "wizard.enabled"
+  // Plan-tier-driven flags (see lib/platform/billing/tier-flags.ts).
+  // Off by default; on for the matching plan tier per
+  // pricing-tiers-spec.md §Feature-flag mapping.
+  | "audit_log.export"
+  | "audit_log.long_retention"
+  | "automation.enabled"
+  | "priority_support.enabled"
+  | "sso.enabled"
+  | "scim.enabled"
+  | "custom_domain.enabled"
+  | "byok.enabled"
+  | "ip_allowlist.enabled";
 
 export type FlagSource = "user" | "org" | "plan" | "system" | "default";
 
@@ -100,6 +112,15 @@ export const STATIC_FLAG_DEFAULTS: Record<FlagKey, false> = {
   "knowledge.enabled": false,
   "policy_engine.enabled": false,
   "wizard.enabled": false,
+  "audit_log.export": false,
+  "audit_log.long_retention": false,
+  "automation.enabled": false,
+  "priority_support.enabled": false,
+  "sso.enabled": false,
+  "scim.enabled": false,
+  "custom_domain.enabled": false,
+  "byok.enabled": false,
+  "ip_allowlist.enabled": false,
 };
 
 export const MOCK_MODE = process.env.NEXT_PUBLIC_MOCK_API !== "false";
@@ -217,6 +238,90 @@ const MOCK_DEFINITIONS: FlagDefinition[] = [
     introduced_in_version: "0.48.0",
     deprecated: false,
   },
+  // Plan-tier-driven flags. Resolution chain: plan tier auto-enables
+  // them per pricing-tiers-spec.md §Feature-flag mapping; org/user can
+  // still override via the standard cap-17 chain.
+  {
+    key: "audit_log.export",
+    label: "Audit log CSV export",
+    description: "Per-org button to download the current audit-log view as CSV. Pro+ tier.",
+    category: "platform",
+    system_default: false,
+    introduced_in_version: "0.52.0",
+    deprecated: false,
+  },
+  {
+    key: "audit_log.long_retention",
+    label: "Long audit-log retention",
+    description: "Extends audit-log retention from 90d to 365d. Enterprise only.",
+    category: "platform",
+    system_default: false,
+    introduced_in_version: "0.52.0",
+    deprecated: false,
+  },
+  {
+    key: "automation.enabled",
+    label: "Automation",
+    description: "Workflow + scheduled-job module. Pro+ tier.",
+    category: "modules",
+    system_default: false,
+    introduced_in_version: "0.50.0",
+    deprecated: false,
+  },
+  {
+    key: "priority_support.enabled",
+    label: "Priority support",
+    description: "Faster response SLA + dedicated channel. Pro+ tier.",
+    category: "platform",
+    system_default: false,
+    introduced_in_version: "0.52.0",
+    deprecated: false,
+  },
+  {
+    key: "sso.enabled",
+    label: "SSO (SAML / OIDC)",
+    description: "Single sign-on via Okta / Azure AD / Auth0. Enterprise only.",
+    category: "platform",
+    system_default: false,
+    introduced_in_version: "0.52.0",
+    deprecated: false,
+  },
+  {
+    key: "scim.enabled",
+    label: "SCIM provisioning",
+    description: "Automatic user provisioning + de-provisioning from IdP. Enterprise only.",
+    category: "platform",
+    system_default: false,
+    introduced_in_version: "0.52.0",
+    deprecated: false,
+  },
+  {
+    key: "custom_domain.enabled",
+    label: "Custom domain",
+    description: "Vanity URL / customer-branded domain. Enterprise only.",
+    category: "platform",
+    system_default: false,
+    introduced_in_version: "0.52.0",
+    deprecated: false,
+  },
+  {
+    key: "byok.enabled",
+    label: "Bring-your-own LLM keys",
+    description: "Org-supplied OpenAI / Anthropic / Bedrock keys instead of platform-pooled. Enterprise only.",
+    category: "ai",
+    system_default: false,
+    introduced_in_version: "0.52.0",
+    deprecated: false,
+  },
+  {
+    key: "ip_allowlist.enabled",
+    label: "IP allowlist",
+    description: "Restrict org access to a defined list of IP CIDRs. Enterprise only.",
+    category: "platform",
+    system_default: false,
+    introduced_in_version: "0.52.0",
+    deprecated: false,
+  },
 ];
 
 /** Mock per-org state. Mutated by setFeatureFlagOverride in mock mode. */
@@ -253,6 +358,19 @@ const MOCK_PLAN_FEATURES: Record<FlagKey, boolean | undefined> = {
   "knowledge.enabled": false,
   "policy_engine.enabled": false,
   "wizard.enabled": true,
+  // Pro+ tier — match pricing-tiers-spec.md mapping. Mock org is on
+  // the "pro" tier in MOCK_OVERVIEW (lib/api/billing.ts), so these
+  // flip true here so the demo shows the tier-gated button.
+  "audit_log.export": true,
+  "automation.enabled": true,
+  "priority_support.enabled": true,
+  // Enterprise-only — off in the demo since the mock org is "pro".
+  "audit_log.long_retention": false,
+  "sso.enabled": false,
+  "scim.enabled": false,
+  "custom_domain.enabled": false,
+  "byok.enabled": false,
+  "ip_allowlist.enabled": false,
 };
 
 function resolveMockFlag(key: FlagKey): {
