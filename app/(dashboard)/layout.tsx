@@ -13,6 +13,8 @@ import { useKeyboardShortcuts } from "@/lib/hooks/use-keyboard-shortcuts";
 import { FloatingAIButton } from "@/components/shell/ai-assistant/floating-button";
 import { AIDrawer } from "@/components/shell/ai-assistant/drawer";
 import { OnboardingTour } from "@/components/shell/onboarding-tour";
+import { SupportWidget } from "@/components/shell/support-widget";
+import { UpgradeCta } from "@/components/shared/upgrade-cta";
 
 const ease = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
@@ -39,6 +41,8 @@ export default function DashboardLayout({
         <SidebarInset className="relative z-10">
           <Topbar />
           <main className="flex-1 p-4 md:p-6 overflow-auto">
+            {/* Plan-aware nudge — null when usage < 80% or query loading/errored */}
+            {!pathname.startsWith("/billing") && <UpgradeCta className="mb-4" />}
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
                 key={pathname}
@@ -57,6 +61,7 @@ export default function DashboardLayout({
         <FloatingAIButton />
         <AIDrawer />
         <OnboardingTour />
+        <SupportWidget />
       </SidebarProvider>
     </LazyMotion>
   );

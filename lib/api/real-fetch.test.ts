@@ -481,6 +481,14 @@ describe("module-registry, settings, feature-flags, policies, search, sample-dat
     await m.fetchBillingOverview();
     expect(fetchMock.mock.calls[0]![0]).toContain("/overview");
   });
+  it("signup: submitSignup POSTs to /api/proxy/signup with body", async () => {
+    fetchMock.mockResolvedValue(okJson({ success: true }));
+    const m = await import("./signup");
+    await m.submitSignup({ org_name: "X", email: "x@y.com", password: "Password123" });
+    expect(fetchMock.mock.calls[0]![0]).toContain("/api/proxy/signup");
+    expect(fetchMock.mock.calls[0]![1]!.method).toBe("POST");
+    expect(fetchMock.mock.calls[0]![1]!.body).toContain('"org_name":"X"');
+  });
   it("sample-data: seed + status", async () => {
     fetchMock.mockResolvedValue(okJson({}));
     const m = await import("./sample-data");

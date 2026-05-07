@@ -131,13 +131,13 @@ without human touch.
 | 6.04 | Stripe webhooks: invoice.paid / payment_failed / subscription.updated | BE | [ ] | |
 | 6.05 | `/billing` page: current plan, invoices, payment method | FE | [x] 2026-05-07 | Mock-mode shell shipped — plan tier badge, 3 usage gauges (tokens/api_calls/seats with red/amber/green thresholds), invoices table, "Manage payment" CTA disabled until plan.portal_url returns Stripe URL. New: `lib/api/billing.ts` + `lib/modules/billing/types.ts` + `queryKeys.billing.*` + i18n in he/en + 5 unit tests. Backend wiring deferred to 6.03/6.04 (just unset NEXT_PUBLIC_MOCK_API once Stripe BE serves /overview). |
 | 6.06 | Plan-tier feature flag mapping → cap 17 FeatureFlags | FE+BE | [ ] | Plan up/downgrade triggers flag re-eval |
-| 6.07 | Self-service signup flow: email → org create → first user | FE+BE | [ ] | |
+| 6.07 | Self-service signup flow: email → org create → first user | FE+BE | [partial] 2026-05-07 | Frontend shell shipped — `app/(auth)/signup/page.tsx` + Zod schema + `lib/api/signup.ts` mock client + i18n. PlatformForm + usePlatformMutation pattern; success state shows email-verify next-step; rich-text legal links to /legal/terms + /legal/privacy. Backend POST /api/proxy/signup not yet built — depends on 5A.01 + 6.08 email verification. MOCK_MODE flip checklist documented in lib/api/signup.ts. |
 | 6.08 | Email verification: magic link via SES/Postmark | BE | [ ] | |
 | 6.09 | Onboarding email sequence (D0/D1/D7/D14) | Marketing | [ ] | |
 | 6.10 | Trial → paid conversion flow + dunning emails | BE | [ ] | |
 | 6.11 | Usage metering: tokens / API calls / seats per tenant | BE | [ ] | Feeds Stripe metered usage |
 | 6.12 | Cap 19 PlatformTenantContext extension: plan tier + entitlements | FE+BE | [ ] | |
-| 6.13 | In-product upgrade CTA when usage > 80% of plan budget | FE | [ ] | |
+| 6.13 | In-product upgrade CTA when usage > 80% of plan budget | FE | [x] 2026-05-07 | `components/shared/upgrade-cta.tsx` — banner that subscribes to `queryKeys.billing.overview()` and shows the highest-utilized metric (tokens/api_calls/seats) when ≥80%. Two severity tiers: warning (amber) ≥80%, destructive ≥100%. Per-metric+bucket dismissal in localStorage so dismissed banners reappear when a NEW threshold crosses. Wired into `(dashboard)/layout.tsx` (hidden on /billing itself). 12 unit tests cover pure helper + render paths. |
 | 6.14 | Coupon / promo code handling | BE | [ ] | |
 
 **§3 exit criteria:** end-to-end purchase test succeeds in Stripe test
@@ -233,7 +233,7 @@ completed without blockers.
 | 10.03 | White-glove onboarding for first 3 customers | CS | [ ] | One-on-one calls |
 | 10.04 | Weekly NPS + bug-tracking with each pilot | CS | [ ] | |
 | 10.05 | Beta feedback → backlog conversion process | Product | [ ] | Linear / GitHub Issues |
-| 10.06 | Customer support tooling (Intercom / Crisp / built-in) | Product | [ ] | |
+| 10.06 | Customer support tooling (Intercom / Crisp / built-in) | Product | [partial] 2026-05-07 | Mount point shipped — `components/shell/support-widget.tsx` is env-driven (NEXT_PUBLIC_SUPPORT_PROVIDER=intercom\|crisp\|plain\|none). No-op by default; lazy-injects vendor loader script when configured. Intercom + Crisp paths covered by 6 unit tests with vi.stubEnv. Mounted in `(dashboard)/layout.tsx`. Public pages (login/signup/legal) intentionally do not load the widget. Vendor decision deferred to product team. |
 | 10.07 | Documentation site: API reference + admin guide + AI agent guide | Tech writing | [ ] | |
 | 10.08 | Self-service knowledge base populated | CS | [ ] | Cap 09 already has the surface |
 | 10.09 | Launch readiness review: security, legal, ops, support all green | All | [ ] | Final go/no-go gate |
@@ -263,6 +263,47 @@ When a row changes status:
 ## Test Status Log
 
 Append-only. Newest entries at the top.
+
+### 2026-05-07 — Second execution batch (6.13 + 6.07 + 10.06)
+
+Three more frontend-only rows closed (or partially closed where backend
+is the long pole). Builds directly on the billing client shipped in the
+first batch.
+
+| Closed | Task | Files added | Tests added |
+|---|---|---|---|
+| 6.13 | In-product upgrade CTA | `components/shared/upgrade-cta.tsx` + `.test.tsx` | 12 |
+| 6.07 | Signup frontend shell (partial) | `app/(auth)/signup/page.tsx`, `lib/api/signup.ts` + `.test.ts`, `lib/modules/signup/schemas.ts` + `.test.ts`, real-fetch test | 3 + 6 + 1 = 10 |
+| 10.06 | Support widget mount (partial) | `components/shell/support-widget.tsx` + `.test.tsx` | 6 |
+
+**Suites:**
+- `npx vitest run` — 105 files / **953 tests ✓** (was 925, +28 net)
+- `npx tsc --noEmit` — clean ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+- Layer changes vs prior baseline:
+  - components/shared 70.45% → **73.31%** (+2.86pp from upgrade-cta)
+  - components/shell 57.87% → **61.60%** (+3.73pp from support-widget + cookie-consent settling)
+  - All other layers stable; lib/api -0.19pp acceptable noise from new clients
+- `(dashboard)/layout.tsx` got two new mounts: `<UpgradeCta />` (hidden on /billing) + `<SupportWidget />` (no-op until vendor configured)
+
+**Status of [partial] rows:**
+- **6.07** — Frontend form is complete + validates + posts to mock client.
+  Activates fully when 5A.01 (Flask login) + 6.08 (email verification) +
+  POST /api/proxy/signup BE land. `MOCK_MODE` flip checklist already in
+  `lib/api/signup.ts`.
+- **10.06** — Mount point present. Flips to active by setting
+  `NEXT_PUBLIC_SUPPORT_PROVIDER=intercom` (or crisp) + the vendor's
+  app/website id env var. No code change needed at vendor pick.
+
+**Cumulative across both 2026-05-07 batches:** 6 PRODUCT_LAUNCH_PLAN
+rows touched (3 fully closed, 2 partial, 1 plan-file creation).
+44 new tests added (16 + 28). Zero regressions.
+
+**Next unblocked rows after this batch:**
+- §3 commercial: 6.01 pricing model (PM, doc-only — could template)
+- §4 compliance: nothing FE-only remaining (rest is BE / Legal / Sec)
+- §7 GA: 10.07 documentation site (Tech writing — could scaffold)
+- §1-2 backend: still all blocked on Flask repo work
 
 ### 2026-05-07 — First execution batch (7.04 + 7.13 + 6.05)
 

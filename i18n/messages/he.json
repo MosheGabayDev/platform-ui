@@ -1152,5 +1152,48 @@
       }
     },
     "backendNotice": "אינטגרציית Stripe תופעל בהשקה. הנתונים המוצגים כאן הם דמו."
+  },
+  "upgradeCta": {
+    "nearLimit": "אתה משתמש ב-{pct}% מהמכסה החודשית של {metric}. שדרג כדי להמשיך לעבוד ללא הגבלות.",
+    "overLimit": "חרגת מהמכסה של {metric}. שדרג עכשיו כדי לפתוח את המגבלות.",
+    "cta": "שדרג תוכנית",
+    "dismiss": "הסתר",
+    "metrics": {
+      "tokens": "טוקנים",
+      "api_calls": "קריאות API",
+      "seats": "מושבים"
+    }
+  },
+  "signup": {
+    "title": "הרשמה לפלטפורמה",
+    "tagline": "צור ארגון חדש ב-2 דקות",
+    "fields": {
+      "orgName": "שם הארגון",
+      "email": "אימייל מנהל",
+      "password": "סיסמה",
+      "firstName": "שם פרטי",
+      "lastName": "שם משפחה"
+    },
+    "placeholders": {
+      "orgName": "Acme Corp",
+      "email": "admin@acme.com"
+    },
+    "cta": "צור ארגון",
+    "submitting": "יוצר ארגון...",
+    "haveAccount": "יש לך כבר חשבון?",
+    "signIn": "התחברות",
+    "legal": "בלחיצה על \"צור ארגון\" אתה מאשר את <terms>תנאי השימוש</terms> ואת <privacy>מדיניות הפרטיות</privacy>.",
+    "errors": {
+      "orgNameRequired": "שם הארגון חובה",
+      "orgNameTooShort": "שם הארגון חייב להיות לפחות 2 תווים",
+      "emailInvalid": "כתובת אימייל לא תקינה",
+      "passwordTooShort": "סיסמה חייבת להיות לפחות 8 תווים",
+      "generic": "יצירת הארגון נכשלה. נסה שוב."
+    },
+    "success": {
+      "title": "הארגון נוצר!",
+      "message": "בדוק את האימייל שלך לאישור הכתובת. ברגע שתאשר, תוכל להתחבר."
+    },
+    "backendNotice": "הרשמה אוטומטית תופעל בהשקה. כרגע — דמו בלבד."
   }
 }

@@ -1152,5 +1152,48 @@
       }
     },
     "backendNotice": "Stripe integration goes live at launch. Data shown here is demo."
+  },
+  "upgradeCta": {
+    "nearLimit": "You are using {pct}% of your monthly {metric} quota. Upgrade to keep going without limits.",
+    "overLimit": "You have exceeded your {metric} quota. Upgrade now to unlock limits.",
+    "cta": "Upgrade plan",
+    "dismiss": "Dismiss",
+    "metrics": {
+      "tokens": "tokens",
+      "api_calls": "API calls",
+      "seats": "seats"
+    }
+  },
+  "signup": {
+    "title": "Sign up for the platform",
+    "tagline": "Create a new organization in 2 minutes",
+    "fields": {
+      "orgName": "Organization name",
+      "email": "Admin email",
+      "password": "Password",
+      "firstName": "First name",
+      "lastName": "Last name"
+    },
+    "placeholders": {
+      "orgName": "Acme Corp",
+      "email": "admin@acme.com"
+    },
+    "cta": "Create organization",
+    "submitting": "Creating organization...",
+    "haveAccount": "Already have an account?",
+    "signIn": "Sign in",
+    "legal": "By clicking \"Create organization\" you agree to our <terms>Terms of Service</terms> and <privacy>Privacy Policy</privacy>.",
+    "errors": {
+      "orgNameRequired": "Organization name is required",
+      "orgNameTooShort": "Organization name must be at least 2 characters",
+      "emailInvalid": "Invalid email address",
+      "passwordTooShort": "Password must be at least 8 characters",
+      "generic": "Organization creation failed. Please try again."
+    },
+    "success": {
+      "title": "Organization created!",
+      "message": "Check your email to confirm the address. Once confirmed, you can sign in."
+    },
+    "backendNotice": "Self-service signup goes live at launch. Demo only for now."
   }
 }
