@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { NextAuthSessionProvider } from "@/components/providers/session-provider";
 import { IntlProvider } from "@/components/providers/intl-provider";
+import { CookieConsent } from "@/components/shell/cookie-consent";
 
 const rubik = Rubik({
   variable: "--font-rubik",
@@ -60,6 +61,7 @@ export default function RootLayout({
                 disableTransitionOnChange
               >
                 {children}
+                <CookieConsent />
                 <Toaster richColors position="top-center" />
               </ThemeProvider>
             </QueryProvider>

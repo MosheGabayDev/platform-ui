@@ -1062,5 +1062,95 @@
       "CredentialsSignin": "Email or password is incorrect",
       "Default": "Sign-in failed. Please try again."
     }
+  },
+  "cookieConsent": {
+    "title": "We use cookies",
+    "description": "This site uses essential cookies only to operate the platform (login, language preference, sidebar state). We do not use marketing or tracking cookies.",
+    "learnMore": "Privacy policy",
+    "accept": "Got it"
+  },
+  "legal": {
+    "subprocessors": {
+      "title": "Subprocessors",
+      "subtitle": "Third-party service providers that process data on behalf of the platform",
+      "lastUpdated": "Last updated: 2026-05-07",
+      "intro": "We share certain data with selected third-party service providers to operate the platform. The list below is updated before any material change.",
+      "headers": {
+        "name": "Provider",
+        "purpose": "Purpose",
+        "dataTypes": "Data types",
+        "region": "Processing region"
+      },
+      "contact": "Questions? Email us at privacy@platform.local",
+      "providers": {
+        "openai": {
+          "purpose": "LLM services (AI content)",
+          "dataTypes": "AI message content, metadata",
+          "region": "United States"
+        },
+        "anthropic": {
+          "purpose": "LLM services (AI content)",
+          "dataTypes": "AI message content, metadata",
+          "region": "United States"
+        },
+        "aws": {
+          "purpose": "Storage, compute, backups",
+          "dataTypes": "All application data",
+          "region": "Ireland (eu-west-1)"
+        },
+        "stripe": {
+          "purpose": "Billing and payments",
+          "dataTypes": "Email, name, billing info",
+          "region": "US + EU"
+        },
+        "sentry": {
+          "purpose": "Error tracking",
+          "dataTypes": "Error stack traces, user ID",
+          "region": "United States"
+        },
+        "postmark": {
+          "purpose": "Transactional email",
+          "dataTypes": "Email address, system message content",
+          "region": "United States"
+        }
+      }
+    }
+  },
+  "billing": {
+    "title": "Billing",
+    "subtitle": "Plan, invoices and usage",
+    "currentPlan": "Current plan",
+    "upgradePlan": "Upgrade plan",
+    "managePayment": "Manage payment method",
+    "nextInvoice": "Next invoice",
+    "nextInvoiceDate": "Next billing date",
+    "usage": {
+      "title": "Usage this month",
+      "tokens": "Tokens",
+      "apiCalls": "API calls",
+      "seats": "Seats",
+      "of": "of"
+    },
+    "plans": {
+      "free": "Free",
+      "pro": "Pro",
+      "enterprise": "Enterprise"
+    },
+    "invoices": {
+      "title": "Invoices",
+      "empty": "No invoices yet",
+      "columns": {
+        "date": "Date",
+        "amount": "Amount",
+        "status": "Status",
+        "download": "Download"
+      },
+      "status": {
+        "paid": "Paid",
+        "pending": "Pending",
+        "failed": "Failed"
+      }
+    },
+    "backendNotice": "Stripe integration goes live at launch. Data shown here is demo."
   }
 }

@@ -16,6 +16,7 @@ export default defineConfig({
       "components/**/*.test.tsx",
       "components/**/*.test.ts",
       "app/api/**/*.test.ts",
+      "app/legal/**/*.test.tsx",
     ],
     exclude: ["tests/e2e/**", "node_modules/**", ".next/**"],
     coverage: {

@@ -129,7 +129,7 @@ without human touch.
 | 6.02 | Marketing site (separate repo): landing, pricing, docs, blog | FE | [ ] | Out of scope for platform-ui |
 | 6.03 | Stripe integration (subscriptions + metered usage) | BE | [ ] | |
 | 6.04 | Stripe webhooks: invoice.paid / payment_failed / subscription.updated | BE | [ ] | |
-| 6.05 | `/billing` page: current plan, invoices, payment method | FE | [ ] | Frontend uses stub today; needs Stripe customer portal embed |
+| 6.05 | `/billing` page: current plan, invoices, payment method | FE | [x] 2026-05-07 | Mock-mode shell shipped — plan tier badge, 3 usage gauges (tokens/api_calls/seats with red/amber/green thresholds), invoices table, "Manage payment" CTA disabled until plan.portal_url returns Stripe URL. New: `lib/api/billing.ts` + `lib/modules/billing/types.ts` + `queryKeys.billing.*` + i18n in he/en + 5 unit tests. Backend wiring deferred to 6.03/6.04 (just unset NEXT_PUBLIC_MOCK_API once Stripe BE serves /overview). |
 | 6.06 | Plan-tier feature flag mapping → cap 17 FeatureFlags | FE+BE | [ ] | Plan up/downgrade triggers flag re-eval |
 | 6.07 | Self-service signup flow: email → org create → first user | FE+BE | [ ] | |
 | 6.08 | Email verification: magic link via SES/Postmark | BE | [ ] | |
@@ -154,7 +154,7 @@ mode; trial flow completes; first invoice generated correctly.
 | 7.01 | Terms of Service draft | Legal | [ ] | Vendor: SaaS attorney |
 | 7.02 | Privacy Policy draft (covers AI data usage explicitly) | Legal | [ ] | |
 | 7.03 | Data Processing Agreement (DPA) template | Legal | [ ] | EU customer requirement |
-| 7.04 | Cookie consent banner (EU-compliant) | FE | [ ] | Use existing OSS lib |
+| 7.04 | Cookie consent banner (EU-compliant) | FE | [x] 2026-05-07 | Built `components/shell/cookie-consent.tsx` — essential-cookies-only stance with single "Got it" dismiss; persists `cookie-consent:v1=accepted` in localStorage; banner hides until mounted (hydration-safe); link to `/legal/privacy`. i18n in he/en. Wired into root layout. 5 unit tests cover render gating, persistence, prior-consent skip. No external lib needed. |
 | 7.05 | GDPR data export endpoint (`/api/me/export`) | BE | [ ] | Returns ZIP of all user data |
 | 7.06 | GDPR data delete endpoint (Right to be Forgotten) | BE | [ ] | Cascades + audit log entry |
 | 7.07 | SOC 2 Type I readiness assessment | Compliance | [ ] | 6-month track |
@@ -163,7 +163,7 @@ mode; trial flow completes; first invoice generated correctly.
 | 7.10 | Security disclosure policy + `security@` mailbox | Sec | [ ] | |
 | 7.11 | Penetration test report (rolls into SOC 2) | External | [ ] | |
 | 7.12 | DPIA (Data Protection Impact Assessment) for AI features | Legal | [ ] | EU AI Act preparation |
-| 7.13 | Subprocessor list page (OpenAI, Anthropic, AWS, Stripe, ...) | Legal+FE | [ ] | |
+| 7.13 | Subprocessor list page (OpenAI, Anthropic, AWS, Stripe, ...) | Legal+FE | [x] 2026-05-07 | Public route `/legal/subprocessors` — outside `(dashboard)` group so unauthenticated visitors + crawlers can read. 6 providers seeded (OpenAI, Anthropic, AWS, Stripe, Sentry, Postmark) with purpose/data-types/region columns. Provider keys are data, copy is i18n. Last-updated string + privacy contact. 4 render tests. Legal team can extend the list by editing the i18n catalog only. |
 
 **§4 exit criteria:** ToS / Privacy / DPA signed off; SOC 2 Type I
 report received OR roadmapped to first paying customer.
@@ -263,6 +263,44 @@ When a row changes status:
 ## Test Status Log
 
 Append-only. Newest entries at the top.
+
+### 2026-05-07 — First execution batch (7.04 + 7.13 + 6.05)
+
+Three frontend-only tasks closed in a single sitting (all unblocked rows
+that don't depend on backend / legal / DevOps work):
+
+| Closed | Task | Files added | Tests added |
+|---|---|---|---|
+| 7.04 | Cookie consent banner | `components/shell/cookie-consent.tsx` + `.test.tsx` | 5 |
+| 7.13 | Subprocessor list page | `app/legal/subprocessors/page.tsx` + `.test.tsx` | 4 |
+| 6.05 | `/billing` page mock shell | `app/(dashboard)/billing/page.tsx`, `lib/api/billing.ts` + `.test.ts`, `lib/modules/billing/types.ts`, queryKeys + real-fetch additions | 5 unit + 1 query-keys + 1 real-fetch = 7 |
+
+**Suites:**
+- `npx vitest run` — 101 files / **925 tests ✓** (was 909, +16 net)
+- `npx tsc --noEmit` — clean ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+- All 10 layers still over their ADR-042 floors:
+  - lib/api 94.22% (target 90)
+  - lib/auth 100% (95)
+  - lib/hooks 95.18% (80)
+  - lib/modules 100% (70)
+  - lib/platform 92.20% (70)
+  - lib/utils 100% (70)
+  - lib/utils.ts 100% (100)
+  - components/shared 70.45% (70)
+  - components/shell 59.46% — **+1.59pp** from new cookie-consent (50)
+  - app/api/proxy 100% (90)
+
+**Vitest config**: extended `include` to cover `app/legal/**/*.test.tsx`.
+
+**Next unblocked rows:**
+- §1 backend rows all blocked on Flask repo work (5A.06 R045-min FF
+  is the gating row — backend dev has not started).
+- §3 commercial: 6.01 pricing model (PM), 6.07 self-service signup
+  (FE+BE — frontend shell can be built now), 6.13 in-product upgrade CTA (FE).
+- §4 compliance: 7.05 GDPR data export (BE), 7.06 RTBF (BE), 7.10
+  security disclosure mailbox (Sec).
+- §5-7: mostly DevOps / Sales / CS — out of scope for this repo's agent.
 
 ### 2026-05-07 — Plan file created
 - Initial creation. No tasks executed yet — file establishes the

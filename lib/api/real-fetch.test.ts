@@ -475,6 +475,12 @@ describe("module-registry, settings, feature-flags, policies, search, sample-dat
     await searchGlobal({ q: "abc" });
     expect(fetchMock.mock.calls[0]![0]).toContain("q=abc");
   });
+  it("billing: fetchBillingOverview GET /overview", async () => {
+    fetchMock.mockResolvedValue(okJson({}));
+    const m = await import("./billing");
+    await m.fetchBillingOverview();
+    expect(fetchMock.mock.calls[0]![0]).toContain("/overview");
+  });
   it("sample-data: seed + status", async () => {
     fetchMock.mockResolvedValue(okJson({}));
     const m = await import("./sample-data");

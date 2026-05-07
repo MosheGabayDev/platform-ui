@@ -101,6 +101,11 @@ describe("queryKeys registry", () => {
     expect(queryKeys.search.global("foo")).toEqual(["search", "global", "foo"]);
   });
 
+  it("billing keys", () => {
+    expect(queryKeys.billing.all()).toEqual(["billing"]);
+    expect(queryKeys.billing.overview()).toEqual(["billing", "overview"]);
+  });
+
   it("helpdesk keys", () => {
     expect(queryKeys.helpdesk.all()).toEqual(["helpdesk"]);
     expect(queryKeys.helpdesk.stats()).toEqual(["helpdesk", "stats"]);
