@@ -33,9 +33,14 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { toast } from "sonner";
+import { ClipboardCopy } from "lucide-react";
 import { PermissionGate } from "@/components/shared/permission-gate";
 import { PageShell } from "@/components/shared/page-shell";
 import { EmptyState } from "@/components/shared/empty-state";
+import {
+  RecordActionsMenu,
+  type RecordAction,
+} from "@/components/shared/record-detail";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { fetchAISkills, setSkillEnablement } from "@/lib/api/ai-skills";
@@ -98,6 +103,36 @@ const RISK_META: Record<SkillRiskLevel, { icon: LucideIcon; tone: string }> = {
 
 function SkillCard({ entry }: { entry: SkillEntry }) {
   const queryClient = useQueryClient();
+  const skillActions = useMemo<RecordAction<SkillEntry>[]>(
+    () => [
+      {
+        id: "copy-id",
+        kind: "custom",
+        label: "Copy skill id",
+        icon: ClipboardCopy,
+        onInvoke: async (e) => {
+          if (typeof navigator !== "undefined" && navigator.clipboard) {
+            await navigator.clipboard.writeText(e.skill.id);
+            toast.success(`Copied ${e.skill.id}`);
+          }
+        },
+      },
+      {
+        id: "copy-policy-action",
+        kind: "custom",
+        label: "Copy policy action id",
+        icon: ClipboardCopy,
+        visibleWhen: (e) => Boolean(e.skill.policy_action_id),
+        onInvoke: async (e) => {
+          if (typeof navigator !== "undefined" && navigator.clipboard) {
+            await navigator.clipboard.writeText(e.skill.policy_action_id);
+            toast.success(`Copied ${e.skill.policy_action_id}`);
+          }
+        },
+      },
+    ],
+    [],
+  );
   const mutation = usePlatformMutation({
     mutationFn: setSkillEnablement,
     onSuccess: (d) => {
@@ -220,6 +255,11 @@ function SkillCard({ entry }: { entry: SkillEntry }) {
               Enable
             </Button>
           )}
+          <RecordActionsMenu
+            record={entry}
+            actions={skillActions}
+            triggerAriaLabel={`Skill ${skill.id} actions`}
+          />
         </div>
       </div>
     </div>

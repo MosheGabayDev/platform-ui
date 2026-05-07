@@ -10,11 +10,16 @@
  * RTL-first: all layout uses logical properties.
  */
 
+import { useMemo } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DataTable } from "@/components/shared/data-table";
+import {
+  RecordActionsMenu,
+  type RecordAction,
+} from "@/components/shared/record-detail";
 import { UserStatusBadge } from "./user-status-badge";
 import { UserRoleBadge } from "./user-role-badge";
 import { formatDate } from "@/lib/utils/format";
@@ -31,9 +36,16 @@ interface UsersTableProps {
   onSearchChange: (v: string) => void;
   onPageChange: (p: number) => void;
   onRowClick?: (user: UserSummary) => void;
+  /**
+   * Optional row-level RecordActions. When provided, an Actions column
+   * is appended that surfaces them via the shared RecordActionsMenu
+   * primitive (Track C). RBAC + visibleWhen + destructive-confirm are
+   * owned by the primitive — pass the bare actions here.
+   */
+  actions?: RecordAction<UserSummary>[];
 }
 
-const columns: ColumnDef<UserSummary>[] = [
+const baseColumns: ColumnDef<UserSummary>[] = [
   {
     accessorKey: "name",
     header: ({ column }) => (
@@ -102,7 +114,32 @@ export function UsersTable({
   onSearchChange,
   onPageChange,
   onRowClick,
+  actions,
 }: UsersTableProps) {
+  const columns = useMemo<ColumnDef<UserSummary>[]>(() => {
+    if (!actions || actions.length === 0) return baseColumns;
+    return [
+      ...baseColumns,
+      {
+        id: "actions",
+        header: "",
+        cell: ({ row }) => (
+          <div
+            className="flex justify-end"
+            // Stop the row-click handler when interacting with the menu.
+            onClick={(e) => e.stopPropagation()}
+          >
+            <RecordActionsMenu
+              record={row.original}
+              actions={actions}
+              triggerAriaLabel="פעולות על משתמש"
+            />
+          </div>
+        ),
+      },
+    ];
+  }, [actions]);
+
   return (
     <div className="space-y-3">
       {/* Search bar — Users-specific, stays in this component */}

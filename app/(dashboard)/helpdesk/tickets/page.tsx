@@ -10,7 +10,7 @@
  * Spec: docs/modules/04-helpdesk/PLAN.md
  */
 import { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
@@ -23,6 +23,12 @@ import {
   X,
 } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
+import { Hand, CheckSquare } from "lucide-react";
+import {
+  RecordActionsMenu,
+  type RecordAction,
+} from "@/components/shared/record-detail";
+import { takeTicket, resolveTicket } from "@/lib/api/helpdesk";
 import { toast } from "sonner";
 import { FeatureGate } from "@/components/shared/feature-gate";
 import { PageShell } from "@/components/shared/page-shell";
@@ -67,6 +73,7 @@ const PRIORITY_OPTIONS: Array<{ value: TicketPriority | "all"; label: string }> 
 function TicketsListInner() {
   const t = useTranslations("helpdesk.tickets");
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<TicketStatus | "all">("all");
@@ -137,6 +144,49 @@ function TicketsListInner() {
     availableActions: [],
   });
 
+  // C7 — RecordActions for /helpdesk/tickets. View navigates to the
+  // detail page; Take + Resolve call the existing helpdesk APIs and
+  // invalidate the list query. Take is hidden when ticket is already
+  // resolved/closed; Resolve is hidden when ticket is closed.
+  const ticketActions = useMemo<RecordAction<TicketSummary>[]>(
+    () => [
+      {
+        id: "view",
+        kind: "view",
+        label: "View details",
+        onInvoke: (tk) => router.push(`/helpdesk/tickets/${tk.id}`),
+      },
+      {
+        id: "take",
+        kind: "custom",
+        label: "Take ticket",
+        icon: Hand,
+        visibleWhen: (tk) => tk.status !== "resolved" && tk.status !== "closed",
+        onInvoke: async (tk) => {
+          await takeTicket({ ticketId: tk.id });
+          toast.success(`Ticket #${tk.ticket_number} assigned to you.`);
+          await queryClient.invalidateQueries({ queryKey: queryKeys.helpdesk.all() });
+        },
+      },
+      {
+        id: "resolve",
+        kind: "custom",
+        label: "Resolve",
+        icon: CheckSquare,
+        visibleWhen: (tk) => tk.status !== "resolved" && tk.status !== "closed",
+        destructive: true,
+        confirmTitle: "Resolve ticket",
+        confirmDescription: "The user will be notified that the ticket is resolved.",
+        onInvoke: async (tk) => {
+          await resolveTicket({ ticketId: tk.id, resolution: "Resolved via row action" });
+          toast.success(`Ticket #${tk.ticket_number} resolved.`);
+          await queryClient.invalidateQueries({ queryKey: queryKeys.helpdesk.all() });
+        },
+      },
+    ],
+    [router, queryClient],
+  );
+
   const columns = useMemo<ColumnDef<TicketSummary>[]>(
     () => [
       {
@@ -179,8 +229,30 @@ function TicketsListInner() {
             <span className="text-muted-foreground text-xs">On track</span>
           ),
       },
+      // C7 — RecordActionsMenu column. Actions are filtered server-side
+      // by helpdesk RBAC + per-ticket assignment; the menu's RBAC gate
+      // is a UI hint, not the security boundary.
+      {
+        id: "actions",
+        header: "",
+        cell: ({ row }) => (
+          <div
+            className="flex justify-end"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <RecordActionsMenu
+              record={row.original}
+              actions={ticketActions}
+              triggerAriaLabel="Ticket actions"
+            />
+          </div>
+        ),
+      },
     ],
-    [],
+    // Re-build the column when the actions array re-renders (e.g. after
+    // a ticket changes status and `visibleWhen` predicates flip).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [ticketActions],
   );
 
   return (

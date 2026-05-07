@@ -10,30 +10,33 @@
  * Do NOT put business logic here. Do NOT fetch directly with fetch().
  */
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
-import { Users, UserPlus, Clock, ShieldCheck } from "lucide-react";
+import { Users, UserPlus, Clock, ShieldCheck, UserMinus } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageShell } from "@/components/shared/page-shell";
 import { StatCard } from "@/components/shared/stats";
 import { ErrorState } from "@/components/shared/error-state";
+import type { RecordAction } from "@/components/shared/record-detail";
 import { UsersTable } from "@/components/modules/users/users-table";
 import { UserCreateSheet } from "@/components/modules/users/user-form";
-import { fetchUsers, fetchUserStats } from "@/lib/api/users";
+import { fetchUsers, fetchUserStats, setUserActive } from "@/lib/api/users";
 import { queryKeys } from "@/lib/api/query-keys";
 import { hasRole } from "@/lib/auth/rbac";
 import { PAGE_EASE } from "@/lib/ui/motion";
-import type { UsersListParams } from "@/lib/modules/users/types";
+import type { UserSummary, UsersListParams } from "@/lib/modules/users/types";
 import { useRegisterPageContext } from "@/lib/hooks/use-register-page-context";
 
 export default function UsersPage() {
   const router = useRouter();
   const { data: session } = useSession();
   const isAdmin = hasRole(session, "admin", "system_admin");
+  const queryClient = useQueryClient();
 
   const [params, setParams] = useState<UsersListParams>({ page: 1, per_page: 25 });
   const [search, setSearch] = useState("");
@@ -70,6 +73,47 @@ export default function UsersPage() {
 
   const stats = statsData?.data;
   const list = listData?.data;
+
+  // C6 — RecordActions for /users. View is open to anyone with list access;
+  // edit/deactivate require admin (re-checked by the backend). Deactivate
+  // is destructive with a typed-name confirm — prevents fat-finger
+  // mistakes on production user accounts.
+  const userActions = useMemo<RecordAction<UserSummary>[]>(
+    () => [
+      {
+        id: "view",
+        kind: "view",
+        label: "צפייה בפרטים",
+        onInvoke: (u) => router.push(`/users/${u.id}`),
+      },
+      {
+        id: "edit",
+        kind: "edit",
+        label: "עריכה",
+        requiredRoles: ["admin", "system_admin"],
+        onInvoke: (u) => router.push(`/users/${u.id}?edit=1`),
+      },
+      {
+        id: "deactivate",
+        kind: "delete",
+        label: "השבת חשבון",
+        icon: UserMinus,
+        requiredRoles: ["admin", "system_admin"],
+        visibleWhen: (u) => u.is_active,
+        destructive: true,
+        confirmTitle: "השבתת משתמש",
+        confirmDescription:
+          "המשתמש לא יוכל יותר להתחבר עד שהחשבון יופעל מחדש.",
+        confirmTypedName: (u) => u.email,
+        onInvoke: async (u) => {
+          await setUserActive(u.id, false);
+          toast.success(`המשתמש ${u.name} הושבת.`);
+          await queryClient.invalidateQueries({ queryKey: queryKeys.users.all() });
+        },
+      },
+    ],
+    [router, queryClient],
+  );
 
   return (
     <PageShell
@@ -159,6 +203,7 @@ export default function UsersPage() {
             onSearchChange={handleSearchChange}
             onPageChange={handlePageChange}
             onRowClick={(user) => router.push(`/users/${user.id}`)}
+            actions={userActions}
           />
         )}
       </motion.div>

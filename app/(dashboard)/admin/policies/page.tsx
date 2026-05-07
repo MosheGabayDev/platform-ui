@@ -17,6 +17,11 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/api/query-keys";
 import { useTranslations } from "next-intl";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
+import { ClipboardCopy } from "lucide-react";
+import {
+  RecordActionsMenu,
+  type RecordAction,
+} from "@/components/shared/record-detail";
 import {
   Shield,
   ShieldAlert,
@@ -104,6 +109,40 @@ function RuleRow({ rule }: { rule: PolicyRule }) {
 
 function PolicyCard({ policy }: { policy: Policy }) {
   const queryClient = useQueryClient();
+  const policyActions = useMemo<RecordAction<Policy>[]>(
+    () => [
+      {
+        id: "copy-id",
+        kind: "custom",
+        label: "Copy policy id",
+        icon: ClipboardCopy,
+        onInvoke: async (p) => {
+          if (typeof navigator !== "undefined" && navigator.clipboard) {
+            await navigator.clipboard.writeText(p.id);
+            toast.success(`Copied ${p.id}`);
+          }
+        },
+      },
+      {
+        id: "delete",
+        kind: "delete",
+        label: "Delete policy",
+        // Out-of-scope until backend ships — gated to system_admin only.
+        requiredRoles: ["system_admin"],
+        visibleWhen: (p) => p.org_id !== null, // never delete system policies
+        destructive: true,
+        confirmTitle: "Delete policy",
+        confirmDescription:
+          "This permanently removes the policy. Audit entries reference it by id.",
+        confirmTypedName: (p) => p.id,
+        onInvoke: () => {
+          // Backend not implemented yet (Phase 5). Toast + tracker.
+          toast.info("Policy deletion is not yet supported by the backend.");
+        },
+      },
+    ],
+    [],
+  );
   const mutation = usePlatformMutation({
     mutationFn: ({ id, enabled }: { id: string; enabled: boolean }) =>
       setPolicyEnabled(id, enabled),
@@ -134,26 +173,33 @@ function PolicyCard({ policy }: { policy: Policy }) {
             </div>
             <p className="text-xs text-muted-foreground mt-1">{policy.description}</p>
           </div>
-          <Button
-            size="sm"
-            variant={policy.enabled ? "outline" : "default"}
-            disabled={mutation.isPending}
-            onClick={() =>
-              mutation.mutate({ id: policy.id, enabled: !policy.enabled })
-            }
-          >
-            {policy.enabled ? (
-              <>
-                <PowerOff className="h-3.5 w-3.5 me-1" aria-hidden="true" />
-                Disable
-              </>
-            ) : (
-              <>
-                <Power className="h-3.5 w-3.5 me-1" aria-hidden="true" />
-                Enable
-              </>
-            )}
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              size="sm"
+              variant={policy.enabled ? "outline" : "default"}
+              disabled={mutation.isPending}
+              onClick={() =>
+                mutation.mutate({ id: policy.id, enabled: !policy.enabled })
+              }
+            >
+              {policy.enabled ? (
+                <>
+                  <PowerOff className="h-3.5 w-3.5 me-1" aria-hidden="true" />
+                  Disable
+                </>
+              ) : (
+                <>
+                  <Power className="h-3.5 w-3.5 me-1" aria-hidden="true" />
+                  Enable
+                </>
+              )}
+            </Button>
+            <RecordActionsMenu
+              record={policy}
+              actions={policyActions}
+              triggerAriaLabel="Policy actions"
+            />
+          </div>
         </div>
       </div>
       <div className="p-2">
