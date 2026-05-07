@@ -125,12 +125,12 @@ without human touch.
 
 | # | Task | Owner | Status | Notes |
 |---|---|---|---|---|
-| 6.01 | Pricing model: tiers, included caps, per-tenant token budget | PM | [ ] | Document before code |
+| 6.01 | Pricing model: tiers, included caps, per-tenant token budget | PM | [x] 2026-05-07 | Spec written: `docs/system-upgrade/04-capabilities/pricing-tiers-spec.md` (Free / Pro / Enterprise matrix, entitlements contract, Stripe product mapping, open questions). FE helper: `lib/platform/billing/tiers.ts` returns `TierEntitlements` per tier + `isUnlimited` / `isOverLimit` / `utilizationPct` pure helpers. 21 tests cover every tier shape + every helper edge case. PM still owns the dollar amounts; the spec format is the contract. |
 | 6.02 | Marketing site (separate repo): landing, pricing, docs, blog | FE | [ ] | Out of scope for platform-ui |
 | 6.03 | Stripe integration (subscriptions + metered usage) | BE | [ ] | |
 | 6.04 | Stripe webhooks: invoice.paid / payment_failed / subscription.updated | BE | [ ] | |
 | 6.05 | `/billing` page: current plan, invoices, payment method | FE | [x] 2026-05-07 | Mock-mode shell shipped — plan tier badge, 3 usage gauges (tokens/api_calls/seats with red/amber/green thresholds), invoices table, "Manage payment" CTA disabled until plan.portal_url returns Stripe URL. New: `lib/api/billing.ts` + `lib/modules/billing/types.ts` + `queryKeys.billing.*` + i18n in he/en + 5 unit tests. Backend wiring deferred to 6.03/6.04 (just unset NEXT_PUBLIC_MOCK_API once Stripe BE serves /overview). |
-| 6.06 | Plan-tier feature flag mapping → cap 17 FeatureFlags | FE+BE | [ ] | Plan up/downgrade triggers flag re-eval |
+| 6.06 | Plan-tier feature flag mapping → cap 17 FeatureFlags | FE+BE | [partial] 2026-05-07 | FE side complete — `lib/platform/billing/tier-flags.ts` exposes `flagsForTier(tier)` + `isFlagAutoEnabledForTier(flag, tier)` + `minTierForFlag(flag)`. Free→1 flag, Pro→5 flags (strict superset), Enterprise→11 flags. 13 tests verify the strict-superset invariant + every flag's min-tier. Backend mirrors this mapping at flag-resolution time (cap 17 §Resolution chain). Plan up/downgrade re-eval still depends on Stripe webhook → cache invalidate (deferred to 6.04). |
 | 6.07 | Self-service signup flow: email → org create → first user | FE+BE | [partial] 2026-05-07 | Frontend shell shipped — `app/(auth)/signup/page.tsx` + Zod schema + `lib/api/signup.ts` mock client + i18n. PlatformForm + usePlatformMutation pattern; success state shows email-verify next-step; rich-text legal links to /legal/terms + /legal/privacy. Backend POST /api/proxy/signup not yet built — depends on 5A.01 + 6.08 email verification. MOCK_MODE flip checklist documented in lib/api/signup.ts. |
 | 6.08 | Email verification: magic link via SES/Postmark | BE | [ ] | |
 | 6.09 | Onboarding email sequence (D0/D1/D7/D14) | Marketing | [ ] | |
@@ -160,7 +160,7 @@ mode; trial flow completes; first invoice generated correctly.
 | 7.07 | SOC 2 Type I readiness assessment | Compliance | [ ] | 6-month track |
 | 7.08 | Audit log retention policy (90/180/365 days per plan) | BE | [ ] | |
 | 7.09 | PII data classification + encryption-at-rest review | BE+Sec | [ ] | |
-| 7.10 | Security disclosure policy + `security@` mailbox | Sec | [ ] | |
+| 7.10 | Security disclosure policy + `security@` mailbox | Sec | [partial] 2026-05-07 | Public policy page shipped: `app/legal/security/page.tsx` with 4 sections (how to report / scope / out-of-scope / safe harbor) + PGP note + mailto link. i18n in he/en. 4 render tests. Mailbox provisioning + PGP key generation + security.txt redirect (per 8.10 ops task) still owned by Security team. |
 | 7.11 | Penetration test report (rolls into SOC 2) | External | [ ] | |
 | 7.12 | DPIA (Data Protection Impact Assessment) for AI features | Legal | [ ] | EU AI Act preparation |
 | 7.13 | Subprocessor list page (OpenAI, Anthropic, AWS, Stripe, ...) | Legal+FE | [x] 2026-05-07 | Public route `/legal/subprocessors` — outside `(dashboard)` group so unauthenticated visitors + crawlers can read. 6 providers seeded (OpenAI, Anthropic, AWS, Stripe, Sentry, Postmark) with purpose/data-types/region columns. Provider keys are data, copy is i18n. Last-updated string + privacy contact. 4 render tests. Legal team can extend the list by editing the i18n catalog only. |
@@ -263,6 +263,44 @@ When a row changes status:
 ## Test Status Log
 
 Append-only. Newest entries at the top.
+
+### 2026-05-07 — Third execution batch (6.01 + 6.06 + 7.10)
+
+Three more rows closed/partial. Focus: pricing-tier contract that
+multiple later rows will read from.
+
+| Closed | Task | Files added | Tests added |
+|---|---|---|---|
+| 6.01 | Pricing tiers spec + FE entitlements helper | `docs/system-upgrade/04-capabilities/pricing-tiers-spec.md`, `lib/platform/billing/tiers.ts` + `.test.ts` | 21 |
+| 6.06 | Plan-tier → FeatureFlags helper (partial) | `lib/platform/billing/tier-flags.ts` + `.test.ts` | 13 |
+| 7.10 | Security disclosure page (partial) | `app/legal/security/page.tsx` + `.test.tsx` | 4 |
+
+Note: 6.06 and 7.10 are **partial** — frontend mapping / page is shipped,
+the matching backend / mailbox-provisioning work is still pending.
+
+**Suites:**
+- `npx vitest run` — 108 files / **987 tests ✓** (was 953, +34 net)
+- `npx tsc --noEmit` — clean ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+- Layer changes vs prior baseline:
+  - lib/platform 92.20% → **93.37%** (+1.17pp from new tiers/* helpers)
+  - components/shell stable at 61.60% (security page renders without
+    interactive logic, fully covered by 4 render tests)
+- Pricing-tier helpers are now the canonical entitlements source for
+  any later row (6.05 billing page, 6.13 upgrade CTA, 9.* enterprise
+  features) that needs to ask "what does this tier include".
+
+**Cumulative across three 2026-05-07 batches:** 9 PRODUCT_LAUNCH_PLAN
+rows touched (5 fully closed, 4 partial). 78 new tests added
+(16 + 28 + 34). Zero regressions; gate stable.
+
+**Closed-row map by phase:**
+- §3 Commercial: 6.05 ✅, 6.13 ✅, 6.01 ✅ + 6.06 partial + 6.07 partial
+- §4 Compliance: 7.04 ✅, 7.13 ✅ + 7.10 partial
+- §7 GA: 10.06 partial
+
+**Still no backend rows touched.** Phase 5A is fully blocked on Flask
+repo work (5A.06 R045-min Feature Flags BE is the gating row).
 
 ### 2026-05-07 — Second execution batch (6.13 + 6.07 + 10.06)
 

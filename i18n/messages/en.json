@@ -1114,6 +1114,31 @@
           "region": "United States"
         }
       }
+    },
+    "security": {
+      "title": "Vulnerability Disclosure Policy",
+      "subtitle": "How to report a security issue",
+      "intro": "We take platform security seriously and deeply appreciate the community that helps keep it safe.",
+      "sections": {
+        "report": {
+          "title": "How to report",
+          "body": "Send an encrypted email to security@platform.local with a description of the vulnerability, reproduction steps, and impact assessment. We respond within 48 hours."
+        },
+        "scope": {
+          "title": "In-scope",
+          "body": "Cross-tenant data leakage, privilege escalation, XSS / SSRF / SQLi, authentication or token-refresh flaws, and any breach of the AI guardrails are all in-scope."
+        },
+        "outOfScope": {
+          "title": "Out of scope",
+          "body": "No DoS testing, no employee impersonation attempts, no social-engineering of customers. Do not test accounts that are not yours."
+        },
+        "safeHarbor": {
+          "title": "Safe harbor",
+          "body": "Reports made in good faith under this policy will not result in legal, criminal, or contractual action against you. With your permission we credit you on the Hall of Fame."
+        }
+      },
+      "pgp": "PGP key: available on request at security@platform.local",
+      "lastUpdated": "Last updated: 2026-05-07"
     }
   },
   "billing": {
