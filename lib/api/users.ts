@@ -38,6 +38,8 @@ import type {
   UserMutationResponse,
   UserSummary,
   UserDetail,
+  UserActivityResponse,
+  ActivityTypeFilter,
 } from "@/lib/modules/users/types";
 import type { CreateUserInput, EditUserInput } from "@/lib/modules/users/schemas";
 
@@ -269,4 +271,20 @@ export async function setUserActive(
     method: "PATCH",
     body: JSON.stringify({ is_active: isActive, reason: reason ?? null }),
   });
+}
+
+/** Fetch activity timeline for a user. Admin or own profile. */
+export async function fetchUserActivity(
+  id: number,
+  params: { limit?: number; offset?: number; type?: ActivityTypeFilter } = {},
+): Promise<UserActivityResponse> {
+  if (MOCK_MODE) {
+    return { success: true, data: { events: [], total: 0 } } as UserActivityResponse;
+  }
+  const qs = new URLSearchParams({
+    limit: String(params.limit ?? 20),
+    offset: String(params.offset ?? 0),
+  });
+  if (params.type) qs.set("type", params.type);
+  return apiFetch<UserActivityResponse>(`/${id}/activity?${qs}`);
 }

@@ -11,6 +11,8 @@ export const queryKeys = {
     list:    (params?: object) => ["users", "list", params]    as const,
     detail:  (id: number) => ["users", "detail", id]          as const,
     pending: () => ["users", "pending"]                        as const,
+    activity: (id: number, params?: object) =>
+      ["users", "activity", id, params]                        as const,
   },
 
   // Module 02: Organizations

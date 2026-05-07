@@ -170,6 +170,21 @@ describe("users.ts real-fetch", () => {
     expect(fetchMock.mock.calls[0]![0]).toContain("/9/active");
     expect(fetchMock.mock.calls[0]![1]!.body).toContain('"reason":"audit"');
   });
+  it("fetchUserActivity GET /<id>/activity with default limit + offset", async () => {
+    fetchMock.mockResolvedValue(okJson({ data: { events: [], total: 0 } }));
+    const { fetchUserActivity } = await import("./users");
+    await fetchUserActivity(7);
+    const url = fetchMock.mock.calls[0]![0];
+    expect(url).toContain("/7/activity");
+    expect(url).toContain("limit=20");
+    expect(url).toContain("offset=0");
+  });
+  it("fetchUserActivity forwards type filter", async () => {
+    fetchMock.mockResolvedValue(okJson({}));
+    const { fetchUserActivity } = await import("./users");
+    await fetchUserActivity(1, { type: "login" });
+    expect(fetchMock.mock.calls[0]![0]).toContain("type=login");
+  });
 });
 
 describe("organizations.ts real-fetch", () => {

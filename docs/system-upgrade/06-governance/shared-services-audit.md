@@ -167,11 +167,23 @@ Every primitive in the catalog is implemented and consumed somewhere:
 
 ## Open follow-ups (not audit violations, but worth tracking)
 
-- `KpiCard` component test coverage is partial — the card is used on
-  every dashboard page; should add component tests.
-- `DetailView` primitives (`DetailSection`, `InfoRow`, etc) lack tests.
-- `ErrorBoundary` lacks a test that asserts the fallback renders.
-- `Timeline` lacks tests.
+All previously-listed primitive test gaps closed in the 2026-05-07
+coverage sprint:
+- `KpiCard` ✅ — `components/shared/stats/stats.test.tsx`
+- `DetailView` primitives ✅ — `components/shared/detail-view/detail-view.test.tsx`
+- `ErrorBoundary` ✅ — `components/shared/error-boundary.test.tsx`
+- `Timeline` ✅ — `components/shared/timeline/timeline.test.tsx`
 
-These are tracked as a future "primitive test coverage" sprint, not
-shared-service violations.
+## Re-audit pass — 2026-05-07 (post-coverage-sprint)
+
+Re-ran the 10 ADR-028 rules across `app/`, `components/modules/`,
+`components/shell/`, `lib/modules/`. Found 2 violations, both in
+`lib/modules/users/hooks.ts`:
+
+| Rule | File:line | Violation | Fix |
+|---|---|---|---|
+| 7 (no raw fetch in components) | `lib/modules/users/hooks.ts:17` | `fetch("/api/proxy/users/...")` inline in hooks file | Moved to `lib/api/users.ts` as `fetchUserActivity()` (mirrors every other api client) |
+| 8 (centralised query keys) | `lib/modules/users/hooks.ts:35` | `queryKey: ["users", "activity", userId, ...]` inline string array | Added `queryKeys.users.activity(id, params)` to `lib/api/query-keys.ts` |
+
+Both fixed in the same commit; re-grep confirms zero remaining
+violations across all 10 rules. ADR-028 compliance: **100%**.

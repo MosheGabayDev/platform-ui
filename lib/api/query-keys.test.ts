@@ -20,6 +20,12 @@ describe("queryKeys registry", () => {
     expect(queryKeys.users.list()).toEqual(["users", "list", undefined]);
     expect(queryKeys.users.detail(7)).toEqual(["users", "detail", 7]);
     expect(queryKeys.users.pending()).toEqual(["users", "pending"]);
+    expect(queryKeys.users.activity(7, { limit: 20 })).toEqual([
+      "users",
+      "activity",
+      7,
+      { limit: 20 },
+    ]);
   });
 
   it("orgs keys", () => {
