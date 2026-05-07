@@ -304,6 +304,39 @@
         "label": "Label",
         "addedAt": "Added"
       }
+    },
+    "feedback": {
+      "title": "Customer feedback",
+      "subtitle": "Pilot + customer feedback aggregation before backlog conversion",
+      "intro": "Every piece of feedback from pilot channels — emails, calls, surveys — surfaces here. The team triages each item into bug / feature / insight and ships the qualifying ones to the Linear backlog.",
+      "filters": {
+        "all": "All",
+        "bug": "Bug",
+        "feature": "Feature",
+        "insight": "Insight"
+      },
+      "status": {
+        "new": "New",
+        "triaged": "Triaged",
+        "converted": "Backlog'd",
+        "duplicate": "Duplicate",
+        "wontFix": "Won't fix"
+      },
+      "empty": "No new feedback. To add manually — email feedback@platform.local",
+      "add": "Add feedback manually",
+      "form": {
+        "title": "Add new feedback",
+        "cta": "Save",
+        "aria": "Add feedback form",
+        "fields": {
+          "source": "Source",
+          "type": "Type",
+          "content": "Feedback content",
+          "reporter": "Reporter (optional)"
+        }
+      },
+      "saved": "Feedback saved",
+      "backendNotice": "Linear integration goes live at launch. Currently — items persist in localStorage for demo."
     }
   },
   "nav": {
@@ -1513,6 +1546,62 @@
         "eu-west-1": "Ireland (eu-west-1)",
         "us-east-1": "US East (us-east-1)"
       }
+    }
+  },
+  "emails": {
+    "verifyEmail": {
+      "subject": "Verify your email address",
+      "body": "Hello {{user_first_name}},\n\nAlmost done. Verify your address: {{verify_link}}\n\nLink valid for 24 hours.\n\n— The Platform Engineer team"
+    },
+    "welcome": {
+      "subject": "Welcome to Platform Engineer",
+      "body": "Hello {{user_first_name}},\n\nYour organization \"{{org_name}}\" is ready. Get started at {{console_link}}.\n\nWe'll send a few tips over the next days to help you get the most out of the platform. If you'd rather we didn't, every email has an unsubscribe link below.\n\n— The Platform Engineer team"
+    },
+    "firstAiNudge": {
+      "subject": "Start your first AI conversation",
+      "body": "Hello {{user_first_name}},\n\nThe platform ships with a built-in AI agent. One click at {{ai_link}} and you can ask it to triage tickets, search users, or run a report.\n\n— The Platform Engineer team"
+    },
+    "trialDay7": {
+      "subject": "How is your first week going?",
+      "body": "Hello {{user_first_name}},\n\nHalf-way through. If you have questions, we're here. You can upgrade any time at {{billing_link}}.\n\n— The Platform Engineer team"
+    },
+    "trialDay14": {
+      "subject": "Your trial ends on {{trial_end_date}}",
+      "body": "Hello {{user_first_name}},\n\nYour trial ends on {{trial_end_date}}. Pick a plan at {{billing_link}} to keep going uninterrupted.\n\n— The Platform Engineer team"
+    },
+    "trialEnded": {
+      "subject": "Your trial has ended",
+      "body": "Hello {{user_first_name}},\n\nYour trial has ended and access is now limited to the Free tier. You can upgrade at any time at {{billing_link}} to restore data and features.\n\n— The Platform Engineer team"
+    },
+    "paymentFailed": {
+      "subject": "Payment failed — action required",
+      "body": "Hello {{user_first_name}},\n\nThe charge of {{amount_due}} did not go through. Update your payment method at {{billing_portal_link}} to avoid a service suspension.\n\n— The Platform Engineer team"
+    },
+    "dunningFinal": {
+      "subject": "Final notice — service suspension on {{suspension_date}}",
+      "body": "Hello {{user_first_name}},\n\nIf payment is not completed by {{suspension_date}}, your organization's access will be suspended. Update your payment method at {{billing_portal_link}}.\n\n— The Platform Engineer team"
+    },
+    "passwordReset": {
+      "subject": "Password reset",
+      "body": "Hello {{user_first_name}},\n\nWe received a password reset request. If this wasn't you, you can ignore this email. To reset: {{reset_link}}\n\nLink valid until {{expires_at}}.\n\n— The Platform Engineer team"
+    },
+    "rtbfReceipt": {
+      "subject": "Account deletion request received",
+      "body": "Hello {{user_first_name}},\n\nWe received your account deletion request (id: {{request_id}}). Deletion takes effect on {{effective_at}}. If you want to cancel before then, contact support.\n\n— The Platform Engineer team"
+    },
+    "dataExportReady": {
+      "subject": "Your data export is ready",
+      "body": "Hello {{user_first_name}},\n\nThe data export you requested is ready to download: {{download_link}}\n\nLink valid until {{expires_at}}. After that, you will need to request a new export.\n\n— The Platform Engineer team"
+    }
+  },
+  "footer": {
+    "copyright": "© 2026 Platform Engineer",
+    "links": {
+      "legal": "Legal",
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "security": "Security",
+      "docs": "Docs"
     }
   }
 }

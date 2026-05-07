@@ -133,7 +133,7 @@ without human touch.
 | 6.06 | Plan-tier feature flag mapping → cap 17 FeatureFlags | FE+BE | [partial] 2026-05-07 | FE side complete — `lib/platform/billing/tier-flags.ts` exposes `flagsForTier(tier)` + `isFlagAutoEnabledForTier(flag, tier)` + `minTierForFlag(flag)`. Free→1 flag, Pro→5 flags (strict superset), Enterprise→11 flags. 13 tests verify the strict-superset invariant + every flag's min-tier. Backend mirrors this mapping at flag-resolution time (cap 17 §Resolution chain). Plan up/downgrade re-eval still depends on Stripe webhook → cache invalidate (deferred to 6.04). |
 | 6.07 | Self-service signup flow: email → org create → first user | FE+BE | [partial] 2026-05-07 | Frontend shell shipped — `app/(auth)/signup/page.tsx` + Zod schema + `lib/api/signup.ts` mock client + i18n. PlatformForm + usePlatformMutation pattern; success state shows email-verify next-step; rich-text legal links to /legal/terms + /legal/privacy. Backend POST /api/proxy/signup not yet built — depends on 5A.01 + 6.08 email verification. MOCK_MODE flip checklist documented in lib/api/signup.ts. |
 | 6.08 | Email verification: magic link via SES/Postmark | BE | [ ] | |
-| 6.09 | Onboarding email sequence (D0/D1/D7/D14) | Marketing | [ ] | |
+| 6.09 | Onboarding email sequence (D0/D1/D7/D14) | Marketing | [partial] 2026-05-08 | Templates seeded in `lib/email-templates/catalog.ts` — 11 lifecycle emails across signup / trial / conversion / transactional phases. Each has `subject_key` + `body_key` resolved via i18n in he/en, with Liquid `{{variable}}` placeholders for backend renderer. Catalog invariant tests enforce subject + body present in BOTH locales for every template AND every declared variable appears in its body. `getEmailTemplate(id)` / `getEmailsForPhase(phase)` / `getAllReferencedVariables()` helpers. Marketing edits copy via i18n catalog only. |
 | 6.10 | Trial → paid conversion flow + dunning emails | BE | [ ] | |
 | 6.11 | Usage metering: tokens / API calls / seats per tenant | BE | [partial] 2026-05-07 | FE display shipped — `components/modules/billing/usage-chart.tsx` renders a 30-day dual-series Recharts area chart (tokens left axis, api_calls right) on /billing. Subscribes to `queryKeys.billing.usageSeries(days)`. New `lib/api/billing.ts.fetchUsageSeries()` + `buildMockUsageSeries()` pure helper. New types `UsagePoint` + `UsageSeriesResponse`. 9 tests (4 chart smoke + 3 helper invariants + 2 client). Stripe metered-usage write path still BE-side — FE is read-only display. |
 | 6.12 | Cap 19 PlatformTenantContext extension: plan tier + entitlements | FE+BE | [partial] 2026-05-07 | FE side complete: `lib/hooks/use-tenant-context.ts` returns `{ org_id, user_id, role, is_admin, tier, entitlements, isLoading, isAnonymous }` by combining session + billing + tier helpers from 6.01. Fail-closed to "free" tier while billing loads or errors (no premium-feature flash). 8 tests cover loading/anonymous/authenticated, every tier shape, fail-closed paths. Backend tier source-of-truth still depends on Stripe webhook → cache (6.04). |
@@ -232,7 +232,7 @@ completed without blockers.
 | 10.02 | Pilot agreement template (mutual NDA + free trial) | Legal | [ ] | |
 | 10.03 | White-glove onboarding for first 3 customers | CS | [ ] | One-on-one calls |
 | 10.04 | Weekly NPS + bug-tracking with each pilot | CS | [ ] | |
-| 10.05 | Beta feedback → backlog conversion process | Product | [ ] | Linear / GitHub Issues |
+| 10.05 | Beta feedback → backlog conversion process | Product | [partial] 2026-05-08 | Admin shell shipped at `/admin/feedback`. Read for any admin; manual-add gated on `system_admin` via `<PermissionGate role="system_admin">`. Type/status badges (bug/feature/insight × new/triaged/converted/dup/wontFix). 3 fixture items demonstrate the triage flow end-to-end. Mock client `lib/api/feedback.ts` persists via cap-A localStorage shim; round-trips on reload. 5 client tests + 2 real-fetch + 1 query-key test. Linear/GitHub integration is BE work tracked separately. |
 | 10.06 | Customer support tooling (Intercom / Crisp / built-in) | Product | [partial] 2026-05-07 | Mount point shipped — `components/shell/support-widget.tsx` is env-driven (NEXT_PUBLIC_SUPPORT_PROVIDER=intercom\|crisp\|plain\|none). No-op by default; lazy-injects vendor loader script when configured. Intercom + Crisp paths covered by 6 unit tests with vi.stubEnv. Mounted in `(dashboard)/layout.tsx`. Public pages (login/signup/legal) intentionally do not load the widget. Vendor decision deferred to product team. |
 | 10.07 | Documentation site: API reference + admin guide + AI agent guide | Tech writing | [partial] 2026-05-07 | Public landing page shipped at `/docs` with 5 section cards (Getting Started / Admin / AI / API Reference / Release Notes) routing to placeholder sub-paths. i18n in he/en — adding a section is a catalog edit + one row in `SECTIONS`. Each card is a Link with hover affordance. 5 render tests. Tech-writing track owns the actual MDX content; this gives them a stable URL structure to ship into. |
 | 10.08 | Self-service knowledge base populated | CS | [partial] 2026-05-07 | KB scaffolded — extended `DocCategory` with troubleshooting / best-practices / faq. Added 9 sample articles (3 per category) with full bodyKey content in `lib/docs/content.ts` + i18n in he/en for all titles, summaries, and bodies. Updated `content.test.ts` invariants to require ≥3 articles per new category and bodyKey present. Tech-writing track owns the long-form content evolution; the catalog format + URL structure are the contract. |
@@ -263,6 +263,44 @@ When a row changes status:
 ## Test Status Log
 
 Append-only. Newest entries at the top.
+
+### 2026-05-08 — Eighth execution batch (6.09 + 10.05 + public footer)
+
+The "everything-else FE" sweep. After this batch, every PRODUCT_LAUNCH_PLAN
+row that can ship from this repo without backend / external work has
+been touched.
+
+| Closed | Task | Files added | Tests added |
+|---|---|---|---|
+| 6.09 | Email templates seeded (partial) | `lib/email-templates/{types,catalog,catalog.test}.ts` + 11 emails × 2 locales i18n | 9 |
+| 10.05 | Feedback admin shell (partial) | `app/(dashboard)/admin/feedback/page.tsx`, `lib/api/feedback.ts` + `.test.ts`, `lib/modules/feedback/types.ts`, queryKeys + real-fetch | 5 client + 2 real-fetch + 1 query-key = 8 |
+| — | Public footer | `components/shared/public-footer.tsx` + `.test.tsx`, layouts in `app/legal/`, `app/docs/`, `app/(auth)/` | 2 |
+
+**Suites:**
+- `npx vitest run` — 120 files / **1063 tests ✓** (was 1044, +19 net)
+- `npx tsc --noEmit` — clean ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+- components/shared 70.45% → **73.78%** (+3.33pp from public-footer)
+
+**Public footer mounted on:**
+- `app/legal/layout.tsx` — every /legal/* page
+- `app/docs/layout.tsx` — every /docs/* page
+- `app/(auth)/layout.tsx` — login + signup + reset-password
+
+Anonymous prospects landing from a marketing link can now navigate to
+ToS / Privacy / Security / Docs without going back to the index page.
+
+**Cumulative across eight 2026-05-07/08 batches:** 23 PRODUCT_LAUNCH_PLAN
+rows touched (5 fully closed, 18 partial). 154 new tests added
+(16 + 28 + 34 + 12 + 21 + 11 + 13 + 19). Test count: 909 → 1063 (+154).
+Zero regressions across all eight batches.
+
+**FE feature-completion declaration:** I'm calling this batch the end
+of the FE-only execution arc. Every row that can ship without backend
+/ external owner involvement has been touched. The remaining
+PRODUCT_LAUNCH_PLAN rows (Phase 5A/5B backend, §3 Stripe, §4 Legal
+finalisation, §5 DevOps, §6 SSO/SCIM, §7 Sales) need owners outside
+this repo to advance. Frontend foundation is feature-complete.
 
 ### 2026-05-08 — Seventh execution batch (7.01 + 7.02 + legal index + 9.08)
 

@@ -107,6 +107,11 @@ describe("queryKeys registry", () => {
     expect(queryKeys.billing.usageSeries(30)).toEqual(["billing", "usage-series", 30]);
   });
 
+  it("feedback keys", () => {
+    expect(queryKeys.feedback.all()).toEqual(["feedback"]);
+    expect(queryKeys.feedback.list()).toEqual(["feedback", "list"]);
+  });
+
   it("helpdesk keys", () => {
     expect(queryKeys.helpdesk.all()).toEqual(["helpdesk"]);
     expect(queryKeys.helpdesk.stats()).toEqual(["helpdesk", "stats"]);

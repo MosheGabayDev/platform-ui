@@ -80,6 +80,12 @@ export const queryKeys = {
     global: (q: string) => ["search", "global", q]                          as const,
   },
 
+  // §7 task 10.05 — Customer feedback aggregator
+  feedback: {
+    all:  () => ["feedback"]                  as const,
+    list: () => ["feedback", "list"]          as const,
+  },
+
   // Phase 6: Billing (mock pre-Stripe — see PRODUCT_LAUNCH_PLAN.md §3)
   billing: {
     all:         () => ["billing"]                          as const,

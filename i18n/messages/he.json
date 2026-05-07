@@ -304,6 +304,39 @@
         "label": "תיאור",
         "addedAt": "נוסף בתאריך"
       }
+    },
+    "feedback": {
+      "title": "משוב לקוחות",
+      "subtitle": "ריכוז משוב מ-pilot ולקוחות לפני המרה ל-backlog",
+      "intro": "כאן יצוף כל המשוב שמתקבל מערוצי ה-pilot — מיילים, שיחות ושאלונים. הצוות מקטלג כל פריט ל-bug, feature, or insight, ושולח את הזכאים ל-Linear backlog.",
+      "filters": {
+        "all": "הכל",
+        "bug": "באג",
+        "feature": "תכונה",
+        "insight": "תובנה"
+      },
+      "status": {
+        "new": "חדש",
+        "triaged": "נסקר",
+        "converted": "הומר ל-backlog",
+        "duplicate": "כפילות",
+        "wontFix": "לא נטופל"
+      },
+      "empty": "אין משוב חדש. כדי להוסיף ידנית — שלח אימייל ל-feedback@platform.local",
+      "add": "הוסף משוב ידנית",
+      "form": {
+        "title": "הוספת משוב חדש",
+        "cta": "שמור",
+        "aria": "טופס הוספת משוב",
+        "fields": {
+          "source": "מקור",
+          "type": "סיווג",
+          "content": "תוכן המשוב",
+          "reporter": "מדווח (אופציונלי)"
+        }
+      },
+      "saved": "המשוב נשמר",
+      "backendNotice": "אינטגרציה ל-Linear תופעל בהשקה. כרגע — נתונים נשמרים ב-localStorage לצורך דמו."
     }
   },
   "nav": {
@@ -1513,6 +1546,62 @@
         "eu-west-1": "אירלנד (eu-west-1)",
         "us-east-1": "ארה״ב מזרח (us-east-1)"
       }
+    }
+  },
+  "emails": {
+    "verifyEmail": {
+      "subject": "אמתו את כתובת האימייל",
+      "body": "שלום {{user_first_name}},\n\nכמעט סיימנו. אמתו את הכתובת בלחיצה: {{verify_link}}\n\nהקישור תקף 24 שעות.\n\n— צוות Platform Engineer"
+    },
+    "welcome": {
+      "subject": "ברוכים הבאים ל-Platform Engineer",
+      "body": "שלום {{user_first_name}},\n\nהארגון \"{{org_name}}\" מוכן. תוכלו להתחיל ב-{{console_link}}.\n\nבימים הקרובים נשלח כמה טיפים שיעזרו להפיק את המקסימום. אם תרצו שנפסיק — לכל מייל יש קישור הסרה למטה.\n\n— צוות Platform Engineer"
+    },
+    "firstAiNudge": {
+      "subject": "התחילו את שיחת ה-AI הראשונה",
+      "body": "שלום {{user_first_name}},\n\nהפלטפורמה כוללת סוכן AI מובנה. בלחיצה אחת על {{ai_link}} תוכלו לבקש ממנו לקצר טיקטים, לחפש משתמשים, או להריץ דוח.\n\n— צוות Platform Engineer"
+    },
+    "trialDay7": {
+      "subject": "איך הולך השבוע הראשון?",
+      "body": "שלום {{user_first_name}},\n\nבמחצית התקופה. אם יש לכם שאלות — אנחנו כאן. תוכלו לשדרג בכל עת ב-{{billing_link}}.\n\n— צוות Platform Engineer"
+    },
+    "trialDay14": {
+      "subject": "תקופת הניסיון מסתיימת ב-{{trial_end_date}}",
+      "body": "שלום {{user_first_name}},\n\nהתקופת ניסיון מסתיימת ב-{{trial_end_date}}. בחרו תוכנית ב-{{billing_link}} כדי להמשיך ללא הפרעה.\n\n— צוות Platform Engineer"
+    },
+    "trialEnded": {
+      "subject": "תקופת הניסיון הסתיימה",
+      "body": "שלום {{user_first_name}},\n\nהתקופת ניסיון הסתיימה. הגישה הוגבלה לרמה החינמית. תוכלו לשדרג בכל עת ב-{{billing_link}} ולהחזיר את כל הנתונים והתכונות.\n\n— צוות Platform Engineer"
+    },
+    "paymentFailed": {
+      "subject": "התשלום נכשל — דרוש עדכון",
+      "body": "שלום {{user_first_name}},\n\nניסיון החיוב על {{amount_due}} נכשל. עדכנו את אמצעי התשלום ב-{{billing_portal_link}} כדי למנוע השעיית גישה.\n\n— צוות Platform Engineer"
+    },
+    "dunningFinal": {
+      "subject": "התראה אחרונה — השעיית גישה ב-{{suspension_date}}",
+      "body": "שלום {{user_first_name}},\n\nאם התשלום לא יבוצע עד {{suspension_date}}, גישת הארגון תושעה. עדכנו אמצעי תשלום ב-{{billing_portal_link}}.\n\n— צוות Platform Engineer"
+    },
+    "passwordReset": {
+      "subject": "איפוס סיסמה",
+      "body": "שלום {{user_first_name}},\n\nקיבלנו בקשת איפוס סיסמה. אם זה לא היית, תוכל להתעלם מהמייל. לאיפוס: {{reset_link}}\n\nהקישור תקף עד {{expires_at}}.\n\n— צוות Platform Engineer"
+    },
+    "rtbfReceipt": {
+      "subject": "אישור קבלת בקשת מחיקת חשבון",
+      "body": "שלום {{user_first_name}},\n\nקיבלנו את בקשת מחיקת החשבון שלך (מזהה: {{request_id}}). המחיקה תיכנס לתוקף ב-{{effective_at}}. אם תרצה לבטל את הבקשה לפני התאריך הזה, פנה לתמיכה.\n\n— צוות Platform Engineer"
+    },
+    "dataExportReady": {
+      "subject": "ייצוא הנתונים שלך מוכן",
+      "body": "שלום {{user_first_name}},\n\nייצוא הנתונים שביקשת מוכן להורדה: {{download_link}}\n\nהקישור תקף עד {{expires_at}}. לאחר מכן תצטרך לבקש ייצוא חדש.\n\n— צוות Platform Engineer"
+    }
+  },
+  "footer": {
+    "copyright": "© 2026 Platform Engineer",
+    "links": {
+      "legal": "מסמכים משפטיים",
+      "privacy": "פרטיות",
+      "terms": "תנאי שימוש",
+      "security": "אבטחה",
+      "docs": "תיעוד"
     }
   }
 }

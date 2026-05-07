@@ -481,6 +481,18 @@ describe("module-registry, settings, feature-flags, policies, search, sample-dat
     await m.fetchBillingOverview();
     expect(fetchMock.mock.calls[0]![0]).toContain("/overview");
   });
+  it("feedback: fetchFeedback GET /api/proxy/feedback", async () => {
+    fetchMock.mockResolvedValue(okJson({ success: true, data: { items: [], total: 0 } }));
+    const m = await import("./feedback");
+    await m.fetchFeedback();
+    expect(fetchMock.mock.calls[0]![0]).toContain("/api/proxy/feedback");
+  });
+  it("feedback: addFeedback POSTs body", async () => {
+    fetchMock.mockResolvedValue(okJson({ success: true, data: { items: [], total: 0 } }));
+    const m = await import("./feedback");
+    await m.addFeedback({ source: "test", type: "bug", content: "x" });
+    expect(fetchMock.mock.calls[0]![1]!.method).toBe("POST");
+  });
   it("account: requestDataExport POST /me/export", async () => {
     fetchMock.mockResolvedValue(okJson({}));
     const m = await import("./account");
