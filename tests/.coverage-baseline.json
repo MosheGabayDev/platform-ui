@@ -60,11 +60,11 @@
       "note": "TARGET FLOOR EXCEEDED. Lifted from 34.09% by coverage sprint — added smoke tests for detail-view (BoolBadge/InfoRow/DetailSection/DetailHeaderCard/DetailLoadingSkeleton/DetailBackButton), stats (StatCard/StatsGrid/KpiCard), empty-state, error-state, skeleton-card, page-shell, form (PlatformForm/FormError/FormActions), error-boundary, permission-gate, feature-gate, data-table (TableSkeleton/TablePagination), timeline (PlatformTimeline/TimelineEventItem/TimelineSkeleton). 2026-05-07."
     },
     "components/shell/": {
-      "lines": 27.12,
+      "lines": 54.72,
       "branches": 14,
       "functions": 17.18,
       "target_floor": 50,
-      "note": "Lifted from 19.88% by Track E onboarding-tour test + intl-provider test. 2026-05-07."
+      "note": "TARGET FLOOR EXCEEDED. Lifted from 27.12% by coverage sprint — added smoke tests for aurora-background, bottom-nav, nav-items (filterNavByEnabledModules), connection-indicator, shortcuts-dialog, notification-drawer, accent-picker, sidebar-search. 2026-05-07."
     },
     "app/api/proxy/": {
       "lines": 0,
