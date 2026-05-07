@@ -74,7 +74,8 @@ export default function DocsLandingPage() {
                 <div className="flex-1 space-y-1 min-w-0">
                   <h2 className="text-sm font-semibold flex items-center gap-1.5">
                     {tSections(`${key}.title`)}
-                    <ArrowRight className="size-3 opacity-0 -translate-x-1 group-hover:opacity-50 group-hover:translate-x-0 transition-all" />
+                    {/* RTL-safe slide; see /legal/page.tsx comment. */}
+                    <ArrowRight className="size-3 opacity-0 -translate-x-1 rtl:translate-x-1 rtl:-scale-x-100 group-hover:opacity-50 group-hover:translate-x-0 rtl:group-hover:translate-x-0 transition-all" />
                   </h2>
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     {tSections(`${key}.description`)}

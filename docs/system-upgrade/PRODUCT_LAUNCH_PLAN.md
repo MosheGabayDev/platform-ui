@@ -264,6 +264,44 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-08 — Code-review fix-up batch (post-eighth)
+
+After the eighth batch declared FE feature-completion, ran the
+`feature-dev:code-reviewer` agent over the 8-batch span. It found
+3 real issues — all fixed in this commit, no new functionality.
+
+| Severity | Issue | Fix |
+|---|---|---|
+| HIGH | `lib/api/feedback.ts` shipped without a MOCK_MODE flip checklist (other 3 new clients had one — protocol violation) | Added 7-step checklist to module JSDoc: GET / POST / PATCH /:id/status routes, Linear webhook contract, email intake, cap-A retirement plan |
+| HIGH | `app/legal/page.tsx` + `app/docs/page.tsx` hover used physical `-translate-x-1 → translate-x-0` — broke RTL (chevron slid the wrong way for Hebrew) | Added `rtl:translate-x-1 rtl:-scale-x-100 rtl:group-hover:translate-x-0` so the arrowhead flips + the slide direction follows reading order |
+| HIGH | `components/shared/upgrade-cta.tsx` dismissal stored a single scalar — dismissing one metric erased prior dismissal of another (phantom re-appearance bug) | Refactored to a `Record<MetricKey, number>` map persisted as JSON; `UPGRADE_DISMISS_KEY` bumped to `:v2`. Multi-metric dismissals coexist. |
+
+**Tests added/updated:**
+- 5 upgrade-cta test rewrites for the new dismissal contract
+- New regression test: dismissing one metric does NOT erase another
+- New robustness test: corrupted JSON in localStorage → no banner suppression
+
+**Suites:**
+- `npx vitest run` — 120 files / **1065 tests ✓** (was 1063, +2 net)
+- `npx tsc --noEmit` — clean ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+- components/shared 73.78% → 74.44% (+0.66pp)
+
+**Reviewer also confirmed clean (no fix needed):**
+- All 4 new mock clients env-driven pattern matches the 17 earlier ones
+- No mock-only logic leaks into non-mock paths
+- i18n catalogs (he + en) symmetric for all new namespaces
+- Email-template variable-in-body invariant holds across all 11 templates
+- Legal page DRAFT banners present + consistent
+- RBAC gates use PermissionGate (no inline `session.user.role ===` checks)
+- `pb-20 md:pb-0` inherited via PageShell on every dashboard page
+- No console.log / debugger / orphan TODO comments in any reviewed file
+
+This is the FE feature-completion-with-quality-gate marker. Future
+"continue" requests on this repo should pick up backend-flip work
+(MOCK_MODE per client when 5A rounds land) or wait for cross-team
+items (Legal sign-off, DevOps deploy, Stripe BE).
+
 ### 2026-05-08 — Eighth execution batch (6.09 + 10.05 + public footer)
 
 The "everything-else FE" sweep. After this batch, every PRODUCT_LAUNCH_PLAN

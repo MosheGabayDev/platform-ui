@@ -5,8 +5,25 @@
  * Spec: docs/system-upgrade/PRODUCT_LAUNCH_PLAN.md §7 task 10.05.
  *
  * Persists items to localStorage via the cap-A `_mock-storage` shim so
- * the demo round-trips on page reload. When Linear integration ships,
- * the mock state migrates to a real backend; the surface stays the same.
+ * the demo round-trips on page reload.
+ *
+ * MOCK_MODE flip checklist (when 10.05-BE lands):
+ *   1. Set NEXT_PUBLIC_MOCK_API=false in env.
+ *   2. Backend serves GET  /api/proxy/feedback              → FeedbackListResponse
+ *      (newest-first; org-scoped from JWT; admin role required).
+ *   3. Backend serves POST /api/proxy/feedback              → FeedbackListResponse
+ *      (status defaults to "new"; reporter optional; system_admin only).
+ *   4. Backend serves PATCH /api/proxy/feedback/:id/status  → FeedbackListResponse
+ *      Frontend triages out-of-band today; flip-time we add a status
+ *      mutation export here that takes { id, status }.
+ *   5. Linear webhook: backend posts converted items to Linear and
+ *      writes the issue URL into `backlog_link` on the feedback row.
+ *      Frontend just renders `backlog_link` as a hyperlink — no FE change.
+ *   6. Email intake (forwarded to feedback@platform.local) becomes a
+ *      backend ingestion job; the FE surface is unchanged.
+ *   7. Cap-A localStorage state is read-only after the flip — leave the
+ *      `loadMockState` import in place for one release so existing demo
+ *      installs don't lose their seeded items, then remove.
  */
 
 import {

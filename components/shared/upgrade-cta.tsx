@@ -27,9 +27,30 @@ import { queryKeys } from "@/lib/api/query-keys";
 import { cn } from "@/lib/utils";
 
 export const UPGRADE_WARN_THRESHOLD = 80;
-export const UPGRADE_DISMISS_KEY = "upgrade-cta:dismissed-v1";
+/**
+ * localStorage key holding a JSON map of `{ [metric]: lastDismissedBucket }`,
+ * where bucket is the metric's utilization rounded down to 5pp. Storing
+ * a map (not a single scalar) means dismissing one metric does not erase
+ * the dismissal of another — surfaced as a HIGH-confidence finding in the
+ * post-batch code review on 2026-05-08.
+ */
+export const UPGRADE_DISMISS_KEY = "upgrade-cta:dismissed-v2";
 
 type MetricKey = "tokens" | "api_calls" | "seats";
+
+type DismissedMap = Partial<Record<MetricKey, number>>;
+
+function readDismissed(): DismissedMap {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = localStorage.getItem(UPGRADE_DISMISS_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return typeof parsed === "object" && parsed !== null ? (parsed as DismissedMap) : {};
+  } catch {
+    return {};
+  }
+}
 
 interface MetricStat {
   key: MetricKey;
@@ -55,12 +76,12 @@ interface UpgradeCtaProps {
 export function UpgradeCta({ threshold = UPGRADE_WARN_THRESHOLD, className }: UpgradeCtaProps) {
   const t = useTranslations("upgradeCta");
   const tMetrics = useTranslations("upgradeCta.metrics");
-  const [dismissedKey, setDismissedKey] = useState<string | null>(null);
+  const [dismissed, setDismissed] = useState<DismissedMap>({});
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    setDismissedKey(localStorage.getItem(UPGRADE_DISMISS_KEY));
+    setDismissed(readDismissed());
   }, []);
 
   const { data, isLoading, isError } = useQuery({
@@ -83,10 +104,13 @@ export function UpgradeCta({ threshold = UPGRADE_WARN_THRESHOLD, className }: Up
   const top = sorted[0];
   if (!top || top.pct < threshold) return null;
 
-  // Per-metric dismissal — if the user dismissed a 75% banner for tokens,
-  // they should still see one when seats hit 95%.
-  const currentKey = `${top.key}:${Math.floor(top.pct / 5) * 5}`;
-  if (dismissedKey === currentKey) return null;
+  // Per-metric dismissal: only re-show this metric's banner when its
+  // bucket (5pp granularity) is *higher* than the last dismissed bucket.
+  // Storing a map (not a single scalar) means dismissing tokens at 80
+  // does not erase a prior dismissal of seats at 95.
+  const currentBucket = Math.floor(top.pct / 5) * 5;
+  const lastDismissed = dismissed[top.key];
+  if (lastDismissed !== undefined && lastDismissed >= currentBucket) return null;
 
   const isOver = top.pct >= 100;
   const message = isOver
@@ -94,12 +118,13 @@ export function UpgradeCta({ threshold = UPGRADE_WARN_THRESHOLD, className }: Up
     : t("nearLimit", { pct: top.pct, metric: tMetrics(top.key) });
 
   const handleDismiss = () => {
+    const next: DismissedMap = { ...dismissed, [top.key]: currentBucket };
     try {
-      localStorage.setItem(UPGRADE_DISMISS_KEY, currentKey);
+      localStorage.setItem(UPGRADE_DISMISS_KEY, JSON.stringify(next));
     } catch {
       // localStorage may be disabled — banner just disappears for this session.
     }
-    setDismissedKey(currentKey);
+    setDismissed(next);
   };
 
   return (

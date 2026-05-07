@@ -68,7 +68,14 @@ export default function LegalIndexPage() {
                 <div className="flex-1 space-y-1 min-w-0">
                   <h2 className="text-sm font-semibold flex items-center gap-1.5">
                     {tCards(`${key}.title`)}
-                    <ArrowRight className="size-3 opacity-0 -translate-x-1 group-hover:opacity-50 group-hover:translate-x-0 transition-all" />
+                    {/*
+                      RTL-safe hover: ArrowRight slides toward the end
+                      (right in LTR, left in RTL). `rtl:-scale-x-100`
+                      flips the arrowhead so it points correctly per
+                      direction; the rtl:translate-* pair re-anchors
+                      the resting + hover positions to the start side.
+                    */}
+                    <ArrowRight className="size-3 opacity-0 -translate-x-1 rtl:translate-x-1 rtl:-scale-x-100 group-hover:opacity-50 group-hover:translate-x-0 rtl:group-hover:translate-x-0 transition-all" />
                   </h2>
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     {tCards(`${key}.description`)}
