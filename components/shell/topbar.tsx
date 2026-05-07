@@ -6,6 +6,7 @@ import { useSidebar } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
+import { useTranslations } from "next-intl";
 import { AccentPicker } from "./accent-picker";
 import { ConnectionIndicator } from "./connection-indicator";
 import { NotificationBell } from "./notification-bell";
@@ -14,6 +15,7 @@ import { LanguageSwitcher } from "./language-switcher";
 export function Topbar() {
   const { toggleSidebar } = useSidebar();
   const { theme, setTheme } = useTheme();
+  const t = useTranslations("shell.topbar");
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
@@ -43,7 +45,7 @@ export function Topbar() {
         className="flex items-center gap-2.5 h-8 px-3 text-sm text-muted-foreground bg-muted/40 rounded-lg border border-border/40 hover:bg-muted/70 hover:border-border/80 transition-all duration-200 flex-1 max-w-xs group"
       >
         <Search className="size-3.5 shrink-0 group-hover:text-foreground/70 transition-colors" />
-        <span className="flex-1 text-start text-xs">חיפוש...</span>
+        <span className="flex-1 text-start text-xs">{t("searchPlaceholder")}</span>
         <div className="hidden sm:flex items-center gap-0.5">
           <kbd className="inline-flex items-center rounded border border-border/60 bg-muted px-1 text-[10px] font-medium text-muted-foreground/70">
             <Command className="size-2.5" />

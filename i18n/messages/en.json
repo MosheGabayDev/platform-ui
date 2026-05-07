@@ -738,6 +738,10 @@
     "kb": {
       "title": "Knowledge base",
       "subtitle": "KB articles and solutions"
+    },
+    "actions": {
+      "close": "Close ticket",
+      "closeConfirm": "Are you sure you want to close this ticket? Only an admin can reopen it."
     }
   },
   "selfServiceAi": {
@@ -993,5 +997,57 @@
     "manager": "Manager",
     "technician": "Technician",
     "user": "User"
+  },
+  "shell": {
+    "notifications": {
+      "title": "Notifications",
+      "markAllRead": "Mark all as read",
+      "loadError": "Could not load notifications",
+      "empty": "No new notifications",
+      "unreadAria": "Unread",
+      "justNow": "Just now",
+      "minutesAgo": "{count}m ago",
+      "hoursAgo": "{count}h ago",
+      "daysAgo": "{count}d ago",
+      "bellAria": "Notifications",
+      "bellAriaWithCount": "Notifications — {count} unread"
+    },
+    "sidebar": {
+      "recent": "Recently visited",
+      "pinned": "Pinned for quick access",
+      "pinTitle": "Pin for quick access",
+      "unpinTitle": "Unpin",
+      "systemAdmin": "System administrator",
+      "profile": "Personal profile",
+      "signOut": "Sign out",
+      "themeLight": "Light mode",
+      "themeDark": "Dark mode",
+      "themeFallback": "Display mode",
+      "searchPlaceholder": "Search... ( / )",
+      "searchNoResults": "No results for \"{query}\"",
+      "searchHints": {
+        "navigate": "Navigate",
+        "open": "Open",
+        "close": "Close"
+      }
+    },
+    "bottomNav": {
+      "dashboard": "Dashboard",
+      "helpdesk": "Helpdesk",
+      "agents": "Agents",
+      "monitoring": "Monitoring",
+      "settings": "Settings"
+    },
+    "connection": {
+      "connected": "Connected · {latency}ms",
+      "reconnecting": "Reconnecting...",
+      "disconnected": "Disconnected"
+    },
+    "topbar": {
+      "searchPlaceholder": "Search..."
+    },
+    "accentPicker": {
+      "title": "Accent color"
+    }
   }
 }

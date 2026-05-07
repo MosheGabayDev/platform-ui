@@ -738,6 +738,10 @@
     "kb": {
       "title": "בסיס ידע",
       "subtitle": "מאמרי בסיס ידע ופתרונות"
+    },
+    "actions": {
+      "close": "סגור קריאה",
+      "closeConfirm": "האם אתה בטוח שברצונך לסגור את הקריאה? פעולה זו ניתנת להחזרה רק ע״י מנהל."
     }
   },
   "selfServiceAi": {
@@ -993,5 +997,57 @@
     "manager": "מנהל",
     "technician": "טכנאי",
     "user": "משתמש"
+  },
+  "shell": {
+    "notifications": {
+      "title": "התראות",
+      "markAllRead": "סמן הכל כנקרא",
+      "loadError": "לא ניתן לטעון התראות",
+      "empty": "אין התראות חדשות",
+      "unreadAria": "לא נקרא",
+      "justNow": "עכשיו",
+      "minutesAgo": "לפני {count} דק׳",
+      "hoursAgo": "לפני {count} שע׳",
+      "daysAgo": "לפני {count} ימים",
+      "bellAria": "התראות",
+      "bellAriaWithCount": "התראות — {count} לא נקראו"
+    },
+    "sidebar": {
+      "recent": "ביקרת לאחרונה",
+      "pinned": "סומן לגישה מהירה",
+      "pinTitle": "סמן לגישה מהירה",
+      "unpinTitle": "הסר מסומנים",
+      "systemAdmin": "מנהל מערכת",
+      "profile": "פרופיל אישי",
+      "signOut": "התנתקות",
+      "themeLight": "מצב בהיר",
+      "themeDark": "מצב כהה",
+      "themeFallback": "מצב תצוגה",
+      "searchPlaceholder": "חיפוש... ( / )",
+      "searchNoResults": "אין תוצאות עבור \"{query}\"",
+      "searchHints": {
+        "navigate": "ניווט",
+        "open": "פתח",
+        "close": "סגור"
+      }
+    },
+    "bottomNav": {
+      "dashboard": "דשבורד",
+      "helpdesk": "הלפדסק",
+      "agents": "סוכנים",
+      "monitoring": "ניטור",
+      "settings": "הגדרות"
+    },
+    "connection": {
+      "connected": "מחובר · {latency}ms",
+      "reconnecting": "מתחבר מחדש...",
+      "disconnected": "מנותק"
+    },
+    "topbar": {
+      "searchPlaceholder": "חיפוש..."
+    },
+    "accentPicker": {
+      "title": "צבע הדגשה"
+    }
   }
 }

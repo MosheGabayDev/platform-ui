@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Wifi, WifiOff } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 
 type Status = "connected" | "disconnected" | "reconnecting";
 
 export function ConnectionIndicator() {
+  const t = useTranslations("shell.connection");
   const [status, setStatus] = useState<Status>("connected");
   const [latency, setLatency] = useState(12);
 
@@ -40,9 +42,9 @@ export function ConnectionIndicator() {
     "shadow-[0_0_6px_1px_rgba(248,113,113,0.6)]";
 
   const label =
-    status === "connected" ? `מחובר · ${Math.round(latency)}ms` :
-    status === "reconnecting" ? "מתחבר מחדש..." :
-    "מנותק";
+    status === "connected" ? t("connected", { latency: Math.round(latency) }) :
+    status === "reconnecting" ? t("reconnecting") :
+    t("disconnected");
 
   return (
     <TooltipProvider>

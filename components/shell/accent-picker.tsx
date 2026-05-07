@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { Palette } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ACCENT_COLORS, useThemeStore, type AccentColor } from "@/lib/theme-store";
@@ -9,6 +10,7 @@ import { cn } from "@/lib/utils";
 
 export function AccentPicker() {
   const { accent, setAccent } = useThemeStore();
+  const t = useTranslations("shell.accentPicker");
 
   /* Apply saved accent on mount */
   useEffect(() => {
@@ -26,7 +28,7 @@ export function AccentPicker() {
         </Button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-48 p-3">
-        <p className="text-xs font-semibold text-muted-foreground mb-2.5 uppercase tracking-wide">צבע הדגשה</p>
+        <p className="text-xs font-semibold text-muted-foreground mb-2.5 uppercase tracking-wide">{t("title")}</p>
         <div className="grid grid-cols-3 gap-2">
           {(Object.entries(ACCENT_COLORS) as [AccentColor, typeof ACCENT_COLORS[AccentColor]][]).map(
             ([key, val]) => (

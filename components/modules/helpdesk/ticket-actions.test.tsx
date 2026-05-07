@@ -1,7 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import { screen, fireEvent, cleanup } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { renderWithIntl } from "@/lib/test-utils/intl";
 import type { ReactNode } from "react";
+
+const render = (node: ReactNode) =>
+  renderWithIntl(node as React.ReactElement);
 import { TicketActions } from "./ticket-actions";
 import type { TicketDetail } from "@/lib/modules/helpdesk/types";
 

@@ -2,7 +2,8 @@
  * BottomNav — mobile-only fixed bar with active-route indicator.
  */
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { screen, cleanup } from "@testing-library/react";
+import { renderWithIntl as render } from "@/lib/test-utils/intl";
 
 const pathnameMock = vi.hoisted(() => vi.fn(() => "/"));
 vi.mock("next/navigation", () => ({

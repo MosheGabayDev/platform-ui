@@ -3,7 +3,8 @@
  * list, mark-all-read button, click-to-route on row.
  */
 import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, screen, cleanup, fireEvent } from "@testing-library/react";
+import { screen, cleanup, fireEvent } from "@testing-library/react";
+import { renderWithIntl as render } from "@/lib/test-utils/intl";
 
 const pushMock = vi.hoisted(() => vi.fn());
 vi.mock("next/navigation", () => ({

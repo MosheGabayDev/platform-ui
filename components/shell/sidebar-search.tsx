@@ -4,6 +4,7 @@ import { useState, useCallback, useRef, useEffect, useMemo, KeyboardEvent } from
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, X, CornerDownLeft } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { type NavItem } from "./nav-items";
 import { useNavGroups } from "@/lib/hooks/use-nav-groups";
 
@@ -30,6 +31,8 @@ interface SidebarSearchProps {
 }
 
 export function SidebarSearch({ onNavigate }: SidebarSearchProps) {
+  const t = useTranslations("shell.sidebar");
+  const tHints = useTranslations("shell.sidebar.searchHints");
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
@@ -116,7 +119,7 @@ export function SidebarSearch({ onNavigate }: SidebarSearchProps) {
           onFocus={() => setFocused(true)}
           onBlur={() => setTimeout(() => setFocused(false), 150)}
           onKeyDown={handleKey}
-          placeholder="חיפוש... ( / )"
+          placeholder={t("searchPlaceholder")}
           dir="rtl"
           className="flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/50 outline-none min-w-0"
         />
@@ -149,7 +152,7 @@ export function SidebarSearch({ onNavigate }: SidebarSearchProps) {
             {results.length === 0 ? (
               <div className="flex flex-col items-center gap-1.5 py-6 text-muted-foreground/50">
                 <Search className="size-5 opacity-40" />
-                <p className="text-xs">אין תוצאות עבור "{query}"</p>
+                <p className="text-xs">{t("searchNoResults", { query })}</p>
               </div>
             ) : (
               <div className="py-1">
@@ -181,9 +184,9 @@ export function SidebarSearch({ onNavigate }: SidebarSearchProps) {
               </div>
             )}
             <div className="border-t border-border/30 px-3 py-1.5 flex items-center gap-3 text-[10px] text-muted-foreground/40">
-              <span className="flex items-center gap-1"><kbd className="text-[9px] border border-border/50 bg-muted px-1 rounded">↑↓</kbd> ניווט</span>
-              <span className="flex items-center gap-1"><kbd className="text-[9px] border border-border/50 bg-muted px-1 rounded">↵</kbd> פתח</span>
-              <span className="flex items-center gap-1"><kbd className="text-[9px] border border-border/50 bg-muted px-1 rounded">Esc</kbd> סגור</span>
+              <span className="flex items-center gap-1"><kbd className="text-[9px] border border-border/50 bg-muted px-1 rounded">↑↓</kbd> {tHints("navigate")}</span>
+              <span className="flex items-center gap-1"><kbd className="text-[9px] border border-border/50 bg-muted px-1 rounded">↵</kbd> {tHints("open")}</span>
+              <span className="flex items-center gap-1"><kbd className="text-[9px] border border-border/50 bg-muted px-1 rounded">Esc</kbd> {tHints("close")}</span>
             </div>
           </motion.div>
         )}

@@ -10,6 +10,7 @@
  */
 import { useState } from "react";
 import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { UserPlus, CheckCircle, MessageSquarePlus, Users as UsersIcon } from "lucide-react";
 import { ActionButton } from "@/components/shared/action-button";
 import { ConfirmActionDialog } from "@/components/shared/confirm-action-dialog";
@@ -29,18 +30,22 @@ interface TicketActionsProps {
   canManage: boolean;
 }
 
-const RESOLVE_ACTION: PlatformAction = {
-  id: "helpdesk.ticket.resolve",
-  label: "סגור קריאה",
-  description: "האם אתה בטוח שברצונך לסגור את הקריאה? פעולה זו ניתנת להחזרה רק ע\"י מנהל.",
-  dangerLevel: "high",
-  requiresConfirmation: true,
-  requiresReason: true,
-  auditEvent: "helpdesk.ticket.resolve",
-  resourceType: "ticket",
-};
+function buildResolveAction(t: (k: string) => string): PlatformAction {
+  return {
+    id: "helpdesk.ticket.resolve",
+    label: t("close"),
+    description: t("closeConfirm"),
+    dangerLevel: "high",
+    requiresConfirmation: true,
+    requiresReason: true,
+    auditEvent: "helpdesk.ticket.resolve",
+    resourceType: "ticket",
+  };
+}
 
 export function TicketActions({ ticket, canManage }: TicketActionsProps) {
+  const tActions = useTranslations("helpdesk.actions");
+  const RESOLVE_ACTION = buildResolveAction(tActions);
   const { data: session } = useSession();
   const [resolveOpen, setResolveOpen] = useState(false);
   const [commentDraft, setCommentDraft] = useState("");

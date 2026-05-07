@@ -2,20 +2,23 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { LayoutDashboard, HeadphonesIcon, Bot, Activity, Settings } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-const items = [
-  { title: "דשבורד", href: "/", icon: LayoutDashboard },
-  { title: "הלפדסק", href: "/helpdesk", icon: HeadphonesIcon },
-  { title: "סוכנים", href: "/agents", icon: Bot },
-  { title: "ניטור", href: "/health", icon: Activity },
-  { title: "הגדרות", href: "/settings/system", icon: Settings },
-];
+const itemDefs = [
+  { key: "dashboard", href: "/", icon: LayoutDashboard },
+  { key: "helpdesk", href: "/helpdesk", icon: HeadphonesIcon },
+  { key: "agents", href: "/agents", icon: Bot },
+  { key: "monitoring", href: "/health", icon: Activity },
+  { key: "settings", href: "/settings/system", icon: Settings },
+] as const;
 
 export function BottomNav() {
   const pathname = usePathname();
+  const t = useTranslations("shell.bottomNav");
+  const items = itemDefs.map((i) => ({ ...i, title: t(i.key) }));
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-50 md:hidden border-t border-border/60 bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80">

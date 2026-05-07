@@ -9,6 +9,7 @@ import {
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup,
@@ -30,6 +31,7 @@ const ease = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
 /* ─── Single nav item ──────────────────────────────────────── */
 function NavMenuItem({ item, depth = 0 }: { item: NavItem; depth?: number }) {
+  const t = useTranslations("shell.sidebar");
   const pathname = usePathname();
   const { isPinned, togglePin } = useNavHistory();
   const [open, setOpen] = useState(() =>
@@ -116,7 +118,7 @@ function NavMenuItem({ item, depth = 0 }: { item: NavItem; depth?: number }) {
           <button
             onClick={e => { e.preventDefault(); e.stopPropagation(); togglePin(item.href); }}
             className="relative z-10 opacity-0 group-hover/item:opacity-100 transition-opacity ms-auto"
-            title={pinned ? "הסר מסומנים" : "סמן לגישה מהירה"}
+            title={pinned ? t("unpinTitle") : t("pinTitle")}
           >
             {pinned
               ? <PinOff className="size-3 text-primary/60" />
@@ -173,6 +175,7 @@ function NavGroup({ label, items, defaultOpen = true }: {
 
 /* ─── Recent pages strip ───────────────────────────────────── */
 function RecentPages() {
+  const t = useTranslations("shell.sidebar");
   const navGroups = useNavGroups();
   const { recent } = useNavHistory();
   const pathname = usePathname();
@@ -182,7 +185,7 @@ function RecentPages() {
     <SidebarGroup className="py-1 border-b border-sidebar-border/40 mb-1">
       <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-widest opacity-50 px-4 flex items-center gap-1.5">
         <Clock className="size-2.5" />
-        ביקרת לאחרונה
+        {t("recent")}
       </SidebarGroupLabel>
       <SidebarMenu className="gap-0.5 px-2">
         {recent.filter(h => h !== pathname).slice(0, 3).map(href => {
@@ -210,6 +213,7 @@ function RecentPages() {
 
 /* ─── Pinned items ─────────────────────────────────────────── */
 function PinnedItems() {
+  const t = useTranslations("shell.sidebar");
   const navGroups = useNavGroups();
   const { pinned } = useNavHistory();
   if (pinned.length === 0) return null;
@@ -218,7 +222,7 @@ function PinnedItems() {
     <SidebarGroup className="py-1 border-b border-sidebar-border/40 mb-1">
       <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-widest opacity-50 px-4 flex items-center gap-1.5">
         <Pin className="size-2.5" />
-        סומן לגישה מהירה
+        {t("pinned")}
       </SidebarGroupLabel>
       <SidebarMenu className="gap-0.5 px-2">
         {pinned.map(href => {
@@ -245,6 +249,7 @@ function PinnedItems() {
 
 /* ─── Main sidebar ─────────────────────────────────────────── */
 export function AppSidebar() {
+  const t = useTranslations("shell.sidebar");
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -299,7 +304,7 @@ export function AppSidebar() {
                   </Avatar>
                   <div className="flex flex-col items-start text-xs">
                     <span className="font-semibold">Moshe Gabay</span>
-                    <span className="text-sidebar-foreground/50 text-[10px]">מנהל מערכת</span>
+                    <span className="text-sidebar-foreground/50 text-[10px]">{t("systemAdmin")}</span>
                   </div>
                   <ChevronDown className="size-3 me-auto opacity-50" />
                 </SidebarMenuButton>
@@ -307,19 +312,19 @@ export function AppSidebar() {
               <DropdownMenuContent side="top" align="end" className="w-52 mb-1">
                 <DropdownMenuItem className="gap-2.5">
                   <User className="size-3.5" />
-                  פרופיל אישי
+                  {t("profile")}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="gap-2.5"
                   onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                 >
                   {mounted && (theme === "dark" ? <Sun className="size-3.5" /> : <Moon className="size-3.5" />)}
-                  {mounted ? (theme === "dark" ? "מצב בהיר" : "מצב כהה") : "מצב תצוגה"}
+                  {mounted ? (theme === "dark" ? t("themeLight") : t("themeDark")) : t("themeFallback")}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="gap-2.5 text-destructive focus:text-destructive">
                   <LogOut className="size-3.5" />
-                  התנתקות
+                  {t("signOut")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

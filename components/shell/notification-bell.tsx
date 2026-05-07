@@ -1,6 +1,7 @@
 "use client";
 import { Bell } from "lucide-react";
 import { m } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { NotificationDrawer } from "./notification-drawer";
@@ -13,6 +14,7 @@ import { cn } from "@/lib/utils";
  * Badge hidden when unreadCount === 0. RTL-safe: -end-0.5 for badge.
  */
 export function NotificationBell() {
+  const t = useTranslations("shell.notifications");
   const { notifications, unreadCount, isLoading, isError, markRead, markAllRead, isMarkingAllRead } =
     useNotifications();
 
@@ -24,7 +26,7 @@ export function NotificationBell() {
             variant="ghost"
             size="icon"
             className="size-8 relative hover:bg-accent/80"
-            aria-label={`התראות${unreadCount > 0 ? ` — ${unreadCount} לא נקראו` : ""}`}
+            aria-label={unreadCount > 0 ? t("bellAriaWithCount", { count: unreadCount }) : t("bellAria")}
           >
             <Bell className="size-4" />
             {unreadCount > 0 && (

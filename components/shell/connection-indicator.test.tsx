@@ -3,7 +3,8 @@
  * online/offline event listeners.
  */
 import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, cleanup, act, waitFor } from "@testing-library/react";
+import { cleanup, act, waitFor } from "@testing-library/react";
+import { renderWithIntl as render } from "@/lib/test-utils/intl";
 import { ConnectionIndicator } from "./connection-indicator";
 
 afterEach(() => {

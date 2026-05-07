@@ -4,7 +4,8 @@
  * trigger render contract + the side-effect of useEffect on mount.
  */
 import { describe, it, expect, afterEach, beforeEach } from "vitest";
-import { render, cleanup } from "@testing-library/react";
+import { cleanup } from "@testing-library/react";
+import { renderWithIntl as render } from "@/lib/test-utils/intl";
 import { AccentPicker } from "./accent-picker";
 import { useThemeStore, ACCENT_COLORS } from "@/lib/theme-store";
 
