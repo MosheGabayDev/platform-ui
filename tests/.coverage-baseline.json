@@ -53,11 +53,11 @@
       "note": "Smoke test added in R-OPS-01 T01 — this file is the only fully-covered surface"
     },
     "components/shared/": {
-      "lines": 34.09,
+      "lines": 70.45,
       "branches": 0,
       "functions": 0,
       "target_floor": 70,
-      "note": "Lifted from 24.58% by Track C primitive tests (record-detail) + Track E provider tests. 2026-05-07."
+      "note": "TARGET FLOOR EXCEEDED. Lifted from 34.09% by coverage sprint — added smoke tests for detail-view (BoolBadge/InfoRow/DetailSection/DetailHeaderCard/DetailLoadingSkeleton/DetailBackButton), stats (StatCard/StatsGrid/KpiCard), empty-state, error-state, skeleton-card, page-shell, form (PlatformForm/FormError/FormActions), error-boundary, permission-gate, feature-gate, data-table (TableSkeleton/TablePagination), timeline (PlatformTimeline/TimelineEventItem/TimelineSkeleton). 2026-05-07."
     },
     "components/shell/": {
       "lines": 27.12,
