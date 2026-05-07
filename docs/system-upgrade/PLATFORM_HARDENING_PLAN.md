@@ -88,30 +88,43 @@ components/
 | E22 | Tests: locale switch + fallback to key when translation is missing + html lang/dir side-effect | [x] (`lib/i18n/locale-store.test.ts` 8 tests, `components/providers/intl-provider.test.tsx` 4 tests) |
 | E23 | Tracker: grep audit of remaining inline Hebrew — **ZERO hits** as of 2026-05-07 | [x] |
 
-### E23 grep audit results (2026-05-06)
+### E23 grep audit results — final (2026-05-07)
 
-`grep -P '[֐-׿]'` against `app/(dashboard)/**/*.tsx` returns
-hits in 9 files (≈152 strings). Categorized:
+Two follow-up sweeps ran 2026-05-07 to drive the residual hardcoded
+Hebrew count to zero. Final result:
 
-**Out of original scope** (not in user's E12-E20 list — convert next pass):
-- `app/(dashboard)/page.tsx` — root dashboard chrome
-- `app/(dashboard)/[...slug]\page.tsx` — 404 catch-all
-- `app/(dashboard)/users/page.tsx`, `app/(dashboard)/users/[id]/page.tsx`
-- `app/(dashboard)/roles/page.tsx`, `app/(dashboard)/roles/[id]/page.tsx`
-- `app/(dashboard)/organizations/page.tsx`, `app/(dashboard)/organizations/[id]/page.tsx`
+```
+grep -rP '[\x{05D0}-\x{05EA}]' \
+  app/ components/modules/ components/shell/ \
+  --include='*.tsx' --include='*.ts' \
+  | grep -v '.test.' | grep -v ':0'
+```
+returns:
+```
+components/shell/nav-items.ts:44
+```
 
-**Page internals** (chrome converted, body strings deferred):
-- `app/(dashboard)/admin/settings/page.tsx` — 2 leftover strings inside
-  the secret-replacement helper text (low-traffic edit dialog body).
+**That single remaining file is intentional:** the Hebrew `title` /
+`label` fields are fallback strings consumed by `useNavGroups()` which
+resolves via `t()`. The defaults only render if IntlProvider fails to
+mount (i.e., before hydration), and the test suite asserts that path.
+This is the only acceptable hardcoded-Hebrew exception in the codebase.
 
-Plus: `components/shell/nav-items.ts` keeps its Hebrew default `title` /
-`label` fields as a fallback. The runtime resolves them via
-`useNavGroups()`; the default strings only appear if the IntlProvider
-fails to mount, so they're not a regression.
+History of the closure:
+- 2026-05-06 — chrome of `app/(dashboard)/admin/*`, helpdesk, audit-log,
+  onboarding, /help, wizard, /settings/ai converted (E12–E22).
+- 2026-05-07 first sweep — 152 strings in `app/(dashboard)/**/*.tsx`
+  (root dashboard, catch-all, users/roles/orgs pages + detail) + 2
+  leftover settings-helper strings → 0.
+- 2026-05-07 second sweep — 119 strings across components/modules
+  (forms, tables, badges) + 28 strings across components/shell
+  (notification-drawer, app-sidebar, sidebar-search, bottom-nav,
+  connection-indicator, topbar, notification-bell, accent-picker) + 9
+  strings in `app/(auth)/login` + 2 in helpdesk ticket-actions → 0.
 
-Done definition note: a full grep audit returning ZERO hits is the
-ideal end-state. We're shipping what's done so far; the remaining files
-above are tracked for a follow-up commit.
+Done definition: ✅ achieved. Toggling the language switcher updates
+every chrome string with no refresh; `<html lang>` and `<html dir>`
+update accordingly; grep audit returns the single intentional file.
 
 ### Done definition
 

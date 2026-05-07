@@ -1049,5 +1049,18 @@
     "accentPicker": {
       "title": "צבע הדגשה"
     }
+  },
+  "login": {
+    "tagline": "פלטפורמת ניהול AI מתקדמת",
+    "cardTitle": "כניסה למערכת",
+    "cardDescription": "הכנס את פרטי הגישה שלך",
+    "emailLabel": "כתובת אימייל",
+    "passwordLabel": "סיסמה",
+    "forgotPassword": "שכחת סיסמה?",
+    "submit": "כניסה",
+    "errors": {
+      "CredentialsSignin": "כתובת האימייל או הסיסמה שגויים",
+      "Default": "שגיאה בכניסה למערכת. נסה שוב."
+    }
   }
 }

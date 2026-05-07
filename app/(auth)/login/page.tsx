@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,13 +16,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-/** Maps next-auth error codes to Hebrew user-facing messages. */
-const AUTH_ERRORS: Record<string, string> = {
-  CredentialsSignin: "כתובת האימייל או הסיסמה שגויים",
-  Default: "שגיאה בכניסה למערכת. נסה שוב.",
-};
-
 function LoginForm() {
+  const t = useTranslations("login");
+  const tErrors = useTranslations("login.errors");
   const router = useRouter();
   const searchParams = useSearchParams();
   // Reject absolute URLs and protocol-relative URLs to prevent open redirect attacks.
@@ -50,8 +47,8 @@ function LoginForm() {
     setLoading(false);
 
     if (!result?.ok) {
-      const errorKey = result?.error ?? "Default";
-      setError(AUTH_ERRORS[errorKey] ?? AUTH_ERRORS.Default);
+      const errorKey = result?.error === "CredentialsSignin" ? "CredentialsSignin" : "Default";
+      setError(tErrors(errorKey));
       return;
     }
 
@@ -68,13 +65,13 @@ function LoginForm() {
             PE
           </div>
           <h1 className="text-2xl font-bold">Platform Engineer</h1>
-          <p className="text-muted-foreground text-sm">פלטפורמת ניהול AI מתקדמת</p>
+          <p className="text-muted-foreground text-sm">{t("tagline")}</p>
         </div>
 
         <Card>
           <CardHeader className="pb-4">
-            <CardTitle className="text-lg">כניסה למערכת</CardTitle>
-            <CardDescription>הכנס את פרטי הגישה שלך</CardDescription>
+            <CardTitle className="text-lg">{t("cardTitle")}</CardTitle>
+            <CardDescription>{t("cardDescription")}</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -86,7 +83,7 @@ function LoginForm() {
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="email">כתובת אימייל</Label>
+                <Label htmlFor="email">{t("emailLabel")}</Label>
                 <Input
                   id="email"
                   name="email"
@@ -101,12 +98,12 @@ function LoginForm() {
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password">סיסמה</Label>
+                  <Label htmlFor="password">{t("passwordLabel")}</Label>
                   <a
                     href="/reset-password"
                     className="text-xs text-primary hover:underline"
                   >
-                    שכחת סיסמה?
+                    {t("forgotPassword")}
                   </a>
                 </div>
                 <div className="relative">
@@ -138,7 +135,7 @@ function LoginForm() {
 
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading && <Loader2 className="size-4 animate-spin me-2" />}
-                כניסה
+                {t("submit")}
               </Button>
             </form>
           </CardContent>

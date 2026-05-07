@@ -1049,5 +1049,18 @@
     "accentPicker": {
       "title": "Accent color"
     }
+  },
+  "login": {
+    "tagline": "Advanced AI management platform",
+    "cardTitle": "Sign in",
+    "cardDescription": "Enter your credentials to continue",
+    "emailLabel": "Email address",
+    "passwordLabel": "Password",
+    "forgotPassword": "Forgot password?",
+    "submit": "Sign in",
+    "errors": {
+      "CredentialsSignin": "Email or password is incorrect",
+      "Default": "Sign-in failed. Please try again."
+    }
   }
 }
