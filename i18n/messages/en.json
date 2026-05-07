@@ -1209,6 +1209,61 @@
       },
       "pgp": "PGP key: available on request at security@platform.local",
       "lastUpdated": "Last updated: 2026-05-07"
+    },
+    "sla": {
+      "title": "Service Level Agreement (SLA)",
+      "subtitle": "Uptime, response, and credit commitments for the Enterprise plan",
+      "intro": "This agreement applies to Enterprise plan customers. Free and Pro plans receive best-effort without a contractual SLA.",
+      "draftNotice": "DRAFT — Legal team will finalize wording before launch. The structure and values are the contract baseline.",
+      "sections": {
+        "uptime": {
+          "title": "Uptime",
+          "body": "The platform maintains 99.9% monthly uptime, calculated as available-minutes divided by minutes-in-month."
+        },
+        "response": {
+          "title": "Support response times",
+          "body": "P1 (critical): 1-hour response. P2 (high): 4 business hours. P3 (normal): 1 business day. P4 (question): 3 business days."
+        },
+        "credits": {
+          "title": "Service credits",
+          "body": "If monthly uptime drops below 99.9%: 10% credit on monthly bill. Below 99.0%: 25%. Below 95.0%: 50%. Credits granted via support request."
+        },
+        "exclusions": {
+          "title": "Exclusions",
+          "body": "Scheduled maintenance (announced in advance), subprocessor outages (see /legal/subprocessors), customer-malicious actions, force majeure."
+        }
+      },
+      "table": {
+        "title": "Availability matrix",
+        "columns": {
+          "tier": "Plan",
+          "uptime": "Uptime",
+          "credits": "Credits",
+          "responseP1": "P1 response"
+        },
+        "rows": {
+          "free": {
+            "tier": "Free",
+            "uptime": "best-effort",
+            "credits": "—",
+            "responseP1": "community"
+          },
+          "pro": {
+            "tier": "Pro",
+            "uptime": "99.5% (no contractual SLA)",
+            "credits": "—",
+            "responseP1": "24h"
+          },
+          "enterprise": {
+            "tier": "Enterprise",
+            "uptime": "99.9% (contractual)",
+            "credits": "10/25/50%",
+            "responseP1": "1h"
+          }
+        }
+      },
+      "contact": "SLA questions: enterprise@platform.local",
+      "lastUpdated": "Last updated: 2026-05-07"
     }
   },
   "billing": {
@@ -1325,5 +1380,27 @@
     },
     "comingSoon": "Full content will be written during the pilot programme.",
     "footer": "Docs are MDX; the knowledge base is managed separately via cap 09 PlatformKnowledge."
+  },
+  "account": {
+    "title": "My account",
+    "subtitle": "Manage your data, privacy, and account deletion",
+    "dataExport": {
+      "title": "Personal data export",
+      "description": "Download a copy of all your data in this org: profile, activity, messages. The ZIP is emailed to you as a signed link valid for 24 hours.",
+      "cta": "Request export",
+      "requesting": "Generating export...",
+      "success": "Export request received. You will receive the ZIP by email within 24 hours.",
+      "backendNotice": "Automated export goes live at launch. Demo only for now."
+    },
+    "accountDelete": {
+      "title": "Delete account (Right to be Forgotten)",
+      "description": "Permanently delete your account and all personal data. This action is irreversible. A final invoice will be emailed; all org links will be revoked.",
+      "typedConfirmLabel": "Type your email address to confirm",
+      "cta": "Delete my account permanently",
+      "deleting": "Deleting...",
+      "success": "Request received. Deletion runs within 7 days. You can cancel during this window by contacting support.",
+      "mismatchError": "Email does not match. Please retype.",
+      "backendNotice": "Automated account deletion goes live at launch. Demo only for now."
+    }
   }
 }

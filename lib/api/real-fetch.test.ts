@@ -481,6 +481,21 @@ describe("module-registry, settings, feature-flags, policies, search, sample-dat
     await m.fetchBillingOverview();
     expect(fetchMock.mock.calls[0]![0]).toContain("/overview");
   });
+  it("account: requestDataExport POST /me/export", async () => {
+    fetchMock.mockResolvedValue(okJson({}));
+    const m = await import("./account");
+    await m.requestDataExport();
+    expect(fetchMock.mock.calls[0]![0]).toContain("/api/proxy/me/export");
+    expect(fetchMock.mock.calls[0]![1]!.method).toBe("POST");
+  });
+  it("account: requestAccountDelete POST /me/delete with email body", async () => {
+    fetchMock.mockResolvedValue(okJson({}));
+    const m = await import("./account");
+    await m.requestAccountDelete({ email_confirmation: "u@x.com" });
+    expect(fetchMock.mock.calls[0]![0]).toContain("/api/proxy/me/delete");
+    expect(fetchMock.mock.calls[0]![1]!.method).toBe("POST");
+    expect(fetchMock.mock.calls[0]![1]!.body).toContain('"email_confirmation":"u@x.com"');
+  });
   it("billing: fetchUsageSeries GET /usage/series?days=7", async () => {
     fetchMock.mockResolvedValue(okJson({ data: { series: [] } }));
     const m = await import("./billing");

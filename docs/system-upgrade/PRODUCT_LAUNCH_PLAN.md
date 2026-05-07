@@ -155,8 +155,8 @@ mode; trial flow completes; first invoice generated correctly.
 | 7.02 | Privacy Policy draft (covers AI data usage explicitly) | Legal | [ ] | |
 | 7.03 | Data Processing Agreement (DPA) template | Legal | [ ] | EU customer requirement |
 | 7.04 | Cookie consent banner (EU-compliant) | FE | [x] 2026-05-07 | Built `components/shell/cookie-consent.tsx` — essential-cookies-only stance with single "Got it" dismiss; persists `cookie-consent:v1=accepted` in localStorage; banner hides until mounted (hydration-safe); link to `/legal/privacy`. i18n in he/en. Wired into root layout. 5 unit tests cover render gating, persistence, prior-consent skip. No external lib needed. |
-| 7.05 | GDPR data export endpoint (`/api/me/export`) | BE | [ ] | Returns ZIP of all user data |
-| 7.06 | GDPR data delete endpoint (Right to be Forgotten) | BE | [ ] | Cascades + audit log entry |
+| 7.05 | GDPR data export endpoint (`/api/me/export`) | BE | [partial] 2026-05-07 | FE shipped at `/account` — `DataExportCard` calls `requestDataExport()` (mock client in `lib/api/account.ts`). Async-by-design: backend acknowledges request, ZIP arrives by signed S3 link in email (frontend never sees the bytes — security guarantee). Mock returns `request_id` + 24h ETA email timestamp. Backend POST /api/proxy/me/export still pending. |
+| 7.06 | GDPR data delete endpoint (Right to be Forgotten) | BE | [partial] 2026-05-07 | FE shipped at `/account` — `AccountDeleteCard` requires typed-confirm (user must retype their email to enable the destructive button). Calls `requestAccountDelete({ email_confirmation })`; mock returns `request_id` + 7-day `effective_at`. Backend POST /api/proxy/me/delete + the actual cascade still pending; spec note in `lib/api/account.ts` says cancellation is via support flag, not by re-calling. |
 | 7.07 | SOC 2 Type I readiness assessment | Compliance | [ ] | 6-month track |
 | 7.08 | Audit log retention policy (90/180/365 days per plan) | BE | [ ] | |
 | 7.09 | PII data classification + encryption-at-rest review | BE+Sec | [ ] | |
@@ -212,7 +212,7 @@ live; one DR drill passed; 99.5% uptime SLA achievable on staging metrics.
 | 9.04 | Custom domain / vanity URL support | DevOps | [ ] | |
 | 9.05 | Audit log export (CSV / SIEM webhook) | BE | [partial] 2026-05-07 | CSV export was already shipped in audit-log page; this batch wraps it in `<FeatureGate flag="audit_log.export">` so Free-tier orgs no longer see the button (per 6.06 tier-flag mapping). Extended `FlagKey` union + `STATIC_FLAG_DEFAULTS` + `MOCK_DEFINITIONS` + `MOCK_PLAN_FEATURES` with the 9 plan-driven flags introduced in 6.01. Backend SIEM webhook still pending. |
 | 9.06 | IP allowlist per org | BE | [partial] 2026-05-07 | FE admin shell shipped at `/admin/ip-allowlist`. Wraps in `<FeatureGate flag="ip_allowlist.enabled">` so Free/Pro orgs see an upgrade nudge linking to /billing; Enterprise tenants see the editor. Editor adds/removes CIDR ranges with FE validation (pure helper `lib/platform/security/cidr.ts.isValidIpv4Cidr()`). Persists to localStorage via the cap-A `_mock-storage.ts` shim. 13 CIDR helper tests cover canonical/octet-range/prefix-range/IPv6/empty/non-string. Backend persistence + actual IP gating still BE/DevOps work. |
-| 9.07 | SLA contract: uptime + support response times | Sales+Legal | [ ] | |
+| 9.07 | SLA contract: uptime + support response times | Sales+Legal | [partial] 2026-05-07 | Public page shipped at `/legal/sla`. 3-tier availability matrix (Free best-effort / Pro 99.5% no-SLA / Enterprise 99.9% contractual), 4 policy sections (uptime / response times / credits / exclusions), DRAFT banner explicitly marks the copy as un-finalised so we don't accidentally ship un-reviewed legal commitments. i18n in he/en. 5 render tests. Legal team finalizes wording; Sales gates Enterprise contract sign-off. |
 | 9.08 | Data residency choice (US / EU) | DevOps | [ ] | Multi-region deployment |
 | 9.09 | Customer-managed encryption keys (BYOK) | BE | [ ] | Late-stage; can defer |
 | 9.10 | Private VPC peering option | DevOps | [ ] | Late-stage |
@@ -263,6 +263,47 @@ When a row changes status:
 ## Test Status Log
 
 Append-only. Newest entries at the top.
+
+### 2026-05-07 — Sixth execution batch (7.05 + 7.06 + 9.07)
+
+GDPR self-service + SLA contract page. Three more rows; covers the
+legal-flavoured surfaces a B2B procurement check looks for.
+
+| Closed | Task | Files added | Tests added |
+|---|---|---|---|
+| 7.05 | GDPR data export FE (partial) | `app/(dashboard)/account/page.tsx` (DataExportCard), `lib/api/account.ts` + `.test.ts`, real-fetch entries | 1 client + 1 real-fetch = 2 |
+| 7.06 | Right-to-be-Forgotten FE (partial) | same `account/page.tsx` (AccountDeleteCard with typed-confirm), `lib/api/account.ts` extension | 2 client + 1 real-fetch = 3 |
+| 9.07 | SLA contract page (partial) | `app/legal/sla/page.tsx` + `.test.tsx` | 5 |
+
+**Suites:**
+- `npx vitest run` — 114 files / **1031 tests ✓** (was 1020, +11 net)
+- `npx tsc --noEmit` — clean ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+- All 10 layers stable above their ADR-042 floors
+
+**Cumulative across six 2026-05-07 batches:** 18 PRODUCT_LAUNCH_PLAN
+rows touched (5 fully closed, 13 partial). 122 new tests added
+(16 + 28 + 34 + 12 + 21 + 11). Test count: 909 → 1031 (+122).
+Zero regressions across all six batches.
+
+**Net file additions (all six batches):**
+- 5 public pages: `/account`, `/billing`, `/legal/{security,subprocessors,sla}`, `/docs`, `/admin/ip-allowlist`, signup, plus the `/billing` chart card
+- 6 new API mock clients: billing, signup, account + extensions to feature-flags + audit + helpdesk
+- 5 new platform helpers: tiers, tier-flags, cidr, security/cidr, billing types
+- 1 new tenant context combiner hook
+- 3 new shared primitives: cookie-consent, upgrade-cta, support-widget
+- 1 spec doc: pricing-tiers-spec.md
+- 1 master plan: PRODUCT_LAUNCH_PLAN.md (this file)
+
+**FE-only rows that remain pickable:**
+Very few. The remaining open rows are nearly all backend / legal-content /
+DevOps / Sales work. Possibilities for a seventh batch:
+- 6.09 — onboarding email sequence templates (could live as MDX in this
+  repo for backend to render)
+- 9.08 — Data residency notice on /account or /billing
+- 10.05 — Beta feedback → backlog conversion process (could be a /admin/feedback shell)
+
+The FE foundation for product launch is **functionally complete**.
 
 ### 2026-05-07 — Fifth execution batch (10.08 + 6.11 + 9.06)
 
