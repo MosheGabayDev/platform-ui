@@ -18,7 +18,7 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { Download, AlertTriangle, Loader2, AlertCircle } from "lucide-react";
+import { Download, AlertTriangle, Loader2, AlertCircle, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -140,10 +140,33 @@ function AccountDeleteCard() {
   );
 }
 
+function DataResidencyCard() {
+  const t = useTranslations("account.dataResidency");
+  const tRegion = useTranslations("account.dataResidency.region");
+  // Mock region — the real value comes from PlatformTenantContext / org
+  // settings once 5B settings BE lands. Default eu-west-1 matches the
+  // subprocessor list (/legal/subprocessors).
+  const regionKey = (process.env.NEXT_PUBLIC_DATA_REGION ?? "eu-west-1") as "eu-west-1" | "us-east-1";
+  return (
+    <section className="rounded-xl border border-border/60 px-5 py-4 space-y-2">
+      <header className="flex items-start gap-3">
+        <Globe className="size-5 text-primary shrink-0 mt-0.5" aria-hidden />
+        <div className="space-y-1">
+          <h2 className="text-base font-semibold">{t("title")}</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            {t("description", { region: tRegion(regionKey) })}
+          </p>
+        </div>
+      </header>
+    </section>
+  );
+}
+
 export default function AccountPage() {
   const t = useTranslations("account");
   return (
     <PageShell icon={Download} title={t("title")} subtitle={t("subtitle")}>
+      <DataResidencyCard />
       <DataExportCard />
       <AccountDeleteCard />
     </PageShell>

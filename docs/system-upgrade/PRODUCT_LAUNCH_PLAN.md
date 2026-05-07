@@ -151,8 +151,8 @@ mode; trial flow completes; first invoice generated correctly.
 
 | # | Task | Owner | Status | Notes |
 |---|---|---|---|---|
-| 7.01 | Terms of Service draft | Legal | [ ] | Vendor: SaaS attorney |
-| 7.02 | Privacy Policy draft (covers AI data usage explicitly) | Legal | [ ] | |
+| 7.01 | Terms of Service draft | Legal | [partial] 2026-05-08 | Public template page shipped at `/legal/terms` with explicit DRAFT banner + 7 sections (account / acceptable use / payment / IP / AI / termination / governing law). i18n in he/en with `[TBD-Legal]` placeholders for jurisdiction. 5 render tests. Legal team finalises wording; the structure + section coverage is the contract baseline. |
+| 7.02 | Privacy Policy draft (covers AI data usage explicitly) | Legal | [partial] 2026-05-08 | Public template page shipped at `/legal/privacy` mirroring /legal/terms shape. 7 GDPR-aligned sections (what we collect / why / sharing / your rights / retention / data location / cookies). Cross-links /legal/subprocessors + /legal/security in the intro. DRAFT banner. 4 render tests. Per-tier retention values match pricing-tiers-spec.md (Free 30d / Pro 90d / Enterprise 365d). |
 | 7.03 | Data Processing Agreement (DPA) template | Legal | [ ] | EU customer requirement |
 | 7.04 | Cookie consent banner (EU-compliant) | FE | [x] 2026-05-07 | Built `components/shell/cookie-consent.tsx` — essential-cookies-only stance with single "Got it" dismiss; persists `cookie-consent:v1=accepted` in localStorage; banner hides until mounted (hydration-safe); link to `/legal/privacy`. i18n in he/en. Wired into root layout. 5 unit tests cover render gating, persistence, prior-consent skip. No external lib needed. |
 | 7.05 | GDPR data export endpoint (`/api/me/export`) | BE | [partial] 2026-05-07 | FE shipped at `/account` — `DataExportCard` calls `requestDataExport()` (mock client in `lib/api/account.ts`). Async-by-design: backend acknowledges request, ZIP arrives by signed S3 link in email (frontend never sees the bytes — security guarantee). Mock returns `request_id` + 24h ETA email timestamp. Backend POST /api/proxy/me/export still pending. |
@@ -213,7 +213,7 @@ live; one DR drill passed; 99.5% uptime SLA achievable on staging metrics.
 | 9.05 | Audit log export (CSV / SIEM webhook) | BE | [partial] 2026-05-07 | CSV export was already shipped in audit-log page; this batch wraps it in `<FeatureGate flag="audit_log.export">` so Free-tier orgs no longer see the button (per 6.06 tier-flag mapping). Extended `FlagKey` union + `STATIC_FLAG_DEFAULTS` + `MOCK_DEFINITIONS` + `MOCK_PLAN_FEATURES` with the 9 plan-driven flags introduced in 6.01. Backend SIEM webhook still pending. |
 | 9.06 | IP allowlist per org | BE | [partial] 2026-05-07 | FE admin shell shipped at `/admin/ip-allowlist`. Wraps in `<FeatureGate flag="ip_allowlist.enabled">` so Free/Pro orgs see an upgrade nudge linking to /billing; Enterprise tenants see the editor. Editor adds/removes CIDR ranges with FE validation (pure helper `lib/platform/security/cidr.ts.isValidIpv4Cidr()`). Persists to localStorage via the cap-A `_mock-storage.ts` shim. 13 CIDR helper tests cover canonical/octet-range/prefix-range/IPv6/empty/non-string. Backend persistence + actual IP gating still BE/DevOps work. |
 | 9.07 | SLA contract: uptime + support response times | Sales+Legal | [partial] 2026-05-07 | Public page shipped at `/legal/sla`. 3-tier availability matrix (Free best-effort / Pro 99.5% no-SLA / Enterprise 99.9% contractual), 4 policy sections (uptime / response times / credits / exclusions), DRAFT banner explicitly marks the copy as un-finalised so we don't accidentally ship un-reviewed legal commitments. i18n in he/en. 5 render tests. Legal team finalizes wording; Sales gates Enterprise contract sign-off. |
-| 9.08 | Data residency choice (US / EU) | DevOps | [ ] | Multi-region deployment |
+| 9.08 | Data residency choice (US / EU) | DevOps | [partial] 2026-05-08 | FE notice shipped — `DataResidencyCard` on `/account` displays the active region (`eu-west-1` default, `us-east-1` Enterprise) with a contact-sales hint. Region key is read from `NEXT_PUBLIC_DATA_REGION` env var (mock); real source-of-truth becomes the org settings record once 5B settings BE lands. i18n in he/en. The actual multi-region deployment + data migration tooling remain DevOps work. |
 | 9.09 | Customer-managed encryption keys (BYOK) | BE | [ ] | Late-stage; can defer |
 | 9.10 | Private VPC peering option | DevOps | [ ] | Late-stage |
 
@@ -263,6 +263,54 @@ When a row changes status:
 ## Test Status Log
 
 Append-only. Newest entries at the top.
+
+### 2026-05-08 — Seventh execution batch (7.01 + 7.02 + legal index + 9.08)
+
+Closes the legal-pages family. Every public legal surface a B2B
+procurement check expects to find is now reachable from `/legal`.
+
+| Closed | Task | Files added | Tests added |
+|---|---|---|---|
+| 7.01 | Terms of Service template (partial) | `app/legal/terms/page.tsx` + `.test.tsx` | 5 |
+| 7.02 | Privacy Policy template (partial) | `app/legal/privacy/page.tsx` + `.test.tsx` | 4 |
+| — | Legal index landing | `app/legal/page.tsx` + `.test.tsx` (cross-cutting; not numbered) | 4 |
+| 9.08 | Data residency notice (partial) | `DataResidencyCard` in `app/(dashboard)/account/page.tsx` | 0 (covered by /account page rendering) |
+
+**Suites:**
+- `npx vitest run` — 117 files / **1044 tests ✓** (was 1031, +13 net)
+- `npx tsc --noEmit` — clean ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+- All 10 layers stable above their ADR-042 floors
+
+**`/legal/*` family is now feature-complete:**
+- `/legal` — index
+- `/legal/terms` — ToS (DRAFT)
+- `/legal/privacy` — Privacy Policy (DRAFT)
+- `/legal/sla` — SLA contract (DRAFT)
+- `/legal/security` — vulnerability disclosure
+- `/legal/subprocessors` — third-party providers list
+
+Common scaffold pattern across all 5: public route, inherits root
+layout only, ArrowLeft "Platform Engineer" back link, max-w-3xl center
+column, DRAFT banner where copy is unfinalised, mailto contact at
+the bottom. Adding a new legal page = duplicate the scaffold + new
+i18n namespace.
+
+**Cumulative across seven 2026-05-07/08 batches:** 21 PRODUCT_LAUNCH_PLAN
+rows touched (5 fully closed, 16 partial). 135 new tests added
+(16 + 28 + 34 + 12 + 21 + 11 + 13). Test count: 909 → 1044 (+135).
+Zero regressions across all seven batches.
+
+**Closed-row map by phase (final state for FE):**
+- §3 Commercial: 6.05 ✅, 6.13 ✅, 6.01 ✅
+- §4 Compliance: 7.04 ✅, 7.13 ✅
+- All other touched rows are [partial] with FE shipped — backend / legal
+  finalisation / DevOps own the remaining drop-in.
+
+**Legal escape hatch reminder:** every legal page that is FE-shipped
+has an explicit `DRAFT` banner that legal team must remove (and
+finalise the copy via i18n) before public launch. Removing the banner
+is a deliberate act, not a side-effect of any code change.
 
 ### 2026-05-07 — Sixth execution batch (7.05 + 7.06 + 9.07)
 

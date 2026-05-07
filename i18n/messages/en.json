@@ -1264,6 +1264,110 @@
       },
       "contact": "SLA questions: enterprise@platform.local",
       "lastUpdated": "Last updated: 2026-05-07"
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "subtitle": "Platform usage agreement",
+      "draftNotice": "DRAFT — Legal team will finalize wording before launch. The structure is the contract baseline.",
+      "intro": "By clicking Create organization or signing in, you accept the terms below. If you accept on behalf of an organization, you represent that you have authority to bind it.",
+      "sections": {
+        "account": {
+          "title": "Account",
+          "body": "You are responsible for passwords, MFA, and all activity under your account. Report unauthorized access via security@platform.local."
+        },
+        "acceptableUse": {
+          "title": "Acceptable use",
+          "body": "Prohibited: distributing illegal content, abuse of AI limits, attempts to breach the platform or other accounts, mass scraping. See /legal/security for vulnerability reporting."
+        },
+        "payment": {
+          "title": "Payment",
+          "body": "Paid plans renew automatically. Non-payment may lead to access suspension within 14 days. Cancellation any time takes effect at the end of the current billing period."
+        },
+        "ip": {
+          "title": "Intellectual property",
+          "body": "We retain all rights in the platform code and design. You retain rights to your data; we receive a limited license to process it for the specific service."
+        },
+        "ai": {
+          "title": "AI content",
+          "body": "The agent is a decision-support tool, not an advisor. Do not rely on AI outputs for medical, legal, or financial decisions without human verification."
+        },
+        "termination": {
+          "title": "Termination",
+          "body": "We may suspend an account for terms breach. Customer-initiated termination via /account or support. Data is deleted within 30 days of termination unless law requires longer retention."
+        },
+        "governingLaw": {
+          "title": "Governing law and jurisdiction",
+          "body": "This agreement is governed by [TBD-Legal], with exclusive jurisdiction in the courts of [TBD-Legal]."
+        }
+      },
+      "contact": "Contract questions: legal@platform.local",
+      "lastUpdated": "Last updated: 2026-05-08"
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "subtitle": "How we collect, use, and protect your data",
+      "draftNotice": "DRAFT — Legal team will finalize wording before launch. The structure is the contract baseline.",
+      "intro": "This policy applies to every user of the platform. See also /legal/subprocessors for the subprocessor list and /legal/security for the vulnerability disclosure policy.",
+      "sections": {
+        "whatWeCollect": {
+          "title": "What we collect",
+          "body": "Account data (email, name, hashed password); usage data (login times, IP, browser); content you upload to the platform; AI interactions. We do not collect marketing or tracking cookies."
+        },
+        "whyWeCollect": {
+          "title": "Why we collect",
+          "body": "To operate the service, security (fraud detection), billing, legal compliance. We do not sell data to third parties."
+        },
+        "sharing": {
+          "title": "Data sharing",
+          "body": "Data is shared only with subprocessors (see /legal/subprocessors). Every subprocessor is bound by GDPR / DPA standards. No law enforcement disclosure absent a court order."
+        },
+        "yourRights": {
+          "title": "Your rights (GDPR)",
+          "body": "Access: request a copy via /account. Correction: edit profile at /users/[your-id]. Deletion: /account. Object to processing: contact legal@platform.local."
+        },
+        "retention": {
+          "title": "Retention",
+          "body": "Account data: as long as the account is active plus 30 days after deletion. Audit log: 30 days (Free), 90 days (Pro), 365 days (Enterprise). Security logs: 1 year."
+        },
+        "dataLocation": {
+          "title": "Data location",
+          "body": "Data is stored in Ireland (eu-west-1) by default. Enterprise customers in the US may request us-east-1 subject to contract."
+        },
+        "cookies": {
+          "title": "Cookies",
+          "body": "We use essential cookies only: login session, language preference, sidebar state. No tracking or marketing cookies."
+        }
+      },
+      "contact": "Privacy questions: privacy@platform.local",
+      "lastUpdated": "Last updated: 2026-05-08"
+    },
+    "index": {
+      "title": "Legal documents",
+      "subtitle": "Policies, agreements, and compliance references",
+      "intro": "Every legal document for the platform in one place. All public — no sign-in required.",
+      "cards": {
+        "terms": {
+          "title": "Terms of Service",
+          "description": "Platform usage agreement."
+        },
+        "privacy": {
+          "title": "Privacy Policy",
+          "description": "How we handle your data — GDPR-aligned."
+        },
+        "sla": {
+          "title": "Service Level Agreement",
+          "description": "Uptime, response, and credit commitments for Enterprise."
+        },
+        "security": {
+          "title": "Vulnerability Disclosure Policy",
+          "description": "How to report security issues; safe harbor for researchers."
+        },
+        "subprocessors": {
+          "title": "Subprocessors",
+          "description": "List of third-party providers that process data."
+        }
+      },
+      "generalContact": "General inquiries: legal@platform.local"
     }
   },
   "billing": {
@@ -1401,6 +1505,14 @@
       "success": "Request received. Deletion runs within 7 days. You can cancel during this window by contacting support.",
       "mismatchError": "Email does not match. Please retype.",
       "backendNotice": "Automated account deletion goes live at launch. Demo only for now."
+    },
+    "dataResidency": {
+      "title": "Data location",
+      "description": "Your organization is stored in: {region}. Region change is available to Enterprise customers — contact enterprise@platform.local.",
+      "region": {
+        "eu-west-1": "Ireland (eu-west-1)",
+        "us-east-1": "US East (us-east-1)"
+      }
     }
   }
 }
