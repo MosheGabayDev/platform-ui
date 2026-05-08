@@ -264,6 +264,53 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-08 — Eleventh batch — app-sidebar + AI-assistant + apiFetch error paths
+
+Continuing the natural follow-on. Hit the 3 biggest remaining
+coverage gaps: app-sidebar (was 0%), AI-assistant message
+components (was 33-40%), and shared apiFetch error envelope across
+multiple clients.
+
+| Task | Files added | Tests added |
+|---|---|---|
+| AppSidebar test | `components/shell/app-sidebar.test.tsx` | 10 |
+| Message test (AI assistant chat bubble) | `components/shell/ai-assistant/message.test.tsx` | 6 |
+| MessageInput test (chat input + retry contract) | `components/shell/ai-assistant/message-input.test.tsx` | 11 |
+| apiFetch error-envelope coverage across signup / account / feedback / billing | `lib/api/real-fetch.test.ts` (extended) | 6 + new HTTP-status-fallback test = 7 |
+
+**Suites:**
+- `npx vitest run` — 131 files / **1145 tests ✓** (was 1112, +33 net)
+- `npx tsc --noEmit` — clean ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+- Layer climbs:
+  - components/shell **74.26% → 88.40%** (+14.14pp from app-sidebar +
+    AI-assistant)
+  - lib/api 94.10% → **94.55%** (+0.45pp from error path coverage)
+  - components/shared 75.20% (stable)
+
+**MessageInput test highlights:**
+- Voice button disabled (rolls out in AI-shell-D)
+- Send button disable/enable based on draft + state.kind
+- Whitespace-only draft does not enable send
+- Enter submits, Shift+Enter does not (newline path)
+- 2000-char limit clamps long input
+- Retries with bumped `contextVersion` on `StaleContextError` (HTTP 409
+  contract per assistant-runtime spec)
+
+**apiFetch error envelope tests:**
+- HTTP <status> fallback when body is not JSON
+- signup 409 → "email already registered" propagates
+- account export 429 → "rate-limited" propagates
+- account delete 403 → "MFA required" propagates
+- feedback 401 + 403 envelope contracts
+- billing usage-series 500 → "metering down" propagates
+
+**Cumulative across eleven 2026-05-07/08 batches:** 1145 tests total
+(909 → 1145, +236). Coverage gate clean throughout. Zero regressions.
+
+**components/shell trajectory:** 27% (start of day) → 88.40% (now).
+3.3× improvement from a single day's work.
+
 ### 2026-05-08 — Tenth batch — page tests + shell coverage to 74%
 
 Continuing the natural follow-on after the quality-pass batch. Closed

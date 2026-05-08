@@ -537,9 +537,64 @@ describe("error envelope handling (shared across all clients)", () => {
     const { fetchUsers } = await import("./users");
     await expect(fetchUsers()).rejects.toThrow(/denied/);
   });
+
   it("non-OK response with body.message uses it", async () => {
     fetchMock.mockResolvedValue(errJson(500, { message: "server boom" }));
     const { fetchUsers } = await import("./users");
     await expect(fetchUsers()).rejects.toThrow(/server boom/);
+  });
+
+  it("non-OK response without body falls back to HTTP <status>", async () => {
+    fetchMock.mockResolvedValue({
+      ok: false,
+      status: 503,
+      json: async () => {
+        throw new Error("not json");
+      },
+    });
+    const { fetchUsers } = await import("./users");
+    await expect(fetchUsers()).rejects.toThrow(/HTTP 503/);
+  });
+
+  it("signup: error envelope propagates to caller", async () => {
+    fetchMock.mockResolvedValue(errJson(409, { error: "email already registered" }));
+    const { submitSignup } = await import("./signup");
+    await expect(
+      submitSignup({ org_name: "X", email: "x@y.com", password: "Password123" }),
+    ).rejects.toThrow(/already registered/);
+  });
+
+  it("account: requestDataExport error envelope propagates", async () => {
+    fetchMock.mockResolvedValue(errJson(429, { error: "rate-limited" }));
+    const { requestDataExport } = await import("./account");
+    await expect(requestDataExport()).rejects.toThrow(/rate-limited/);
+  });
+
+  it("account: requestAccountDelete error envelope propagates", async () => {
+    fetchMock.mockResolvedValue(errJson(403, { error: "MFA required" }));
+    const { requestAccountDelete } = await import("./account");
+    await expect(
+      requestAccountDelete({ email_confirmation: "u@x.com" }),
+    ).rejects.toThrow(/MFA required/);
+  });
+
+  it("feedback: fetchFeedback error envelope propagates", async () => {
+    fetchMock.mockResolvedValue(errJson(401, { error: "unauthenticated" }));
+    const { fetchFeedback } = await import("./feedback");
+    await expect(fetchFeedback()).rejects.toThrow(/unauthenticated/);
+  });
+
+  it("feedback: addFeedback error envelope propagates", async () => {
+    fetchMock.mockResolvedValue(errJson(403, { error: "system_admin only" }));
+    const { addFeedback } = await import("./feedback");
+    await expect(
+      addFeedback({ source: "x", type: "bug", content: "y" }),
+    ).rejects.toThrow(/system_admin only/);
+  });
+
+  it("billing: fetchUsageSeries error envelope propagates", async () => {
+    fetchMock.mockResolvedValue(errJson(500, { error: "metering down" }));
+    const { fetchUsageSeries } = await import("./billing");
+    await expect(fetchUsageSeries(7)).rejects.toThrow(/metering down/);
   });
 });
