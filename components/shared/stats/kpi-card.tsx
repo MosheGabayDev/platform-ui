@@ -17,12 +17,14 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { TrendingUp, TrendingDown } from "lucide-react";
-import { AreaChart, Area, ResponsiveContainer } from "recharts";
+import dynamic from "next/dynamic";
 import type { LucideIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TiltCard } from "@/components/shared/tilt-card";
 import { CursorGlow } from "@/components/shared/cursor-glow";
 import { useCountUp } from "@/lib/hooks/use-count-up";
+
+const KpiSparkline = dynamic(() => import("./kpi-sparkline"), { ssr: false });
 
 export interface KpiSparkPoint {
   v: number;
@@ -148,27 +150,7 @@ export function KpiCard({
             {spark && sparkColor && (
               <div className="h-12 mt-1 min-w-[40px]">
                 {sparkReady && (
-                  <ResponsiveContainer width="100%" height="100%" minWidth={40}>
-                    <AreaChart data={spark} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id={sparkId} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={sparkColor} stopOpacity={0.3} />
-                        <stop offset="95%" stopColor={sparkColor} stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <Area
-                      type="monotone"
-                      dataKey="v"
-                      stroke={sparkColor}
-                      strokeWidth={1.5}
-                      fill={`url(#${sparkId})`}
-                      dot={false}
-                      isAnimationActive
-                      animationDuration={1200}
-                      animationEasing="ease-out"
-                    />
-                    </AreaChart>
-                  </ResponsiveContainer>
+                  <KpiSparkline data={spark} color={sparkColor} gradientId={sparkId} />
                 )}
               </div>
             )}

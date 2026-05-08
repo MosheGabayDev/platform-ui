@@ -264,6 +264,74 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-08 — Fourteenth batch — perf (lazy Recharts) + a11y axe + preflight
+
+Three quality-pass items that unblock pre-GA polish without waiting on
+backend work.
+
+**1. Performance: lazy-load Recharts on /billing + KPI cards**
+
+Recharts + d3 leaves are ~200KB minified. The two importers
+(`components/modules/billing/usage-chart.tsx` and
+`components/shared/stats/kpi-card.tsx`) are now wrapped in `next/dynamic`
+with `ssr: false`, with the recharts JSX extracted to a sibling file:
+
+| Parent | New dynamic-target file |
+|---|---|
+| `usage-chart.tsx` | `usage-chart-recharts.tsx` (default export) |
+| `kpi-card.tsx` | `kpi-sparkline.tsx` (default export) |
+
+This removes Recharts from the initial bundle for `/`, `/billing`, and
+every page that renders KpiCards. Tests still green — vitest mocks
+next/dynamic to render the inner component synchronously.
+
+**2. a11y: axe-core E2E pattern**
+
+Added `@axe-core/playwright` (dev dep) and
+`tests/e2e/smoke/a11y.spec.ts` — scans `/legal/*` (5 routes) + `/docs`
+for serious + critical WCAG 2.0 A/AA violations. Color-contrast is
+disabled for now (HSL CSS variables — manual review). This file is the
+**template** for adding axe scans to any other surface: copy + swap
+the route list.
+
+**3. `scripts/preflight.sh`**
+
+Single command for the full local quality gate: typecheck + vitest +
+coverage baseline. Exposed as `npm run preflight`. Designed for the
+pre-push moment; Playwright E2E runs separately in CI.
+
+**Suites:**
+- `npx vitest run` — 133 files / **1168 tests ✓** (no test count change — refactor)
+- `npx tsc --noEmit` — clean ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+- All 10 ADR-042 layers still over their floors:
+  - lib/api 94.88% (90)
+  - lib/auth 100% (95)
+  - lib/hooks 95.28% (80)
+  - lib/modules 100% (70)
+  - lib/platform 94.02% (70)
+  - lib/utils 100% (70)
+  - lib/utils.ts 100% (100)
+  - components/shared 75.20% (70)
+  - components/shell 89.24% (50)
+  - app/api/proxy 100% (90)
+
+**Files added:**
+- `components/modules/billing/usage-chart-recharts.tsx`
+- `components/shared/stats/kpi-sparkline.tsx`
+- `tests/e2e/smoke/a11y.spec.ts`
+- `scripts/preflight.sh`
+
+**Files modified:**
+- `components/modules/billing/usage-chart.tsx` (recharts→dynamic)
+- `components/shared/stats/kpi-card.tsx` (recharts→dynamic)
+- `package.json` (+ `preflight` script + `@axe-core/playwright` dev dep)
+
+**Next unblocked rows after this batch:**
+- §6 dashboard polish (10.07 docs site scaffold — dev)
+- §3 commercial: 6.01 pricing PM doc
+- §1-5 backend rows: still all blocked on Flask repo work
+
 ### 2026-05-08 — Thirteenth batch — Playwright E2E for the new pages
 
 The mandatory testing discipline rule §3 requires E2E for every new
