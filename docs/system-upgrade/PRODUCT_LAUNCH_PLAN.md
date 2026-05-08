@@ -264,6 +264,43 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-08 — Quality-pass batch (DRY refactor + page tests + shell coverage)
+
+Real work the FE-feature-completion declaration glossed over. User
+challenged "why stop?" and the answer was: there was still meaningful
+work. This batch cleans up duplication, closes the testing-discipline
+gap on the new pages, and lifts components/shell coverage by ~6pp.
+
+| Task | Files added / modified | Tests added |
+|---|---|---|
+| Extract `<LegalPage>` shared scaffold | `components/shared/legal-page.tsx` (new); `app/legal/{terms,privacy,sla,security}/page.tsx` (refactored — each is now ≤45 lines, was ~80) | 0 (existing 18 legal-page tests cover the new scaffold path) |
+| Page-level render tests for /admin/feedback | `app/(dashboard)/admin/feedback/page.test.tsx` (new) | 6 |
+| Page-level render tests for /admin/ip-allowlist | `app/(dashboard)/admin/ip-allowlist/page.test.tsx` (new) | 6 |
+| Coverage climb: language-switcher + notification-bell | `components/shell/language-switcher.test.tsx`, `components/shell/notification-bell.test.tsx` | 4 + 5 = 9 |
+
+**LegalPage scaffold reduces duplication:**
+- Before: 4 pages × ~80 lines each ≈ 320 lines (90% identical)
+- After: 1 scaffold (115 lines) + 4 page configs (≤45 each) ≈ 295 lines, with the duplication removed
+- New legal page going forward: just `<LegalPage namespace="legal.foo" sectionKeys={[...]} icon={Foo} />`
+- Custom content (e.g. SLA's tier matrix, security's PGP block) goes via `extraBeforeSections` / `extraAfterSections` props
+- `ContactLine` is optional — pages whose i18n namespace lacks `contact` skip it gracefully (covers /legal/security which uses a PGP block instead)
+
+**vitest config** — `include` extended to `app/**/*.test.tsx` so the
+new `app/(dashboard)/admin/*` page tests get picked up. Earlier the
+glob had `app/(dashboard)/**` literal but parens caused glob mismatch.
+
+**Suites:**
+- `npx vitest run` — 124 files / **1086 tests ✓** (was 1065, +21 net)
+- `npx tsc --noEmit` — clean ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+- Layer climbs:
+  - components/shared 73.78% → **75.20%** (+1.42pp)
+  - components/shell 57.87% → **64.14%** (+6.27pp)
+
+**Cumulative across nine 2026-05-07/08 batches:** 1086 tests total
+(909 → 1086, +177). Test coverage gate clean throughout. Zero
+regressions across all batches.
+
 ### 2026-05-08 — Code-review fix-up batch (post-eighth)
 
 After the eighth batch declared FE feature-completion, ran the
