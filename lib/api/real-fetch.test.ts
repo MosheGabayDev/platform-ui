@@ -395,11 +395,30 @@ describe("helpdesk submodules real-fetch", () => {
 });
 
 describe("ai*.ts real-fetch", () => {
-  it("ai sendChatMessage POSTs", async () => {
-    fetchMock.mockResolvedValue(okJson({}));
+  it("ai sendChatMessage POSTs to /api/proxy/ai/chat", async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ text: "ok", contextVersion: 1, actionProposal: null }),
+    });
     const { sendChatMessage } = await import("./ai");
-    await sendChatMessage({ messages: [] } as never);
+    await sendChatMessage({ message: "ping", context: null, contextVersion: 1 });
+    expect(fetchMock.mock.calls[0]![0]).toContain("/api/proxy/ai/chat");
     expect(fetchMock.mock.calls[0]![1]!.method).toBe("POST");
+  });
+  it("ai sendChatMessage throws StaleContextError on HTTP 409", async () => {
+    fetchMock.mockResolvedValue({ ok: false, status: 409, json: async () => ({}) });
+    const { sendChatMessage, StaleContextError } = await import("./ai");
+    await expect(
+      sendChatMessage({ message: "x", context: null, contextVersion: 1 }),
+    ).rejects.toBeInstanceOf(StaleContextError);
+  });
+  it("ai sendChatMessage throws generic Error on non-ok non-409", async () => {
+    fetchMock.mockResolvedValue({ ok: false, status: 500, json: async () => ({}) });
+    const { sendChatMessage } = await import("./ai");
+    await expect(
+      sendChatMessage({ message: "x", context: null, contextVersion: 1 }),
+    ).rejects.toThrow(/500/);
   });
   it("ai-providers: catalog + configs + config + update + test + resolve", async () => {
     fetchMock.mockResolvedValue(okJson({}));

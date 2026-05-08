@@ -73,4 +73,30 @@ describe("module-registry client (mock mode)", () => {
     expect(allActions).toContain("helpdesk.ticket.resolve");
     expect(allActions).toContain("helpdesk.maintenance.cancel");
   });
+
+  it("setModuleEnablement returns the success message + updated entry", async () => {
+    const res = await setModuleEnablement({ key: "billing", enabled: false });
+    expect(res.success).toBe(true);
+    expect(res.message).toMatch(/Disabled/);
+    expect(res.data.module.key).toBe("billing");
+    expect(res.data.module.enablement.enabled).toBe(false);
+    // Restore for downstream tests that may share state.
+    await setModuleEnablement({ key: "billing", enabled: true });
+  });
+
+  it("setModuleEnablement enabled message says 'Enabled'", async () => {
+    // First disable, then re-enable to hit the "Enabled" branch.
+    await setModuleEnablement({ key: "billing", enabled: false });
+    const res = await setModuleEnablement({ key: "billing", enabled: true });
+    expect(res.message).toMatch(/Enabled/);
+  });
+
+  it("disabled module's enablement.enabled_at + enabled_by_user_id are null", async () => {
+    const res = await fetchModules();
+    // ai-agents is disabled by required_flags but the underlying enablement
+    // map starts false too — assert the disabled-side null fields.
+    const aiAgents = res.data.modules.find((m) => m.key === "ai-agents");
+    expect(aiAgents!.enablement.enabled_at).toBeNull();
+    expect(aiAgents!.enablement.enabled_by_user_id).toBeNull();
+  });
 });

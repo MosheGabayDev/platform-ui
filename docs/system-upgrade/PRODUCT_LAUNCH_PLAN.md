@@ -264,6 +264,48 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-08 — Twelfth batch — AI-assistant tail + ai.ts mock-grammar + module-registry
+
+Continuing the natural follow-on. Closed remaining AI-assistant
+component coverage and dug into the mock-mode intent grammar in
+lib/api/ai.ts.
+
+| Task | Files added | Tests added |
+|---|---|---|
+| ChatTranscript test (transcript + sending indicator) | `components/shell/ai-assistant/chat-transcript.test.tsx` | 6 |
+| ContextDebugPanel test (dev-only JSON dump) | `components/shell/ai-assistant/context-debug.test.tsx` | 4 |
+| lib/api/ai.ts intent grammar + branches | `lib/api/ai.test.ts` (extended) + `lib/api/real-fetch.test.ts` (extended) | 8 + 3 = 11 |
+| module-registry success-path branches | `lib/api/module-registry.test.ts` (extended) | 3 |
+
+**Suites:**
+- `npx vitest run` — 133 files / **1168 tests ✓** (was 1145, +23 net)
+- `npx tsc --noEmit` — clean ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+- Layer climbs:
+  - components/shell **88.40% → 89.24%** (+0.84pp from chat-transcript +
+    context-debug)
+  - lib/api **94.55% → 94.88%** (+0.33pp from ai.ts intent grammar +
+    module-registry success branches)
+
+**ai.ts coverage highlights:**
+- All 4 intent regexes covered: take ticket, resolve ticket,
+  cancel maintenance, cancel batch, search users
+- DESTRUCTIVE / WRITE_HIGH / WRITE_LOW / READ capability tiers all
+  exercised
+- Hash-prefixed `#NNNN` ticket id form accepted
+- Token id uniqueness regression
+- Boundary: ticket id < 3 digits does NOT match grammar (returns null
+  proposal)
+- Real-fetch: StaleContextError on HTTP 409, generic Error on 500
+
+**Cumulative across twelve 2026-05-07/08 batches:** 1168 tests total
+(909 → 1168, +259). Coverage gate clean throughout. Zero regressions.
+
+**components/shell trajectory:** 27% → 89%. lib/api near-saturation
+at 95%. Remaining coverage debt is largely in AI-assistant
+ActionPreviewCard (covered by E2E) and a handful of tier-flag
+resolution paths in feature-flags.ts.
+
 ### 2026-05-08 — Eleventh batch — app-sidebar + AI-assistant + apiFetch error paths
 
 Continuing the natural follow-on. Hit the 3 biggest remaining

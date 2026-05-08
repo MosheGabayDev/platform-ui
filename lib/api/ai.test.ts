@@ -88,4 +88,53 @@ describe("sendChatMessage (mock mode)", () => {
     });
     expect(res.actionProposal).toBeNull();
   });
+
+  it("'cancel maintenance NNNN' → DESTRUCTIVE proposal", async () => {
+    const res = await sendChatMessage({ message: "cancel maintenance 5511", context: null });
+    expect(res.actionProposal?.actionId).toBe("helpdesk.maintenance.cancel");
+    expect(res.actionProposal?.capabilityLevel).toBe("DESTRUCTIVE");
+    expect(res.actionProposal?.params).toMatchObject({ windowId: 5511 });
+  });
+
+  it("'cancel batch NNNN' → WRITE_HIGH proposal", async () => {
+    const res = await sendChatMessage({ message: "cancel batch 7788", context: null });
+    expect(res.actionProposal?.actionId).toBe("helpdesk.batch.cancel");
+    expect(res.actionProposal?.capabilityLevel).toBe("WRITE_HIGH");
+    expect(res.actionProposal?.params).toMatchObject({ taskId: 7788 });
+  });
+
+  it("'search users for <query>' → READ proposal with the query echoed", async () => {
+    const res = await sendChatMessage({ message: 'search users for "alice"', context: null });
+    expect(res.actionProposal?.actionId).toBe("users.search");
+    expect(res.actionProposal?.capabilityLevel).toBe("READ");
+    expect(res.actionProposal?.params).toMatchObject({ query: "alice" });
+  });
+
+  it("contextVersion defaults to 1 when not provided", async () => {
+    const res = await sendChatMessage({ message: "hi", context: null });
+    expect(res.contextVersion).toBe(1);
+  });
+
+  it("hash-prefixed ticket ids are accepted (e.g. #1002)", async () => {
+    const res = await sendChatMessage({ message: "take ticket #1002", context: null });
+    expect(res.actionProposal?.params).toMatchObject({ ticketId: 1002 });
+  });
+
+  it("token id is unique across two consecutive proposals", async () => {
+    // Ticket id must be 3-6 digits per the TAKE_TICKET_RE grammar.
+    const a = await sendChatMessage({ message: "take ticket 1001", context: null });
+    const b = await sendChatMessage({ message: "take ticket 1002", context: null });
+    expect(a.actionProposal!.tokenId).not.toBe(b.actionProposal!.tokenId);
+  });
+
+  it("expiresAt is in the future at response time", async () => {
+    const before = Date.now();
+    const res = await sendChatMessage({ message: "take ticket 1099", context: null });
+    expect(res.actionProposal!.expiresAt).toBeGreaterThan(before);
+  });
+
+  it("ticket ids shorter than 3 digits do NOT match (regex-grammar boundary)", async () => {
+    const res = await sendChatMessage({ message: "take ticket 99", context: null });
+    expect(res.actionProposal).toBeNull();
+  });
 });
