@@ -264,6 +264,49 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-08 — Tenth batch — page tests + shell coverage to 74%
+
+Continuing the natural follow-on after the quality-pass batch. Closed
+the testing-discipline gap on the last 2 dashboard pages
+(/account, /billing) and added shell coverage for topbar +
+command-palette (both at 0% before this batch).
+
+| Task | Files added | Tests added |
+|---|---|---|
+| /account page test | `app/(dashboard)/account/page.test.tsx` | 6 |
+| /billing page test | `app/(dashboard)/billing/page.test.tsx` | 8 |
+| Topbar test | `components/shell/topbar.test.tsx` | 5 |
+| CommandPalette test | `components/shell/command-palette.test.tsx` | 7 |
+
+**Suites:**
+- `npx vitest run` — 128 files / **1112 tests ✓** (was 1086, +26 net)
+- `npx tsc --noEmit` — clean ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+- Layer climbs:
+  - components/shell **64.14% → 74.26%** (+10.12pp from topbar +
+    command-palette tests)
+  - components/shared 75.20% (stable)
+
+**Test highlights:**
+- /account: typed-confirm gate covered exhaustively — wrong email,
+  case-insensitive match, success path. Delete button stays disabled
+  until exact email match.
+- /billing: plan tier badge per tier, usage gauges with progressbar
+  role + aria-valuenow, invoices table, empty-state path, "Manage
+  payment" CTA disabled when portal_url null (mock-mode contract).
+- Topbar: Cmd+K dispatch from search trigger, sidebar toggle wiring,
+  theme toggle round-trip via next-themes mock, all 4 right-side
+  controls render (connection / accent / language / bell).
+- CommandPalette: Cmd+K / Ctrl+K / "/" all open the dialog, Cmd+K
+  toggles closed when already open, listener cleanup on unmount.
+
+**Cumulative across ten 2026-05-07/08 batches:** 1112 tests total
+(909 → 1112, +203). Coverage gate clean throughout. Zero regressions.
+
+**components/shell trajectory:** 27% (start of day) → 74% (now). More
+than doubled. Remaining headroom in `app-sidebar.tsx` (~331 lines, 0%
+covered) and AI-assistant components.
+
 ### 2026-05-08 — Quality-pass batch (DRY refactor + page tests + shell coverage)
 
 Real work the FE-feature-completion declaration glossed over. User
