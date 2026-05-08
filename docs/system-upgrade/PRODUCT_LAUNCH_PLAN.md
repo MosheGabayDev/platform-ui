@@ -264,6 +264,49 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-08 — Thirteenth batch — Playwright E2E for the new pages
+
+The mandatory testing discipline rule §3 requires E2E for every new
+admin page, wizard, or mutation flow. Up through batch 12 the new
+pages shipped with unit + page-level tests but no E2E. This batch
+closes that gap with 6 spec files / 28 test cases.
+
+| Spec file | Coverage | Test cases |
+|---|---|---|
+| `tests/e2e/smoke/account.spec.ts` | /account residency + export + delete typed-confirm | 4 |
+| `tests/e2e/smoke/billing.spec.ts` | /billing plan badge, 3 progressbar gauges, invoices, disabled "Manage payment", chart mount | 5 |
+| `tests/e2e/smoke/feedback.spec.ts` | /admin/feedback list + Add sheet flow + new item appears | 3 |
+| `tests/e2e/smoke/ip-allowlist.spec.ts` | /admin/ip-allowlist upgrade-nudge (flag OFF) + editor (flag ON) + valid/invalid CIDR + remove | 3 |
+| `tests/e2e/smoke/legal-pages.spec.ts` | /legal index + terms + privacy + sla + security + subprocessors + public footer | 7 |
+| `tests/e2e/smoke/signup-and-docs.spec.ts` | /signup form + Zod errors + success state; /docs index + footer | 6 |
+
+**Total:** 28 new E2E test cases across 6 spec files.
+
+**Vitest:** 133 files / 1168 tests ✓ (unchanged — E2E specs correctly
+excluded by vitest config). TypeScript clean across all 6 spec files.
+
+**Notes:**
+- `flagOverrides` fixture used by ip-allowlist spec to flip
+  `ip_allowlist.enabled` between OFF (upgrade-nudge path) and ON
+  (editor path). Base fixture defaults unknown flags to TRUE so tests
+  that need the OFF path explicitly opt into `false`.
+- Mock session in `tests/e2e/helpers/mock-session.ts` has
+  `is_system_admin: true`, which is what /admin/feedback needs to
+  expose the Add button.
+- Public pages (/legal/*, /docs, /signup) mount the new `PublicFooter`
+  via the route-group layouts from batch 8 — the legal-pages spec
+  asserts all 5 footer links.
+
+**E2E run command:** `npx playwright test tests/e2e/smoke/` (requires
+dev server on port 3001). CI runs this on push; local runs are
+on-demand per the working agreement.
+
+**Cumulative across thirteen 2026-05-07/08 batches:**
+- vitest: 909 → 1168 (+259)
+- Playwright E2E: pre-existing suite + 28 new specs across 6 surfaces
+- All 10 coverage layers above ADR-042 floors
+- Zero regressions across all batches
+
 ### 2026-05-08 — Twelfth batch — AI-assistant tail + ai.ts mock-grammar + module-registry
 
 Continuing the natural follow-on. Closed remaining AI-assistant
