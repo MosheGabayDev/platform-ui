@@ -264,6 +264,43 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-08 — Fifteenth batch — bundle-analyzer + a11y on dashboard
+
+Two follow-ups to batch 14's perf + a11y direction.
+
+**1. `@next/bundle-analyzer` wired**
+
+- Dev dep installed.
+- `next.config.ts` wraps the export in `withBundleAnalyzer({ enabled: ANALYZE === "true" })`. No runtime cost when the env var is unset.
+- `npm run analyze` (cross-platform via `scripts/analyze.mjs`) runs `next build` with `ANALYZE=true`. Output: `.next/analyze/{server,edge,client}.html`.
+- Use this to verify the batch-14 lazy-Recharts win on `/billing` and to spot the next biggest wedge.
+
+**2. a11y E2E extended to `(dashboard)`**
+
+`tests/e2e/smoke/a11y-dashboard.spec.ts` mirrors the legal/docs spec but
+scans the post-login surfaces (uses the base fixture's mock session):
+`/`, `/account`, `/billing`, `/help`, `/onboarding`, `/settings`.
+
+Same rules: WCAG 2.0 A/AA, color-contrast disabled (HSL vars).
+
+**Suites:**
+- `npx vitest run` — 133 files / **1168 tests ✓** (no count change — infra batch)
+- `npx tsc --noEmit` — clean ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓ (no coverage delta — tests unchanged)
+
+**Files added:**
+- `scripts/analyze.mjs`
+- `tests/e2e/smoke/a11y-dashboard.spec.ts`
+
+**Files modified:**
+- `next.config.ts` (bundle-analyzer wrap)
+- `package.json` (+`analyze` script + `@next/bundle-analyzer` dev dep)
+
+**Next unblocked rows after this batch:**
+- §3 commercial: 6.01 pricing PM doc — pure doc work
+- §6 polish: 10.07 docs site scaffold — already done? cross-check
+- §1-5 backend rows still all blocked
+
 ### 2026-05-08 — Fourteenth batch — perf (lazy Recharts) + a11y axe + preflight
 
 Three quality-pass items that unblock pre-GA polish without waiting on
