@@ -36,4 +36,25 @@ describe("ai-skills registry", () => {
   it("getSkillsByModule returns [] for unknown module", () => {
     expect(getSkillsByModule("nonexistent-module")).toEqual([]);
   });
+
+  it("notes.create is registered for the Notes vertical", () => {
+    const skill = getSkill("notes.create");
+    expect(skill).toBeDefined();
+    expect(skill!.module_key).toBe("notes");
+    expect(skill!.ai_callable).toBe(true);
+    expect(skill!.parameter_schema.required).toEqual(["title", "body"]);
+  });
+
+  it("bookmarks.create is registered for the Bookmarks vertical", () => {
+    const skill = getSkill("bookmarks.create");
+    expect(skill).toBeDefined();
+    expect(skill!.module_key).toBe("bookmarks");
+    expect(skill!.ai_callable).toBe(true);
+    expect(skill!.parameter_schema.required).toEqual(["title", "url"]);
+  });
+
+  it("manifest ai_actions reference live skill ids (notes + bookmarks)", () => {
+    expect(getSkill("notes.create")).toBeDefined();
+    expect(getSkill("bookmarks.create")).toBeDefined();
+  });
 });

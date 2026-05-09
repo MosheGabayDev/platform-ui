@@ -10,8 +10,15 @@
 import type { AISkill } from "@/lib/modules/ai-skills/types";
 import { helpdeskSkills } from "@/lib/modules/helpdesk/skills";
 import { usersSkills } from "@/lib/modules/users/skills";
+import { notesSkills } from "@/lib/modules/notes/skills";
+import { bookmarksSkills } from "@/lib/modules/bookmarks/skills";
 
-const ALL_SKILLS: AISkill[] = [...helpdeskSkills, ...usersSkills];
+const ALL_SKILLS: AISkill[] = [
+  ...helpdeskSkills,
+  ...usersSkills,
+  ...notesSkills,
+  ...bookmarksSkills,
+];
 
 export function getAllSkills(): AISkill[] {
   return ALL_SKILLS;

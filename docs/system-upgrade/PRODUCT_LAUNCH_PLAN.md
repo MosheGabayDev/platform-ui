@@ -264,6 +264,39 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Twenty-first batch — AI skills for Notes + Bookmarks
+
+Closes the AI-integration loop. Both verticals now ship `mutate`-class
+skills that the AI assistant can invoke through the existing
+PlatformAISkillRegistry — no platform code modified, only manifest +
+two skill files registered.
+
+**Skills registered:**
+- `notes.create` — params `{ title, body }` (tags omitted; ParameterDef
+  doesn't model arrays today — TODO when schema gains array support)
+- `bookmarks.create` — params `{ title, url }` (url has `^https?://` pattern)
+
+Both: `category: "mutate"`, `risk_level: "low"`, `ai_callable: true`,
+`default_enabled: true`, `cost_class: "cheap"`.
+
+**Manifests:** `ai_actions: ["notes.create"]` / `["bookmarks.create"]`
+on the respective module manifests — the registry test now cross-checks
+that every manifest-declared action_id resolves to a live skill.
+
+**Files added:**
+- `lib/modules/notes/skills.ts`
+- `lib/modules/bookmarks/skills.ts`
+
+**Files modified:**
+- `lib/platform/ai-skills/registry.ts` (+notesSkills + bookmarksSkills)
+- `lib/platform/ai-skills/registry.test.ts` (+3 tests)
+- `lib/platform/module-registry/manifests.ts` (notes + bookmarks ai_actions populated)
+
+**Suites:**
+- `npx vitest run` — 138 files / **1206 tests ✓** (+3 ai-skills tests)
+- `npx tsc --noEmit` — clean ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+
 ### 2026-05-10 — Twentieth batch — Notes + Bookmarks wired into Cmd+K
 
 Cross-vertical integration: both manifests already declared

@@ -322,7 +322,7 @@ const MANIFESTS: ModuleManifest[] = [
     nav_entries: [
       { label: "Notes", label_he: "פתקים", href: "/notes", icon: "NotebookText", order: 1 },
     ],
-    ai_actions: [],
+    ai_actions: ["notes.create"],
     permissions: ["notes.view", "notes.create", "notes.delete_own"],
     search_types: ["note"],
     introduced_in_version: "0.50.0",
@@ -346,7 +346,7 @@ const MANIFESTS: ModuleManifest[] = [
     nav_entries: [
       { label: "Bookmarks", label_he: "סימניות", href: "/bookmarks", icon: "Bookmark", order: 1 },
     ],
-    ai_actions: [],
+    ai_actions: ["bookmarks.create"],
     permissions: ["bookmarks.view", "bookmarks.create"],
     search_types: ["bookmark"],
     introduced_in_version: "0.50.0",
