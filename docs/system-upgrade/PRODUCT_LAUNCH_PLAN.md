@@ -109,7 +109,7 @@ the platform is verifiably "generic" not "Helpdesk-only."
 | 5B.13 | Helpdesk Phase B BE: SLA / approvals / batch / maintenance | BE | [ ] | |
 | 5B.14 | Frontend flips remaining `lib/api/helpdesk.*` clients | FE | [ ] | 5B.13 |
 | 5B.15 | Second vertical module skeleton — Notes (FE-only, mock-first) | FE+BE | [x] FE | Validates "generic" claim — see batch 17 in Test Status Log; BE flip pending |
-| 5B.16 | Third vertical lite: just spec + manifest + one mutation | FE+BE | [ ] | Validates module-registry contract |
+| 5B.16 | Third vertical lite — Bookmarks (manifest + 1 mutation: add) | FE+BE | [x] FE | Validates module-registry contract — see batch 19 |
 | 5B.17 | Backend: cross-tenant query guards on every endpoint | BE | [ ] | Audit pass — every SELECT has `where org_id = current_org()` |
 | 5B.18 | Penetration test of multi-tenant isolation | Sec | [ ] | External vendor preferred |
 
@@ -263,6 +263,59 @@ When a row changes status:
 ## Test Status Log
 
 Append-only. Newest entries at the top.
+
+### 2026-05-10 — Nineteenth batch — vertical #2 manifest + vertical #3 lite (Bookmarks)
+
+Closes the remaining FE-only generic-platform validation work:
+
+**1. Notes registered in module-registry**
+
+Notes shipped in batch 17 without a manifest. This batch adds the
+`notes` manifest entry (key, label, label_he, base_route, nav_entries,
+permissions, search_types, status: experimental) plus its
+FIXTURE_ENABLEMENT row, so /admin/modules surfaces it correctly. This
+proves vertical #2 doesn't just *work* — it's also discoverable via the
+platform's own registry contract.
+
+**2. Bookmarks (vertical #3 lite — closes 5B.16)**
+
+A deliberately tiny third module — manifest + one mutation (add) — to
+prove vertical #2 wasn't a fluke and that the platform supports a phased
+rollout where edit/delete come later. Lite contract:
+- types: `Bookmark { id, created_at, title, url, added_by_id, added_by_name }`
+- api: `fetchBookmarks` + `addBookmark` (with `InvalidUrlError` for bad
+  protocols and malformed URLs — pre-validated on both mock and real paths)
+- 7-step MOCK_MODE flip checklist
+- queryKeys.bookmarks namespace
+- /bookmarks page with Add Sheet + inline URL error UX
+- Manifest in module-registry + FIXTURE_ENABLEMENT row
+- Quick-start article registered in DOCS_CATALOG (closes the
+  "every registered module has at least one quick-start article" invariant)
+- Nav entry + i18n he/en
+
+**Files added:**
+- `lib/modules/bookmarks/types.ts`
+- `lib/api/bookmarks.ts` + `bookmarks.test.ts` (7 tests)
+- `app/(dashboard)/bookmarks/page.tsx` + `page.test.tsx` (6 tests)
+- `tests/e2e/smoke/bookmarks.spec.ts` (4 specs)
+
+**Files modified:**
+- `lib/platform/module-registry/manifests.ts` (+ notes manifest, + bookmarks manifest)
+- `lib/api/module-registry.ts` (+ FIXTURE_ENABLEMENT rows for both)
+- `lib/api/query-keys.ts` + test (+ bookmarks namespace, +1 test)
+- `lib/docs/content.ts` (+ quick-start-notes + quick-start-bookmarks articles)
+- `components/shell/nav-items.ts` (+ /bookmarks in main group, Bookmark icon)
+- `i18n/messages/{he,en}.json` (+ bookmarks namespace, + nav.items.bookmarks, + help.modules.{notes,bookmarks})
+
+**Suites:**
+- `npx vitest run` — 138 files / **1200 tests ✓** (+14: 7 bookmarks + 1 query-keys + 6 page)
+- `npx tsc --noEmit` — clean ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+
+**With this batch shipped, both 5B.15 (FE) and 5B.16 (FE) are closed.**
+The "generic platform" claim now has 2 module-registry entries that
+weren't there at the start of the launch plan, both fully E2E-tested
+and discoverable via /admin/modules and /help quick-starts.
 
 ### 2026-05-10 — Eighteenth batch — Notes E2E + page-level vitest
 

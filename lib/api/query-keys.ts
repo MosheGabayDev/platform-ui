@@ -92,6 +92,12 @@ export const queryKeys = {
     list: () => ["notes", "list"]             as const,
   },
 
+  // §1 task 5B.16 — Bookmarks (third vertical lite — module-registry contract)
+  bookmarks: {
+    all:  () => ["bookmarks"]                 as const,
+    list: () => ["bookmarks", "list"]         as const,
+  },
+
   // Phase 6: Billing (mock pre-Stripe — see PRODUCT_LAUNCH_PLAN.md §3)
   billing: {
     all:         () => ["billing"]                          as const,

@@ -392,7 +392,8 @@
       "email": "Email",
       "usageLimits": "Usage limits",
       "help": "Help",
-      "notes": "Notes"
+      "notes": "Notes",
+      "bookmarks": "Bookmarks"
     }
   },
   "language": {
@@ -1007,6 +1008,22 @@
         "steps": [
           "Open /data-sources to register a connection.",
           "Connections are read-only by default; admin can grant write."
+        ]
+      },
+      "notes": {
+        "title": "Notes — quick start",
+        "summary": "Personal notes, optional tags, owner-only delete.",
+        "steps": [
+          "Click 'New note' and enter a title + body.",
+          "Tags (comma-separated) and delete are owner-only."
+        ]
+      },
+      "bookmarks": {
+        "title": "Bookmarks — quick start",
+        "summary": "Shared org-wide bookmark library.",
+        "steps": [
+          "Click 'New bookmark' and enter a title + URL.",
+          "URL must start with http:// or https://."
         ]
       }
     },
@@ -1628,6 +1645,28 @@
         "title": "Title",
         "body": "Body",
         "tags": "Tags (comma-separated)"
+      }
+    }
+  },
+  "bookmarks": {
+    "title": "Bookmarks",
+    "subtitle": "Shared org-wide bookmark library — third 'lite' vertical.",
+    "intro": "Any user can add a bookmark. Edit and delete are out of scope for the lite contract — the module exists to validate the module-registry contract (manifest + one mutation) end-to-end.",
+    "add": "New bookmark",
+    "empty": "No bookmarks yet.",
+    "saved": "Bookmark saved",
+    "backendNotice": "Demo mode — data persists locally in the browser (localStorage).",
+    "errors": {
+      "invalidUrl": "Invalid URL. Use http:// or https://."
+    },
+    "form": {
+      "title": "New bookmark",
+      "subtitle": "Title + full URL (including https://).",
+      "aria": "Bookmark creation form",
+      "cta": "Save",
+      "fields": {
+        "title": "Title",
+        "url": "URL"
       }
     }
   }

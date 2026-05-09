@@ -169,6 +169,30 @@ const QUICK_STARTS: DocArticle[] = [
     ],
     tags: ["data-sources", "databases"],
   },
+  {
+    id: "quick-start-notes",
+    category: "quick-start",
+    module_key: "notes",
+    titleKey: "help.modules.notes.title",
+    summaryKey: "help.modules.notes.summary",
+    stepKeys: [
+      "help.modules.notes.steps.0",
+      "help.modules.notes.steps.1",
+    ],
+    tags: ["notes", "productivity"],
+  },
+  {
+    id: "quick-start-bookmarks",
+    category: "quick-start",
+    module_key: "bookmarks",
+    titleKey: "help.modules.bookmarks.title",
+    summaryKey: "help.modules.bookmarks.summary",
+    stepKeys: [
+      "help.modules.bookmarks.steps.0",
+      "help.modules.bookmarks.steps.1",
+    ],
+    tags: ["bookmarks", "links"],
+  },
 ];
 
 // 2026-05-07 §7 task 10.08 — KB scaffolding. Three new categories added

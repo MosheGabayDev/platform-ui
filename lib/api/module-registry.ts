@@ -43,6 +43,8 @@ const FIXTURE_ENABLEMENT: Array<[string, boolean]> = [
   ["monitoring", true],
   ["billing", true],
   ["data-sources", false],
+  ["notes", true],
+  ["bookmarks", true],
 ];
 
 // Mock per-org enablement. Defaults below match a "Pro" tenant.
