@@ -86,6 +86,12 @@ export const queryKeys = {
     list: () => ["feedback", "list"]          as const,
   },
 
+  // §1 task 5B.15 — Notes (second vertical, validates "generic" claim)
+  notes: {
+    all:  () => ["notes"]                     as const,
+    list: () => ["notes", "list"]             as const,
+  },
+
   // Phase 6: Billing (mock pre-Stripe — see PRODUCT_LAUNCH_PLAN.md §3)
   billing: {
     all:         () => ["billing"]                          as const,

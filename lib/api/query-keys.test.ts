@@ -112,6 +112,11 @@ describe("queryKeys registry", () => {
     expect(queryKeys.feedback.list()).toEqual(["feedback", "list"]);
   });
 
+  it("notes keys", () => {
+    expect(queryKeys.notes.all()).toEqual(["notes"]);
+    expect(queryKeys.notes.list()).toEqual(["notes", "list"]);
+  });
+
   it("helpdesk keys", () => {
     expect(queryKeys.helpdesk.all()).toEqual(["helpdesk"]);
     expect(queryKeys.helpdesk.stats()).toEqual(["helpdesk", "stats"]);

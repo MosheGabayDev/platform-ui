@@ -29,6 +29,7 @@ import {
   Boxes,
   Shield,
   Sparkles,
+  NotebookText,
 } from "lucide-react";
 
 export type NavItem = {
@@ -63,6 +64,7 @@ export const navGroups: NavGroup[] = [
     items: [
       { title: "דשבורד", titleKey: "nav.items.dashboard", href: "/", icon: LayoutDashboard },
       { title: "הקמה ראשונית", titleKey: "nav.items.onboarding", href: "/onboarding", icon: Sparkles },
+      { title: "פתקים", titleKey: "nav.items.notes", href: "/notes", icon: NotebookText },
     ],
   },
   {

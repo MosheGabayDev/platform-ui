@@ -108,7 +108,7 @@ the platform is verifiably "generic" not "Helpdesk-only."
 | 5B.12 | Frontend wires NotificationBell to SSE; polling fallback | FE | [ ] | 5B.11 |
 | 5B.13 | Helpdesk Phase B BE: SLA / approvals / batch / maintenance | BE | [ ] | |
 | 5B.14 | Frontend flips remaining `lib/api/helpdesk.*` clients | FE | [ ] | 5B.13 |
-| 5B.15 | Second vertical module skeleton (chosen by sales): pick from CRM / Knowledge / Voice | FE+BE | [ ] | Validates "generic" claim |
+| 5B.15 | Second vertical module skeleton — Notes (FE-only, mock-first) | FE+BE | [x] FE | Validates "generic" claim — see batch 17 in Test Status Log; BE flip pending |
 | 5B.16 | Third vertical lite: just spec + manifest + one mutation | FE+BE | [ ] | Validates module-registry contract |
 | 5B.17 | Backend: cross-tenant query guards on every endpoint | BE | [ ] | Audit pass — every SELECT has `where org_id = current_org()` |
 | 5B.18 | Penetration test of multi-tenant isolation | Sec | [ ] | External vendor preferred |
@@ -263,6 +263,53 @@ When a row changes status:
 ## Test Status Log
 
 Append-only. Newest entries at the top.
+
+### 2026-05-10 — Seventeenth batch — second vertical (Notes) — proves "generic"
+
+Closes the headline open question for the generic-platform claim:
+**can a second vertical land without touching any platform primitive?**
+Answer: yes. Notes is a fully decoupled module — different domain
+than Helpdesk, no shared types, no shared queryKeys namespace, no
+shared routes — yet it reuses every platform piece end-to-end:
+
+| Platform piece | Used by Notes how |
+|---|---|
+| `lib/api/_mock-storage` | Cap-A localStorage shim — same as feedback/billing/ai-skills |
+| `lib/api/query-keys` | Added `queryKeys.notes` namespace; tests added |
+| `usePlatformMutation` | addNote + deleteNote |
+| `PageShell` | Title + subtitle + actions slot |
+| `PlatformForm` + `FormActions` | Add-note Sheet body |
+| `next-auth/react` | `session.user.id` drives owner-only delete |
+| Shadcn `Sheet` + `Dialog` | Add sheet + delete confirm — no bespoke chrome |
+| Mock-mode `MOCK_MODE` flip pattern | 7-step flip checklist matches feedback/account/billing/signup |
+
+This batch maps to launch-plan row **5B.15** (second vertical
+skeleton) — the "validates 'generic' claim" row.
+
+**Files added:**
+- `lib/modules/notes/types.ts`
+- `lib/api/notes.ts` (with full MOCK_MODE flip checklist)
+- `lib/api/notes.test.ts` (7 tests)
+- `app/(dashboard)/notes/page.tsx` (NotesPage + AddNoteSheet + delete confirm)
+
+**Files modified:**
+- `lib/api/query-keys.ts` (+ `notes` namespace)
+- `lib/api/query-keys.test.ts` (+ 1 test)
+- `components/shell/nav-items.ts` (+ `/notes` row in main group)
+- `i18n/messages/{he,en}.json` (+ `notes` namespace + `nav.items.notes`)
+- `components/shared/a11y.test.tsx` (fixed ErrorState props — TS regression from batch 16 caught here)
+
+**Suites:**
+- `npx vitest run` — 135 files / **1180 tests ✓** (+8: 7 notes-client + 1 query-keys)
+- `npx tsc --noEmit` — clean ✓ (also fixed a TS regression in batch-16 a11y test)
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+
+**Open follow-ups (next batch material):**
+- E2E smoke spec for `/notes` (mandatory testing rule §3 — every new
+  page with a mutation flow needs E2E)
+- Page-level vitest test for NotesPage (or rely on E2E per ADR-042
+  exemption)
+- Edit-note flow (MVP only has create + delete — edit can come later)
 
 ### 2026-05-09 — Sixteenth batch — vitest-axe component-level a11y
 

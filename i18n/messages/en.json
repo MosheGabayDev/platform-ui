@@ -391,7 +391,8 @@
       "general": "General",
       "email": "Email",
       "usageLimits": "Usage limits",
-      "help": "Help"
+      "help": "Help",
+      "notes": "Notes"
     }
   },
   "language": {
@@ -1602,6 +1603,32 @@
       "terms": "Terms",
       "security": "Security",
       "docs": "Docs"
+    }
+  },
+  "notes": {
+    "title": "Notes",
+    "subtitle": "Personal notes — second vertical, proves the platform is generic.",
+    "intro": "Every user keeps private notes inside the org. Delete is owner-only. Demonstrates that the same platform primitives (PageShell + PlatformForm + DataTable + PermissionGate) serve a module unrelated to Helpdesk.",
+    "add": "New note",
+    "empty": "No notes yet.",
+    "saved": "Note saved",
+    "delete": "Delete",
+    "deleted": "Note deleted",
+    "backendNotice": "Demo mode — data persists locally in the browser (localStorage).",
+    "deleteConfirm": {
+      "title": "Delete this note?",
+      "body": "Note \"{title}\" will be deleted. This cannot be undone."
+    },
+    "form": {
+      "title": "New note",
+      "subtitle": "Title + body — tags optional, comma-separated.",
+      "aria": "Note creation form",
+      "cta": "Save",
+      "fields": {
+        "title": "Title",
+        "body": "Body",
+        "tags": "Tags (comma-separated)"
+      }
     }
   }
 }

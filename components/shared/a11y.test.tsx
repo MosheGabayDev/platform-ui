@@ -66,7 +66,7 @@ describe("shared primitives — a11y", () => {
 
   it("ErrorState has no serious violations", async () => {
     const { container } = renderWithIntl(
-      <ErrorState title="Something went wrong" description="Please retry" />,
+      <ErrorState error={new Error("Something went wrong")} onRetry={() => {}} />,
     );
     await expectNoSeriousViolations(container);
   });
