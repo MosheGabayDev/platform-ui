@@ -116,9 +116,43 @@ const MOCK_CORPUS: CorpusEntry[] = [
     subtitle: "Organization · primary tenant",
     href: "/orgs/1",
   },
+  // Notes (vertical #2 — registered via search_types in module manifest)
+  {
+    type: "note",
+    id: "n-001",
+    title: "Pilot kickoff agenda",
+    body: "Acme + Globex pilot kickoff. Onboarding tour, AI-provider switch, audit-log demo.",
+    subtitle: "Note · meeting",
+    href: "/notes",
+  },
+  {
+    type: "note",
+    id: "n-002",
+    title: "Q3 OKR draft",
+    body: "Top result: ship 3 verticals on the same platform. Confidence 0.6 — backend MVP gating.",
+    subtitle: "Note · okr",
+    href: "/notes",
+  },
+  // Bookmarks (vertical #3 lite — registered via search_types in module manifest)
+  {
+    type: "bookmark",
+    id: "bm-001",
+    title: "Internal — engineering wiki",
+    body: "https://wiki.example.com/eng — engineering knowledge base",
+    subtitle: "Bookmark · wiki.example.com",
+    href: "/bookmarks",
+  },
+  {
+    type: "bookmark",
+    id: "bm-002",
+    title: "Status page",
+    body: "https://status.example.com — public status dashboard",
+    subtitle: "Bookmark · status.example.com",
+    href: "/bookmarks",
+  },
 ];
 
-const DEFAULT_TYPES: SearchResultType[] = ["ticket", "user", "kb", "org"];
+const DEFAULT_TYPES: SearchResultType[] = ["ticket", "user", "kb", "org", "note", "bookmark"];
 
 // ---------------------------------------------------------------------------
 // Mock scoring

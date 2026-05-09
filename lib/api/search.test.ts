@@ -69,6 +69,27 @@ describe("PlatformSearch client (mock mode)", () => {
     expect(res.data.results).toEqual([]);
   });
 
+  it("matches a note from the Notes vertical (search_types: 'note')", async () => {
+    const res = await searchGlobal({ q: "OKR" });
+    const note = res.data.results.find((r) => r.type === "note");
+    expect(note).toBeDefined();
+    expect(note!.title).toMatch(/Q3 OKR/);
+    expect(note!.href).toBe("/notes");
+  });
+
+  it("matches a bookmark from the Bookmarks vertical (search_types: 'bookmark')", async () => {
+    const res = await searchGlobal({ q: "engineering wiki" });
+    const bm = res.data.results.find((r) => r.type === "bookmark");
+    expect(bm).toBeDefined();
+    expect(bm!.href).toBe("/bookmarks");
+  });
+
+  it("types filter respects 'note' and 'bookmark' (open enum)", async () => {
+    const res = await searchGlobal({ q: "wiki", types: ["bookmark"] });
+    expect(res.data.results.every((r) => r.type === "bookmark")).toBe(true);
+    expect(res.data.results.length).toBeGreaterThan(0);
+  });
+
   it("highlight() escapes <mark> wrapping AND surrounding text (Round 2 MED #5)", async () => {
     // The fixture corpus is plain text with no special chars. We assert that
     // (a) the match is wrapped in literal <mark>, (b) the surrounding raw

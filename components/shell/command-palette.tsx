@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import {
   Search, TicketIcon, BookOpen, User as UserIcon, Building2, Loader2,
+  NotebookText, Bookmark as BookmarkIcon,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -27,6 +28,8 @@ const RESULT_TYPE_ICON: Record<string, LucideIcon> = {
   kb: BookOpen,
   user: UserIcon,
   org: Building2,
+  note: NotebookText,
+  bookmark: BookmarkIcon,
 };
 
 const RESULT_TYPE_KEY: Record<string, string> = {
@@ -34,6 +37,8 @@ const RESULT_TYPE_KEY: Record<string, string> = {
   kb: "kb",
   user: "user",
   org: "org",
+  note: "note",
+  bookmark: "bookmark",
 };
 
 // Sanitizer extracted to lib/utils/sanitize-excerpt so the test imports the

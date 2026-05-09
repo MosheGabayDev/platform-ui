@@ -264,6 +264,28 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Twentieth batch — Notes + Bookmarks wired into Cmd+K
+
+Cross-vertical integration: both manifests already declared
+`search_types: ["note"]` / `["bookmark"]` in batch 19. This batch
+makes that real — Notes + Bookmarks now show up in the global Cmd+K
+command palette alongside tickets, KB articles, users, and orgs.
+
+**Why it matters:** verticals plug into platform services *without
+modifying them*. The search corpus grew, the result-grouping map grew,
+and one i18n key per type grew — but no platform code changed shape.
+
+**Files modified:**
+- `lib/api/search.ts` (+4 corpus entries: 2 notes + 2 bookmarks; +"note"+"bookmark" in DEFAULT_TYPES)
+- `lib/api/search.test.ts` (+3 tests: note match, bookmark match, types filter)
+- `components/shell/command-palette.tsx` (+icons + group keys for note/bookmark)
+- `i18n/messages/{he,en}.json` (+commandPalette.groupsByType.{note,bookmark})
+
+**Suites:**
+- `npx vitest run` — 138 files / **1203 tests ✓** (+3 search tests)
+- `npx tsc --noEmit` — clean ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+
 ### 2026-05-10 — Nineteenth batch — vertical #2 manifest + vertical #3 lite (Bookmarks)
 
 Closes the remaining FE-only generic-platform validation work:

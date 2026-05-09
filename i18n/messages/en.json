@@ -8,7 +8,9 @@
       "ticket": "Tickets",
       "kb": "Knowledge base",
       "user": "Users",
-      "org": "Organizations"
+      "org": "Organizations",
+      "note": "Notes",
+      "bookmark": "Bookmarks"
     }
   },
   "common": {
