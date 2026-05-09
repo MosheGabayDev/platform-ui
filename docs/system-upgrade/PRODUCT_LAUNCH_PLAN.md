@@ -264,6 +264,25 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Eighteenth batch — Notes E2E + page-level vitest
+
+Closes the §3 mandatory-test gap from batch 17. The Notes module now
+has the full coverage stack required for any page with a mutation flow:
+unit (api client) + page (vitest render) + E2E (Playwright).
+
+**Files added:**
+- `tests/e2e/smoke/notes.spec.ts` — 4 specs (renders + Add sheet + Add round-trip + Delete confirm)
+- `app/(dashboard)/notes/page.test.tsx` — 6 specs (title, banner, empty, fixtures, Add button, owner-only delete gating)
+
+**Suites:**
+- `npx vitest run` — 136 files / **1186 tests ✓** (+6 from page test)
+- `npx tsc --noEmit` — clean ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+
+Notes module is now feature-complete to mock-mode standard:
+api ✓, types ✓, page ✓, nav ✓, i18n ✓, MOCK_MODE flip checklist ✓,
+unit tests ✓, page tests ✓, E2E spec ✓.
+
 ### 2026-05-10 — Seventeenth batch — second vertical (Notes) — proves "generic"
 
 Closes the headline open question for the generic-platform claim:
