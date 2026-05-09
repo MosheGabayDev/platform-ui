@@ -264,6 +264,37 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-09 — Sixteenth batch — vitest-axe component-level a11y
+
+Closes the gap left by batch 15 — playwright a11y specs require a
+browser, so they only run in CI's E2E phase. `vitest-axe` runs axe-core
+inside happy-dom, on every commit, in <1s. New `components/shared/a11y.test.tsx`
+is the pattern doc — covers EmptyState, ErrorState, PublicFooter,
+StatCardSkeleton.
+
+Rule tweaks (happy-dom doesn't compute layout):
+- `color-contrast` disabled — same reason as the playwright sister specs
+- `region` disabled — primitives are tested in isolation, not inside <main>
+
+Helper `expectNoSeriousViolations(container)` filters to serious +
+critical impact only (matches the playwright threshold).
+
+**Suites:**
+- `npx vitest run` — 134 files / **1172 tests ✓** (+4 from a11y file)
+- `npx tsc --noEmit` — clean ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+
+**Files added:**
+- `components/shared/a11y.test.tsx`
+
+**Files modified:**
+- `package.json` (+ `vitest-axe`, `axe-core` dev deps)
+
+**Next unblocked rows after this batch:**
+- §3 commercial: 6.01 pricing PM doc — pure doc work
+- Vertical-2 module skeleton (5B.15) — would validate "generic" claim
+- Backend-blocked rows: still all blocked
+
 ### 2026-05-08 — Fifteenth batch — bundle-analyzer + a11y on dashboard
 
 Two follow-ups to batch 14's perf + a11y direction.
