@@ -264,6 +264,49 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Twenty-fourth batch — RBAC permissions for new verticals
+
+Closes the RBAC-integration loop. Both manifests declare
+`permissions: [...]`; this batch registers those in the platform RBAC
+catalog so they're assignable to roles in `/admin/roles`.
+
+**Permissions added to MOCK_PERMISSIONS:**
+| ID | Name | Description |
+|---|---|---|
+| 11 | notes.view | View notes module |
+| 12 | notes.create | Create notes |
+| 13 | notes.delete_own | Delete notes you authored |
+| 14 | bookmarks.view | View bookmarks library |
+| 15 | bookmarks.create | Add bookmarks |
+
+system_admin role's `permission_count` bumped 10 → 15 to reflect the
+catalogue growth.
+
+**Files modified:**
+- `lib/api/roles.ts` (+5 permissions, system_admin count 10→15)
+- `lib/api/roles.test.ts` (+1 invariant test cross-checking the manifests)
+
+**Suites:**
+- `npx vitest run` — 138 files / **1215 tests ✓** (+1)
+- `npx tsc --noEmit` — clean ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+
+**Integration parity refresh — 11 layers now matched:**
+
+| Layer | helpdesk | notes | bookmarks |
+|---|---|---|---|
+| module-registry manifest | ✓ | ✓ | ✓ |
+| nav | ✓ | ✓ | ✓ |
+| i18n he/en | ✓ | ✓ | ✓ |
+| MOCK_MODE flip checklist | ✓ | ✓ | ✓ |
+| queryKeys namespace | ✓ | ✓ | ✓ |
+| Cmd+K search | ✓ | ✓ | ✓ |
+| AI skill registry | ✓ | ✓ | ✓ |
+| audit emit on mutations | ✓ | ✓ | ✓ |
+| policy engine governance | ✓ | ✓ | ✓ |
+| **RBAC permissions catalog** | ✓ | ✓ | ✓ |
+| unit + page + E2E tests | ✓ | ✓ | ✓ |
+
 ### 2026-05-10 — Twenty-third batch — policy engine integration for new verticals
 
 Closes the policy-integration loop. Notes + Bookmarks skills already

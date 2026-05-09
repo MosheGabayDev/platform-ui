@@ -115,4 +115,16 @@ describe("roles client (mock mode)", () => {
     expect(res.success).toBe(true);
     expect(res.data.role.permission_count).toBe(1);
   });
+
+  it("RBAC catalog covers permissions declared by Notes + Bookmarks manifests", async () => {
+    const res = await fetchAllPermissions();
+    const names = new Set(res.data.permissions.map((p) => p.name));
+    // Notes — manifest declares notes.{view,create,delete_own}
+    expect(names.has("notes.view")).toBe(true);
+    expect(names.has("notes.create")).toBe(true);
+    expect(names.has("notes.delete_own")).toBe(true);
+    // Bookmarks — manifest declares bookmarks.{view,create}
+    expect(names.has("bookmarks.view")).toBe(true);
+    expect(names.has("bookmarks.create")).toBe(true);
+  });
 });
