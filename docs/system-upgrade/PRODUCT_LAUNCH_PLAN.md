@@ -264,6 +264,54 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Twenty-second batch — audit emission for Notes + Bookmarks
+
+Closes the audit-integration loop. Both verticals now emit
+platform audit events on every mutation, hitting the same
+`recordAuditEntry` API helpdesk uses — no platform code changed,
+only thin call-site wiring.
+
+Events emitted:
+- `notes.created` (category: create, resource_type: note)
+  metadata: `{ title, tag_count }`
+- `notes.deleted` (category: delete, resource_type: note)
+  emitted only when an item was actually removed (idempotent delete
+  remains audit-silent)
+- `bookmarks.created` (category: create, resource_type: bookmark)
+  metadata: `{ title, host }` — host extracted from validated URL
+
+All audit calls are fire-and-forget — `void recordAuditEntry(...)
+.catch(() => {})` — so audit failures never break the user-facing
+mutation. Matches the pattern of the helpdesk audit emitter.
+
+**Files modified:**
+- `lib/api/notes.ts` (audit emit on add + delete; delete-no-op stays silent)
+- `lib/api/bookmarks.ts` (audit emit on add; URL validation runs before emit)
+- `lib/api/notes.test.ts` (+2 tests: emit shape + no-op silence)
+- `lib/api/bookmarks.test.ts` (+2 tests: emit shape + invalid-URL silence)
+
+**Suites:**
+- `npx vitest run` — 138 files / **1210 tests ✓** (+4)
+- `npx tsc --noEmit` — clean ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+
+**Integration parity status for Notes + Bookmarks:**
+| Layer | helpdesk | notes | bookmarks |
+|---|---|---|---|
+| module-registry manifest | ✓ | ✓ | ✓ |
+| nav | ✓ | ✓ | ✓ |
+| i18n he/en | ✓ | ✓ | ✓ |
+| MOCK_MODE flip checklist | ✓ | ✓ | ✓ |
+| queryKeys namespace | ✓ | ✓ | ✓ |
+| Cmd+K search | ✓ | ✓ | ✓ |
+| AI skill registry | ✓ | ✓ | ✓ |
+| audit emit on mutations | ✓ | ✓ | ✓ |
+| unit + page + E2E tests | ✓ | ✓ | ✓ |
+
+Two new verticals reached helpdesk-tier integration in 6 batches
+(17→22) with **zero changes to any platform primitive** — strongest
+proof of the "generic platform" claim shipped to date.
+
 ### 2026-05-10 — Twenty-first batch — AI skills for Notes + Bookmarks
 
 Closes the AI-integration loop. Both verticals now ship `mutate`-class

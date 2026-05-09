@@ -26,6 +26,7 @@
  */
 
 import { loadMockState, saveMockState } from "@/lib/api/_mock-storage";
+import { recordAuditEntry } from "@/lib/api/audit";
 import type { Bookmark } from "@/lib/modules/bookmarks/types";
 
 export const MOCK_MODE = process.env.NEXT_PUBLIC_MOCK_API !== "false";
@@ -123,6 +124,13 @@ export async function addBookmark(input: AddBookmarkInput): Promise<BookmarkList
     const items = load();
     const next = [item, ...items];
     saveMockState(STORAGE_KEY, STORAGE_VERSION, next);
+    void recordAuditEntry({
+      action: "bookmarks.created",
+      category: "create",
+      resource_type: "bookmark",
+      resource_id: item.id,
+      metadata: { title: item.title, host: new URL(url).host },
+    }).catch(() => {});
     return { success: true, data: { items: next, total: next.length } };
   }
   return apiFetch<BookmarkListResponse>("", {

@@ -3,7 +3,7 @@
  * URL validation is exercised separately because it's the only "logic"
  * surface in the lite contract.
  */
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import {
   fetchBookmarks,
   addBookmark,
@@ -11,6 +11,7 @@ import {
   MOCK_MODE,
 } from "./bookmarks";
 import { clearMockState } from "@/lib/api/_mock-storage";
+import * as auditModule from "@/lib/api/audit";
 
 beforeEach(() => {
   clearMockState("bookmarks:");
@@ -63,5 +64,32 @@ describe("bookmarks client (mock mode)", () => {
     const res = await fetchBookmarks();
     expect(res.data.items[0]!.title).toBe("B");
     expect(res.data.items[1]!.title).toBe("A");
+  });
+
+  it("addBookmark emits a bookmarks.created audit event with the host", async () => {
+    const spy = vi.spyOn(auditModule, "recordAuditEntry").mockResolvedValue({
+      success: true,
+    } as never);
+    await addBookmark({ title: "Wiki", url: "https://wiki.example.com/eng" });
+    await Promise.resolve();
+    expect(spy).toHaveBeenCalledOnce();
+    const arg = spy.mock.calls[0]![0];
+    expect(arg.action).toBe("bookmarks.created");
+    expect(arg.category).toBe("create");
+    expect(arg.resource_type).toBe("bookmark");
+    expect(arg.metadata).toMatchObject({ title: "Wiki", host: "wiki.example.com" });
+    spy.mockRestore();
+  });
+
+  it("addBookmark does NOT emit audit when URL validation fails", async () => {
+    const spy = vi.spyOn(auditModule, "recordAuditEntry").mockResolvedValue({
+      success: true,
+    } as never);
+    await expect(
+      addBookmark({ title: "bad", url: "ftp://bad.com" }),
+    ).rejects.toBeInstanceOf(InvalidUrlError);
+    await Promise.resolve();
+    expect(spy).not.toHaveBeenCalled();
+    spy.mockRestore();
   });
 });

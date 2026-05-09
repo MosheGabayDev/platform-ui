@@ -30,6 +30,7 @@
  */
 
 import { loadMockState, saveMockState } from "@/lib/api/_mock-storage";
+import { recordAuditEntry } from "@/lib/api/audit";
 import type { Note } from "@/lib/modules/notes/types";
 
 export const MOCK_MODE = process.env.NEXT_PUBLIC_MOCK_API !== "false";
@@ -127,6 +128,16 @@ export async function addNote(input: AddNoteInput): Promise<NoteListResponse> {
     const items = load();
     const next = [item, ...items];
     saveMockState(STORAGE_KEY, STORAGE_VERSION, next);
+    // Mirror the backend contract: notes.created emits an audit event
+    // (see MOCK_MODE checklist step 7). Fire-and-forget — audit failures
+    // never break the user-facing mutation.
+    void recordAuditEntry({
+      action: "notes.created",
+      category: "create",
+      resource_type: "note",
+      resource_id: item.id,
+      metadata: { title: item.title, tag_count: item.tags.length },
+    }).catch(() => {});
     return { success: true, data: { items: next, total: next.length } };
   }
   return apiFetch<NoteListResponse>("", {
@@ -141,6 +152,15 @@ export async function deleteNote(id: string): Promise<NoteListResponse> {
     const items = load();
     const next = items.filter((n) => n.id !== id);
     saveMockState(STORAGE_KEY, STORAGE_VERSION, next);
+    if (items.length !== next.length) {
+      void recordAuditEntry({
+        action: "notes.deleted",
+        category: "delete",
+        resource_type: "note",
+        resource_id: id,
+        metadata: {},
+      }).catch(() => {});
+    }
     return { success: true, data: { items: next, total: next.length } };
   }
   return apiFetch<NoteListResponse>(`/${encodeURIComponent(id)}`, {

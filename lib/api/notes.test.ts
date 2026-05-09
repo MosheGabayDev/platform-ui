@@ -1,9 +1,10 @@
 /**
  * Notes client (mock mode) — list + add + delete round-trip via localStorage.
  */
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { fetchNotes, addNote, deleteNote, MOCK_MODE } from "./notes";
 import { clearMockState } from "@/lib/api/_mock-storage";
+import * as auditModule from "@/lib/api/audit";
 
 beforeEach(() => {
   clearMockState("notes:");
@@ -63,5 +64,39 @@ describe("notes client (mock mode)", () => {
     const res = await fetchNotes();
     expect(res.data.items[0]!.title).toBe("B");
     expect(res.data.items[1]!.title).toBe("A");
+  });
+
+  it("addNote emits a notes.created audit event", async () => {
+    const spy = vi.spyOn(auditModule, "recordAuditEntry").mockResolvedValue({
+      success: true,
+    } as never);
+    await addNote({ title: "Audit me", body: "x", tags: ["t1"] });
+    // Audit is fire-and-forget; resolve a microtask before asserting.
+    await Promise.resolve();
+    expect(spy).toHaveBeenCalledOnce();
+    const arg = spy.mock.calls[0]![0];
+    expect(arg.action).toBe("notes.created");
+    expect(arg.category).toBe("create");
+    expect(arg.resource_type).toBe("note");
+    expect(arg.metadata).toMatchObject({ title: "Audit me", tag_count: 1 });
+    spy.mockRestore();
+  });
+
+  it("deleteNote emits notes.deleted only when an item was actually removed", async () => {
+    const spy = vi.spyOn(auditModule, "recordAuditEntry").mockResolvedValue({
+      success: true,
+    } as never);
+    const before = await fetchNotes();
+    const id = before.data.items[0]!.id;
+    await deleteNote(id);
+    await Promise.resolve();
+    expect(spy).toHaveBeenCalledOnce();
+    expect(spy.mock.calls[0]![0].action).toBe("notes.deleted");
+
+    spy.mockClear();
+    await deleteNote("does-not-exist");
+    await Promise.resolve();
+    expect(spy).not.toHaveBeenCalled();
+    spy.mockRestore();
   });
 });
