@@ -480,6 +480,50 @@ const MOCK_POLICIES: Policy[] = [
     created_by_user_id: null,
     updated_by_user_id: null,
   },
+  {
+    // Demonstrates policy-engine integration with the new verticals
+    // (5B.15 + 5B.16). The pattern uses module.action wildcards so
+    // every vertical's create-mutation goes through the same governor.
+    id: "policy.system.content_size_limits",
+    name: "Content size limits",
+    description:
+      "Block oversize submissions on user-content modules (notes/bookmarks). Cheap defence-in-depth on top of backend validation.",
+    category: "operational",
+    org_id: null,
+    rules: [
+      {
+        id: "rule.deny_oversize_note_body",
+        description: "Deny notes.create when body exceeds 10 000 chars",
+        resource_pattern: "*",
+        action_pattern: "notes.create",
+        subject: null,
+        condition: "params.body_length > 10000",
+        active_from: null,
+        active_until: null,
+        effect: "deny",
+        priority: 60,
+        enabled: true,
+      },
+      {
+        id: "rule.deny_oversize_bookmark_title",
+        description: "Deny bookmarks.create when title exceeds 200 chars",
+        resource_pattern: "*",
+        action_pattern: "bookmarks.create",
+        subject: null,
+        condition: "params.title_length > 200",
+        active_from: null,
+        active_until: null,
+        effect: "deny",
+        priority: 60,
+        enabled: true,
+      },
+    ],
+    enabled: true,
+    created_at: "2026-05-10T00:00:00Z",
+    updated_at: "2026-05-10T00:00:00Z",
+    created_by_user_id: null,
+    updated_by_user_id: null,
+  },
 ];
 
 function generateDecisionId(): string {

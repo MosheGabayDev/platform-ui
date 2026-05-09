@@ -264,6 +264,48 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Twenty-third batch — policy engine integration for new verticals
+
+Closes the policy-integration loop. Notes + Bookmarks skills already
+declared `policy_action_id`; this batch adds a seed system policy
+that exercises both, proving the policy engine is module-agnostic and
+the new action_ids resolve through the same evaluator helpdesk uses.
+
+**New seed policy** (`policy.system.content_size_limits`, category:
+operational):
+- Rule `rule.deny_oversize_note_body`: deny `notes.create` when
+  `params.body_length > 10000`
+- Rule `rule.deny_oversize_bookmark_title`: deny `bookmarks.create`
+  when `params.title_length > 200`
+
+Cheap defence-in-depth on top of backend validation; demonstrates
+that vertical-specific governance plugs into the engine without
+modifying the engine.
+
+**Files modified:**
+- `lib/api/policies.ts` (+ 1 system policy / 2 rules)
+- `lib/api/policies.test.ts` (+ 4 tests covering allow + deny on both verticals)
+
+**Suites:**
+- `npx vitest run` — 138 files / **1214 tests ✓** (+4)
+- `npx tsc --noEmit` — clean ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+
+**Integration parity refresh — 10 layers now matched:**
+
+| Layer | helpdesk | notes | bookmarks |
+|---|---|---|---|
+| module-registry manifest | ✓ | ✓ | ✓ |
+| nav | ✓ | ✓ | ✓ |
+| i18n he/en | ✓ | ✓ | ✓ |
+| MOCK_MODE flip checklist | ✓ | ✓ | ✓ |
+| queryKeys namespace | ✓ | ✓ | ✓ |
+| Cmd+K search | ✓ | ✓ | ✓ |
+| AI skill registry | ✓ | ✓ | ✓ |
+| audit emit on mutations | ✓ | ✓ | ✓ |
+| policy engine governance | ✓ | ✓ | ✓ |
+| unit + page + E2E tests | ✓ | ✓ | ✓ |
+
 ### 2026-05-10 — Twenty-second batch — audit emission for Notes + Bookmarks
 
 Closes the audit-integration loop. Both verticals now emit

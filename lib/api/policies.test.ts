@@ -339,4 +339,37 @@ describe("policies API surface", () => {
     });
     expect(res.data.decision.requires_approval).toBe(true);
   });
+
+  it("default-allows notes.create when body is within size limit", async () => {
+    const res = await evaluatePolicy({
+      action_id: "notes.create",
+      params: { body_length: 100 },
+    });
+    expect(res.data.decision.allowed).toBe(true);
+  });
+
+  it("denies notes.create when body exceeds 10 000 chars", async () => {
+    const res = await evaluatePolicy({
+      action_id: "notes.create",
+      params: { body_length: 20000 },
+    });
+    expect(res.data.decision.allowed).toBe(false);
+    expect(res.data.decision.matched_rules.some((m) => m.rule_id === "rule.deny_oversize_note_body")).toBe(true);
+  });
+
+  it("default-allows bookmarks.create when title is within size limit", async () => {
+    const res = await evaluatePolicy({
+      action_id: "bookmarks.create",
+      params: { title_length: 50 },
+    });
+    expect(res.data.decision.allowed).toBe(true);
+  });
+
+  it("denies bookmarks.create when title exceeds 200 chars", async () => {
+    const res = await evaluatePolicy({
+      action_id: "bookmarks.create",
+      params: { title_length: 500 },
+    });
+    expect(res.data.decision.allowed).toBe(false);
+  });
 });
