@@ -188,10 +188,10 @@
         "errors": "Errors"
       },
       "ranges": {
-        "24h": "24h",
-        "7d": "7 days",
+        "24h": "Last 24h",
+        "7d": "Last 7 days",
         "mtd": "Month-to-date",
-        "30d": "30 days"
+        "30d": "Last 30 days"
       },
       "budget": {
         "title": "Budget",
@@ -201,7 +201,22 @@
         "unset": "No budget set",
         "edit": "Edit budget",
         "monthlyBudget": "Monthly budget (USD)",
-        "save": "Save"
+        "save": "Save",
+        "cta": {
+          "set": "Budget: {amount}/mo",
+          "unset": "Budget: unset"
+        },
+        "input": {
+          "placeholder": "USD/month, blank = unset",
+          "aria": "Monthly AI budget in USD"
+        },
+        "banner": {
+          "warningTitle": "Budget warning",
+          "exceededTitle": "Budget exceeded",
+          "unsetTitle": "No budget set",
+          "unsetBody": "Set a monthly budget to receive alerts.",
+          "consumed": "${spent} / ${budget} ({pct}% of monthly budget consumed)"
+        }
       },
       "sections": {
         "byProvider": "By provider",
@@ -210,6 +225,28 @@
         "topUsers": "Top users",
         "recentEvents": "Recent events",
         "dailyCost": "Daily cost"
+      },
+      "loading": "Loading…",
+      "errors": {
+        "title": "Could not load usage",
+        "description": "The usage service is unreachable. Try again in a moment."
+      },
+      "chart": {
+        "title": "Daily cost",
+        "daysSuffix": "{n} days · USD"
+      },
+      "recent": {
+        "showing": "Showing {shown} of {total}",
+        "empty": "No usage events yet",
+        "columns": {
+          "when": "When",
+          "user": "User",
+          "providerModel": "Provider · model",
+          "purpose": "Purpose",
+          "tokens": "Tokens",
+          "cost": "Cost",
+          "outcome": "Outcome"
+        }
       }
     },
     "auditLog": {

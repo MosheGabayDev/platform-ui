@@ -67,62 +67,68 @@ import type {
 } from "@/lib/modules/ai-usage/types";
 
 // D1 audit fix — shared DataTable column defs for the Recent Events table.
-const recentEventsColumns: ColumnDef<UsageEvent>[] = [
-  {
-    accessorKey: "timestamp",
-    header: "When",
-    cell: ({ row }) => (
-      <span className="font-mono text-[10px]">
-        {new Date(row.original.timestamp).toLocaleString()}
-      </span>
-    ),
-  },
-  {
-    accessorKey: "user_name",
-    header: "User",
-    cell: ({ row }) => row.original.user_name ?? "—",
-  },
-  {
-    id: "provider_model",
-    header: "Provider · model",
-    cell: ({ row }) => (
-      <span className="font-mono text-[10px]">
-        {row.original.provider_id} · {row.original.model}
-      </span>
-    ),
-  },
-  { accessorKey: "purpose", header: "Purpose" },
-  {
-    id: "tokens",
-    header: "Tokens",
-    cell: ({ row }) => (
-      <span className="text-end font-mono block">
-        {row.original.input_tokens + row.original.output_tokens}
-      </span>
-    ),
-  },
-  {
-    accessorKey: "cost_usd",
-    header: "Cost",
-    cell: ({ row }) => (
-      <span className="text-end font-mono block">
-        ${row.original.cost_usd.toFixed(4)}
-      </span>
-    ),
-  },
-  {
-    accessorKey: "outcome",
-    header: "Outcome",
-    cell: ({ row }) => <OutcomeBadge outcome={row.original.outcome} />,
-  },
-];
+// Built inside the component (useMemo) so `t` from useTranslations is in
+// scope; previously this was module-scope which forced 7 hardcoded
+// English labels (batch 46 i18n cleanup).
+function useRecentEventsColumns(): ColumnDef<UsageEvent>[] {
+  const t = useTranslations("admin.aiUsage.recent.columns");
+  return useMemo<ColumnDef<UsageEvent>[]>(
+    () => [
+      {
+        accessorKey: "timestamp",
+        header: t("when"),
+        cell: ({ row }) => (
+          <span className="font-mono text-[10px]">
+            {new Date(row.original.timestamp).toLocaleString()}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "user_name",
+        header: t("user"),
+        cell: ({ row }) => row.original.user_name ?? "—",
+      },
+      {
+        id: "provider_model",
+        header: t("providerModel"),
+        cell: ({ row }) => (
+          <span className="font-mono text-[10px]">
+            {row.original.provider_id} · {row.original.model}
+          </span>
+        ),
+      },
+      { accessorKey: "purpose", header: t("purpose") },
+      {
+        id: "tokens",
+        header: t("tokens"),
+        cell: ({ row }) => (
+          <span className="text-end font-mono block">
+            {row.original.input_tokens + row.original.output_tokens}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "cost_usd",
+        header: t("cost"),
+        cell: ({ row }) => (
+          <span className="text-end font-mono block">
+            ${row.original.cost_usd.toFixed(4)}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "outcome",
+        header: t("outcome"),
+        cell: ({ row }) => <OutcomeBadge outcome={row.original.outcome} />,
+      },
+    ],
+    [t],
+  );
+}
 
-const RANGE_OPTIONS: Array<{ value: UsageRange; label: string }> = [
-  { value: "24h", label: "Last 24h" },
-  { value: "7d", label: "Last 7 days" },
-  { value: "mtd", label: "Month-to-date" },
-  { value: "30d", label: "Last 30 days" },
-];
+// Range option order is canonical — labels resolved per-locale via
+// t(`ranges.${value}`) on the consumer side.
+const RANGE_VALUES: UsageRange[] = ["24h", "7d", "mtd", "30d"];
 
 function formatUsd(n: number): string {
   return `$${n.toFixed(2)}`;
@@ -144,26 +150,27 @@ function BudgetBanner({
   spent: number;
   budget: number | null;
 }) {
+  const t = useTranslations("admin.aiUsage.budget.banner");
   if (status === "ok") return null;
 
   const meta: Record<
     Exclude<BudgetStatus, "ok">,
-    { tone: string; icon: LucideIcon; label: string }
+    { tone: string; icon: LucideIcon; titleKey: string }
   > = {
     warning: {
       tone: "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-400",
       icon: AlertTriangle,
-      label: "Budget warning",
+      titleKey: "warningTitle",
     },
     exceeded: {
       tone: "border-rose-500/40 bg-rose-500/10 text-rose-700 dark:text-rose-400",
       icon: AlertCircle,
-      label: "Budget exceeded",
+      titleKey: "exceededTitle",
     },
     unset: {
       tone: "border-border/60 bg-muted/40 text-muted-foreground",
       icon: Settings,
-      label: "No budget set",
+      titleKey: "unsetTitle",
     },
   };
   const m = meta[status];
@@ -172,12 +179,16 @@ function BudgetBanner({
     <div className={`rounded-lg border p-3 flex items-center gap-3 ${m.tone}`}>
       <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
       <div className="flex-1 min-w-0 text-sm">
-        <strong>{m.label}.</strong>{" "}
+        <strong>{t(m.titleKey as never)}.</strong>{" "}
         {status === "unset" ? (
-          <span>Set a monthly budget to receive alerts.</span>
+          <span>{t("unsetBody")}</span>
         ) : (
           <span>
-            ${spent.toFixed(2)} / ${budget?.toFixed(2)} ({pct}% of monthly budget consumed)
+            {t("consumed", {
+              spent: spent.toFixed(2),
+              budget: budget?.toFixed(2) ?? "—",
+              pct,
+            })}
           </span>
         )}
       </div>
@@ -192,6 +203,7 @@ function BudgetEditor({
   current: number | null;
   onSaved: () => void;
 }) {
+  const t = useTranslations("admin.aiUsage.budget");
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<string>(current === null ? "" : String(current));
   const mutation = usePlatformMutation({
@@ -207,7 +219,9 @@ function BudgetEditor({
     return (
       <Button size="sm" variant="outline" onClick={() => setEditing(true)}>
         <Settings className="h-3.5 w-3.5 me-1" aria-hidden="true" />
-        Budget: {current === null ? "unset" : formatUsd(current) + "/mo"}
+        {current === null
+          ? t("cta.unset")
+          : t("cta.set", { amount: formatUsd(current) })}
       </Button>
     );
   }
@@ -219,9 +233,9 @@ function BudgetEditor({
         step={1}
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
-        placeholder="USD/month, blank = unset"
+        placeholder={t("input.placeholder")}
         className="h-8 w-44 text-sm"
-        aria-label="Monthly AI budget in USD"
+        aria-label={t("input.aria")}
       />
       <Button
         size="sm"
@@ -251,6 +265,7 @@ function BudgetEditor({
 
 function AIUsageInner() {
   const t = useTranslations("admin.aiUsage");
+  const recentEventsColumns = useRecentEventsColumns();
   const queryClient = useQueryClient();
   const [range, setRange] = useState<UsageRange>("mtd");
   const { stats, isLoading, isError } = useUsageStats(range);
@@ -290,14 +305,14 @@ function AIUsageInner() {
         >
           {/* Range selector + budget editor */}
           <div className="flex flex-wrap items-center gap-2">
-            {RANGE_OPTIONS.map((r) => (
+            {RANGE_VALUES.map((value) => (
               <Button
-                key={r.value}
+                key={value}
                 size="sm"
-                variant={range === r.value ? "default" : "outline"}
-                onClick={() => setRange(r.value)}
+                variant={range === value ? "default" : "outline"}
+                onClick={() => setRange(value)}
               >
-                {r.label}
+                {t(`ranges.${value}` as never)}
               </Button>
             ))}
             <div className="ms-auto">
@@ -320,12 +335,14 @@ function AIUsageInner() {
             />
           )}
 
-          {isLoading && <div className="text-sm text-muted-foreground">Loading…</div>}
+          {isLoading && (
+            <div className="text-sm text-muted-foreground">{t("loading")}</div>
+          )}
           {isError && (
             <EmptyState
               icon={AlertCircle}
-              title="Could not load usage"
-              description="The usage service is unreachable. Try again in a moment."
+              title={t("errors.title")}
+              description={t("errors.description")}
             />
           )}
 
@@ -335,25 +352,25 @@ function AIUsageInner() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <KpiTile
                   icon={DollarSign}
-                  label="Cost"
+                  label={t("kpi.cost")}
                   value={formatUsd(stats.totals.cost_usd)}
                   tone="success"
                 />
                 <KpiTile
                   icon={Zap}
-                  label="Events"
+                  label={t("kpi.events")}
                   value={String(stats.totals.events)}
                   tone="default"
                 />
                 <KpiTile
                   icon={Cpu}
-                  label="Tokens"
+                  label={t("kpi.tokens")}
                   value={formatTokens(stats.totals.input_tokens + stats.totals.output_tokens)}
                   tone="default"
                 />
                 <KpiTile
                   icon={AlertTriangle}
-                  label="Errors"
+                  label={t("kpi.errors")}
                   value={`${stats.totals.errors} (${stats.totals.errors_pct}%)`}
                   tone={stats.totals.errors_pct > 1 ? "warning" : "default"}
                 />
@@ -362,9 +379,9 @@ function AIUsageInner() {
               {/* Daily series chart */}
               <div className="glass border-border/50 rounded-xl p-4 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-sm">Daily cost</span>
+                  <span className="font-medium text-sm">{t("chart.title")}</span>
                   <span className="text-xs text-muted-foreground">
-                    {chartData.length} days · USD
+                    {t("chart.daysSuffix", { n: chartData.length })}
                   </span>
                 </div>
                 <div className="h-48 w-full" data-testid="ai-usage-chart">
@@ -402,27 +419,44 @@ function AIUsageInner() {
 
               {/* By-provider + Top users */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <Section title="By provider" rows={stats.by_provider} valueKey="cost_usd" />
+                <Section
+                  title={t("sections.byProvider")}
+                  rows={stats.by_provider}
+                  valueKey="cost_usd"
+                />
                 <TopUsersSection rows={stats.top_users} />
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <Section title="By model" rows={stats.by_model} valueKey="cost_usd" />
-                <Section title="By purpose" rows={stats.by_purpose} valueKey="cost_usd" />
+                <Section
+                  title={t("sections.byModel")}
+                  rows={stats.by_model}
+                  valueKey="cost_usd"
+                />
+                <Section
+                  title={t("sections.byPurpose")}
+                  rows={stats.by_purpose}
+                  valueKey="cost_usd"
+                />
               </div>
 
               {/* Recent events — D1 audit: now uses shared DataTable. */}
               <div className="glass border-border/50 rounded-xl p-4 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-sm">Recent events</span>
+                  <span className="font-medium text-sm">
+                    {t("sections.recentEvents")}
+                  </span>
                   <span className="text-xs text-muted-foreground">
-                    Showing {events.events.length} of {events.total}
+                    {t("recent.showing", {
+                      shown: events.events.length,
+                      total: events.total,
+                    })}
                   </span>
                 </div>
                 <DataTable
                   columns={recentEventsColumns}
                   data={events.events}
-                  emptyMessage="No usage events yet"
+                  emptyMessage={t("recent.empty")}
                 />
               </div>
             </>

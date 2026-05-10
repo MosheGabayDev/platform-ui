@@ -264,6 +264,55 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Forty-sixth batch — i18n cleanup of /admin/ai-usage
+
+Continues batches 44+45's debt cleanup. `/admin/ai-usage` was the
+top remaining offender (11 violations).
+
+**Refactors:**
+- `BudgetBanner` — uses `admin.aiUsage.budget.banner.*` keys
+  (warningTitle/exceededTitle/unsetTitle/unsetBody/consumed with
+  `{spent}/{budget}/{pct}` ICU params)
+- `BudgetEditor` — `cta.set/{amount}` + `cta.unset` + `input.{placeholder, aria}`
+- KPI tiles now pass `t("kpi.*")` instead of hardcoded labels
+- Daily-cost chart title + days-suffix
+- All 3 sections (`byProvider`, `byModel`, `byPurpose`) + recent-events
+  header use existing `sections.*` keys
+- Recent-events table: 7 column headers via new `recent.columns.*`
+  keys. Moved column definitions into a new `useRecentEventsColumns()`
+  hook (was module-scope) so `t` is in scope.
+- Range buttons: `RANGE_OPTIONS` array with hardcoded labels →
+  `RANGE_VALUES` of just keys; labels resolved via `t(\`ranges.${value}\`)`.
+  Range labels in catalog upgraded from "24h"/"7 days" to
+  "Last 24h"/"Last 7 days" to preserve original UX.
+- Empty + loading + error states all i18n'd
+
+**Files modified:**
+- `app/(dashboard)/admin/ai-usage/page.tsx` (full i18n migration)
+- `i18n/messages/{he,en}.json` (added budget.banner.*, budget.cta.*,
+  budget.input.*, chart.*, recent.* incl 7 column labels, errors.*,
+  loading; ranges.* upgraded)
+
+**Audit:**
+- Before: `/admin/ai-usage` had 11 violations
+- After: dropped off the list entirely
+- Plan-wide: **7 → 6 pages, 59 → 48 strings remaining**
+
+| Page | Violations |
+|---|---|
+| `helpdesk/maintenance` | 10 |
+| `helpdesk/sla` | 9 |
+| `helpdesk/tickets` | 9 |
+| `helpdesk/batch` | 8 |
+| `helpdesk/technicians` | 7 |
+| `onboarding` | 5 |
+
+**Suites:**
+- `npx vitest run` — 141 files / **1253 tests ✓** (i18n only)
+- `npx tsc --noEmit` — clean ✓
+- `npx eslint . --quiet` — 0 errors ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+
 ### 2026-05-10 — Forty-fifth batch — i18n cleanup of /audit-log + audit script
 
 Continues batch 44's i18n debt cleanup. Picked `/audit-log` next —

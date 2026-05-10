@@ -188,10 +188,10 @@
         "errors": "שגיאות"
       },
       "ranges": {
-        "24h": "24 שעות",
-        "7d": "7 ימים",
-        "mtd": "החודש",
-        "30d": "30 ימים"
+        "24h": "24 שעות אחרונות",
+        "7d": "7 ימים אחרונים",
+        "mtd": "מתחילת החודש",
+        "30d": "30 ימים אחרונים"
       },
       "budget": {
         "title": "תקציב",
@@ -201,7 +201,22 @@
         "unset": "לא הוגדר תקציב",
         "edit": "ערוך תקציב",
         "monthlyBudget": "תקציב חודשי (USD)",
-        "save": "שמור"
+        "save": "שמור",
+        "cta": {
+          "set": "תקציב: {amount}/חודש",
+          "unset": "תקציב: לא הוגדר"
+        },
+        "input": {
+          "placeholder": "USD/חודש, ריק = לא מוגדר",
+          "aria": "תקציב חודשי AI ב-USD"
+        },
+        "banner": {
+          "warningTitle": "אזהרת תקציב",
+          "exceededTitle": "חרגת מהתקציב!",
+          "unsetTitle": "לא הוגדר תקציב",
+          "unsetBody": "הגדר תקציב חודשי כדי לקבל התראות.",
+          "consumed": "${spent} / ${budget} ({pct}% מהתקציב נצרכו)"
+        }
       },
       "sections": {
         "byProvider": "פר ספק",
@@ -210,6 +225,28 @@
         "topUsers": "משתמשים מובילים",
         "recentEvents": "אירועים אחרונים",
         "dailyCost": "עלות יומית"
+      },
+      "loading": "טוען…",
+      "errors": {
+        "title": "טעינת הצריכה נכשלה",
+        "description": "שירות הצריכה לא זמין. נסה שוב בעוד רגע."
+      },
+      "chart": {
+        "title": "עלות יומית",
+        "daysSuffix": "{n} ימים · USD"
+      },
+      "recent": {
+        "showing": "מציג {shown} מתוך {total}",
+        "empty": "עוד אין אירועי צריכה",
+        "columns": {
+          "when": "זמן",
+          "user": "משתמש",
+          "providerModel": "ספק · מודל",
+          "purpose": "מטרה",
+          "tokens": "Tokens",
+          "cost": "עלות",
+          "outcome": "תוצאה"
+        }
       }
     },
     "auditLog": {
