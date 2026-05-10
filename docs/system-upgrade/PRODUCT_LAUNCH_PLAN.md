@@ -264,6 +264,22 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Fifty-fourth batch — i18n debt gate wired into CI
+
+Mirrors batch 53's preflight addition into `.github/workflows/ci.yml`
+so the gate fires on every push to master, not only on local
+preflight. Step inserted between coverage gate and high-risk-commit
+gate (ADR-037) so any drift introduced via squash-merge or via a
+commit that bypassed local preflight blocks the build.
+
+**File modified:**
+- `.github/workflows/ci.yml` — new step `i18n debt gate (batch 53)`
+  running `node scripts/audit-i18n-debt.mjs --gate`.
+
+Together batches 53+54 give us belt+suspenders on the empty-debt
+state from batch 52: local preflight catches it before push, CI
+catches it if preflight was skipped.
+
 ### 2026-05-10 — Fifty-third batch — i18n debt gate added to preflight
 
 Locks in the empty-debt state from batch 52. `audit-i18n-debt.mjs`

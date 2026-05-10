@@ -34,6 +34,9 @@ jobs:
       - name: Coverage gate (ADR-042)
         run: node scripts/check-coverage-baseline.mjs
 
+      - name: i18n debt gate (batch 53)
+        run: node scripts/audit-i18n-debt.mjs --gate
+
       - name: High-risk commit gate (ADR-037)
         run: node scripts/check-high-risk-commit.mjs
         env:
