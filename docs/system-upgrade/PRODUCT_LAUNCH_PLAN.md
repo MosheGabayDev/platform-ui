@@ -264,6 +264,62 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Forty-second batch — page test-coverage audit + 4 smoke specs
+
+Same audit pattern (batches 39, 40, 41) on a new dimension: **every
+dashboard page should have either a vitest page-level test or an
+E2E spec.** Found 10 dashboard pages without either.
+
+**Audit script saved:** `scripts/audit-test-coverage.mjs` — walks
+`app/(dashboard)/**/page.tsx`, cross-checks each route against a
+sibling `page.test.tsx` and against `page.goto("<route>")` mentions
+in the E2E suite. Re-runnable for future sweeps.
+
+**4 smoke specs added** (`tests/e2e/smoke/platform-admin-pages.spec.ts`):
+- `/users` — list page renders
+- `/roles` — list page renders
+- `/organizations` — list page renders
+- `/data-sources` — both branches: FeatureGate fallback when flag is
+  off (override via `page.route` mock) + coming-soon panel when on
+
+**Dropped from 10 → 6 untested pages.** Remaining:
+| Route | Reason deferred |
+|---|---|
+| `/helpdesk/tickets/*` | dynamic id; needs ticket fetch mock |
+| `/organizations/*` | dynamic id; same |
+| `/roles/*` | dynamic id; same |
+| `/users/*` | dynamic id; same |
+| `/whatsapp` | other agent owns whatsapp work |
+| `/*` (catch-all slug) | fallback page; covered by 404 path |
+
+The 4 dynamic-detail pages are tracked but not blocking — list-page
+smoke specs cover the navigation entry points.
+
+**Files added:**
+- `scripts/audit-test-coverage.mjs` (re-usable drift check)
+- `tests/e2e/smoke/platform-admin-pages.spec.ts` (4 specs)
+
+**Suites:**
+- `npx vitest run` — 141 files / **1253 tests ✓** (no count change —
+  E2E specs run in CI's E2E phase separately)
+- `npx tsc --noEmit` — clean ✓
+- `npx eslint . --quiet` — 0 errors ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+- `node scripts/audit-test-coverage.mjs` — 6 pages remaining (was 10)
+
+**Pattern review** — 4 batches in a row using the same audit reflex:
+
+| Batch | Audit dimension | Drift count fixed |
+|---|---|---|
+| 39 | manifest perms ↔ RBAC catalog | 19 |
+| 40 | manifest nav_entries ↔ nav-items.ts | 3 |
+| 41 | lib/api modules ↔ queryKeys namespaces | 3 |
+| 42 | dashboard pages ↔ tests | 4 |
+
+Each had a one-line audit script and a low-risk fix. Worth
+internalizing the reflex: "is there a list X that should match list
+Y? if so, write the cross-check."
+
 ### 2026-05-10 — Forty-first batch — queryKeys central registry sync (3 AI modules)
 
 Same audit pattern as batches 39 + 40 found another drift class:
