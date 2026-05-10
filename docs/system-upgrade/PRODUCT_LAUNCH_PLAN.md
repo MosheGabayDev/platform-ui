@@ -264,6 +264,51 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Forty-first batch — queryKeys central registry sync (3 AI modules)
+
+Same audit pattern as batches 39 + 40 found another drift class:
+**13 lib/api/* modules without a matching `queryKeys.*` namespace.**
+Most are explainable (sub-files of helpdesk, utility clients, etc.),
+but **3 AI modules (ai-providers, ai-skills, ai-usage) shipped with
+local `QUERY_PREFIX` consts** instead of using the central registry —
+violating ADR-028 #8 ("queryKeys.<module>.* — NEVER inline arrays").
+
+**Migrated to central registry:**
+
+| Hook | Before | After |
+|---|---|---|
+| `use-ai-provider-configs` | `[...QUERY_PREFIX, "catalog"]` | `queryKeys.aiProviders.catalog()` |
+| | `[...QUERY_PREFIX, "configs"]` | `queryKeys.aiProviders.configs()` |
+| | `[...QUERY_PREFIX, "config", id]` | `queryKeys.aiProviders.config(id)` |
+| | `[...QUERY_PREFIX, "resolve", ...]` | `queryKeys.aiProviders.resolve({...})` |
+| `use-ai-skills` | `[...QUERY_PREFIX, "list", filter]` | `queryKeys.aiSkills.list(filter)` |
+| | `[...QUERY_PREFIX, "validate", ...]` | `queryKeys.aiSkills.validate(id, params)` |
+| `use-ai-usage` | `[...QUERY_PREFIX, "stats", range]` | `queryKeys.aiUsage.stats(range)` |
+| | `[...QUERY_PREFIX, "events", params]` | `queryKeys.aiUsage.events(params)` |
+
+**Back-compat preserved:** `_aiProvidersQueryPrefix`, `_aiSkillsQueryPrefix`,
+`_aiUsageQueryPrefix` exports kept as `@deprecated` aliases that resolve
+to `queryKeys.xxx.all()`. Existing call sites
+(`queryClient.invalidateQueries({ queryKey: _aiProvidersQueryPrefix })`)
+keep working unchanged.
+
+**Files modified:**
+- `lib/api/query-keys.ts` (+3 namespaces: aiProviders, aiSkills, aiUsage)
+- `lib/api/query-keys.test.ts` (+3 namespace tests)
+- `lib/hooks/use-ai-provider-configs.ts` (refactor to central keys)
+- `lib/hooks/use-ai-skills.ts` (refactor)
+- `lib/hooks/use-ai-usage.ts` (refactor)
+
+**Suites:**
+- `npx vitest run` — 141 files / **1253 tests ✓** (+3)
+- `npx tsc --noEmit` — clean ✓
+- `npx eslint . --quiet` — 0 errors ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+
+**Net:** queryKeys registry is now the single source of truth for
+all 19 module namespaces (no more ad-hoc `QUERY_PREFIX` consts).
+Wire keys are unchanged → cache state survives this refactor.
+
 ### 2026-05-10 — Fortieth batch — manifest↔nav drift fixed (3) + invariant test
 
 Same audit pattern as batch 39 (RBAC drift) found 3 manifest

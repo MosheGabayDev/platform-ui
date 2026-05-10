@@ -5,9 +5,8 @@
  */
 import { useQuery } from "@tanstack/react-query";
 import { fetchAISkills, validateSkillInvocation } from "@/lib/api/ai-skills";
+import { queryKeys } from "@/lib/api/query-keys";
 import type { ValidateSkillInput } from "@/lib/modules/ai-skills/types";
-
-const QUERY_PREFIX = ["ai-skills"] as const;
 
 interface UseAISkillsFilter {
   module?: string;
@@ -17,7 +16,7 @@ interface UseAISkillsFilter {
 
 export function useAISkills(filter: UseAISkillsFilter = {}) {
   const { data, isLoading, isError } = useQuery({
-    queryKey: [...QUERY_PREFIX, "list", filter],
+    queryKey: queryKeys.aiSkills.list(filter),
     queryFn: () => fetchAISkills(filter),
     staleTime: 5 * 60_000,
     retry: false,
@@ -32,7 +31,7 @@ export function useAISkills(filter: UseAISkillsFilter = {}) {
 
 export function useSkillValidation(input: ValidateSkillInput | null) {
   const { data, isLoading, isError } = useQuery({
-    queryKey: [...QUERY_PREFIX, "validate", input?.skill_id, input?.params],
+    queryKey: queryKeys.aiSkills.validate(input?.skill_id, input?.params),
     queryFn: () => validateSkillInvocation(input as ValidateSkillInput),
     enabled: input !== null,
     staleTime: 30_000,
@@ -41,4 +40,7 @@ export function useSkillValidation(input: ValidateSkillInput | null) {
   return { validation: data?.data, isLoading, isError };
 }
 
-export const _aiSkillsQueryPrefix = QUERY_PREFIX;
+/**
+ * @deprecated Use `queryKeys.aiSkills.all()` directly.
+ */
+export const _aiSkillsQueryPrefix = queryKeys.aiSkills.all();

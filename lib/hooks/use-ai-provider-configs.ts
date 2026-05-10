@@ -12,17 +12,16 @@ import {
   fetchProviderConfig,
   resolveRouting,
 } from "@/lib/api/ai-providers";
+import { queryKeys } from "@/lib/api/query-keys";
 import type {
   AIProvider,
   ProviderConfig,
   ResolveRoutingInput,
 } from "@/lib/modules/ai-providers/types";
 
-const QUERY_PREFIX = ["ai-providers"] as const;
-
 export function useProviderCatalog() {
   const { data, isLoading, isError } = useQuery({
-    queryKey: [...QUERY_PREFIX, "catalog"],
+    queryKey: queryKeys.aiProviders.catalog(),
     queryFn: fetchProviderCatalog,
     staleTime: 60 * 60_000,
     retry: false,
@@ -33,7 +32,7 @@ export function useProviderCatalog() {
 
 export function useProviderConfigs() {
   const { data, isLoading, isError } = useQuery({
-    queryKey: [...QUERY_PREFIX, "configs"],
+    queryKey: queryKeys.aiProviders.configs(),
     queryFn: fetchProviderConfigs,
     staleTime: 5 * 60_000,
     retry: false,
@@ -44,7 +43,7 @@ export function useProviderConfigs() {
 
 export function useProviderConfig(providerId: string | null) {
   const { data, isLoading, isError } = useQuery({
-    queryKey: [...QUERY_PREFIX, "config", providerId],
+    queryKey: queryKeys.aiProviders.config(providerId),
     queryFn: () => fetchProviderConfig(providerId as string),
     enabled: providerId !== null,
     staleTime: 5 * 60_000,
@@ -55,14 +54,12 @@ export function useProviderConfig(providerId: string | null) {
 
 export function useRoutingDecision(input: ResolveRoutingInput | null) {
   const { data, isLoading, isError } = useQuery({
-    queryKey: [
-      ...QUERY_PREFIX,
-      "resolve",
-      input?.purpose,
-      input?.action_id,
-      input?.estimated_input_tokens,
-      input?.estimated_output_tokens,
-    ],
+    queryKey: queryKeys.aiProviders.resolve({
+      purpose: input?.purpose,
+      action_id: input?.action_id,
+      input_tokens: input?.estimated_input_tokens,
+      output_tokens: input?.estimated_output_tokens,
+    }),
     queryFn: () => resolveRouting(input as ResolveRoutingInput),
     enabled: input !== null,
     staleTime: 30_000,
@@ -71,4 +68,9 @@ export function useRoutingDecision(input: ResolveRoutingInput | null) {
   return { decision: data?.data, isLoading, isError };
 }
 
-export const _aiProvidersQueryPrefix = QUERY_PREFIX;
+/**
+ * @deprecated Use `queryKeys.aiProviders.all()` directly.
+ * Kept for back-compat with consumers that still call
+ * `queryClient.invalidateQueries({ queryKey: _aiProvidersQueryPrefix })`.
+ */
+export const _aiProvidersQueryPrefix = queryKeys.aiProviders.all();

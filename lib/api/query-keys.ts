@@ -106,6 +106,32 @@ export const queryKeys = {
     list: () => ["bookmarks", "list"]         as const,
   },
 
+  // Cap PlatformAIProviderGateway (Phase 2.1) — batch 41 ADR-028 #8 sync
+  aiProviders: {
+    all:     () => ["ai-providers"]                                     as const,
+    catalog: () => ["ai-providers", "catalog"]                          as const,
+    configs: () => ["ai-providers", "configs"]                          as const,
+    config:  (providerId: string | null) =>
+      ["ai-providers", "config", providerId]                            as const,
+    resolve: (params: object) =>
+      ["ai-providers", "resolve", params]                               as const,
+  },
+
+  // Cap PlatformAISkillRegistry (Phase 2.2) — batch 41 ADR-028 #8 sync
+  aiSkills: {
+    all:      () => ["ai-skills"]                                       as const,
+    list:     (filter: object) => ["ai-skills", "list", filter]         as const,
+    validate: (skillId: string | undefined, params: unknown) =>
+      ["ai-skills", "validate", skillId, params]                        as const,
+  },
+
+  // Cap PlatformAIUsage (Phase 2.3) — batch 41 ADR-028 #8 sync
+  aiUsage: {
+    all:    () => ["ai-usage"]                                          as const,
+    stats:  (range: string) => ["ai-usage", "stats", range]             as const,
+    events: (params: object) => ["ai-usage", "events", params]          as const,
+  },
+
   // Phase 6: Billing (mock pre-Stripe — see PRODUCT_LAUNCH_PLAN.md §3)
   billing: {
     all:         () => ["billing"]                          as const,

@@ -122,6 +122,47 @@ describe("queryKeys registry", () => {
     expect(queryKeys.bookmarks.list()).toEqual(["bookmarks", "list"]);
   });
 
+  it("aiProviders keys", () => {
+    expect(queryKeys.aiProviders.all()).toEqual(["ai-providers"]);
+    expect(queryKeys.aiProviders.catalog()).toEqual(["ai-providers", "catalog"]);
+    expect(queryKeys.aiProviders.configs()).toEqual(["ai-providers", "configs"]);
+    expect(queryKeys.aiProviders.config("openai")).toEqual([
+      "ai-providers",
+      "config",
+      "openai",
+    ]);
+    expect(queryKeys.aiProviders.config(null)).toEqual([
+      "ai-providers",
+      "config",
+      null,
+    ]);
+  });
+
+  it("aiSkills keys", () => {
+    expect(queryKeys.aiSkills.all()).toEqual(["ai-skills"]);
+    expect(queryKeys.aiSkills.list({ module: "helpdesk" })).toEqual([
+      "ai-skills",
+      "list",
+      { module: "helpdesk" },
+    ]);
+    expect(queryKeys.aiSkills.validate("helpdesk.ticket.take", { id: 1 })).toEqual([
+      "ai-skills",
+      "validate",
+      "helpdesk.ticket.take",
+      { id: 1 },
+    ]);
+  });
+
+  it("aiUsage keys", () => {
+    expect(queryKeys.aiUsage.all()).toEqual(["ai-usage"]);
+    expect(queryKeys.aiUsage.stats("mtd")).toEqual(["ai-usage", "stats", "mtd"]);
+    expect(queryKeys.aiUsage.events({ limit: 50 })).toEqual([
+      "ai-usage",
+      "events",
+      { limit: 50 },
+    ]);
+  });
+
   it("helpdesk keys", () => {
     expect(queryKeys.helpdesk.all()).toEqual(["helpdesk"]);
     expect(queryKeys.helpdesk.stats()).toEqual(["helpdesk", "stats"]);
