@@ -188,10 +188,9 @@ describe("ADR-028 enforcement invariants", () => {
     // Migration tracked separately; allowlist surfaces the debt and
     // prevents new instances from sneaking in. Stale-detection branch
     // below keeps the list honest.
-    const ALLOW_DEBT = new Set<string>([
-      // Batch 68 migrated ip-allowlist to DataTable.
-      "app/(dashboard)/billing/page.tsx",
-    ]);
+    // Batch 68 migrated ip-allowlist; batch 69 migrated billing.
+    // List is now empty — every list-row UI uses DataTable<T>.
+    const ALLOW_DEBT = new Set<string>([]);
 
     const broken: string[] = [];
     const seen = new Set<string>();

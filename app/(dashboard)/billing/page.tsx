@@ -12,11 +12,14 @@
  * sensitive data ever transits this app.
  */
 
+import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
 import { CreditCard, TrendingUp, ExternalLink, Download } from "lucide-react";
+import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { PageShell } from "@/components/shared/page-shell";
+import { DataTable } from "@/components/shared/data-table";
 import { StatCard, StatsGrid } from "@/components/shared/stats";
 import { ErrorState } from "@/components/shared/error-state";
 import { fetchBillingOverview, MOCK_MODE } from "@/lib/api/billing";
@@ -64,46 +67,72 @@ function UsageGauge({ label, used, limit, of }: { label: string; used: number; l
   );
 }
 
-function InvoiceRow({ invoice }: { invoice: Invoice }) {
+function useInvoiceColumns(): ColumnDef<Invoice>[] {
   const t = useTranslations("billing.invoices");
+  const tCols = useTranslations("billing.invoices.columns");
   const tStatus = useTranslations("billing.invoices.status");
-  const amount = (invoice.amount_cents / 100).toLocaleString(undefined, {
-    style: "currency",
-    currency: invoice.currency,
-  });
-  return (
-    <tr className="border-t border-border/40 hover:bg-muted/30 transition-colors">
-      <td className="px-4 py-3 text-sm">{formatDate(invoice.date)}</td>
-      <td className="px-4 py-3 text-sm font-medium tabular-nums">{amount}</td>
-      <td className="px-4 py-3">
-        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium border ${STATUS_BADGE[invoice.status]}`}>
-          {tStatus(invoice.status)}
-        </span>
-      </td>
-      <td className="px-4 py-3 text-end">
-        {invoice.pdf_url ? (
-          <a
-            href={invoice.pdf_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+  return useMemo<ColumnDef<Invoice>[]>(
+    () => [
+      {
+        accessorKey: "date",
+        header: tCols("date"),
+        cell: ({ row }) => (
+          <span className="text-sm">{formatDate(row.original.date)}</span>
+        ),
+      },
+      {
+        accessorKey: "amount_cents",
+        header: tCols("amount"),
+        cell: ({ row }) => {
+          const inv = row.original;
+          const amount = (inv.amount_cents / 100).toLocaleString(undefined, {
+            style: "currency",
+            currency: inv.currency,
+          });
+          return <span className="text-sm font-medium tabular-nums">{amount}</span>;
+        },
+      },
+      {
+        accessorKey: "status",
+        header: tCols("status"),
+        cell: ({ row }) => (
+          <span
+            className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium border ${STATUS_BADGE[row.original.status]}`}
           >
-            <Download className="size-3.5" />
-            {t("columns.download")}
-          </a>
-        ) : (
-          <span className="text-xs text-muted-foreground/60">—</span>
-        )}
-      </td>
-    </tr>
+            {tStatus(row.original.status)}
+          </span>
+        ),
+      },
+      {
+        id: "download",
+        header: () => <span className="block text-end">{tCols("download")}</span>,
+        cell: ({ row }) =>
+          row.original.pdf_url ? (
+            <div className="text-end">
+              <a
+                href={row.original.pdf_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+              >
+                <Download className="size-3.5" />
+                {t("columns.download")}
+              </a>
+            </div>
+          ) : (
+            <span className="block text-end text-xs text-muted-foreground/60">—</span>
+          ),
+      },
+    ],
+    [t, tCols, tStatus],
   );
 }
 
 export default function BillingPage() {
   const t = useTranslations("billing");
-  const tCols = useTranslations("billing.invoices.columns");
   const tPlans = useTranslations("billing.plans");
   const tUsage = useTranslations("billing.usage");
+  const invoiceColumns = useInvoiceColumns();
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: queryKeys.billing.overview(),
@@ -186,29 +215,13 @@ export default function BillingPage() {
 
           <UsageChart />
 
-          <div className="glass border-border/50 rounded-xl overflow-hidden">
-            <div className="px-5 py-3 border-b border-border/40">
-              <h2 className="text-sm font-semibold">{t("invoices.title")}</h2>
-            </div>
-            {overview.invoices.length === 0 ? (
-              <p className="px-5 py-8 text-center text-sm text-muted-foreground">{t("invoices.empty")}</p>
-            ) : (
-              <table className="w-full">
-                <thead className="bg-muted/30 text-xs uppercase tracking-wide text-muted-foreground">
-                  <tr>
-                    <th className="text-start px-4 py-2 font-semibold">{tCols("date")}</th>
-                    <th className="text-start px-4 py-2 font-semibold">{tCols("amount")}</th>
-                    <th className="text-start px-4 py-2 font-semibold">{tCols("status")}</th>
-                    <th className="text-end px-4 py-2 font-semibold">{tCols("download")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {overview.invoices.map((inv) => (
-                    <InvoiceRow key={inv.id} invoice={inv} />
-                  ))}
-                </tbody>
-              </table>
-            )}
+          <div className="space-y-2">
+            <h2 className="text-sm font-semibold">{t("invoices.title")}</h2>
+            <DataTable
+              columns={invoiceColumns}
+              data={overview.invoices}
+              emptyMessage={t("invoices.empty")}
+            />
           </div>
         </>
       )}

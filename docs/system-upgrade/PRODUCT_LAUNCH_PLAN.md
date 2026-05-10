@@ -264,6 +264,29 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Sixty-ninth batch — migrate /billing invoices to DataTable (debt cleared)
+
+Last entry of the ADR-028 #1 allowlist gone. The hand-rolled
+`<table>` for invoices in `app/(dashboard)/billing/page.tsx` is now
+`DataTable<Invoice>`. 4 columns (date / amount / status badge /
+download link) preserved end-to-end.
+
+**Refactor:**
+- Inlined `InvoiceRow` was a JSX-row component that owned the
+  status-badge + download link; replaced with a `useInvoiceColumns()`
+  hook returning `ColumnDef<Invoice>[]`. Same translator scopes
+  (`billing.invoices.columns`, `billing.invoices.status`) — i18n
+  keys unchanged.
+- Empty-state moved into DataTable's built-in `emptyMessage`.
+- The page-level `tCols` translator is gone — moved into the
+  column hook where it's used.
+
+**ADR-028 #1 allowlist:** 1 → 0. Every list-row UI in the codebase
+now uses `DataTable<T>`. Stale-detection branch in the invariant
+will fire if anyone re-introduces a hand-rolled `<table>`.
+
+Full suite: 1277/1277 ✓. Typecheck clean.
+
 ### 2026-05-10 — Sixty-eighth batch — migrate /admin/ip-allowlist to DataTable
 
 Shrank the ADR-028 #1 debt list (batch 67) by 1: replaced the
