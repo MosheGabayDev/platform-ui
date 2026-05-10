@@ -264,6 +264,54 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Thirty-ninth batch — RBAC catalog drift sync (19 perms) + invariant
+
+While picking the next natural step (WhatsApp now owned by another
+agent), found a long-standing latent bug via a quick consistency
+check: 35 permissions are declared across module manifests, but only
+16 were registered in the RBAC catalog. The other **19 were silently
+unassignable** in `/admin/roles`.
+
+Missing permissions added (ids 19–37):
+
+| Module | Permissions |
+|---|---|
+| helpdesk | `helpdesk.maintenance.manage` |
+| users | `users.delete` |
+| ai-agents | `ai_agents.view`, `ai_agents.run` |
+| ai-providers | `ai_providers.view`, `ai_providers.configure` |
+| knowledge | `knowledge.view`, `knowledge.write` |
+| voice | `voice.view`, `voice.configure` |
+| automation | `automation.view`, `automation.run` |
+| integrations | `integrations.view`, `integrations.configure` |
+| monitoring | `monitoring.view` |
+| billing | `billing.view`, `billing.manage` |
+| data-sources | `data_sources.view`, `data_sources.configure` |
+
+`system_admin.permission_count` bumped 18 → **37** to reflect the full
+catalog.
+
+**Invariant test added** to prevent the next drift:
+`roles.test.ts › RBAC catalog covers EVERY permission declared by
+ANY manifest (no drift)` — pulls every `permissions: [...]` entry
+from every manifest and asserts it resolves in the catalog. Future
+manifest edits without a matching catalog row fail CI.
+
+**Files modified:**
+- `lib/api/roles.ts` (+19 perms, system_admin count 18→37)
+- `lib/api/roles.test.ts` (+1 cross-cutting drift-prevention test)
+
+**Suites:**
+- `npx vitest run` — 140 files / **1247 tests ✓** (+1)
+- `npx tsc --noEmit` — clean ✓
+- `npx eslint . --quiet` — 0 errors ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+
+**Net:** `/admin/roles` can now expose every permission the platform
+has declared. Operators can compose custom roles using all 37 perms
+instead of only the 16 that happened to be registered. The drift
+invariant makes this a one-time fix, not a recurring failure mode.
+
 ### 2026-05-10 — Thirty-eighth batch — WhatsApp module → full platform integration
 
 User directive: bring WhatsApp into full conformance with the system's

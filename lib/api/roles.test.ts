@@ -131,4 +131,21 @@ describe("roles client (mock mode)", () => {
     expect(names.has("whatsapp.view")).toBe(true);
     expect(names.has("whatsapp.session.manage")).toBe(true);
   });
+
+  it("RBAC catalog covers EVERY permission declared by ANY manifest (no drift)", async () => {
+    // Cross-cutting invariant: every `permissions: [...]` entry in any
+    // module manifest must resolve to a row in the RBAC catalog. Failing
+    // to register makes the permission unassignable in /admin/roles —
+    // a silent-but-real bug. Batch 39 closed 19 such drifts at once;
+    // this test prevents the next one.
+    const { getAllManifests } = await import("@/lib/platform/module-registry/manifests");
+    const declared = new Set<string>();
+    for (const m of getAllManifests()) {
+      for (const p of m.permissions) declared.add(p);
+    }
+    const res = await fetchAllPermissions();
+    const cataloged = new Set(res.data.permissions.map((p) => p.name));
+    const missing = [...declared].filter((p) => !cataloged.has(p));
+    expect(missing).toEqual([]);
+  });
 });
