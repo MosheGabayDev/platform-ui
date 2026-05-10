@@ -264,6 +264,47 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Forty-third batch — ADR-028 violation: window.prompt → Dialog
+
+Same audit reflex on a new dimension: scan for `window.confirm`,
+`window.alert`, `window.prompt` (all forbidden by ADR-028 #6 — must
+use platform Dialog/ConfirmActionDialog). Found exactly one
+production violation:
+
+`app/(dashboard)/helpdesk/approvals/page.tsx:225` —
+`window.prompt("Rejection reason (optional)?")` to capture the reason
+when rejecting an AI tool invocation. Native `prompt` is also a UX
+foul: it freezes the page, can't be styled, no `aria-label`, locale-
+broken on RTL.
+
+**Fix** — shadcn `<Dialog>` with `<Textarea>`:
+- New row state: `rejectingId: number | null` + `rejectReason: string`
+- Reject button now `setRejectingId(i.id)` instead of `mutate(...)` directly
+- Dialog confirms with the reason; Cancel / overlay-click both close
+  the dialog and clear state
+- `data-testid="approval-reject-N"` on the row button +
+  `data-testid="approval-reject-confirm"` on the dialog confirm
+  (drives future E2E spec)
+- `onSuccess` of the reject mutation also clears state (post-mutate
+  cleanup matches the bookmarks/notes pattern)
+
+Strings stay inline for now — the broader i18n cleanup of this page
+(column headers, status options, risk labels) is wider scope and
+deserves its own batch.
+
+**Files modified:**
+- `app/(dashboard)/helpdesk/approvals/page.tsx` (Dialog + state)
+
+**Audit verified:** `grep -rnE "window\\.(confirm|alert|prompt)\\("`
+returns only a comment-line reference left in the fix itself. **Zero
+production violations remain across `app/`, `components/`, `lib/`.**
+
+**Suites:**
+- `npx vitest run` — 141 files / **1253 tests ✓**
+- `npx tsc --noEmit` — clean ✓
+- `npx eslint . --quiet` — 0 errors ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+
 ### 2026-05-10 — Forty-second batch — page test-coverage audit + 4 smoke specs
 
 Same audit pattern (batches 39, 40, 41) on a new dimension: **every

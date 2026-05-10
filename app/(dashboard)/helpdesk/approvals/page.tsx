@@ -33,6 +33,16 @@ import { JobStatusBadge } from "@/components/shared/job-runner/job-status-badge"
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   fetchApprovals,
   approveInvocation,
@@ -102,6 +112,10 @@ function ApprovalsInner() {
   const [status, setStatus] = useState<ToolInvocationStatus | "all">(
     "pending_approval",
   );
+  // Reject confirmation dialog state. null = closed; the row id when open.
+  // Replaces an ADR-028-violating window.prompt() call (batch 43).
+  const [rejectingId, setRejectingId] = useState<number | null>(null);
+  const [rejectReason, setRejectReason] = useState("");
 
   const params = useMemo(
     () => ({
@@ -142,7 +156,11 @@ function ApprovalsInner() {
   const reject = usePlatformMutation({
     mutationFn: rejectInvocation,
     invalidateKeys: [queryKeys.helpdesk.approvals(params), queryKeys.helpdesk.all()],
-    onSuccess: (d) => toast.success(d.message),
+    onSuccess: (d) => {
+      toast.success(d.message);
+      setRejectingId(null);
+      setRejectReason("");
+    },
   });
 
   const columns = useMemo<ColumnDef<ToolInvocation>[]>(
@@ -222,11 +240,12 @@ function ApprovalsInner() {
               </ActionButton>
               <Button
                 onClick={() => {
-                  const reason = window.prompt("Rejection reason (optional)?") ?? "";
-                  reject.mutate({ invocationId: i.id, reason });
+                  setRejectReason("");
+                  setRejectingId(i.id);
                 }}
                 disabled={reject.isPending}
                 size="sm"
+                data-testid={`approval-reject-${i.id}`}
                 variant="outline"
               >
                 <XCircle className="h-3.5 w-3.5 me-1" aria-hidden="true" />
@@ -339,6 +358,68 @@ function ApprovalsInner() {
             }}
           />
         </motion.div>
+
+        {/* Reject confirmation dialog — replaces window.prompt (ADR-028 #6).
+            Reason is optional but the dialog is mandatory because Reject is
+            a destructive action visible to the AI subsystem (cap 13). */}
+        <Dialog
+          open={rejectingId !== null}
+          onOpenChange={(open) => {
+            if (!open) {
+              setRejectingId(null);
+              setRejectReason("");
+            }
+          }}
+        >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Reject AI tool invocation</DialogTitle>
+              <DialogDescription>
+                Optionally record a reason for the audit log. The AI subsystem
+                surfaces this back to the operator who requested the action.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-1.5">
+              <Label htmlFor="approval-reject-reason">Reason (optional)</Label>
+              <Textarea
+                id="approval-reject-reason"
+                rows={4}
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                disabled={reject.isPending}
+                placeholder="Out of policy / wrong target / will retry later…"
+                data-testid="approval-reject-reason"
+              />
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setRejectingId(null);
+                  setRejectReason("");
+                }}
+                disabled={reject.isPending}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                disabled={reject.isPending || rejectingId === null}
+                onClick={() => {
+                  if (rejectingId !== null) {
+                    reject.mutate({
+                      invocationId: rejectingId,
+                      reason: rejectReason.trim(),
+                    });
+                  }
+                }}
+                data-testid="approval-reject-confirm"
+              >
+                Reject
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </PageShell>
     </LazyMotion>
   );
