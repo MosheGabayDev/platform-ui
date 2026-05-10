@@ -89,6 +89,53 @@ describe("ADR-028 enforcement invariants", () => {
     expect(broken).toEqual([]);
   });
 
+  it("rule #10 — no LLM provider SDK imports anywhere in the frontend", () => {
+    // All LLM calls go through the backend AIProviderGateway. Frontend
+    // composes prompts + previews but never holds API keys or talks to
+    // a provider directly. If we ever need a streaming token surface
+    // here, it goes through `/api/proxy/ai-providers/...`, never the
+    // vendor SDK.
+    const BANNED_PACKAGES = [
+      "openai",
+      "@anthropic-ai/sdk",
+      "@aws-sdk/client-bedrock-runtime",
+      "@aws-sdk/client-bedrock",
+      "@google/generative-ai",
+      "ollama",
+      "cohere-ai",
+      "groq-sdk",
+      "@mistralai/mistralai",
+      "replicate",
+    ];
+    const broken: string[] = [];
+    for (const file of SOURCES) {
+      const src = fs.readFileSync(file, "utf8");
+      for (const pkg of BANNED_PACKAGES) {
+        // Match `from "<pkg>"`, `from "<pkg>/..."`, and dynamic
+        // `import("<pkg>")`. Quote variants ' " ` covered.
+        const re = new RegExp(
+          String.raw`(?:from|import)\s*\(?\s*["'\`]${pkg.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:/[^"'\`]*)?["'\`]`,
+        );
+        if (re.test(src)) {
+          broken.push(`${file}: ${pkg}`);
+          break;
+        }
+      }
+    }
+    expect(broken).toEqual([]);
+
+    // Belt + suspenders: package.json must not list any of these as
+    // a dependency or devDependency either. Catches the moment they
+    // get added before any import lands.
+    const pkgJson = JSON.parse(fs.readFileSync("package.json", "utf8"));
+    const allDeps = {
+      ...(pkgJson.dependencies ?? {}),
+      ...(pkgJson.devDependencies ?? {}),
+    };
+    const presentBanned = BANNED_PACKAGES.filter((p) => p in allDeps);
+    expect(presentBanned).toEqual([]);
+  });
+
   it("rule #6 — no bare confirm() / alert() / prompt() calls either", () => {
     // The bare globals (without `window.`) are equally banned. Match
     // requires word-boundary + open paren; skip lines where the word

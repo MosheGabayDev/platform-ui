@@ -264,6 +264,31 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Sixty-fifth batch — ADR-028 #10 invariant (no LLM SDK imports)
+
+Rule #10 added to `lib/adr-028-invariants.test.ts`: forbids ANY
+of the following packages from being imported anywhere in the
+frontend (also forbids them from `package.json` dependencies):
+
+`openai`, `@anthropic-ai/sdk`, `@aws-sdk/client-bedrock-runtime`,
+`@aws-sdk/client-bedrock`, `@google/generative-ai`, `ollama`,
+`cohere-ai`, `groq-sdk`, `@mistralai/mistralai`, `replicate`.
+
+All LLM traffic goes through the backend `AIProviderGateway`
+(spec: `04-capabilities/platform-ai-provider-gateway-spec.md`).
+The frontend composes prompts + previews + cost displays but never
+holds API keys or talks to a vendor directly. If we ever need
+streaming tokens client-side they go through `/api/proxy/ai-providers/...`,
+never the vendor SDK.
+
+Belt + suspenders: scans both source `import`/`from` statements
+AND `package.json` deps so the gate fires the moment a banned
+package gets added — before any import even compiles. Sanity-
+checked with synthetic `import OpenAI from "openai"` in a temp
+file → gate flagged it.
+
+Full suite: 1275/1275 ✓ (was 1274; +1 invariant).
+
 ### 2026-05-10 — Sixty-fourth batch — ADR-028 #7 invariant (no raw fetch outside lib/api)
 
 Added rule #7 to `lib/adr-028-invariants.test.ts`: bare `fetch(`
