@@ -264,6 +264,38 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Forty-ninth batch — i18n cleanup of /helpdesk/sla
+
+Continues batches 44–48. `/helpdesk/sla` had 9 violations.
+
+**Refactors:**
+- 6 column headers (`columns.{policy,priority,response,resolution,window,status}`)
+- 4 status/window badges (`badges.{default,active,inactive,247}`)
+- 4 KPI labels (`kpi.{overall,responseSla,resolutionSla,activeBreaches}`)
+- 2 section headers (`sections.{byPriority,policies}`)
+- DataTable empty + 3 disabled-fallback strings
+- Extracted `SLADisabledFallback` for `useTranslations` scope (matches
+  pattern from batches 44/45/47)
+
+**Files modified:**
+- `app/(dashboard)/helpdesk/sla/page.tsx`
+- `i18n/messages/{he,en}.json` (~20 new keys under `helpdesk.sla.*`)
+
+**Audit:** sla dropped off (9 → 0).
+Plan-wide: **4 → 3 pages, 29 → 20 strings remaining.**
+
+| Page | Violations |
+|---|---|
+| `helpdesk/batch` | 8 |
+| `helpdesk/technicians` | 7 |
+| `onboarding` | 5 |
+
+**Suites:**
+- `npx vitest run` — 141 files / **1255 tests ✓**
+- `npx tsc --noEmit` — clean ✓
+- `npx eslint . --quiet` — 0 errors ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+
 ### 2026-05-10 — Forty-eighth batch — i18n cleanup of /helpdesk/tickets
 
 Continues batches 44–47. `/helpdesk/tickets` was tied with `/sla` for

@@ -915,7 +915,37 @@
     },
     "sla": {
       "title": "SLA",
-      "subtitle": "מדיניות וציות לפי עדיפות"
+      "subtitle": "מדיניות וציות לפי עדיפות",
+      "columns": {
+        "policy": "מדיניות",
+        "priority": "דחיפות",
+        "response": "מענה",
+        "resolution": "פתרון",
+        "window": "חלון פעילות",
+        "status": "סטטוס"
+      },
+      "badges": {
+        "247": "24/7",
+        "default": "ברירת מחדל",
+        "active": "פעיל",
+        "inactive": "כבוי"
+      },
+      "kpi": {
+        "overall": "כללי",
+        "responseSla": "SLA מענה",
+        "resolutionSla": "SLA פתרון",
+        "activeBreaches": "חריגות פעילות"
+      },
+      "sections": {
+        "byPriority": "ציות לפי דחיפות",
+        "policies": "מדיניויות"
+      },
+      "empty": "לא הוגדרו מדיניויות SLA",
+      "disabled": {
+        "subtitle": "המודול מושבת",
+        "title": "הלפדסק לא מופעל",
+        "description": "מודול הלפדסק אינו מופעל לארגון שלך."
+      }
     },
     "maintenance": {
       "title": "תחזוקה",

@@ -915,7 +915,37 @@
     },
     "sla": {
       "title": "SLA",
-      "subtitle": "Policies and compliance by priority"
+      "subtitle": "Policies and compliance by priority",
+      "columns": {
+        "policy": "Policy",
+        "priority": "Priority",
+        "response": "Response",
+        "resolution": "Resolution",
+        "window": "Window",
+        "status": "Status"
+      },
+      "badges": {
+        "247": "24/7",
+        "default": "Default",
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "kpi": {
+        "overall": "Overall",
+        "responseSla": "Response SLA",
+        "resolutionSla": "Resolution SLA",
+        "activeBreaches": "Active breaches"
+      },
+      "sections": {
+        "byPriority": "Compliance by priority",
+        "policies": "Policies"
+      },
+      "empty": "No SLA policies configured",
+      "disabled": {
+        "subtitle": "Module disabled",
+        "title": "Helpdesk not enabled",
+        "description": "The Helpdesk module is not enabled for your organization."
+      }
     },
     "maintenance": {
       "title": "Maintenance",

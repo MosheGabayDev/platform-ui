@@ -79,13 +79,13 @@ function SLAInner() {
     () => [
       {
         accessorKey: "name",
-        header: "Policy",
+        header: t("columns.policy"),
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
             <span className="font-medium">{row.original.name}</span>
             {row.original.is_default && (
               <Badge variant="outline" className="text-xs">
-                Default
+                {t("badges.default")}
               </Badge>
             )}
           </div>
@@ -93,32 +93,32 @@ function SLAInner() {
       },
       {
         accessorKey: "priority_label",
-        header: "Priority",
+        header: t("columns.priority"),
         cell: ({ row }) => (
           <TicketPriorityBadge priority={row.original.priority_label} />
         ),
       },
       {
         accessorKey: "response_minutes",
-        header: "Response",
+        header: t("columns.response"),
         cell: ({ row }) => (
           <span className="text-sm font-mono">{formatMinutes(row.original.response_minutes)}</span>
         ),
       },
       {
         accessorKey: "resolution_minutes",
-        header: "Resolution",
+        header: t("columns.resolution"),
         cell: ({ row }) => (
           <span className="text-sm font-mono">{formatMinutes(row.original.resolution_minutes)}</span>
         ),
       },
       {
         accessorKey: "business_hours_only",
-        header: "Window",
+        header: t("columns.window"),
         cell: ({ row }) => {
           const p = row.original;
           if (!p.business_hours_only) {
-            return <span className="text-xs text-muted-foreground">24/7</span>;
+            return <span className="text-xs text-muted-foreground">{t("badges.247")}</span>;
           }
           const days = p.business_days
             .slice(0, 5)
@@ -133,20 +133,20 @@ function SLAInner() {
       },
       {
         accessorKey: "is_active",
-        header: "Status",
+        header: t("columns.status"),
         cell: ({ row }) =>
           row.original.is_active ? (
             <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
-              Active
+              {t("badges.active")}
             </Badge>
           ) : (
             <Badge variant="outline" className="border-muted text-muted-foreground">
-              Inactive
+              {t("badges.inactive")}
             </Badge>
           ),
       },
     ],
-    [],
+    [t],
   );
 
   return (
@@ -162,7 +162,7 @@ function SLAInner() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="glass border-border/50 rounded-xl p-4 flex flex-col gap-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">Overall</span>
+                  <span className="text-xs text-muted-foreground">{t("kpi.overall")}</span>
                   <Shield className={`h-4 w-4 ${complianceTone(c.overall_compliance_pct)}`} aria-hidden="true" />
                 </div>
                 <span className={`text-2xl font-semibold ${complianceTone(c.overall_compliance_pct)}`}>
@@ -171,7 +171,7 @@ function SLAInner() {
               </div>
               <div className="glass border-border/50 rounded-xl p-4 flex flex-col gap-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">Response SLA</span>
+                  <span className="text-xs text-muted-foreground">{t("kpi.responseSla")}</span>
                   <Clock className={`h-4 w-4 ${complianceTone(c.response_compliance_pct)}`} aria-hidden="true" />
                 </div>
                 <span className={`text-2xl font-semibold ${complianceTone(c.response_compliance_pct)}`}>
@@ -180,7 +180,7 @@ function SLAInner() {
               </div>
               <div className="glass border-border/50 rounded-xl p-4 flex flex-col gap-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">Resolution SLA</span>
+                  <span className="text-xs text-muted-foreground">{t("kpi.resolutionSla")}</span>
                   <CheckCircle className={`h-4 w-4 ${complianceTone(c.resolution_compliance_pct)}`} aria-hidden="true" />
                 </div>
                 <span className={`text-2xl font-semibold ${complianceTone(c.resolution_compliance_pct)}`}>
@@ -189,7 +189,7 @@ function SLAInner() {
               </div>
               <div className="glass border-border/50 rounded-xl p-4 flex flex-col gap-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">Active breaches</span>
+                  <span className="text-xs text-muted-foreground">{t("kpi.activeBreaches")}</span>
                   <AlertTriangle
                     className={`h-4 w-4 ${
                       c.active_breaches > 0 ? "text-rose-600 dark:text-rose-400" : "text-muted-foreground"
@@ -212,7 +212,7 @@ function SLAInner() {
           {c && (
             <section className="space-y-3">
               <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                Compliance by priority
+                {t("sections.byPriority")}
               </h2>
               <div className="glass border-border/50 rounded-xl p-4 space-y-2">
                 {c.by_priority.map((row) => (
@@ -253,14 +253,14 @@ function SLAInner() {
           {/* Policies table */}
           <section className="space-y-3">
             <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-              Policies
+              {t("sections.policies")}
             </h2>
             <DataTable
               columns={columns}
               data={policies?.data?.policies ?? []}
               isLoading={policiesLoading}
               error={policiesError as Error | null}
-              emptyMessage="No SLA policies configured"
+              emptyMessage={t("empty")}
             />
           </section>
         </motion.div>
@@ -269,20 +269,22 @@ function SLAInner() {
   );
 }
 
+function SLADisabledFallback() {
+  const t = useTranslations("helpdesk.sla");
+  return (
+    <PageShell icon={Activity} title={t("title")} subtitle={t("disabled.subtitle")}>
+      <EmptyState
+        icon={AlertCircle}
+        title={t("disabled.title")}
+        description={t("disabled.description")}
+      />
+    </PageShell>
+  );
+}
+
 export default function HelpdeskSLAPage() {
   return (
-    <FeatureGate
-      flag="helpdesk.enabled"
-      fallback={
-        <PageShell icon={Activity} title="SLA" subtitle="Coming soon">
-          <EmptyState
-            icon={AlertCircle}
-            title="Helpdesk not enabled"
-            description="The Helpdesk module is not enabled for your organization."
-          />
-        </PageShell>
-      }
-    >
+    <FeatureGate flag="helpdesk.enabled" fallback={<SLADisabledFallback />}>
       <SLAInner />
     </FeatureGate>
   );
