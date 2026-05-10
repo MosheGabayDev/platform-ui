@@ -12,12 +12,12 @@
  * `note.author_id !== session.user.id`.
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { NotebookText, Plus, Trash2, AlertCircle } from "lucide-react";
+import { NotebookText, Plus, Pencil, Trash2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -40,7 +40,13 @@ import {
 import { PageShell } from "@/components/shared/page-shell";
 import { PlatformForm, FormActions } from "@/components/shared/form";
 import { usePlatformMutation } from "@/lib/hooks/use-platform-mutation";
-import { fetchNotes, addNote, deleteNote, MOCK_MODE } from "@/lib/api/notes";
+import {
+  fetchNotes,
+  addNote,
+  updateNote,
+  deleteNote,
+  MOCK_MODE,
+} from "@/lib/api/notes";
 import { queryKeys } from "@/lib/api/query-keys";
 import { formatRelativeTime } from "@/lib/utils/format";
 import type { Note } from "@/lib/modules/notes/types";
@@ -61,12 +67,14 @@ function MockNotice() {
 
 function NoteRow({
   note,
-  canDelete,
+  canMutate,
   onDelete,
+  onEdit,
 }: {
   note: Note;
-  canDelete: boolean;
+  canMutate: boolean;
   onDelete: (id: string) => void;
+  onEdit: (note: Note) => void;
 }) {
   const t = useTranslations("notes");
   const tCommon = useTranslations("common");
@@ -76,18 +84,29 @@ function NoteRow({
       <div className="flex items-start gap-2">
         <h3 className="text-sm font-semibold flex-1">{note.title}</h3>
         <span className="text-xs text-muted-foreground/70 shrink-0">
-          {formatRelativeTime(note.created_at)}
+          {formatRelativeTime(note.updated_at)}
         </span>
-        {canDelete && (
-          <button
-            type="button"
-            onClick={() => setConfirmOpen(true)}
-            className="text-muted-foreground hover:text-destructive transition-colors"
-            aria-label={t("delete")}
-            data-testid={`notes-delete-${note.id}`}
-          >
-            <Trash2 className="size-3.5" />
-          </button>
+        {canMutate && (
+          <>
+            <button
+              type="button"
+              onClick={() => onEdit(note)}
+              className="text-muted-foreground hover:text-primary transition-colors"
+              aria-label={t("edit")}
+              data-testid={`notes-edit-${note.id}`}
+            >
+              <Pencil className="size-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setConfirmOpen(true)}
+              className="text-muted-foreground hover:text-destructive transition-colors"
+              aria-label={t("delete")}
+              data-testid={`notes-delete-${note.id}`}
+            >
+              <Trash2 className="size-3.5" />
+            </button>
+          </>
         )}
       </div>
       <p className="text-sm leading-relaxed whitespace-pre-wrap">{note.body}</p>
@@ -220,10 +239,104 @@ function AddNoteSheet({
   );
 }
 
+function EditNoteSheet({
+  note,
+  onOpenChange,
+}: {
+  note: Note | null;
+  onOpenChange: (v: boolean) => void;
+}) {
+  const t = useTranslations("notes");
+  const tFields = useTranslations("notes.form.fields");
+  const queryClient = useQueryClient();
+
+  const [title, setTitle] = useState(note?.title ?? "");
+  const [body, setBody] = useState(note?.body ?? "");
+  const [tagsRaw, setTagsRaw] = useState(note?.tags.join(", ") ?? "");
+
+  // Reset form when target note changes (open/close cycle).
+  useEffect(() => {
+    setTitle(note?.title ?? "");
+    setBody(note?.body ?? "");
+    setTagsRaw(note?.tags.join(", ") ?? "");
+  }, [note]);
+
+  const { mutateAsync, isPending } = usePlatformMutation({
+    mutationFn: ({ id, input }: { id: string; input: { title: string; body: string; tags: string[] } }) =>
+      updateNote(id, input),
+    onSuccess: () => {
+      toast.success(t("savedEdit"));
+      queryClient.invalidateQueries({ queryKey: queryKeys.notes.all() });
+      onOpenChange(false);
+    },
+  });
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!note) return;
+    if (!title.trim() || !body.trim()) return;
+    const tags = tagsRaw
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    mutateAsync({ id: note.id, input: { title: title.trim(), body: body.trim(), tags } });
+  };
+
+  return (
+    <Sheet open={note !== null} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto px-6 pt-6 pb-6">
+        <SheetHeader className="mb-4 px-0 pt-0">
+          <SheetTitle>{t("editForm.title")}</SheetTitle>
+          <SheetDescription>{t("editForm.subtitle")}</SheetDescription>
+        </SheetHeader>
+        <PlatformForm onSubmit={onSubmit} isSubmitting={isPending} ariaLabel={t("editForm.aria")}>
+          <div className="space-y-1.5">
+            <Label htmlFor="note-edit-title">{tFields("title")}</Label>
+            <Input
+              id="note-edit-title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              disabled={isPending}
+              required
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="note-edit-body">{tFields("body")}</Label>
+            <Textarea
+              id="note-edit-body"
+              rows={6}
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              disabled={isPending}
+              required
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="note-edit-tags">{tFields("tags")}</Label>
+            <Input
+              id="note-edit-tags"
+              value={tagsRaw}
+              onChange={(e) => setTagsRaw(e.target.value)}
+              disabled={isPending}
+              placeholder="meeting, Q3"
+            />
+          </div>
+          <FormActions
+            submitLabel={t("form.cta")}
+            onCancel={() => onOpenChange(false)}
+            isSubmitting={isPending}
+          />
+        </PlatformForm>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
 export default function NotesPage() {
   const t = useTranslations("notes");
   const { data: session } = useSession();
   const [addOpen, setAddOpen] = useState(false);
+  const [editing, setEditing] = useState<Note | null>(null);
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
@@ -268,14 +381,21 @@ export default function NotesPage() {
             <NoteRow
               key={note.id}
               note={note}
-              canDelete={userId === note.author_id}
+              canMutate={userId === note.author_id}
               onDelete={(id) => removeNote(id)}
+              onEdit={(n) => setEditing(n)}
             />
           ))
         )}
       </div>
 
       <AddNoteSheet open={addOpen} onOpenChange={setAddOpen} />
+      <EditNoteSheet
+        note={editing}
+        onOpenChange={(open) => {
+          if (!open) setEditing(null);
+        }}
+      />
     </PageShell>
   );
 }

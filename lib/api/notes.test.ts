@@ -2,7 +2,14 @@
  * Notes client (mock mode) — list + add + delete round-trip via localStorage.
  */
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { fetchNotes, addNote, deleteNote, MOCK_MODE } from "./notes";
+import {
+  fetchNotes,
+  addNote,
+  updateNote,
+  deleteNote,
+  NoteNotFoundError,
+  MOCK_MODE,
+} from "./notes";
 import { clearMockState } from "@/lib/api/_mock-storage";
 import * as auditModule from "@/lib/api/audit";
 
@@ -79,6 +86,64 @@ describe("notes client (mock mode)", () => {
     expect(arg.category).toBe("create");
     expect(arg.resource_type).toBe("note");
     expect(arg.metadata).toMatchObject({ title: "Audit me", tag_count: 1 });
+    spy.mockRestore();
+  });
+
+  it("updateNote rewrites title/body/tags and bumps updated_at", async () => {
+    const before = await fetchNotes();
+    const target = before.data.items[0]!;
+    // Force a different timestamp by waiting one tick.
+    await new Promise((r) => setTimeout(r, 5));
+    const res = await updateNote(target.id, {
+      title: "Edited title",
+      body: "Edited body",
+      tags: ["edited"],
+    });
+    const updated = res.data.items.find((n) => n.id === target.id)!;
+    expect(updated.title).toBe("Edited title");
+    expect(updated.body).toBe("Edited body");
+    expect(updated.tags).toEqual(["edited"]);
+    expect(updated.created_at).toBe(target.created_at);
+    expect(updated.updated_at).not.toBe(target.updated_at);
+  });
+
+  it("updateNote preserves existing tags when input omits them", async () => {
+    const before = await fetchNotes();
+    const target = before.data.items[0]!;
+    const res = await updateNote(target.id, {
+      title: "T",
+      body: "B",
+    });
+    const updated = res.data.items.find((n) => n.id === target.id)!;
+    expect(updated.tags).toEqual(target.tags);
+  });
+
+  it("updateNote throws NoteNotFoundError for missing id", async () => {
+    await expect(
+      updateNote("does-not-exist", { title: "x", body: "y" }),
+    ).rejects.toBeInstanceOf(NoteNotFoundError);
+  });
+
+  it("updateNote emits notes.updated audit event with change flags", async () => {
+    const spy = vi
+      .spyOn(auditModule, "recordAuditEntry")
+      .mockResolvedValue({ success: true } as never);
+    const before = await fetchNotes();
+    const target = before.data.items[0]!;
+    await updateNote(target.id, {
+      title: target.title, // unchanged
+      body: "totally new body",
+      tags: target.tags,
+    });
+    await Promise.resolve();
+    expect(spy).toHaveBeenCalledOnce();
+    const arg = spy.mock.calls[0]![0];
+    expect(arg.action).toBe("notes.updated");
+    expect(arg.category).toBe("update");
+    expect(arg.metadata).toMatchObject({
+      title_changed: false,
+      body_changed: true,
+    });
     spy.mockRestore();
   });
 

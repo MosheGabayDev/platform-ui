@@ -21,13 +21,19 @@ vi.mock("next-auth/react", () => ({
 
 const fetchNotesMock = vi.hoisted(() => vi.fn());
 const addNoteMock = vi.hoisted(() => vi.fn());
+const updateNoteMock = vi.hoisted(() => vi.fn());
 const deleteNoteMock = vi.hoisted(() => vi.fn());
-vi.mock("@/lib/api/notes", () => ({
-  fetchNotes: fetchNotesMock,
-  addNote: addNoteMock,
-  deleteNote: deleteNoteMock,
-  MOCK_MODE: true,
-}));
+vi.mock("@/lib/api/notes", () => {
+  class NoteNotFoundErrorMock extends Error {}
+  return {
+    fetchNotes: fetchNotesMock,
+    addNote: addNoteMock,
+    updateNote: updateNoteMock,
+    deleteNote: deleteNoteMock,
+    NoteNotFoundError: NoteNotFoundErrorMock,
+    MOCK_MODE: true,
+  };
+});
 
 import NotesPage from "./page";
 
@@ -52,6 +58,7 @@ const note = (over: Partial<{ id: string; title: string; author_id: number; tags
 beforeEach(() => {
   fetchNotesMock.mockReset();
   addNoteMock.mockReset();
+  updateNoteMock.mockReset();
   deleteNoteMock.mockReset();
   sessionMock.status = "authenticated";
   sessionMock.data = { user: { id: 1, role: "user" } };
@@ -103,7 +110,7 @@ describe("NotesPage", () => {
     await waitFor(() => expect(screen.getByTestId("notes-add")).toBeTruthy());
   });
 
-  it("delete button shows for owner-authored notes only", async () => {
+  it("delete + edit buttons show for owner-authored notes only", async () => {
     fetchNotesMock.mockResolvedValue({
       success: true,
       data: {
@@ -117,6 +124,8 @@ describe("NotesPage", () => {
     render(<NotesPage />);
     await waitFor(() => expect(screen.getByText("Mine")).toBeTruthy());
     expect(screen.getByTestId("notes-delete-n-mine")).toBeTruthy();
+    expect(screen.getByTestId("notes-edit-n-mine")).toBeTruthy();
     expect(screen.queryByTestId("notes-delete-n-theirs")).toBeNull();
+    expect(screen.queryByTestId("notes-edit-n-theirs")).toBeNull();
   });
 });

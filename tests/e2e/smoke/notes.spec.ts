@@ -58,6 +58,18 @@ test.describe("/notes smoke", () => {
     await expect(page.getByText("#smoke").first()).toBeVisible();
   });
 
+  test("edit flow: edit Sheet rewrites the note title", async ({ page }) => {
+    await page.goto("/notes");
+    const editBtn = page.getByTestId("notes-edit-n-002");
+    await editBtn.click();
+    const newTitle = `Edited ${Date.now()}`;
+    // Title field is pre-filled — clear then type.
+    const titleField = page.getByLabel(/^Title$|^כותרת$/i);
+    await titleField.fill(newTitle);
+    await page.getByRole("button", { name: /^Save$|^שמור$/i }).click();
+    await expect(page.getByText(newTitle)).toBeVisible();
+  });
+
   test("delete flow: confirm dialog removes the note", async ({ page }) => {
     await page.goto("/notes");
 

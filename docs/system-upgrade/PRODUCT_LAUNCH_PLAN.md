@@ -264,6 +264,47 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Twenty-fifth batch — Notes edit-flow (CRUD complete)
+
+UX completeness for the Notes vertical. The MVP shipped create + delete
+in batch 17; this batch adds edit, closing the CRUD surface to match
+helpdesk-tier modules.
+
+**API:**
+- `updateNote(id, { title, body, tags? })` — owner-only, mock-mode
+  bumps `updated_at`, preserves `created_at`. Tags default to current
+  values when input omits them.
+- New `NoteNotFoundError` thrown when id is missing — backend will
+  surface the same as 404. MOCK_MODE flip checklist updated (step 4b).
+- Audit emit: `notes.updated` with `{ title_changed, body_changed,
+  tag_count }` so the audit log shows *what* changed without leaking
+  body text.
+
+**UI:**
+- Pencil button per row, gated on `canMutate` (same owner check as
+  delete). Sheet pre-fills the form from the target note and resets
+  on close. `setEditing(null)` triggers form reset via `useEffect`.
+- Header timestamp now shows `updated_at` (was `created_at`) so edits
+  are visible at a glance.
+
+**Files modified:**
+- `lib/api/notes.ts` (updateNote + NoteNotFoundError + audit)
+- `lib/api/notes.test.ts` (+4 tests: rewrite + tag preservation + 404 + audit)
+- `app/(dashboard)/notes/page.tsx` (EditNoteSheet + edit button)
+- `app/(dashboard)/notes/page.test.tsx` (test name + edit-button assertions)
+- `tests/e2e/smoke/notes.spec.ts` (+1 spec for edit round-trip)
+- `i18n/messages/{he,en}.json` (+notes.edit, +notes.savedEdit, +notes.editForm.*)
+
+**Suites:**
+- `npx vitest run` — 138 files / **1219 tests ✓** (+4 unit; page tests already
+  hit the new branch via the existing test, no count delta there)
+- `npx tsc --noEmit` — clean ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+
+**Notes integration parity refresh — full CRUD now matches helpdesk:**
+create + read + update + delete, all with audit, all with owner-only
+gating, all with E2E coverage.
+
 ### 2026-05-10 — Twenty-fourth batch — RBAC permissions for new verticals
 
 Closes the RBAC-integration loop. Both manifests declare

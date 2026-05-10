@@ -18,6 +18,10 @@
  *   4. Backend serves DELETE /api/proxy/notes/:id   → NoteListResponse
  *      Owner-only delete enforced server-side; UI hides the button when
  *      `note.author_id !== session.user.id`.
+ *   4b. Backend serves PATCH /api/proxy/notes/:id   → NoteListResponse
+ *      Body: { title, body, tags? }. Owner-only update enforced
+ *      server-side. updated_at is server-set; FE never trusts a
+ *      client-supplied timestamp. 404 → NoteNotFoundError on this side.
  *   5. Tag autocomplete is a future enhancement: GET /api/proxy/notes/tags
  *      returns the distinct tag list. FE already accepts `string[]` so
  *      no shape change.
@@ -89,6 +93,19 @@ export interface AddNoteInput {
   tags?: string[];
 }
 
+export interface UpdateNoteInput {
+  title: string;
+  body: string;
+  tags?: string[];
+}
+
+export class NoteNotFoundError extends Error {
+  constructor(id: string) {
+    super(`NOTE_NOT_FOUND:${id}`);
+    this.name = "NoteNotFoundError";
+  }
+}
+
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`/api/proxy/notes${path}`, {
     credentials: "include",
@@ -142,6 +159,45 @@ export async function addNote(input: AddNoteInput): Promise<NoteListResponse> {
   }
   return apiFetch<NoteListResponse>("", {
     method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export async function updateNote(
+  id: string,
+  input: UpdateNoteInput,
+): Promise<NoteListResponse> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 80));
+    const items = load();
+    const idx = items.findIndex((n) => n.id === id);
+    if (idx === -1) throw new NoteNotFoundError(id);
+    const prev = items[idx]!;
+    const updated: Note = {
+      ...prev,
+      title: input.title,
+      body: input.body,
+      tags: input.tags ?? prev.tags,
+      updated_at: new Date().toISOString(),
+    };
+    const next = [...items];
+    next[idx] = updated;
+    saveMockState(STORAGE_KEY, STORAGE_VERSION, next);
+    void recordAuditEntry({
+      action: "notes.updated",
+      category: "update",
+      resource_type: "note",
+      resource_id: id,
+      metadata: {
+        title_changed: prev.title !== updated.title,
+        body_changed: prev.body !== updated.body,
+        tag_count: updated.tags.length,
+      },
+    }).catch(() => {});
+    return { success: true, data: { items: next, total: next.length } };
+  }
+  return apiFetch<NoteListResponse>(`/${encodeURIComponent(id)}`, {
+    method: "PATCH",
     body: JSON.stringify(input),
   });
 }

@@ -1648,6 +1648,13 @@
         "body": "Body",
         "tags": "Tags (comma-separated)"
       }
+    },
+    "edit": "Edit",
+    "savedEdit": "Changes saved",
+    "editForm": {
+      "title": "Edit note",
+      "subtitle": "Edit title, body, and tags.",
+      "aria": "Note edit form"
     }
   },
   "bookmarks": {
