@@ -264,6 +264,86 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Thirty-eighth batch — WhatsApp module → full platform integration
+
+User directive: bring WhatsApp into full conformance with the system's
+module structure and shared services. Batch 37 closed the metadata
+gaps; this batch closes the **runtime** gaps so WhatsApp uses every
+shared primitive the system mandates.
+
+**API layer (`lib/api/whatsapp.ts`):**
+- Extracted types to `lib/modules/whatsapp/types.ts`
+- Cap-A `_mock-storage` shim — sessions persist via localStorage
+- 8-step MOCK_MODE flip checklist documenting the BE contract
+- Audit emit on every mutation (link/relink/unlink) — fire-and-forget,
+  category=`create`/`update`/`delete`, resource_type=`whatsapp_session`
+- Idempotent unlink — second call does **not** emit a duplicate audit
+- Monotonic session-id counter (collision-free across rapid calls)
+
+**Page (`app/(dashboard)/whatsapp/sessions/page.tsx`):**
+- Replaced raw `useMutation` → `usePlatformMutation` (ADR-028 #3)
+- Replaced `window.confirm("...")` → shadcn `<Dialog>` confirm
+  (ADR-028 #6 — never `window.confirm()`)
+- Wrapped mutation buttons in `<PermissionGate permission="whatsapp.session.manage">`
+- All UI strings now via `next-intl` (`whatsapp.*` namespace, ~80 keys)
+- Added `<MockNotice>` banner so the UI announces mock-mode like every
+  other vertical
+- State labels (needs_qr / connecting / ready / disconnected / failed /
+  unlinked) translated per locale
+- Test-id attributes on link/relink/unlink/show-qr buttons + on the
+  unlink-confirm button (drives both vitest + Playwright specs)
+
+**AI skill registry:**
+- New `lib/modules/whatsapp/skills.ts` registering:
+  - `whatsapp.session.link` (mutate / low / no params)
+  - `whatsapp.session.relink` (mutate / low / { sessionId })
+  - `whatsapp.session.unlink` (destroy / medium / { sessionId })
+- Aggregator `lib/platform/ai-skills/registry.ts` extended; manifest
+  `ai_actions: [...]` now lists all three (was empty)
+- `/help` AI shortcuts: `link whatsapp` (WRITE_LOW), `unlink whatsapp NNNN` (DESTRUCTIVE)
+
+**Tests:**
+- `lib/api/whatsapp.test.ts` — 11 tests covering mock-mode lifecycle:
+  link → fetch → QR → relink → unlink → re-link, idempotent unlink, audit
+  emit shape on every mutation
+- `app/(dashboard)/whatsapp/sessions/page.test.tsx` — 7 tests covering
+  render shell + link CTA dispatch + active-panel render + unlink confirm
+  dialog + dispatch with id (+ FeatureGate mock so the tests render past
+  the flag check)
+- `tests/e2e/smoke/whatsapp.spec.ts` — 3 specs (renders, link opens QR,
+  unlink uses confirm dialog)
+
+**Files added:**
+- `lib/modules/whatsapp/types.ts`
+- `lib/modules/whatsapp/skills.ts`
+- `lib/api/whatsapp.test.ts`
+- `app/(dashboard)/whatsapp/sessions/page.test.tsx`
+- `tests/e2e/smoke/whatsapp.spec.ts`
+
+**Files modified:**
+- `lib/api/whatsapp.ts` (full refactor — MOCK_MODE shim + audit + types
+  re-export + monotonic id counter)
+- `app/(dashboard)/whatsapp/sessions/page.tsx` (full refactor — i18n +
+  PermissionGate + usePlatformMutation + Dialog confirm + MockNotice)
+- `lib/platform/module-registry/manifests.ts` (whatsapp `ai_actions`
+  populated)
+- `lib/platform/ai-skills/registry.ts` (+whatsappSkills)
+- `lib/docs/content.ts` (+2 AI shortcuts)
+- `i18n/messages/{he,en}.json` (+whatsapp namespace,
+  +help.aiShortcuts.{linkWhatsapp, unlinkWhatsapp})
+
+**Suites:**
+- `npx vitest run` — 140 files / **1246 tests ✓** (+20)
+- `npx tsc --noEmit` — clean ✓
+- `npx eslint . --quiet` — 0 errors ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+
+**Integration parity for WhatsApp — now 12/12** (matches Notes/Bookmarks):
+module-registry ✓, nav ✓, i18n ✓, MOCK_MODE ✓, queryKeys ✓, search
+search_types=[] (sessions are owner-private), AI skills ✓, audit emit ✓,
+policy_action_id wired ✓, RBAC permissions ✓, /help AI shortcuts ✓,
+unit + page + E2E tests ✓.
+
 ### 2026-05-10 — Thirty-seventh batch — WhatsApp module → platform parity
 
 The WhatsApp self-service sessions module landed externally

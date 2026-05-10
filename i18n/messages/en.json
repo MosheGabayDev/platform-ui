@@ -1047,7 +1047,9 @@
       "deactivateUser": "Deactivates user NNNN — they can no longer log in.",
       "resetPassword": "Sends a password-reset email to user NNNN.",
       "createNote": "Create a note with the given title",
-      "createBookmark": "Add a bookmark for the given URL"
+      "createBookmark": "Add a bookmark for the given URL",
+      "linkWhatsapp": "Start a WhatsApp linking flow",
+      "unlinkWhatsapp": "Unlink the WhatsApp session by id"
     },
     "keyboardShortcuts": {
       "dashboard": "Dashboard",
@@ -1693,6 +1695,89 @@
     "deleteConfirm": {
       "title": "Delete this bookmark?",
       "body": "Bookmark \"{title}\" will be deleted. This cannot be undone."
+    }
+  },
+  "whatsapp": {
+    "title": "WhatsApp",
+    "subtitle": "Personal archive connection",
+    "disabledTitle": "WhatsApp is not enabled",
+    "disabledDescription": "The WhatsApp module is not enabled for your organization.",
+    "empty": {
+      "title": "No linked WhatsApp session",
+      "description": "Create a personal session to start the QR link flow.",
+      "cta": "Link WhatsApp",
+      "linking": "Starting…"
+    },
+    "panel": {
+      "heading": "Personal session",
+      "phonePlaceholder": "Phone not linked yet",
+      "showQr": "Show QR",
+      "relink": "Re-link",
+      "unlink": "Unlink"
+    },
+    "metrics": {
+      "created": "Created",
+      "updated": "Updated",
+      "heartbeat": "Heartbeat",
+      "sessions": "Sessions",
+      "activeState": "Active state",
+      "none": "None",
+      "never": "Never",
+      "captureStatus": "Capture Status"
+    },
+    "states": {
+      "needs_qr": "Needs QR",
+      "connecting": "Connecting",
+      "ready": "Ready",
+      "disconnected": "Disconnected",
+      "failed": "Failed",
+      "unlinked": "Unlinked"
+    },
+    "archive": {
+      "title": "WhatsApp archive",
+      "subtitle": "Owner-scoped chats captured from your linked session",
+      "total": "Chats",
+      "searchPlaceholder": "Search chats",
+      "emptyTitle": "No chats found",
+      "emptyDescription": "Try a different search or connect a WhatsApp session.",
+      "noPreview": "No message preview yet",
+      "never": "Never",
+      "muted": "Muted",
+      "archived": "Archived",
+      "participants": "{count} participants",
+      "filters": {
+        "all": "All",
+        "private": "Private",
+        "group": "Groups"
+      },
+      "kinds": {
+        "private": "Private",
+        "group": "Group"
+      }
+    },
+    "qrDialog": {
+      "title": "WhatsApp QR",
+      "descriptionPrefix": "Session state: ",
+      "waiting": "Waiting for QR",
+      "alt": "WhatsApp linking QR"
+    },
+    "unlinkConfirm": {
+      "title": "Unlink this WhatsApp session?",
+      "body": "The session will be unlinked. The archive will be retained.",
+      "confirm": "Unlink"
+    },
+    "toasts": {
+      "started": "WhatsApp session started",
+      "relinkRequested": "Fresh QR requested",
+      "unlinked": "WhatsApp unlinked",
+      "linked": "Linked",
+      "linkedAs": "Linked as {phone}",
+      "backendNotice": "Demo mode — data persists locally in the browser (localStorage)."
+    },
+    "errors": {
+      "startFailed": "Unable to start session",
+      "relinkFailed": "Unable to relink session",
+      "unlinkFailed": "Unable to unlink session"
     }
   }
 }

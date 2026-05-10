@@ -1,15 +1,25 @@
 "use client";
 /**
  * @module app/(dashboard)/whatsapp/sessions/page
- * Self-service WhatsApp session lifecycle page.
+ * Self-service WhatsApp session lifecycle.
  *
- * Data: React Query -> /api/proxy/whatsapp/api/my/sessions -> Flask WhatsApp API.
+ * Platform contract (batch 38 refactor):
+ *   - PageShell + EmptyState + ErrorState (shared primitives)
+ *   - usePlatformMutation (no raw useMutation)
+ *   - PermissionGate around mutation buttons (whatsapp.session.manage)
+ *   - shadcn Dialog for unlink confirmation (no window.confirm — ADR-028 #6)
+ *   - All UI strings via next-intl
+ *   - MOCK_MODE shim with audit emit on every mutation
+ *
+ * Spec: docs/system-upgrade/PRODUCT_LAUNCH_PLAN.md (whatsapp parity).
  */
 
 import { useEffect, useMemo, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import {
+  AlertCircle,
   MessageCircle,
   QrCode,
   RefreshCw,
@@ -22,20 +32,24 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorState } from "@/components/shared/error-state";
 import { FeatureGate } from "@/components/shared/feature-gate";
 import { PageShell } from "@/components/shared/page-shell";
-import { Skeleton } from "@/components/ui/skeleton";
+import { PermissionGate } from "@/components/shared/permission-gate";
+import { usePlatformMutation } from "@/lib/hooks/use-platform-mutation";
 import {
   fetchWhatsappSessionQr,
   fetchWhatsappSessions,
   linkWhatsappSession,
   relinkWhatsappSession,
   unlinkWhatsappSession,
+  MOCK_MODE,
   type WhatsAppSession,
   type WhatsAppSessionState,
 } from "@/lib/api/whatsapp";
@@ -59,21 +73,35 @@ const STATE_TONE: Record<WhatsAppSessionState, string> = {
   unlinked: "border-border bg-muted text-muted-foreground",
 };
 
-function formatState(state: WhatsAppSessionState) {
-  return state.replace("_", " ");
-}
-
-function formatDate(value: string | null) {
-  if (!value) return "Never";
+function formatDate(value: string | null, neverLabel: string): string {
+  if (!value) return neverLabel;
   return new Intl.DateTimeFormat(undefined, {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(value));
 }
 
+function MockNotice() {
+  const t = useTranslations("whatsapp.toasts");
+  if (!MOCK_MODE) return null;
+  return (
+    <div
+      role="status"
+      className="flex items-center gap-2 rounded-md border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-400"
+    >
+      <AlertCircle className="size-3.5 shrink-0" />
+      {t("backendNotice")}
+    </div>
+  );
+}
+
 function WhatsAppSessionsInner() {
+  const t = useTranslations("whatsapp");
+  const tToasts = useTranslations("whatsapp.toasts");
+  const tErrors = useTranslations("whatsapp.errors");
   const queryClient = useQueryClient();
   const [qrSessionId, setQrSessionId] = useState<number | null>(null);
+  const [unlinkTarget, setUnlinkTarget] = useState<number | null>(null);
 
   const sessionsQuery = useQuery({
     queryKey: queryKeys.whatsapp.sessions(),
@@ -82,56 +110,58 @@ function WhatsAppSessionsInner() {
 
   const sessions = sessionsQuery.data?.data ?? [];
   const activeSession = useMemo(
-    () => sessions.find((session) => ACTIVE_STATES.includes(session.session_state)),
+    () => sessions.find((s) => ACTIVE_STATES.includes(s.session_state)),
     [sessions],
   );
 
   const qrQuery = useQuery({
-    queryKey: qrSessionId ? queryKeys.whatsapp.sessionQr(qrSessionId) : ["whatsapp", "qr", "idle"],
+    queryKey: qrSessionId
+      ? queryKeys.whatsapp.sessionQr(qrSessionId)
+      : ["whatsapp", "qr", "idle"],
     queryFn: () => fetchWhatsappSessionQr(qrSessionId as number),
     enabled: qrSessionId !== null,
     refetchInterval: qrSessionId !== null ? 3_000 : false,
   });
 
-  const refreshSessions = () => queryClient.invalidateQueries({ queryKey: queryKeys.whatsapp.sessions() });
-
-  const linkMutation = useMutation({
+  const linkMutation = usePlatformMutation({
     mutationFn: linkWhatsappSession,
+    invalidateKeys: [queryKeys.whatsapp.all()],
     onSuccess: (data) => {
-      toast.success("WhatsApp session started");
+      toast.success(tToasts("started"));
       setQrSessionId(data.session_id);
-      refreshSessions();
     },
-    onError: (error) => toast.error(error instanceof Error ? error.message : "Unable to start session"),
+    onError: (err) => toast.error(err.message ?? tErrors("startFailed")),
   });
 
-  const relinkMutation = useMutation({
+  const relinkMutation = usePlatformMutation({
     mutationFn: relinkWhatsappSession,
+    invalidateKeys: [queryKeys.whatsapp.all()],
     onSuccess: (data) => {
-      toast.success("Fresh QR requested");
+      toast.success(tToasts("relinkRequested"));
       setQrSessionId(data.session_id);
-      refreshSessions();
     },
-    onError: (error) => toast.error(error instanceof Error ? error.message : "Unable to relink session"),
+    onError: (err) => toast.error(err.message ?? tErrors("relinkFailed")),
   });
 
-  const unlinkMutation = useMutation({
+  const unlinkMutation = usePlatformMutation({
     mutationFn: unlinkWhatsappSession,
+    invalidateKeys: [queryKeys.whatsapp.all()],
     onSuccess: () => {
-      toast.success("WhatsApp unlinked");
+      toast.success(tToasts("unlinked"));
       setQrSessionId(null);
-      refreshSessions();
+      setUnlinkTarget(null);
     },
-    onError: (error) => toast.error(error instanceof Error ? error.message : "Unable to unlink session"),
+    onError: (err) => toast.error(err.message ?? tErrors("unlinkFailed")),
   });
 
   useEffect(() => {
     if (qrQuery.data?.session_state === "ready") {
-      toast.success(`Linked${qrQuery.data.connected_phone ? ` as ${qrQuery.data.connected_phone}` : ""}`);
+      const phone = qrQuery.data.connected_phone;
+      toast.success(phone ? tToasts("linkedAs", { phone }) : tToasts("linked"));
       setQrSessionId(null);
-      refreshSessions();
+      void queryClient.invalidateQueries({ queryKey: queryKeys.whatsapp.all() });
     }
-  }, [qrQuery.data?.session_state, qrQuery.data?.connected_phone]);
+  }, [qrQuery.data?.session_state, qrQuery.data?.connected_phone, queryClient, tToasts]);
 
   useRegisterPageContext({
     pageKey: "whatsapp.sessions",
@@ -142,33 +172,51 @@ function WhatsAppSessionsInner() {
     availableActions: ["link_whatsapp", "relink_whatsapp", "unlink_whatsapp"],
   });
 
+  const stateLabel = (state: WhatsAppSessionState): string =>
+    t(`states.${state}` as never);
+
   return (
-    <PageShell icon={MessageCircle} title="WhatsApp Sessions" subtitle="Personal archive connection">
+    <PageShell icon={MessageCircle} title={t("title")} subtitle={t("subtitle")}>
+      <MockNotice />
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
         <section className="rounded-lg border border-border bg-card p-4">
           {sessionsQuery.isLoading && <SessionSkeleton />}
           {sessionsQuery.error && !sessionsQuery.isLoading && (
-            <ErrorState error={sessionsQuery.error} onRetry={() => sessionsQuery.refetch()} />
+            <ErrorState
+              error={sessionsQuery.error}
+              onRetry={() => sessionsQuery.refetch()}
+            />
           )}
           {!sessionsQuery.isLoading && !sessionsQuery.error && !activeSession && (
-            <EmptyState
-              icon={QrCode}
-              title="No linked WhatsApp session"
-              description="Create a personal session to start the QR link flow."
-              action={{ label: linkMutation.isPending ? "Starting..." : "Link WhatsApp", onClick: () => linkMutation.mutate() }}
-            />
+            <PermissionGate
+              permission="whatsapp.session.manage"
+              fallback={
+                <EmptyState
+                  icon={QrCode}
+                  title={t("empty.title")}
+                  description={t("empty.description")}
+                />
+              }
+            >
+              <EmptyState
+                icon={QrCode}
+                title={t("empty.title")}
+                description={t("empty.description")}
+                action={{
+                  label: linkMutation.isPending ? t("empty.linking") : t("empty.cta"),
+                  onClick: () => linkMutation.mutate(undefined as never),
+                }}
+              />
+            </PermissionGate>
           )}
           {activeSession && (
             <SessionPanel
               session={activeSession}
               busy={relinkMutation.isPending || unlinkMutation.isPending}
               onRelink={() => relinkMutation.mutate(activeSession.id)}
-              onUnlink={() => {
-                if (window.confirm("Unlink this WhatsApp session? The archive will be retained.")) {
-                  unlinkMutation.mutate(activeSession.id);
-                }
-              }}
+              onUnlink={() => setUnlinkTarget(activeSession.id)}
               onShowQr={() => setQrSessionId(activeSession.id)}
+              stateLabel={stateLabel}
             />
           )}
         </section>
@@ -176,35 +224,82 @@ function WhatsAppSessionsInner() {
         <aside className="rounded-lg border border-border bg-card p-4">
           <div className="flex items-center gap-2 text-sm font-medium">
             <Smartphone className="size-4 text-muted-foreground" />
-            Capture Status
+            {t("metrics.captureStatus")}
           </div>
           <dl className="mt-4 space-y-3 text-sm">
-            <InfoRow label="Sessions" value={String(sessions.length)} />
-            <InfoRow label="Active state" value={activeSession ? formatState(activeSession.session_state) : "None"} />
-            <InfoRow label="Last heartbeat" value={formatDate(activeSession?.last_heartbeat_at ?? null)} />
+            <InfoRow label={t("metrics.sessions")} value={String(sessions.length)} />
+            <InfoRow
+              label={t("metrics.activeState")}
+              value={
+                activeSession ? stateLabel(activeSession.session_state) : t("metrics.none")
+              }
+            />
+            <InfoRow
+              label={t("metrics.heartbeat")}
+              value={formatDate(activeSession?.last_heartbeat_at ?? null, t("metrics.never"))}
+            />
           </dl>
         </aside>
       </div>
 
-      <Dialog open={qrSessionId !== null} onOpenChange={(open) => !open && setQrSessionId(null)}>
+      <Dialog
+        open={qrSessionId !== null}
+        onOpenChange={(open) => !open && setQrSessionId(null)}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>WhatsApp QR</DialogTitle>
-            <DialogDescription>Session state: {qrQuery.data?.session_state ?? "connecting"}</DialogDescription>
+            <DialogTitle>{t("qrDialog.title")}</DialogTitle>
+            <DialogDescription>
+              {t("qrDialog.descriptionPrefix")}
+              {qrQuery.data?.session_state
+                ? stateLabel(qrQuery.data.session_state)
+                : stateLabel("connecting")}
+            </DialogDescription>
           </DialogHeader>
           <div className="flex min-h-[260px] items-center justify-center rounded-lg border border-border bg-muted/30 p-4">
             {qrQuery.isLoading && <Skeleton className="size-56" />}
             {qrQuery.data?.qr && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={qrQuery.data.qr} alt="WhatsApp linking QR" className="size-56 rounded-md bg-white p-2" />
+              <img
+                src={qrQuery.data.qr}
+                alt={t("qrDialog.alt")}
+                className="size-56 rounded-md bg-white p-2"
+              />
             )}
             {!qrQuery.isLoading && !qrQuery.data?.qr && (
               <div className="text-center text-sm text-muted-foreground">
                 <RefreshCw className="mx-auto mb-2 size-5 animate-spin" />
-                Waiting for QR
+                {t("qrDialog.waiting")}
               </div>
             )}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={unlinkTarget !== null}
+        onOpenChange={(open) => !open && setUnlinkTarget(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("unlinkConfirm.title")}</DialogTitle>
+            <DialogDescription>{t("unlinkConfirm.body")}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setUnlinkTarget(null)}>
+              {t("panel.unlink")}
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={unlinkMutation.isPending}
+              onClick={() => {
+                if (unlinkTarget !== null) unlinkMutation.mutate(unlinkTarget);
+              }}
+              data-testid="whatsapp-unlink-confirm"
+            >
+              {t("unlinkConfirm.confirm")}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </PageShell>
@@ -217,47 +312,71 @@ function SessionPanel({
   onRelink,
   onUnlink,
   onShowQr,
+  stateLabel,
 }: {
   session: WhatsAppSession;
   busy: boolean;
   onRelink: () => void;
   onUnlink: () => void;
   onShowQr: () => void;
+  stateLabel: (s: WhatsAppSessionState) => string;
 }) {
+  const t = useTranslations("whatsapp");
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-lg font-semibold">Personal session</h2>
-            <Badge className={STATE_TONE[session.session_state]}>{formatState(session.session_state)}</Badge>
+            <h2 className="text-lg font-semibold">{t("panel.heading")}</h2>
+            <Badge className={STATE_TONE[session.session_state]}>
+              {stateLabel(session.session_state)}
+            </Badge>
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
-            {session.connected_phone ?? "Phone not linked yet"}
+            {session.connected_phone ?? t("panel.phonePlaceholder")}
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          {(session.session_state === "needs_qr" || session.session_state === "connecting") && (
-            <Button variant="outline" onClick={onShowQr}>
-              <QrCode />
-              QR
+        <PermissionGate permission="whatsapp.session.manage">
+          <div className="flex flex-wrap gap-2">
+            {(session.session_state === "needs_qr" ||
+              session.session_state === "connecting") && (
+              <Button variant="outline" onClick={onShowQr} data-testid="whatsapp-show-qr">
+                <QrCode />
+                {t("panel.showQr")}
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              onClick={onRelink}
+              disabled={busy}
+              data-testid="whatsapp-relink"
+            >
+              <RefreshCw />
+              {t("panel.relink")}
             </Button>
-          )}
-          <Button variant="outline" onClick={onRelink} disabled={busy}>
-            <RefreshCw />
-            Re-link
-          </Button>
-          <Button variant="destructive" onClick={onUnlink} disabled={busy}>
-            <Unlink />
-            Unlink
-          </Button>
-        </div>
+            <Button
+              variant="destructive"
+              onClick={onUnlink}
+              disabled={busy}
+              data-testid="whatsapp-unlink"
+            >
+              <Unlink />
+              {t("panel.unlink")}
+            </Button>
+          </div>
+        </PermissionGate>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <Metric label="Created" value={formatDate(session.created_at)} />
-        <Metric label="Updated" value={formatDate(session.session_state_updated_at)} />
-        <Metric label="Heartbeat" value={formatDate(session.last_heartbeat_at)} />
+        <Metric label={t("metrics.created")} value={formatDate(session.created_at, t("metrics.never"))} />
+        <Metric
+          label={t("metrics.updated")}
+          value={formatDate(session.session_state_updated_at, t("metrics.never"))}
+        />
+        <Metric
+          label={t("metrics.heartbeat")}
+          value={formatDate(session.last_heartbeat_at, t("metrics.never"))}
+        />
       </div>
     </div>
   );
@@ -296,15 +415,16 @@ function SessionSkeleton() {
 }
 
 export default function WhatsAppSessionsPage() {
+  const t = useTranslations("whatsapp");
   return (
     <FeatureGate
       flag="whatsapp.enabled"
       fallback={
-        <PageShell icon={MessageCircle} title="WhatsApp Sessions" subtitle="Module disabled">
+        <PageShell icon={MessageCircle} title={t("title")} subtitle={t("disabledTitle")}>
           <EmptyState
             icon={MessageCircle}
-            title="WhatsApp is not enabled"
-            description="The WhatsApp module is not enabled for your organization."
+            title={t("disabledTitle")}
+            description={t("disabledDescription")}
           />
         </PageShell>
       }

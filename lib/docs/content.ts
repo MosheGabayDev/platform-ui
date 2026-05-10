@@ -367,6 +367,18 @@ const AI_SHORTCUTS: AIShortcut[] = [
     descriptionKey: "help.aiShortcuts.createBookmark",
     capability_level: "WRITE_LOW",
   },
+  {
+    phrase: "link whatsapp",
+    action_id: "whatsapp.session.link",
+    descriptionKey: "help.aiShortcuts.linkWhatsapp",
+    capability_level: "WRITE_LOW",
+  },
+  {
+    phrase: "unlink whatsapp NNNN",
+    action_id: "whatsapp.session.unlink",
+    descriptionKey: "help.aiShortcuts.unlinkWhatsapp",
+    capability_level: "DESTRUCTIVE",
+  },
 ];
 
 const KEYBOARD_SHORTCUTS: KeyboardShortcut[] = [

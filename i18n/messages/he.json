@@ -1047,7 +1047,9 @@
       "deactivateUser": "השבתת משתמש NNNN — לא יוכל יותר להתחבר.",
       "resetPassword": "שולח אימייל לאיפוס סיסמה למשתמש NNNN.",
       "createNote": "צור פתק עם כותרת",
-      "createBookmark": "הוסף סימנייה לכתובת URL"
+      "createBookmark": "הוסף סימנייה לכתובת URL",
+      "linkWhatsapp": "התחל זרימת חיבור WhatsApp",
+      "unlinkWhatsapp": "נתק חיבור WhatsApp לפי מספר"
     },
     "keyboardShortcuts": {
       "dashboard": "דשבורד",
@@ -1693,6 +1695,89 @@
     "deleteConfirm": {
       "title": "למחוק את הסימנייה?",
       "body": "הסימנייה \"{title}\" תימחק. הפעולה אינה ניתנת לביטול."
+    }
+  },
+  "whatsapp": {
+    "title": "WhatsApp",
+    "subtitle": "חיבור אישי לארכיון ההודעות",
+    "disabledTitle": "WhatsApp לא מופעל",
+    "disabledDescription": "מודול ה-WhatsApp אינו מופעל בארגון שלך.",
+    "empty": {
+      "title": "אין חיבור WhatsApp פעיל",
+      "description": "צור חיבור אישי כדי להתחיל את זרימת ה-QR.",
+      "cta": "חבר WhatsApp",
+      "linking": "מתחבר..."
+    },
+    "panel": {
+      "heading": "חיבור אישי",
+      "phonePlaceholder": "טלפון לא חובר עדיין",
+      "showQr": "הצג QR",
+      "relink": "חבר מחדש",
+      "unlink": "נתק"
+    },
+    "metrics": {
+      "created": "נוצר",
+      "updated": "עודכן",
+      "heartbeat": "פעימת לב",
+      "sessions": "חיבורים",
+      "activeState": "מצב פעיל",
+      "none": "אין",
+      "never": "אף פעם",
+      "captureStatus": "מצב לכידה"
+    },
+    "states": {
+      "needs_qr": "ממתין ל-QR",
+      "connecting": "מתחבר",
+      "ready": "מחובר",
+      "disconnected": "מנותק",
+      "failed": "נכשל",
+      "unlinked": "לא מחובר"
+    },
+    "archive": {
+      "title": "ארכיון WhatsApp",
+      "subtitle": "צ'אטים שנלכדו מהחיבור האישי שלך",
+      "total": "צ'אטים",
+      "searchPlaceholder": "חפש צ'אטים",
+      "emptyTitle": "לא נמצאו צ'אטים",
+      "emptyDescription": "נסה חיפוש אחר או חבר חשבון WhatsApp.",
+      "noPreview": "אין תצוגת הודעה עדיין",
+      "never": "אף פעם",
+      "muted": "מושתק",
+      "archived": "ארכיון",
+      "participants": "{count} משתתפים",
+      "filters": {
+        "all": "הכל",
+        "private": "פרטי",
+        "group": "קבוצות"
+      },
+      "kinds": {
+        "private": "פרטי",
+        "group": "קבוצה"
+      }
+    },
+    "qrDialog": {
+      "title": "QR של WhatsApp",
+      "descriptionPrefix": "מצב חיבור: ",
+      "waiting": "ממתין ל-QR",
+      "alt": "QR לחיבור WhatsApp"
+    },
+    "unlinkConfirm": {
+      "title": "לנתק את החיבור?",
+      "body": "החיבור ינותק. הארכיון יישמר.",
+      "confirm": "נתק"
+    },
+    "toasts": {
+      "started": "חיבור WhatsApp התחיל",
+      "relinkRequested": "QR חדש הוזמן",
+      "unlinked": "החיבור נותק",
+      "linked": "מחובר",
+      "linkedAs": "מחובר בתור {phone}",
+      "backendNotice": "מצב הדגמה — נתונים נשמרים מקומית בדפדפן (localStorage)."
+    },
+    "errors": {
+      "startFailed": "נכשל בהתחלת חיבור",
+      "relinkFailed": "נכשל בחיבור מחדש",
+      "unlinkFailed": "נכשל בניתוק"
     }
   }
 }

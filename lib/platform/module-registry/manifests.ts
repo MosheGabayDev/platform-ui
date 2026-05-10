@@ -344,9 +344,14 @@ const MANIFESTS: ModuleManifest[] = [
     icon: "MessageCircle",
     base_route: "/whatsapp",
     nav_entries: [
+      { label: "Chats", label_he: "צ'אטים", href: "/whatsapp", icon: "MessageCircle", order: 0 },
       { label: "WhatsApp", label_he: "ווטסאפ", href: "/whatsapp/sessions", icon: "MessageCircle", order: 1 },
     ],
-    ai_actions: [],
+    ai_actions: [
+      "whatsapp.session.link",
+      "whatsapp.session.relink",
+      "whatsapp.session.unlink",
+    ],
     permissions: ["whatsapp.view", "whatsapp.session.manage"],
     search_types: [],
     introduced_in_version: "0.50.0",
@@ -355,7 +360,7 @@ const MANIFESTS: ModuleManifest[] = [
     required_plans: [],
     conflicts_with: [],
     dashboard_tile: null,
-    default_landing: "/whatsapp/sessions",
+    default_landing: "/whatsapp",
     org_admin_can_toggle: true,
   },
   {
