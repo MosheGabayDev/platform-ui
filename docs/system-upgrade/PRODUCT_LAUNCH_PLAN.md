@@ -264,6 +264,27 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Fifty-eighth batch — i18n scope-resolution invariant
+
+Extended `lib/i18n-catalog.test.ts` with a 5th invariant: every
+`useTranslations("scope")` literal in `app/` + `components/` + `lib/`
+(excluding test files) MUST resolve to a sub-object in both
+catalogs. Catches the bug class where a `useTranslations("admin.foo")`
+call points at a key that doesn't exist — at runtime next-intl
+silently returns the literal key string, so the page renders
+"admin.foo.title" as visible text. The test parses 120+ scopes and
+walks each against both catalogs.
+
+Test files excluded from the walker because `intl-provider.test.tsx`
+intentionally uses `useTranslations("nonexistent")` to verify
+fallback behavior.
+
+Sanity floor: ≥50 scopes (currently 120+).
+
+**File modified:**
+- `lib/i18n-catalog.test.ts` — +1 invariant (scope resolution),
+  +1 import (`fs`/`path`).
+
 ### 2026-05-10 — Fifty-seventh batch — i18n catalog parity invariant test
 
 New cross-cutting vitest invariant at `lib/i18n-catalog.test.ts`
