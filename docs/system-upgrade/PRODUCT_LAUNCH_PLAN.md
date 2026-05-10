@@ -264,6 +264,31 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Sixtieth batch — nav href resolution invariant
+
+New invariant in `components/shell/nav-items.test.ts`: every
+`navGroups[].items[].href` (and `children[].href`) MUST resolve to:
+- a real `app/(dashboard)/**/page.tsx` route, OR
+- an allowed non-dashboard route (`/help`, `/docs`), OR
+- a known stub route handled by `[...slug]` (allowlisted).
+
+Catches the bug class where a sidebar link points at a deleted or
+typo'd route — sidebar would render the link but click navigates to
+the catch-all placeholder. `[...slug]` wouldn't have caught the
+broken link because the catch-all swallows everything.
+
+Allowlist freezes the 17 known stubs (intentional placeholders for
+modules not yet built — `/voice`, `/automation`, `/api-keys`, etc.)
+and includes a stale-detection branch like batch 55: if a stub gets
+a real page, the allowlist must shrink; if the nav stops referencing
+a stub, the allowlist must shrink. Either way drift surfaces.
+
+Full suite: 1270/1270 ✓.
+
+**File modified:**
+- `components/shell/nav-items.test.ts` — +1 invariant (href
+  resolution), 11 tests total.
+
 ### 2026-05-10 — Fifty-ninth batch — i18n leaf-key invariant
 
 Third invariant added to `lib/i18n-catalog.test.ts`: for every

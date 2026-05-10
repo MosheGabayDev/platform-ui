@@ -2,6 +2,8 @@
  * filterNavByEnabledModules — drops disabled-module items, keeps unmapped
  * routes (admin, settings, dashboard root). Empty groups are removed.
  */
+import fs from "node:fs";
+import path from "node:path";
 import { describe, it, expect } from "vitest";
 import { navGroups, filterNavByEnabledModules } from "./nav-items";
 
@@ -9,6 +11,81 @@ describe("navGroups static definition", () => {
   it("includes the dashboard root", () => {
     const main = navGroups.find((g) => g.labelKey === "nav.groups.main");
     expect(main?.items.some((i) => i.href === "/")).toBe(true);
+  });
+
+  it("every nav href resolves to a real dashboard page or known route", () => {
+    // Walk app/(dashboard) for every page.tsx, build the set of valid routes.
+    const pageRoutes = new Set<string>();
+    function walk(dir: string) {
+      for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+        const p = path.join(dir, e.name);
+        if (e.isDirectory()) walk(p);
+        else if (e.name === "page.tsx") {
+          const route = p
+            .replace(/\\/g, "/")
+            .replace(/^.*app\/\(dashboard\)/, "")
+            .replace(/\/page\.tsx$/, "");
+          pageRoutes.add(route === "" ? "/" : route);
+        }
+      }
+    }
+    walk("app/(dashboard)");
+
+    // Routes outside (dashboard) that nav legitimately points at.
+    const ALLOWED_NON_DASHBOARD = new Set<string>(["/help", "/docs"]);
+
+    // Stub routes intentionally rendered by the (dashboard)/[...slug]
+    // placeholder page (module not yet built — nav still advertises it
+    // so the IA is stable). Frozen at batch 60. Shrink when a real page
+    // lands; leaving an entry in here once the page exists fails the
+    // sanity branch below.
+    const ALLOWED_STUB_ROUTES = new Set<string>([
+      "/departments",
+      "/helpdesk/kb",
+      "/ai-agents",
+      "/ala",
+      "/voice",
+      "/knowledge",
+      "/automation",
+      "/integrations",
+      "/monitoring",
+      "/logs",
+      "/metrics",
+      "/backups",
+      "/api-keys",
+      "/settings",
+      "/settings/general",
+      "/settings/email",
+      "/settings/usage-limits",
+    ]);
+
+    const broken: string[] = [];
+    const allHrefs = new Set<string>();
+    function check(href: string) {
+      allHrefs.add(href);
+      if (
+        pageRoutes.has(href) ||
+        ALLOWED_NON_DASHBOARD.has(href) ||
+        ALLOWED_STUB_ROUTES.has(href)
+      )
+        return;
+      broken.push(href);
+    }
+    for (const g of navGroups) {
+      for (const item of g.items) {
+        check(item.href);
+        if (item.children) for (const c of item.children) check(c.href);
+      }
+    }
+    expect(broken).toEqual([]);
+
+    // Sanity branch: keep ALLOWED_STUB_ROUTES honest. If a stub gets a
+    // real page (good!) it would now appear in pageRoutes — leaving it
+    // in the allowlist hides drift if the page is later removed.
+    const stale = [...ALLOWED_STUB_ROUTES].filter(
+      (r) => pageRoutes.has(r) || !allHrefs.has(r),
+    );
+    expect(stale).toEqual([]);
   });
 
   it("every item has a titleKey under nav.items.*", () => {
