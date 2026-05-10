@@ -855,7 +855,67 @@
     },
     "maintenance": {
       "title": "תחזוקה",
-      "subtitle": "חלונות תחזוקה מתוכננים והשתקת התראות"
+      "subtitle": "חלונות תחזוקה מתוכננים והשתקת התראות",
+      "status": {
+        "all": "כל הסטטוסים",
+        "in_progress": "בתהליך",
+        "scheduled": "מתוכנן",
+        "completed": "הסתיים",
+        "cancelled": "בוטל"
+      },
+      "impact": {
+        "none": "ללא",
+        "low": "נמוך",
+        "medium": "בינוני",
+        "high": "גבוה"
+      },
+      "kpi": {
+        "inProgress": "בתהליך",
+        "upcoming": "מתוכננים",
+        "total": "סה״כ בתצוגה"
+      },
+      "filters": {
+        "searchPlaceholder": "חיפוש כותרת, תיאור או שירות…",
+        "searchAria": "חיפוש חלונות תחזוקה",
+        "statusAria": "סינון לפי סטטוס"
+      },
+      "columns": {
+        "window": "חלון",
+        "status": "סטטוס",
+        "impact": "השפעה",
+        "starts": "מתחיל",
+        "services": "שירותים",
+        "alerts": "התראות"
+      },
+      "alerts": {
+        "suppressed": "מושתקות"
+      },
+      "rowMeta": {
+        "startsLabel": "מתחיל"
+      },
+      "empty": "אין חלונות תחזוקה תואמים לסינון",
+      "cancelDialog": {
+        "label": "ביטול \"{title}\"",
+        "descriptionHigh": "לחלון יש השפעה גבוהה (שירותים: {services}). הביטול לא ניתן לביטול חוזר — תעד סיבה ליומן ה-audit.",
+        "descriptionLow": "לבטל חלון תחזוקה #{id}? הפעולה אינה ניתנת לביטול."
+      },
+      "actions": {
+        "cancel": "ביטול",
+        "cancelAria": "בטל חלון תחזוקה {title}"
+      },
+      "relative": {
+        "inMinutes": "בעוד {n}ד׳",
+        "minutesAgo": "לפני {n}ד׳",
+        "inHours": "בעוד {n}ש׳",
+        "hoursAgo": "לפני {n}ש׳",
+        "inDays": "בעוד {n} ימים",
+        "daysAgo": "לפני {n} ימים"
+      },
+      "disabled": {
+        "title": "הלפדסק לא מופעל",
+        "subtitle": "המודול מושבת",
+        "description": "מודול הלפדסק אינו מופעל לארגון שלך."
+      }
     },
     "batch": {
       "title": "משימות אצווה",

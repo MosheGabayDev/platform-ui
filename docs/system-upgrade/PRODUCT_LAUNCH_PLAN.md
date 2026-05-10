@@ -264,6 +264,51 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Forty-seventh batch — i18n cleanup of /helpdesk/maintenance
+
+Continues batches 44–46 i18n debt cleanup. `/helpdesk/maintenance`
+was the next biggest offender (10 violations).
+
+**Refactors:**
+- `STATUS_OPTIONS` array → `STATUS_VALUES` of keys; per-locale via
+  `t(\`status.${value}\`)`
+- `formatRelative` takes `t` parameter (matches the pattern from
+  batches 44+45+46) — Hebrew now uses proper directional phrasing
+  (`relative.{inMinutes,minutesAgo,inHours,hoursAgo,inDays,daysAgo}`)
+- 6 column headers (`columns.{window,status,impact,starts,services,alerts}`)
+- Impact badge label: literal `row.original.impact` → `t(\`impact.${level}\`)`
+- 3 KPI tile labels (`kpi.{inProgress,upcoming,total}`)
+- Search placeholder + 2 aria labels (`filters.{searchPlaceholder,searchAria,statusAria}`)
+- DataTable empty message + alerts.suppressed badge
+- Cancel button label + aria (`actions.{cancel,cancelAria}` with `{title}` ICU param)
+- ConfirmActionDialog `label` + `description` use ICU-aware keys
+  (`cancelDialog.{label,descriptionHigh,descriptionLow}` with
+  `{title}/{services}/{id}` params — different copy for high-impact vs
+  low-impact windows preserved exactly)
+- Extracted `MaintenanceDisabledFallback` for proper `useTranslations`
+  scope inside the FeatureGate fallback (matches pattern from batch 44)
+
+**Files modified:**
+- `app/(dashboard)/helpdesk/maintenance/page.tsx` (full i18n migration)
+- `i18n/messages/{he,en}.json` (~30 new keys under `helpdesk.maintenance.*`)
+
+**Audit:** `/helpdesk/maintenance` dropped off the list (10 → 0).
+Plan-wide: **6 → 5 pages, 48 → 38 strings remaining.**
+
+| Page | Violations |
+|---|---|
+| `helpdesk/sla` | 9 |
+| `helpdesk/tickets` | 9 |
+| `helpdesk/batch` | 8 |
+| `helpdesk/technicians` | 7 |
+| `onboarding` | 5 |
+
+**Suites:**
+- `npx vitest run` — 141 files / **1253 tests ✓** (i18n only)
+- `npx tsc --noEmit` — clean ✓
+- `npx eslint . --quiet` — 0 errors ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+
 ### 2026-05-10 — Forty-sixth batch — i18n cleanup of /admin/ai-usage
 
 Continues batches 44+45's debt cleanup. `/admin/ai-usage` was the

@@ -50,12 +50,12 @@ import type {
   MaintenanceImpact,
 } from "@/lib/modules/helpdesk/types";
 
-const STATUS_OPTIONS: Array<{ value: MaintenanceStatus | "all"; label: string }> = [
-  { value: "all", label: "All statuses" },
-  { value: "in_progress", label: "In progress" },
-  { value: "scheduled", label: "Scheduled" },
-  { value: "completed", label: "Completed" },
-  { value: "cancelled", label: "Cancelled" },
+const STATUS_VALUES: Array<MaintenanceStatus | "all"> = [
+  "all",
+  "in_progress",
+  "scheduled",
+  "completed",
+  "cancelled",
 ];
 
 const IMPACT_TONES: Record<MaintenanceImpact, string> = {
@@ -65,16 +65,23 @@ const IMPACT_TONES: Record<MaintenanceImpact, string> = {
   high: "border-rose-500/30 bg-rose-500/15 text-rose-700 dark:text-rose-400",
 };
 
-function formatRelative(iso: string): string {
+function formatRelative(
+  iso: string,
+  t: (key: string, params?: Record<string, string | number | Date>) => string,
+): string {
   const diffMs = new Date(iso).getTime() - Date.now();
   const abs = Math.abs(diffMs);
   const mins = Math.round(abs / 60_000);
-  const direction = diffMs >= 0 ? "in" : "ago";
-  if (mins < 60) return `${direction === "in" ? "in " : ""}${mins}m${direction === "ago" ? " ago" : ""}`;
+  const future = diffMs >= 0;
+  if (mins < 60) {
+    return t(future ? "relative.inMinutes" : "relative.minutesAgo", { n: mins });
+  }
   const hours = Math.round(mins / 60);
-  if (hours < 24) return `${direction === "in" ? "in " : ""}${hours}h${direction === "ago" ? " ago" : ""}`;
+  if (hours < 24) {
+    return t(future ? "relative.inHours" : "relative.hoursAgo", { n: hours });
+  }
   const days = Math.round(hours / 24);
-  return `${direction === "in" ? "in " : ""}${days}d${direction === "ago" ? " ago" : ""}`;
+  return t(future ? "relative.inDays" : "relative.daysAgo", { n: days });
 }
 
 // Maintenance status rendering uses the shared JobStatusBadge (Phase 4) —
@@ -126,7 +133,7 @@ function MaintenanceInner() {
     () => [
       {
         accessorKey: "title",
-        header: "Window",
+        header: t("columns.window"),
         cell: ({ row }) => (
           <div className="flex flex-col gap-0.5 max-w-md">
             <span className="text-sm font-medium">{row.original.title}</span>
@@ -138,26 +145,26 @@ function MaintenanceInner() {
       },
       {
         accessorKey: "status",
-        header: "Status",
+        header: t("columns.status"),
         cell: ({ row }) => <JobStatusBadge status={row.original.status} />,
       },
       {
         accessorKey: "impact",
-        header: "Impact",
+        header: t("columns.impact"),
         cell: ({ row }) => (
           <Badge variant="outline" className={IMPACT_TONES[row.original.impact]}>
-            {row.original.impact}
+            {t(`impact.${row.original.impact}` as never)}
           </Badge>
         ),
       },
       {
         accessorKey: "starts_at",
-        header: "Window",
+        header: t("columns.starts"),
         cell: ({ row }) => (
           <div className="flex flex-col text-xs">
             <span>
-              <span className="text-muted-foreground">starts</span>{" "}
-              {formatRelative(row.original.starts_at)}
+              <span className="text-muted-foreground">{t("rowMeta.startsLabel")}</span>{" "}
+              {formatRelative(row.original.starts_at, t)}
             </span>
             <span className="text-[10px] text-muted-foreground font-mono">
               {new Date(row.original.starts_at).toLocaleString()}
@@ -167,7 +174,7 @@ function MaintenanceInner() {
       },
       {
         accessorKey: "affected_services",
-        header: "Services",
+        header: t("columns.services"),
         cell: ({ row }) =>
           row.original.affected_services.length > 0 ? (
             <div className="flex flex-wrap gap-1">
@@ -187,7 +194,7 @@ function MaintenanceInner() {
       },
       {
         accessorKey: "suppress_alerts",
-        header: "Alerts",
+        header: t("columns.alerts"),
         cell: ({ row }) =>
           row.original.suppress_alerts ? (
             <Badge
@@ -195,7 +202,7 @@ function MaintenanceInner() {
               className="border-violet-500/30 bg-violet-500/15 text-violet-700 dark:text-violet-400"
             >
               <BellOff className="h-3 w-3 me-1" aria-hidden="true" />
-              Suppressed
+              {t("alerts.suppressed")}
             </Badge>
           ) : (
             <span className="text-xs text-muted-foreground">—</span>
@@ -214,17 +221,17 @@ function MaintenanceInner() {
                 variant="outline"
                 disabled={cancel.isPending}
                 onClick={() => setCancelTarget(w)}
-                aria-label={`Cancel maintenance window ${w.title}`}
+                aria-label={t("actions.cancelAria", { title: w.title })}
               >
                 <CircleSlash2 className="h-3.5 w-3.5 me-1" aria-hidden="true" />
-                Cancel
+                {t("actions.cancel")}
               </Button>
             </div>
           );
         },
       },
     ],
-    [cancel],
+    [cancel, t],
   );
 
   return (
@@ -239,7 +246,7 @@ function MaintenanceInner() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="glass border-border/50 rounded-xl p-4 flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">In progress</span>
+                <span className="text-xs text-muted-foreground">{t("kpi.inProgress")}</span>
                 <CircleDot
                   className={`h-4 w-4 ${
                     activeCount > 0
@@ -261,7 +268,7 @@ function MaintenanceInner() {
             </div>
             <div className="glass border-border/50 rounded-xl p-4 flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Upcoming</span>
+                <span className="text-xs text-muted-foreground">{t("kpi.upcoming")}</span>
                 <CalendarClock
                   className="h-4 w-4 text-muted-foreground"
                   aria-hidden="true"
@@ -271,7 +278,7 @@ function MaintenanceInner() {
             </div>
             <div className="glass border-border/50 rounded-xl p-4 flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Total in view</span>
+                <span className="text-xs text-muted-foreground">{t("kpi.total")}</span>
                 <Clock className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
               </div>
               <span className="text-2xl font-semibold">{total}</span>
@@ -282,14 +289,14 @@ function MaintenanceInner() {
           <div className="flex flex-col sm:flex-row gap-2">
             <Input
               type="search"
-              placeholder="Search title, description, or service…"
+              placeholder={t("filters.searchPlaceholder")}
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
                 setPage(1);
               }}
               className="sm:max-w-xs"
-              aria-label="Search maintenance windows"
+              aria-label={t("filters.searchAria")}
             />
             <select
               value={status}
@@ -298,11 +305,11 @@ function MaintenanceInner() {
                 setPage(1);
               }}
               className="h-9 rounded-md border border-input bg-background px-3 text-sm sm:w-44"
-              aria-label="Filter by status"
+              aria-label={t("filters.statusAria")}
             >
-              {STATUS_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
+              {STATUS_VALUES.map((value) => (
+                <option key={value} value={value}>
+                  {t(`status.${value}` as never)}
                 </option>
               ))}
             </select>
@@ -313,7 +320,7 @@ function MaintenanceInner() {
             data={windows}
             isLoading={isLoading}
             error={error as Error | null}
-            emptyMessage="No maintenance windows match your filters"
+            emptyMessage={t("empty")}
             pagination={{
               page,
               totalPages,
@@ -330,11 +337,13 @@ function MaintenanceInner() {
             action={
               {
                 id: "helpdesk.maintenance.cancel",
-                label: `Cancel "${cancelTarget.title}"`,
+                label: t("cancelDialog.label", { title: cancelTarget.title }),
                 description:
                   cancelTarget.impact === "high"
-                    ? `This window has HIGH impact (services: ${cancelTarget.affected_services.join(", ")}). Cancelling cannot be undone — provide a reason for the audit log.`
-                    : `Cancel maintenance window #${cancelTarget.id}? This cannot be undone.`,
+                    ? t("cancelDialog.descriptionHigh", {
+                        services: cancelTarget.affected_services.join(", "),
+                      })
+                    : t("cancelDialog.descriptionLow", { id: cancelTarget.id }),
                 // dangerLevel: "high" alone forces requiresReason via DANGER_LEVEL_CONFIG
                 // (see lib/platform/actions/danger-level.ts). The explicit prop
                 // below is a no-op for "high" but load-bearing for "medium" —
@@ -366,20 +375,22 @@ function MaintenanceInner() {
   );
 }
 
+function MaintenanceDisabledFallback() {
+  const t = useTranslations("helpdesk.maintenance");
+  return (
+    <PageShell icon={Wrench} title={t("title")} subtitle={t("disabled.subtitle")}>
+      <EmptyState
+        icon={AlertCircle}
+        title={t("disabled.title")}
+        description={t("disabled.description")}
+      />
+    </PageShell>
+  );
+}
+
 export default function HelpdeskMaintenancePage() {
   return (
-    <FeatureGate
-      flag="helpdesk.enabled"
-      fallback={
-        <PageShell icon={Wrench} title="Maintenance" subtitle="Coming soon">
-          <EmptyState
-            icon={AlertCircle}
-            title="Helpdesk not enabled"
-            description="The Helpdesk module is not enabled for your organization."
-          />
-        </PageShell>
-      }
-    >
+    <FeatureGate flag="helpdesk.enabled" fallback={<MaintenanceDisabledFallback />}>
       <MaintenanceInner />
     </FeatureGate>
   );

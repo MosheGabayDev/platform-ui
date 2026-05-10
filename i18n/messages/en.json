@@ -855,7 +855,67 @@
     },
     "maintenance": {
       "title": "Maintenance",
-      "subtitle": "Planned change windows + alert suppression"
+      "subtitle": "Planned change windows + alert suppression",
+      "status": {
+        "all": "All statuses",
+        "in_progress": "In progress",
+        "scheduled": "Scheduled",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+      },
+      "impact": {
+        "none": "None",
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
+      },
+      "kpi": {
+        "inProgress": "In progress",
+        "upcoming": "Upcoming",
+        "total": "Total in view"
+      },
+      "filters": {
+        "searchPlaceholder": "Search title, description, or service…",
+        "searchAria": "Search maintenance windows",
+        "statusAria": "Filter by status"
+      },
+      "columns": {
+        "window": "Window",
+        "status": "Status",
+        "impact": "Impact",
+        "starts": "Starts",
+        "services": "Services",
+        "alerts": "Alerts"
+      },
+      "alerts": {
+        "suppressed": "Suppressed"
+      },
+      "rowMeta": {
+        "startsLabel": "starts"
+      },
+      "empty": "No maintenance windows match your filters",
+      "cancelDialog": {
+        "label": "Cancel \"{title}\"",
+        "descriptionHigh": "This window has HIGH impact (services: {services}). Cancelling cannot be undone — provide a reason for the audit log.",
+        "descriptionLow": "Cancel maintenance window #{id}? This cannot be undone."
+      },
+      "actions": {
+        "cancel": "Cancel",
+        "cancelAria": "Cancel maintenance window {title}"
+      },
+      "relative": {
+        "inMinutes": "in {n}m",
+        "minutesAgo": "{n}m ago",
+        "inHours": "in {n}h",
+        "hoursAgo": "{n}h ago",
+        "inDays": "in {n}d",
+        "daysAgo": "{n}d ago"
+      },
+      "disabled": {
+        "title": "Helpdesk not enabled",
+        "subtitle": "Module disabled",
+        "description": "The Helpdesk module is not enabled for your organization."
+      }
     },
     "batch": {
       "title": "Batch tasks",

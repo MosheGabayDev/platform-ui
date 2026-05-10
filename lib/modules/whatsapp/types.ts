@@ -71,6 +71,49 @@ export interface WhatsAppChatListParams {
   page_size?: number;
 }
 
+export interface WhatsAppMessage {
+  id: number;
+  wa_message_id: string;
+  chat_id: number;
+  sender_contact_id: number | null;
+  sender_phone: string | null;
+  sender_is_me: boolean;
+  ts: string | null;
+  body: string | null;
+  type: string;
+  has_media: boolean;
+  media_mime: string | null;
+  media_size_bytes: number | null;
+  media_sha256: string | null;
+  media_caption: string | null;
+  media_url_endpoint: string | null;
+  quoted_message_id: number | null;
+  mentions: unknown[];
+  reactions: unknown[];
+  edited_at: string | null;
+  revoked_at: string | null;
+  erased_at: string | null;
+  captured_at: string | null;
+}
+
+export interface WhatsAppMessagesMeta {
+  page_size: number;
+  has_more: boolean;
+  next_before_id: number | null;
+}
+
+export interface WhatsAppMessagesResponse {
+  status: "ok";
+  chat: WhatsAppChat;
+  data: WhatsAppMessage[];
+  meta: WhatsAppMessagesMeta;
+}
+
+export interface WhatsAppMessageListParams {
+  before_id?: number | null;
+  page_size?: number;
+}
+
 export interface WhatsAppSessionMutationResponse {
   status: "ok";
   session_id: number;

@@ -4,6 +4,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import {
   fetchWhatsappChats,
+  fetchWhatsappChatMessages,
   fetchWhatsappSessions,
   fetchWhatsappSessionQr,
   linkWhatsappSession,
@@ -45,6 +46,19 @@ describe("whatsapp client (mock mode)", () => {
     const byQuery = await fetchWhatsappChats({ q: "invoice" });
     expect(byQuery.data).toHaveLength(1);
     expect(byQuery.data[0]!.display_name).toBe("Dana Levi");
+  });
+
+  it("fetchWhatsappChatMessages returns chat metadata and media-safe messages", async () => {
+    const res = await fetchWhatsappChatMessages(11001);
+    expect(res.status).toBe("ok");
+    expect(res.chat.id).toBe(11001);
+    expect(res.data.length).toBeGreaterThan(0);
+    expect(res.data.some((message) => message.has_media)).toBe(true);
+    expect(JSON.stringify(res.data)).not.toContain("media_s3_key");
+  });
+
+  it("fetchWhatsappChatMessages rejects a missing chat", async () => {
+    await expect(fetchWhatsappChatMessages(999999)).rejects.toThrow(/not_found/);
   });
 
   it("link → fetch shows a needs_qr session", async () => {
