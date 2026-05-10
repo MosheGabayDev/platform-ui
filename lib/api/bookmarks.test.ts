@@ -7,6 +7,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import {
   fetchBookmarks,
   addBookmark,
+  deleteBookmark,
   InvalidUrlError,
   MOCK_MODE,
 } from "./bookmarks";
@@ -90,6 +91,44 @@ describe("bookmarks client (mock mode)", () => {
     ).rejects.toBeInstanceOf(InvalidUrlError);
     await Promise.resolve();
     expect(spy).not.toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  it("deleteBookmark removes and persists", async () => {
+    const before = await fetchBookmarks();
+    const targetId = before.data.items[0]!.id;
+    const after = await deleteBookmark(targetId);
+    expect(after.data.items.find((b) => b.id === targetId)).toBeUndefined();
+    expect(after.data.items.length).toBe(before.data.items.length - 1);
+    const reload = await fetchBookmarks();
+    expect(reload.data.items.length).toBe(before.data.items.length - 1);
+  });
+
+  it("deleteBookmark on missing id is idempotent (no audit emit)", async () => {
+    const spy = vi
+      .spyOn(auditModule, "recordAuditEntry")
+      .mockResolvedValue({ success: true } as never);
+    const before = await fetchBookmarks();
+    const after = await deleteBookmark("does-not-exist");
+    await Promise.resolve();
+    expect(after.data.items.length).toBe(before.data.items.length);
+    expect(spy).not.toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  it("deleteBookmark emits bookmarks.deleted audit on a real removal", async () => {
+    const spy = vi
+      .spyOn(auditModule, "recordAuditEntry")
+      .mockResolvedValue({ success: true } as never);
+    const before = await fetchBookmarks();
+    const id = before.data.items[0]!.id;
+    await deleteBookmark(id);
+    await Promise.resolve();
+    expect(spy).toHaveBeenCalledOnce();
+    const arg = spy.mock.calls[0]![0];
+    expect(arg.action).toBe("bookmarks.deleted");
+    expect(arg.category).toBe("delete");
+    expect(arg.resource_id).toBe(id);
     spy.mockRestore();
   });
 });

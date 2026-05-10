@@ -26,6 +26,7 @@ export type FlagKey =
   | "integrations.enabled"
   | "settings.capabilities.enabled"
   | "helpdesk.enabled"
+  | "whatsapp.enabled"
   | "ai_providers.enabled"
   | "knowledge.enabled"
   | "policy_engine.enabled"
@@ -108,6 +109,7 @@ export const STATIC_FLAG_DEFAULTS: Record<FlagKey, false> = {
   "integrations.enabled": false,
   "settings.capabilities.enabled": false,
   "helpdesk.enabled": false,
+  "whatsapp.enabled": false,
   "ai_providers.enabled": false,
   "knowledge.enabled": false,
   "policy_engine.enabled": false,
@@ -146,6 +148,15 @@ const MOCK_DEFINITIONS: FlagDefinition[] = [
     category: "modules",
     system_default: false,
     introduced_in_version: "0.42.0",
+    deprecated: false,
+  },
+  {
+    key: "whatsapp.enabled",
+    label: "WhatsApp",
+    description: "Enables the user-owned WhatsApp archive module.",
+    category: "modules",
+    system_default: false,
+    introduced_in_version: "0.53.0",
     deprecated: false,
   },
   {
@@ -327,6 +338,7 @@ const MOCK_DEFINITIONS: FlagDefinition[] = [
 /** Mock per-org state. Mutated by setFeatureFlagOverride in mock mode. */
 const FIXTURE_OVERRIDES: Array<[FlagKey, boolean]> = [
   ["helpdesk.enabled", true],
+  ["whatsapp.enabled", true],
   ["global_assistant.enabled", true],
 ];
 
@@ -354,6 +366,7 @@ const MOCK_PLAN_FEATURES: Record<FlagKey, boolean | undefined> = {
   "integrations.enabled": undefined,
   "settings.capabilities.enabled": true,
   "helpdesk.enabled": undefined,
+  "whatsapp.enabled": undefined,
   "ai_providers.enabled": false,
   "knowledge.enabled": false,
   "policy_engine.enabled": false,

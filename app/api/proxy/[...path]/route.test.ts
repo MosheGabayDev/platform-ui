@@ -113,6 +113,19 @@ describe("proxy route — happy path", () => {
     expect(fetchMock.mock.calls[0]![0]).toContain("?status=open&page=2");
   });
 
+  it("allows WhatsApp API proxy paths", async () => {
+    getTokenMock.mockResolvedValue({ accessToken: "t" });
+    fetchMock.mockResolvedValue({ status: 200, json: async () => ({ status: "ok" }) });
+    await GET(
+      makeReq({
+        method: "GET",
+        url: "http://localhost:3001/api/proxy/whatsapp/api/my/sessions",
+      }) as never,
+      { params: Promise.resolve({ path: ["whatsapp", "api", "my", "sessions"] }) },
+    );
+    expect(fetchMock.mock.calls[0]![0]).toContain("/whatsapp/api/my/sessions");
+  });
+
   it("returns the upstream status code (e.g. 403)", async () => {
     getTokenMock.mockResolvedValue({ accessToken: "t" });
     fetchMock.mockResolvedValue({

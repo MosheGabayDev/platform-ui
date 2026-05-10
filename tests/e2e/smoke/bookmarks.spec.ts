@@ -45,4 +45,14 @@ test.describe("/bookmarks smoke", () => {
     await page.getByRole("button", { name: /^Save$|^שמור$/i }).click();
     await expect(page.getByTestId("bookmark-url-error")).toBeVisible();
   });
+
+  test("delete flow: confirm dialog removes a fixture bookmark", async ({ page }) => {
+    await page.goto("/bookmarks");
+    const deleteBtn = page.getByTestId("bookmarks-delete-bm-001");
+    await deleteBtn.click();
+    const confirmBtn = page.getByTestId("bookmarks-delete-confirm-bm-001");
+    await expect(confirmBtn).toBeVisible();
+    await confirmBtn.click();
+    await expect(page.getByText(/Internal — engineering wiki/)).toHaveCount(0);
+  });
 });

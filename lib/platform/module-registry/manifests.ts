@@ -347,7 +347,7 @@ const MANIFESTS: ModuleManifest[] = [
       { label: "Bookmarks", label_he: "סימניות", href: "/bookmarks", icon: "Bookmark", order: 1 },
     ],
     ai_actions: ["bookmarks.create"],
-    permissions: ["bookmarks.view", "bookmarks.create"],
+    permissions: ["bookmarks.view", "bookmarks.create", "bookmarks.delete_own"],
     search_types: ["bookmark"],
     introduced_in_version: "0.50.0",
     status: "experimental",

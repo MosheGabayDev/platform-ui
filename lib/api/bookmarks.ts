@@ -16,13 +16,17 @@
  *      Body: { title, url }. URL validated server-side; FE pre-validates
  *      via `new URL(url)` and surfaces a translated error on bad input.
  *      added_by_id + added_by_name come from JWT — never from body.
- *   4. Audit: backend MUST write `bookmarks.created` to the platform
- *      audit log (cap R046). FE doesn't surface audit on this page.
- *   5. Cap-A localStorage state is read-only after the flip — leave
+ *   4. Backend serves DELETE /api/proxy/bookmarks/:id → BookmarkListResponse
+ *      Owner-only delete enforced server-side. UI hides the delete
+ *      button when `bookmark.added_by_id !== session.user.id`.
+ *   5. Audit: backend MUST write `bookmarks.created` and
+ *      `bookmarks.deleted` to the platform audit log (cap R046).
+ *      FE doesn't surface audit on this page.
+ *   6. Cap-A localStorage state is read-only after the flip — leave
  *      `loadMockState` for one release so existing demo seeds survive,
  *      then remove.
- *   6. Edit + delete are explicitly out of scope for the lite contract;
- *      add them in a follow-up alongside their own MOCK_MODE flip rows.
+ *   7. Edit is still out of scope for v1 — add when a real consumer
+ *      requests it; backend will need PATCH /api/proxy/bookmarks/:id.
  */
 
 import { loadMockState, saveMockState } from "@/lib/api/_mock-storage";
@@ -136,5 +140,27 @@ export async function addBookmark(input: AddBookmarkInput): Promise<BookmarkList
   return apiFetch<BookmarkListResponse>("", {
     method: "POST",
     body: JSON.stringify({ title: input.title.trim(), url }),
+  });
+}
+
+export async function deleteBookmark(id: string): Promise<BookmarkListResponse> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 80));
+    const items = load();
+    const next = items.filter((b) => b.id !== id);
+    saveMockState(STORAGE_KEY, STORAGE_VERSION, next);
+    if (items.length !== next.length) {
+      void recordAuditEntry({
+        action: "bookmarks.deleted",
+        category: "delete",
+        resource_type: "bookmark",
+        resource_id: id,
+        metadata: {},
+      }).catch(() => {});
+    }
+    return { success: true, data: { items: next, total: next.length } };
+  }
+  return apiFetch<BookmarkListResponse>(`/${encodeURIComponent(id)}`, {
+    method: "DELETE",
   });
 }

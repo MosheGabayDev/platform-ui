@@ -44,6 +44,13 @@ export const queryKeys = {
     list: () => ["notifications", "list"] as const,
   },
 
+  // WhatsApp module
+  whatsapp: {
+    all:      () => ["whatsapp"]                    as const,
+    sessions: () => ["whatsapp", "sessions"]       as const,
+    sessionQr: (id: number) => ["whatsapp", "sessions", id, "qr"] as const,
+  },
+
   // Platform-wide audit log (R046 service)
   audit: {
     all:    () => ["audit"]                                  as const,

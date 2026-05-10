@@ -1,19 +1,26 @@
 "use client";
 /**
  * @module app/(dashboard)/bookmarks/page
- * Bookmarks — third vertical (lite). Spec + manifest + ONE mutation
- * (add). No edit, no delete in this scope — explicitly minimal so we
- * exercise the manifest + queryKeys + PlatformForm surface end-to-end
- * without domain logic noise.
+ * Bookmarks — third vertical. Started as the "lite" contract
+ * (manifest + one mutation, batch 19); promoted to add owner-only
+ * delete in batch 36. The platform contract is now exercised across:
+ * fetch + add (POST) + delete (DELETE) + audit emit + RBAC permission.
  *
  * Spec: docs/system-upgrade/PRODUCT_LAUNCH_PLAN.md §1 task 5B.16.
  */
 
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { Bookmark as BookmarkIcon, Plus, ExternalLink, AlertCircle } from "lucide-react";
+import {
+  Bookmark as BookmarkIcon,
+  Plus,
+  ExternalLink,
+  AlertCircle,
+  Trash2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,12 +31,21 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { PageShell } from "@/components/shared/page-shell";
 import { PlatformForm, FormActions } from "@/components/shared/form";
 import { usePlatformMutation } from "@/lib/hooks/use-platform-mutation";
 import {
   fetchBookmarks,
   addBookmark,
+  deleteBookmark,
   InvalidUrlError,
   MOCK_MODE,
 } from "@/lib/api/bookmarks";
@@ -51,7 +67,18 @@ function MockNotice() {
   );
 }
 
-function BookmarkRow({ bookmark }: { bookmark: Bookmark }) {
+function BookmarkRow({
+  bookmark,
+  canDelete,
+  onDelete,
+}: {
+  bookmark: Bookmark;
+  canDelete: boolean;
+  onDelete: (id: string) => void;
+}) {
+  const t = useTranslations("bookmarks");
+  const tCommon = useTranslations("common");
+  const [confirmOpen, setConfirmOpen] = useState(false);
   let host = bookmark.url;
   try {
     host = new URL(bookmark.url).host;
@@ -59,19 +86,36 @@ function BookmarkRow({ bookmark }: { bookmark: Bookmark }) {
     /* fixture URLs are pre-validated; this is just defensive */
   }
   return (
-    <a
-      href={bookmark.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="block border-t border-border/40 px-5 py-3 hover:bg-muted/40 transition-colors"
+    <div
+      className="border-t border-border/40 px-5 py-3 hover:bg-muted/40 transition-colors"
       data-testid={`bookmark-row-${bookmark.id}`}
     >
       <div className="flex items-center gap-2">
-        <ExternalLink className="size-3.5 text-muted-foreground shrink-0" />
-        <span className="text-sm font-medium flex-1 truncate">{bookmark.title}</span>
+        <a
+          href={bookmark.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 flex-1 min-w-0 group"
+        >
+          <ExternalLink className="size-3.5 text-muted-foreground shrink-0 group-hover:text-primary transition-colors" />
+          <span className="text-sm font-medium truncate group-hover:underline">
+            {bookmark.title}
+          </span>
+        </a>
         <span className="text-xs text-muted-foreground/70 shrink-0">
           {formatRelativeTime(bookmark.created_at)}
         </span>
+        {canDelete && (
+          <button
+            type="button"
+            onClick={() => setConfirmOpen(true)}
+            className="text-muted-foreground hover:text-destructive transition-colors"
+            aria-label={tCommon("delete")}
+            data-testid={`bookmarks-delete-${bookmark.id}`}
+          >
+            <Trash2 className="size-3.5" />
+          </button>
+        )}
       </div>
       <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
         <span dir="ltr" className="truncate">
@@ -79,7 +123,32 @@ function BookmarkRow({ bookmark }: { bookmark: Bookmark }) {
         </span>
         <span className="ms-auto">· {bookmark.added_by_name}</span>
       </div>
-    </a>
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("deleteConfirm.title")}</DialogTitle>
+            <DialogDescription>
+              {t("deleteConfirm.body", { title: bookmark.title })}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmOpen(false)}>
+              {tCommon("cancel")}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                onDelete(bookmark.id);
+                setConfirmOpen(false);
+              }}
+              data-testid={`bookmarks-delete-confirm-${bookmark.id}`}
+            >
+              {tCommon("delete")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }
 
@@ -176,7 +245,9 @@ function AddBookmarkSheet({
 
 export default function BookmarksPage() {
   const t = useTranslations("bookmarks");
+  const { data: session } = useSession();
   const [addOpen, setAddOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
     queryKey: queryKeys.bookmarks.list(),
@@ -184,7 +255,16 @@ export default function BookmarksPage() {
     staleTime: 30_000,
   });
 
+  const { mutateAsync: removeBookmark } = usePlatformMutation({
+    mutationFn: deleteBookmark,
+    onSuccess: () => {
+      toast.success(t("deleted"));
+      queryClient.invalidateQueries({ queryKey: queryKeys.bookmarks.all() });
+    },
+  });
+
   const items = data?.data?.items ?? [];
+  const userId = session?.user?.id;
 
   return (
     <PageShell
@@ -207,7 +287,14 @@ export default function BookmarksPage() {
         {isLoading ? null : items.length === 0 ? (
           <p className="px-5 py-8 text-center text-sm text-muted-foreground">{t("empty")}</p>
         ) : (
-          items.map((b) => <BookmarkRow key={b.id} bookmark={b} />)
+          items.map((b) => (
+            <BookmarkRow
+              key={b.id}
+              bookmark={b}
+              canDelete={userId === b.added_by_id}
+              onDelete={(id) => removeBookmark(id)}
+            />
+          ))
         )}
       </div>
 

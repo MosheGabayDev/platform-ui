@@ -50,10 +50,11 @@ const MOCK_PERMISSIONS: RolePermission[] = [
   { id: 13, name: "notes.delete_own", description: "Delete notes you authored", created_at: null },
   { id: 14, name: "bookmarks.view", description: "View bookmarks library", created_at: null },
   { id: 15, name: "bookmarks.create", description: "Add bookmarks", created_at: null },
+  { id: 16, name: "bookmarks.delete_own", description: "Delete bookmarks you authored", created_at: null },
 ];
 
 const MOCK_ROLES: RoleSummary[] = [
-  { id: 1, name: "system_admin", description: "Cross-tenant platform operator", permission_count: 15, user_count: 1, created_at: null, updated_at: null },
+  { id: 1, name: "system_admin", description: "Cross-tenant platform operator", permission_count: 16, user_count: 1, created_at: null, updated_at: null },
   { id: 2, name: "manager", description: "Org manager — team operations", permission_count: 8, user_count: 1, created_at: null, updated_at: null },
   { id: 3, name: "technician", description: "Operator — handles tickets", permission_count: 5, user_count: 1, created_at: null, updated_at: null },
   { id: 4, name: "viewer", description: "Read-only role", permission_count: 2, user_count: 0, created_at: null, updated_at: null },

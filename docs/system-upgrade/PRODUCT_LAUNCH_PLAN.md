@@ -264,6 +264,61 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Thirty-sixth batch — Bookmarks delete-flow (CRD parity with Notes)
+
+Promotes Bookmarks from "lite" (one mutation) to full CRD: read +
+create + delete. Validates that the platform contract supports
+phased rollout — a module that started lite can grow into full
+without redesign. Edit is still deferred (no real consumer asking).
+
+**Confirmed first**: only two `next/dynamic` consumers exist
+(UsageChart + KpiCard); only UsageChart is mounted by a page test.
+Batch 35's flake fix is the complete coverage. No further preemptive
+work needed there.
+
+**API:**
+- `deleteBookmark(id)` — mock-mode filters + persists; idempotent
+  no-op when id is missing (no audit emit).
+- Audit emit: `bookmarks.deleted` (category: delete, resource_type:
+  bookmark) on real removal only. Same fire-and-forget pattern as
+  `notes.deleted`.
+- MOCK_MODE flip checklist updated (step 4 = DELETE endpoint;
+  audit covers create + delete).
+
+**RBAC:**
+- New permission `bookmarks.delete_own` registered in catalog
+  (id 16). system_admin permission_count: 15 → 16.
+- Manifest `permissions: [...]` extended — invariant test catches
+  drift.
+
+**UI:**
+- Restructured `<BookmarkRow>`: outer `<a>` link became a content
+  wrapper around an inner `<a>` for the title only, so the trash
+  button is independent of the navigation target.
+- Trash icon per row, gated on `userId === bookmark.added_by_id`
+  (matches Notes pattern).
+- Confirm dialog matching the `notes.deleteConfirm` shape.
+
+**Files modified:**
+- `lib/api/bookmarks.ts` (+deleteBookmark + audit emit + checklist)
+- `lib/api/bookmarks.test.ts` (+3 tests: round-trip, idempotent
+  no-op silence, audit emit assertion)
+- `lib/api/roles.ts` (+permission, system_admin count)
+- `lib/platform/module-registry/manifests.ts` (+permission in manifest)
+- `app/(dashboard)/bookmarks/page.tsx` (delete button + confirm dialog +
+  row anchor refactor)
+- `app/(dashboard)/bookmarks/page.test.tsx` (+session mock, +2 tests:
+  owner-only gating, mutation dispatch)
+- `tests/e2e/smoke/bookmarks.spec.ts` (+1 spec: delete round-trip)
+- `i18n/messages/{he,en}.json` (+`bookmarks.deleted`,
+  `bookmarks.deleteConfirm.{title,body}`)
+
+**Suites:**
+- `npx vitest run` — 138 files / **1226 tests ✓** (+6)
+- `npx tsc --noEmit` — clean ✓
+- `npx eslint . --quiet` — 0 errors ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+
 ### 2026-05-10 — Thirty-fifth batch — billing test flake root-caused + fixed
 
 The `BillingPage › Manage payment CTA is disabled in mock-mode` test

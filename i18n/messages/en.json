@@ -1679,6 +1679,11 @@
         "title": "Title",
         "url": "URL"
       }
+    },
+    "deleted": "Bookmark deleted",
+    "deleteConfirm": {
+      "title": "Delete this bookmark?",
+      "body": "Bookmark \"{title}\" will be deleted. This cannot be undone."
     }
   }
 }

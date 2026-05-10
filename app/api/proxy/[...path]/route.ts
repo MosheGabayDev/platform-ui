@@ -30,6 +30,7 @@ const PATH_MAP: Record<string, string> = {
   "organizations": "/api/organizations",
   "roles": "/api/roles",
   "notifications": "/api/notifications",
+  "whatsapp": "/whatsapp",
 };
 
 export async function GET(
