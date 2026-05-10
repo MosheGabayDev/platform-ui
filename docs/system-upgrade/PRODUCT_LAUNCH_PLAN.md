@@ -264,6 +264,30 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Fifty-ninth batch — i18n leaf-key invariant
+
+Third invariant added to `lib/i18n-catalog.test.ts`: for every
+single-scope file (one `useTranslations("...")` literal), every
+`t("key")` / `tt("key")` string-literal call MUST resolve to a
+**string leaf** in both catalogs. Catches typos in leaf keys (e.g.
+`t("titel")` vs `title`) which next-intl renders as the literal
+key at runtime.
+
+Conservatively skips files with multiple scopes (no AST analysis
+to bind a `t` to its source) and string keys with whitespace or
+slashes (filters out non-i18n strings caught by the heuristic
+regex). Sanity floors: ≥20 validated files, ≥100 validated keys
+(currently both well above).
+
+Layered protection now:
+- batch 57: `he ↔ en` shape parity.
+- batch 58: scope literals resolve to objects.
+- batch 59 (this): leaf keys resolve to strings.
+
+**File modified:**
+- `lib/i18n-catalog.test.ts` — +1 invariant (leaf resolution).
+  6 unit tests total.
+
 ### 2026-05-10 — Fifty-eighth batch — i18n scope-resolution invariant
 
 Extended `lib/i18n-catalog.test.ts` with a 5th invariant: every

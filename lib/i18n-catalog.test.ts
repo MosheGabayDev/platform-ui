@@ -102,6 +102,70 @@ describe("i18n catalog parity (he ↔ en)", () => {
     expect(scopes.size).toBeGreaterThan(50);
   });
 
+  it("every t(\"key\") literal resolves to a leaf in both catalogs (single-scope files)", () => {
+    function walk(dir: string, out: string[] = []): string[] {
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const p = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          if (entry.name === "node_modules" || entry.name === ".next") continue;
+          walk(p, out);
+        } else if (
+          /\.(tsx?|jsx?)$/.test(entry.name) &&
+          !/\.test\.(tsx?|jsx?)$/.test(entry.name)
+        ) {
+          out.push(p);
+        }
+      }
+      return out;
+    }
+
+    function resolve(obj: Catalog, dotted: string): unknown {
+      let node: unknown = obj;
+      for (const seg of dotted.split(".")) {
+        if (node === null || typeof node !== "object" || Array.isArray(node)) return undefined;
+        node = (node as Record<string, unknown>)[seg];
+      }
+      return node;
+    }
+
+    const sources = [...walk("app"), ...walk("components"), ...walk("lib")];
+    const useTransRe = /useTranslations\(\s*["']([^"']+)["']\s*\)/g;
+    // Match t("...") / tt("...") / any 1-char-or-more identifier ending in t,
+    // but require it to be a string-literal arg only (skip template strings,
+    // variables, and the `as never` ternary cast pattern).
+    const callRe = /\b(?:t|tt|[a-zA-Z]+T)\(\s*"([^"]+)"\s*[,)]/g;
+
+    const broken: string[] = [];
+    let validatedFiles = 0;
+    let validatedKeys = 0;
+    for (const file of sources) {
+      const src = fs.readFileSync(file, "utf8");
+      const scopes = [...src.matchAll(useTransRe)].map((m) => m[1]!);
+      // Only audit files with exactly one scope — otherwise we can't know
+      // which scope a given t() call is bound to without real AST analysis.
+      if (scopes.length !== 1) continue;
+      const scope = scopes[0]!;
+      validatedFiles += 1;
+      for (const m of src.matchAll(callRe)) {
+        const key = m[1]!;
+        // Skip dotted keys that look like file paths or URLs and obvious
+        // non-i18n strings (heuristic: leaf keys are camelCase identifiers
+        // possibly dotted, never with spaces or slashes).
+        if (/[\s/]/.test(key)) continue;
+        validatedKeys += 1;
+        const full = `${scope}.${key}`;
+        const heVal = resolve(he as Catalog, full);
+        const enVal = resolve(en as Catalog, full);
+        if (typeof heVal !== "string" || typeof enVal !== "string") {
+          broken.push(`${file}: ${full}`);
+        }
+      }
+    }
+    expect(broken).toEqual([]);
+    expect(validatedFiles).toBeGreaterThan(20);
+    expect(validatedKeys).toBeGreaterThan(100);
+  });
+
   it("no leaf value is empty string in either locale", () => {
     function emptyLeaves(obj: Catalog, prefix = ""): string[] {
       const out: string[] = [];
