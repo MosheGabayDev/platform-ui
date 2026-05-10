@@ -38,26 +38,29 @@ import { useRegisterPageContext } from "@/lib/hooks/use-register-page-context";
 import { PAGE_EASE } from "@/lib/ui/motion";
 import type { AuditLogEntry, AuditCategory } from "@/lib/modules/audit/types";
 
-const CATEGORY_OPTIONS: Array<{ value: AuditCategory | "all"; label: string }> = [
-  { value: "all", label: "All categories" },
-  { value: "login", label: "Login" },
-  { value: "create", label: "Create" },
-  { value: "update", label: "Update" },
-  { value: "delete", label: "Delete" },
-  { value: "admin", label: "Admin" },
-  { value: "ai", label: "AI" },
-  { value: "security", label: "Security" },
+// Order is canonical — labels resolved per-locale via t(`categories.${value}`).
+const CATEGORY_VALUES: Array<AuditCategory | "all"> = [
+  "all",
+  "login",
+  "create",
+  "update",
+  "delete",
+  "admin",
+  "ai",
+  "security",
 ];
 
-function formatRelative(iso: string): string {
+function formatRelative(
+  iso: string,
+  t: (key: string, params?: Record<string, string | number | Date>) => string,
+): string {
   const diffMs = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diffMs / 60_000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
+  if (mins < 1) return t("relative.justNow");
+  if (mins < 60) return t("relative.minutesAgo", { n: mins });
   const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
+  if (hours < 24) return t("relative.hoursAgo", { n: hours });
+  return t("relative.daysAgo", { n: Math.floor(hours / 24) });
 }
 
 function AuditLogInner() {
@@ -103,10 +106,10 @@ function AuditLogInner() {
     () => [
       {
         accessorKey: "timestamp",
-        header: "When",
+        header: t("table.timestamp"),
         cell: ({ row }) => (
           <div className="flex flex-col">
-            <span className="text-xs">{formatRelative(row.original.timestamp)}</span>
+            <span className="text-xs">{formatRelative(row.original.timestamp, t)}</span>
             <span className="text-[10px] text-muted-foreground font-mono">
               {new Date(row.original.timestamp).toLocaleString()}
             </span>
@@ -115,19 +118,19 @@ function AuditLogInner() {
       },
       {
         accessorKey: "category",
-        header: "Category",
+        header: t("table.category"),
         cell: ({ row }) => <AuditCategoryBadge category={row.original.category} />,
       },
       {
         accessorKey: "action",
-        header: "Action",
+        header: t("table.action"),
         cell: ({ row }) => (
           <span className="font-mono text-xs">{row.original.action}</span>
         ),
       },
       {
         accessorKey: "actor_name",
-        header: "Actor",
+        header: t("table.actor"),
         cell: ({ row }) =>
           row.original.actor_name ? (
             <div className="flex flex-col">
@@ -137,12 +140,14 @@ function AuditLogInner() {
               </span>
             </div>
           ) : (
-            <span className="text-xs text-muted-foreground italic">anonymous</span>
+            <span className="text-xs text-muted-foreground italic">
+              {t("actor.anonymous")}
+            </span>
           ),
       },
       {
         accessorKey: "resource_type",
-        header: "Resource",
+        header: t("table.resource"),
         cell: ({ row }) =>
           row.original.resource_type ? (
             <span className="text-xs">
@@ -160,7 +165,7 @@ function AuditLogInner() {
       },
       {
         accessorKey: "ip",
-        header: "IP",
+        header: t("table.ip"),
         cell: ({ row }) =>
           row.original.ip ? (
             <span className="font-mono text-xs">{row.original.ip}</span>
@@ -169,7 +174,7 @@ function AuditLogInner() {
           ),
       },
     ],
-    [],
+    [t],
   );
 
   return (
@@ -185,28 +190,30 @@ function AuditLogInner() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="glass border-border/50 rounded-xl p-4 flex flex-col gap-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">Last 24h</span>
+                  <span className="text-xs text-muted-foreground">{t("kpi.last24h")}</span>
                   <Activity className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                 </div>
                 <span className="text-2xl font-semibold">{stats.data.total_24h}</span>
               </div>
               <div className="glass border-border/50 rounded-xl p-4 flex flex-col gap-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">Last 7d</span>
+                  <span className="text-xs text-muted-foreground">{t("kpi.last7d")}</span>
                   <Activity className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                 </div>
                 <span className="text-2xl font-semibold">{stats.data.total_7d}</span>
               </div>
               <div className="glass border-border/50 rounded-xl p-4 flex flex-col gap-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">Unique actors (24h)</span>
+                  <span className="text-xs text-muted-foreground">
+                    {t("kpi.uniqueActors24h")}
+                  </span>
                   <UsersIcon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                 </div>
                 <span className="text-2xl font-semibold">{stats.data.unique_actors_24h}</span>
               </div>
               <div className="glass border-border/50 rounded-xl p-4 flex flex-col gap-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">AI events (24h)</span>
+                  <span className="text-xs text-muted-foreground">{t("kpi.aiActions")}</span>
                   <Bot className="h-4 w-4 text-violet-500" aria-hidden="true" />
                 </div>
                 <span className="text-2xl font-semibold text-violet-600 dark:text-violet-400">
@@ -221,10 +228,9 @@ function AuditLogInner() {
             <div className="rounded-lg border border-red-500/40 bg-red-500/10 p-3 flex items-center gap-2 text-sm">
               <Shield className="h-4 w-4 text-red-600 dark:text-red-400 shrink-0" aria-hidden="true" />
               <span>
-                <strong className="text-red-700 dark:text-red-400">
-                  {stats.data.by_category_24h.security}
-                </strong>{" "}
-                security event(s) in the last 24h — review the security category for details.
+                {t("securityBanner", {
+                  count: stats.data.by_category_24h.security ?? 0,
+                })}
               </span>
             </div>
           )}
@@ -233,14 +239,14 @@ function AuditLogInner() {
           <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
             <Input
               type="search"
-              placeholder="Search action, resource, or actor…"
+              placeholder={t("filters.searchPlaceholder")}
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
                 setPage(1);
               }}
               className="sm:max-w-xs"
-              aria-label="Search audit entries"
+              aria-label={t("filters.searchAria")}
             />
             <select
               value={category}
@@ -249,11 +255,11 @@ function AuditLogInner() {
                 setPage(1);
               }}
               className="h-9 rounded-md border border-input bg-background px-3 text-sm sm:w-44"
-              aria-label="Filter by category"
+              aria-label={t("filters.categoryAria")}
             >
-              {CATEGORY_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
+              {CATEGORY_VALUES.map((value) => (
+                <option key={value} value={value}>
+                  {t(`categories.${value}` as never)}
                 </option>
               ))}
             </select>
@@ -283,25 +289,25 @@ function AuditLogInner() {
                       metadata: JSON.stringify(e.metadata ?? {}),
                     })),
                     [
-                      { key: "timestamp", label: "When" },
-                      { key: "category", label: "Category" },
-                      { key: "action", label: "Action" },
-                      { key: "actor_id", label: "Actor ID" },
-                      { key: "actor_name", label: "Actor name" },
-                      { key: "resource_type", label: "Resource type" },
-                      { key: "resource_id", label: "Resource ID" },
-                      { key: "ip", label: "IP" },
-                      { key: "metadata", label: "Metadata" },
+                      { key: "timestamp", label: t("exportCsv.columns.when") },
+                      { key: "category", label: t("exportCsv.columns.category") },
+                      { key: "action", label: t("exportCsv.columns.action") },
+                      { key: "actor_id", label: t("exportCsv.columns.actorId") },
+                      { key: "actor_name", label: t("exportCsv.columns.actorName") },
+                      { key: "resource_type", label: t("exportCsv.columns.resourceType") },
+                      { key: "resource_id", label: t("exportCsv.columns.resourceId") },
+                      { key: "ip", label: t("exportCsv.columns.ip") },
+                      { key: "metadata", label: t("exportCsv.columns.metadata") },
                     ],
                     "audit-log",
                   );
                 }}
                 disabled={entries.length === 0}
                 className="ms-auto"
-                aria-label="Export current view to CSV"
+                aria-label={t("exportCsv.aria")}
               >
                 <Download className="h-4 w-4 me-1.5" aria-hidden="true" />
-                Export CSV
+                {t("exportCsv.cta")}
               </Button>
             </FeatureGate>
           </div>
@@ -311,7 +317,7 @@ function AuditLogInner() {
             data={entries}
             isLoading={isLoading}
             error={error as Error | null}
-            emptyMessage="No audit entries match your filters"
+            emptyMessage={t("empty")}
             pagination={{
               page,
               totalPages,
@@ -334,7 +340,7 @@ function AuditLogRestrictedFallback() {
       <EmptyState
         icon={AlertCircle}
         title={tCommon("permissionRequired")}
-        description="You need admin or system_admin role to view the audit log."
+        description={t("restricted.description")}
       />
     </PageShell>
   );

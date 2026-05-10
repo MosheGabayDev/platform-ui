@@ -219,12 +219,17 @@
         "totalEvents": "סה\"כ אירועים",
         "last24h": "24 שעות אחרונות",
         "securityEvents": "אירועי אבטחה",
-        "aiActions": "פעולות AI"
+        "aiActions": "פעולות AI",
+        "last7d": "7 ימים אחרונים",
+        "uniqueActors24h": "מבצעים ייחודיים (24 שעות)"
       },
       "filters": {
         "category": "קטגוריה",
         "search": "חיפוש לפי action / actor / resource",
-        "all": "הכל"
+        "all": "הכל",
+        "searchPlaceholder": "חיפוש לפי action / actor / resource",
+        "searchAria": "חיפוש ביומן הביקורת",
+        "categoryAria": "סינון לפי קטגוריה"
       },
       "categories": {
         "login": "כניסה",
@@ -233,7 +238,8 @@
         "delete": "מחיקה",
         "admin": "Admin",
         "ai": "AI",
-        "security": "אבטחה"
+        "security": "אבטחה",
+        "all": "כל הקטגוריות"
       },
       "table": {
         "timestamp": "זמן",
@@ -243,7 +249,36 @@
         "category": "קטגוריה",
         "ip": "IP"
       },
-      "securityBanner": "זוהו {count} אירועי אבטחה ב-24 שעות האחרונות"
+      "securityBanner": "זוהו {count} אירועי אבטחה ב-24 שעות האחרונות",
+      "actor": {
+        "anonymous": "אנונימי"
+      },
+      "exportCsv": {
+        "cta": "ייצא CSV",
+        "aria": "ייצא תצוגה נוכחית ל-CSV",
+        "columns": {
+          "when": "זמן",
+          "category": "קטגוריה",
+          "action": "פעולה",
+          "actorId": "מזהה מבצע",
+          "actorName": "שם מבצע",
+          "resourceType": "סוג אובייקט",
+          "resourceId": "מזהה אובייקט",
+          "ip": "IP",
+          "metadata": "מטא-דאטה"
+        }
+      },
+      "empty": "לא נמצאו אירועים מתאימים לסינון",
+      "relative": {
+        "justNow": "כעת",
+        "minutesAgo": "לפני {n}ד׳",
+        "hoursAgo": "לפני {n}ש׳",
+        "daysAgo": "לפני {n} ימים"
+      },
+      "restricted": {
+        "description": "נדרש תפקיד admin או system_admin לצפייה ביומן הביקורת."
+      },
+      "securityEventCount": "{count, plural, =1 {אירוע אבטחה} other {אירועי אבטחה}}"
     },
     "featureFlags": {
       "title": "Feature flags",

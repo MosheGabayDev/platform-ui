@@ -219,12 +219,17 @@
         "totalEvents": "Total events",
         "last24h": "Last 24h",
         "securityEvents": "Security events",
-        "aiActions": "AI actions"
+        "aiActions": "AI actions",
+        "last7d": "Last 7d",
+        "uniqueActors24h": "Unique actors (24h)"
       },
       "filters": {
         "category": "Category",
         "search": "Search by action / actor / resource",
-        "all": "All"
+        "all": "All",
+        "searchPlaceholder": "Search action, resource, or actor…",
+        "searchAria": "Search audit entries",
+        "categoryAria": "Filter by category"
       },
       "categories": {
         "login": "Login",
@@ -233,7 +238,8 @@
         "delete": "Delete",
         "admin": "Admin",
         "ai": "AI",
-        "security": "Security"
+        "security": "Security",
+        "all": "All categories"
       },
       "table": {
         "timestamp": "Time",
@@ -243,7 +249,36 @@
         "category": "Category",
         "ip": "IP"
       },
-      "securityBanner": "{count} security events detected in the last 24h"
+      "securityBanner": "{count} security events detected in the last 24h",
+      "actor": {
+        "anonymous": "anonymous"
+      },
+      "exportCsv": {
+        "cta": "Export CSV",
+        "aria": "Export current view to CSV",
+        "columns": {
+          "when": "When",
+          "category": "Category",
+          "action": "Action",
+          "actorId": "Actor ID",
+          "actorName": "Actor name",
+          "resourceType": "Resource type",
+          "resourceId": "Resource ID",
+          "ip": "IP",
+          "metadata": "Metadata"
+        }
+      },
+      "empty": "No audit entries match your filters",
+      "relative": {
+        "justNow": "just now",
+        "minutesAgo": "{n}m ago",
+        "hoursAgo": "{n}h ago",
+        "daysAgo": "{n}d ago"
+      },
+      "restricted": {
+        "description": "You need admin or system_admin role to view the audit log."
+      },
+      "securityEventCount": "{count, plural, =1 {security event} other {security events}}"
     },
     "featureFlags": {
       "title": "Feature flags",

@@ -264,6 +264,53 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Forty-fifth batch — i18n cleanup of /audit-log + audit script
+
+Continues batch 44's i18n debt cleanup. Picked `/audit-log` next —
+high-traffic platform-wide page, 10 violations (the second-highest).
+
+**Findings:** the `admin.auditLog` namespace was already partially
+populated (kpi/categories/table/securityBanner) but the page wasn't
+using most of it. Added the missing keys (relative-time formats with
+`{n}` ICU param, kpi.last7d, kpi.uniqueActors24h, categories.all,
+filters.{searchPlaceholder,searchAria,categoryAria}, exportCsv.*,
+empty, restricted.description, actor.anonymous) and refactored the
+page to use them all.
+
+**Bonus** — `formatRelative` now takes `t` as a parameter (matches
+the pattern from batch 44's helpdesk/approvals).
+
+**Audit script preserved** as `scripts/audit-i18n-debt.mjs` (matches
+the pattern from batch 42's `audit-test-coverage.mjs`). Re-runnable
+after each cleanup; surfaces the current top offender. After this
+batch:
+
+| Page | Violations |
+|---|---|
+| `admin/ai-usage` | 11 |
+| `helpdesk/maintenance` | 10 |
+| `helpdesk/sla` | 9 |
+| `helpdesk/tickets` | 9 |
+| `helpdesk/batch` | 8 |
+| `helpdesk/technicians` | 7 |
+| `onboarding` | 5 |
+
+**8 → 7 pages, 69 → 59 violations.** `/audit-log` dropped off.
+
+**Files modified:**
+- `app/(dashboard)/audit-log/page.tsx` (full i18n migration)
+- `i18n/messages/{he,en}.json` (added missing keys via deepMerge)
+
+**Files added:**
+- `scripts/audit-i18n-debt.mjs` (re-usable drift audit)
+
+**Suites:**
+- `npx vitest run` — 141 files / **1253 tests ✓** (no count change — i18n only)
+- `npx tsc --noEmit` — clean ✓
+- `npx eslint . --quiet` — 0 errors ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+- `node scripts/audit-i18n-debt.mjs` — 7 pages, 59 strings remaining
+
 ### 2026-05-10 — Forty-fourth batch — i18n cleanup of helpdesk/approvals + debt audit
 
 Same audit reflex on a new dimension: pages with **hardcoded English
