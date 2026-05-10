@@ -10,9 +10,12 @@
  * one page at a time. Re-run after each cleanup batch to confirm
  * the page dropped off and to surface the next biggest offender.
  *
- * Usage: `node scripts/audit-i18n-debt.mjs`
+ * Usage:
+ *   `node scripts/audit-i18n-debt.mjs`         — informational
+ *   `node scripts/audit-i18n-debt.mjs --gate`  — exit 1 if any drift found
  *
- * Exits 0 — informational only.
+ * Batch 53 wired the `--gate` form into preflight to lock in the
+ * 0/0 state achieved in batch 52.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -54,3 +57,13 @@ console.log(`Total flagged pages: ${results.length}`);
 console.log(
   `Total flagged strings: ${results.reduce((sum, r) => sum + r.count, 0)}`,
 );
+
+if (process.argv.includes("--gate") && results.length > 0) {
+  console.error(
+    "\n✗ i18n debt gate: hardcoded English strings detected on the pages above.",
+  );
+  console.error(
+    "  Move them to i18n/messages/{he,en}.json and use useTranslations().",
+  );
+  process.exit(1);
+}

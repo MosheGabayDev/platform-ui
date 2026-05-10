@@ -264,6 +264,29 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Fifty-third batch — i18n debt gate added to preflight
+
+Locks in the empty-debt state from batch 52. `audit-i18n-debt.mjs`
+now accepts `--gate` and exits 1 if any dashboard page has ≥5
+hardcoded English strings; preflight runs that as step 5/6 (between
+coverage gate and `next build`). Mirrors how batch 33 wired the
+0-error eslint state into preflight to prevent regression.
+
+**Verification:**
+- Without drift → `exit=0`, gate prints clean line.
+- Synthetic test page with 5 hardcoded strings → `exit=1`,
+  `✗ i18n debt gate` line surfaces in preflight output.
+  Test artifact removed; no residue in repo.
+
+**Files modified:**
+- `scripts/audit-i18n-debt.mjs` — `--gate` flag, exit 1 on drift.
+- `scripts/preflight.sh` — renumbered 1/5..5/5 → 1/6..6/6, added
+  step 5 invoking `audit-i18n-debt.mjs --gate`.
+
+The cleanup arc (batches 39–53) is fully closed: 6 drift dimensions
+swept, 3 audit scripts permanent, and the i18n one is now a hard
+preflight gate.
+
 ### 2026-05-10 — Fifty-second batch — i18n cleanup of /onboarding (debt list empty)
 
 Closes the i18n debt cleanup. `/onboarding` was the last page on the

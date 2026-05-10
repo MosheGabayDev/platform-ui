@@ -8,7 +8,9 @@
 #      Codebase is 0-errors as of batch 33; this step prevents regression.
 #   3. vitest unit + component
 #   4. coverage baseline gate (ADR-042 floors)
-#   5. next build — catches latent prerender bugs (e.g. missing
+#   5. i18n debt gate — fails if any dashboard page has 5+ hardcoded English
+#      strings. Locks in the 0/0 state achieved in batch 52 (see batches 44-52).
+#   6. next build — catches latent prerender bugs (e.g. missing
 #      Suspense around useSearchParams) that don't surface in dev.
 #      See batch 27 in PRODUCT_LAUNCH_PLAN.md for the bug class this
 #      step is meant to prevent.
@@ -28,23 +30,27 @@ step() { printf "\n\033[1;36m▶ %s\033[0m\n" "$*"; }
 ok()   { printf "\033[1;32m✓ %s\033[0m\n" "$*"; }
 fail() { printf "\033[1;31m✗ %s\033[0m\n" "$*"; exit 1; }
 
-step "1/5 typecheck"
+step "1/6 typecheck"
 npx tsc --noEmit || fail "typecheck failed"
 ok "typecheck clean"
 
-step "2/5 eslint (errors only)"
+step "2/6 eslint (errors only)"
 npx eslint . --quiet || fail "eslint reported errors"
 ok "eslint clean (0 errors)"
 
-step "3/5 vitest"
+step "3/6 vitest"
 npx vitest run --reporter=dot || fail "vitest failed"
 ok "vitest green"
 
-step "4/5 coverage gate"
+step "4/6 coverage gate"
 node scripts/check-coverage-baseline.mjs || fail "coverage gate failed"
 ok "coverage gate passed"
 
-step "5/5 next build"
+step "5/6 i18n debt gate"
+node scripts/audit-i18n-debt.mjs --gate || fail "i18n debt gate failed"
+ok "i18n debt gate clean (0 flagged pages)"
+
+step "6/6 next build"
 npx next build > /tmp/preflight-build.log 2>&1 || {
   printf "\n\033[1;31m── next build output (tail) ──\033[0m\n"
   tail -30 /tmp/preflight-build.log
