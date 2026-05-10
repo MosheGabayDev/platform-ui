@@ -36,6 +36,22 @@ export interface WhatsAppSessionsResponse {
 }
 
 export type WhatsAppChatKind = "private" | "group";
+export type WhatsAppChatAccessKind = "owner" | "shared";
+
+export interface WhatsAppChatShare {
+  id: number;
+  chat_id: number;
+  shared_with_user_id: number;
+  shared_with_user_name: string | null;
+  shared_with_user_email: string | null;
+  shared_by_user_id: number;
+  shared_by_user_name: string | null;
+  shared_by_user_email: string | null;
+  created_at: string | null;
+  expires_at: string | null;
+  note: string | null;
+  revoked_at: string | null;
+}
 
 export interface WhatsAppChat {
   id: number;
@@ -49,6 +65,8 @@ export interface WhatsAppChat {
   first_seen_at: string | null;
   last_seen_at: string | null;
   meta: Record<string, unknown>;
+  access_kind?: WhatsAppChatAccessKind;
+  share?: WhatsAppChatShare | null;
 }
 
 export interface WhatsAppChatsMeta {
@@ -69,6 +87,33 @@ export interface WhatsAppChatListParams {
   kind?: WhatsAppChatKind | "all";
   page?: number;
   page_size?: number;
+}
+
+export interface WhatsAppChatSharesResponse {
+  status: "ok";
+  data: WhatsAppChatShare[];
+}
+
+export interface WhatsAppShareChatInput {
+  shared_with_user_id: number;
+  expires_at?: string | null;
+  note?: string | null;
+}
+
+export interface WhatsAppChatShareMutationResponse {
+  status: "ok";
+  share_id: number;
+}
+
+export interface WhatsAppShareUserOption {
+  id: number;
+  display_name: string | null;
+  email: string | null;
+}
+
+export interface WhatsAppShareRecipientsResponse {
+  status: "ok";
+  data: WhatsAppShareUserOption[];
 }
 
 export interface WhatsAppMessage {

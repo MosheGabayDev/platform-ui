@@ -48,8 +48,11 @@ export const queryKeys = {
   whatsapp: {
     all:      () => ["whatsapp"]                    as const,
     chats:    (params?: object) => ["whatsapp", "chats", params] as const,
+    sharedWithMe: (params?: object) => ["whatsapp", "shared-with-me", params] as const,
     chatMessages: (id: number, params?: object) =>
       ["whatsapp", "chats", id, "messages", params] as const,
+    chatShares: (id: number) => ["whatsapp", "chats", id, "shares"] as const,
+    shareRecipients: (q: string) => ["whatsapp", "share-recipients", q] as const,
     search:   (params?: object) => ["whatsapp", "search", params] as const,
     sessions: () => ["whatsapp", "sessions"]       as const,
     sessionQr: (id: number) => ["whatsapp", "sessions", id, "qr"] as const,

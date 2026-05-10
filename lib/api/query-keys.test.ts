@@ -64,12 +64,23 @@ describe("queryKeys registry", () => {
       "chats",
       { q: "invoice" },
     ]);
+    expect(queryKeys.whatsapp.sharedWithMe({ page: 1 })).toEqual([
+      "whatsapp",
+      "shared-with-me",
+      { page: 1 },
+    ]);
     expect(queryKeys.whatsapp.chatMessages(7, { page_size: 50 })).toEqual([
       "whatsapp",
       "chats",
       7,
       "messages",
       { page_size: 50 },
+    ]);
+    expect(queryKeys.whatsapp.chatShares(7)).toEqual(["whatsapp", "chats", 7, "shares"]);
+    expect(queryKeys.whatsapp.shareRecipients("maya")).toEqual([
+      "whatsapp",
+      "share-recipients",
+      "maya",
     ]);
     expect(queryKeys.whatsapp.search({ q: "invoice" })).toEqual([
       "whatsapp",

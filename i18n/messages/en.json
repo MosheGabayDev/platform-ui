@@ -1215,6 +1215,40 @@
       "tryThis": "Try this:",
       "skip": "Skip",
       "openAssistant": "Open AI assistant"
+    },
+    "fields": {
+      "orgName": "Organization name",
+      "orgNamePlaceholder": "e.g. Acme Corporation",
+      "accent": "Accent color",
+      "persona": "AI persona name",
+      "personaPlaceholder": "e.g. Acme Helper",
+      "defaultModel": "Default LLM model"
+    },
+    "modules": {
+      "loading": "Loading modules…",
+      "flagDisabled": "Flag-disabled",
+      "on": "On",
+      "off": "Off"
+    },
+    "sample": {
+      "intro": "Seed the modules you just enabled with realistic sample data so the dashboard and AI assistant have content to show on day one.",
+      "label": "Seed sample data",
+      "willSeed": "Will seed: {modules}",
+      "none": "No modules enabled — nothing to seed."
+    },
+    "summary": {
+      "intro": "Ready to apply your configuration:",
+      "organization": "Organization",
+      "accent": "Accent",
+      "persona": "AI persona",
+      "defaultModel": "Default model",
+      "modules": "Modules to enable",
+      "sampleData": "Sample data",
+      "unnamed": "(unnamed)",
+      "none": "(none)",
+      "seedYes": "Yes (will seed)",
+      "seedNo": "No",
+      "finishHint": "Click <b>Finish</b> to apply. You can change all of these later in Admin → Settings, Modules, and Feature flags."
     }
   },
   "wizard": {
@@ -2147,6 +2181,33 @@
       "never": "Never",
       "noBody": "No text body"
     },
+    "share": {
+      "button": "Share",
+      "title": "Share chat",
+      "description": "Grant another user in this organization read-only access to this chat.",
+      "ownerBadge": "Owner",
+      "sharedBadge": "Shared with me",
+      "sharedBy": "Shared by {user} on {date}",
+      "unknownUser": "Unknown user",
+      "unknownDate": "unknown date",
+      "activeTitle": "Active shares",
+      "empty": "This chat is not shared yet.",
+      "newTitle": "New share",
+      "recipientPlaceholder": "Search users by name or email",
+      "searching": "Searching...",
+      "selected": "Selected",
+      "alreadyShared": "Already shared",
+      "noRecipients": "No matching users",
+      "expiresAt": "Expiration date",
+      "notePlaceholder": "Optional note",
+      "expires": "Expires: {date}",
+      "never": "Never",
+      "share": "Share chat",
+      "sharing": "Sharing...",
+      "revoke": "Revoke share",
+      "created": "Chat shared",
+      "revoked": "Share revoked"
+    },
     "qrDialog": {
       "title": "WhatsApp QR",
       "descriptionPrefix": "Session state: ",
@@ -2169,7 +2230,9 @@
     "errors": {
       "startFailed": "Unable to start session",
       "relinkFailed": "Unable to relink session",
-      "unlinkFailed": "Unable to unlink session"
+      "unlinkFailed": "Unable to unlink session",
+      "shareFailed": "Unable to share chat",
+      "revokeShareFailed": "Unable to revoke share"
     }
   },
   "dataSources": {

@@ -16,6 +16,7 @@ import { ErrorState } from "@/components/shared/error-state";
 import { FeatureGate } from "@/components/shared/feature-gate";
 import { PageShell } from "@/components/shared/page-shell";
 import { Skeleton } from "@/components/ui/skeleton";
+import { WhatsAppShareDialog } from "@/components/modules/whatsapp/share-dialog";
 import {
   fetchWhatsappChatMessages,
   MOCK_MODE,
@@ -101,7 +102,7 @@ function ChatDetailInner({ chatId }: { chatId: number }) {
     pageKey: "whatsapp.chat.detail",
     route: `/whatsapp/chats/${chatId}`,
     summary: `WhatsApp chat detail for chat ${chatId} with ${messages.length} loaded messages.`,
-    availableActions: ["view_whatsapp_message_media", "load_older_whatsapp_messages"],
+    availableActions: ["view_whatsapp_message_media", "load_older_whatsapp_messages", "share_whatsapp_chat"],
   });
 
   return (
@@ -110,12 +111,15 @@ function ChatDetailInner({ chatId }: { chatId: number }) {
       title={title}
       subtitle={tDetail("subtitle")}
       actions={
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/whatsapp">
-            <ArrowLeft />
-            {tDetail("back")}
-          </Link>
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          {chat && chat.access_kind !== "shared" && <WhatsAppShareDialog chat={chat} />}
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/whatsapp">
+              <ArrowLeft />
+              {tDetail("back")}
+            </Link>
+          </Button>
+        </div>
       }
     >
       {MOCK_MODE && (
@@ -128,14 +132,18 @@ function ChatDetailInner({ chatId }: { chatId: number }) {
       )}
 
       {chat && (
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="outline">{t(`archive.kinds.${chat.kind}` as never)}</Badge>
-          {chat.participant_count !== null && (
-            <Badge variant="secondary">
-              {t("archive.participants", { count: chat.participant_count })}
-            </Badge>
-          )}
-        </div>
+        <>
+          {chat.access_kind === "shared" && <WhatsAppShareDialog chat={chat} />}
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="outline">{t(`archive.kinds.${chat.kind}` as never)}</Badge>
+            {chat.access_kind === "owner" && <Badge variant="secondary">{t("share.ownerBadge")}</Badge>}
+            {chat.participant_count !== null && (
+              <Badge variant="secondary">
+                {t("archive.participants", { count: chat.participant_count })}
+              </Badge>
+            )}
+          </div>
+        </>
       )}
 
       <section className="rounded-lg border border-border bg-muted/20 p-3">

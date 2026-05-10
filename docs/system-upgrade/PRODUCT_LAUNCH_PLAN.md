@@ -264,6 +264,65 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Fifty-second batch — i18n cleanup of /onboarding (debt list empty)
+
+Closes the i18n debt cleanup. `/onboarding` was the last page on the
+list (5 violations). After this batch:
+
+```
+$ node scripts/audit-i18n-debt.mjs
+Pages with 5+ hardcoded English strings (heuristic):
+Total flagged pages: 0
+Total flagged strings: 0
+```
+
+**Refactors:**
+- `OrgStep` — `useTranslations("onboarding.fields")` for org-name +
+  accent labels + placeholder
+- `AIStep` — same hook for persona + default-model labels
+- `ModulesStep` — `onboarding.modules` for loading / flagDisabled /
+  on / off
+- `SampleDataStep` — `onboarding.sample` for intro / label / willSeed
+  (with `{modules}` ICU param) / none
+- `SummaryStep` — `onboarding.summary` for 6 dt labels + 4 value-side
+  strings (unnamed/none/seedYes/seedNo). Used `t.rich` for
+  `finishHint` with the standard `<b>` placeholder pattern (matches
+  `components/shell/onboarding-tour.tsx`'s usage); converted the raw
+  `<strong>` from the catalog to `<b>` to match.
+
+**Files modified:**
+- `app/(dashboard)/onboarding/page.tsx`
+- `i18n/messages/{he,en}.json` (~25 new keys under `onboarding.*` —
+  fields, modules, sample, summary)
+
+**Audit:** onboarding dropped off (5 → 0).
+**Plan-wide: 0 pages, 0 strings remaining.**
+
+**i18n cleanup arc complete (batches 44–52):**
+
+| Batch | Page | Violations cleaned |
+|---|---|---|
+| 44 | helpdesk/approvals | 8 |
+| 45 | audit-log | 10 |
+| 46 | admin/ai-usage | 11 |
+| 47 | helpdesk/maintenance | 10 |
+| 48 | helpdesk/tickets | 9 |
+| 49 | helpdesk/sla | 9 |
+| 50 | helpdesk/batch | 8 |
+| 51 | helpdesk/technicians | 7 |
+| 52 | onboarding | 5 |
+| **Total** | **9 pages** | **77 strings** |
+
+The audit script `scripts/audit-i18n-debt.mjs` lives on as a
+permanent guard against re-introduction.
+
+**Suites:**
+- `npx vitest run` — 141 files / **1263 tests ✓**
+- `npx tsc --noEmit` — clean ✓
+- `npx eslint . --quiet` — 0 errors ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+- `node scripts/audit-i18n-debt.mjs` — **0 / 0**
+
 ### 2026-05-10 — Fifty-first batch — i18n cleanup of /helpdesk/technicians
 
 Closes the helpdesk-cluster i18n cleanup. `/helpdesk/technicians` had

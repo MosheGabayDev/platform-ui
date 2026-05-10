@@ -69,22 +69,23 @@ function OrgStep({
   state: OnboardingState;
   update: (patch: Partial<OnboardingState>) => void;
 }) {
+  const t = useTranslations("onboarding.fields");
   return (
     <div className="space-y-3">
       <div>
         <label className="text-xs text-muted-foreground" htmlFor="org-name">
-          Organization name
+          {t("orgName")}
         </label>
         <Input
           id="org-name"
           value={state.org_name}
           onChange={(e) => update({ org_name: e.target.value })}
-          placeholder="e.g. Acme Corporation"
+          placeholder={t("orgNamePlaceholder")}
           maxLength={100}
         />
       </div>
       <div>
-        <label className="text-xs text-muted-foreground">Accent color</label>
+        <label className="text-xs text-muted-foreground">{t("accent")}</label>
         <div className="flex flex-wrap gap-2 mt-1">
           {ACCENT_OPTIONS.map((c) => (
             <Button
@@ -109,23 +110,24 @@ function AIStep({
   state: OnboardingState;
   update: (patch: Partial<OnboardingState>) => void;
 }) {
+  const t = useTranslations("onboarding.fields");
   return (
     <div className="space-y-3">
       <div>
         <label className="text-xs text-muted-foreground" htmlFor="persona-name">
-          AI persona name
+          {t("persona")}
         </label>
         <Input
           id="persona-name"
           value={state.persona_name}
           onChange={(e) => update({ persona_name: e.target.value })}
-          placeholder="e.g. Acme Helper"
+          placeholder={t("personaPlaceholder")}
           maxLength={60}
         />
       </div>
       <div>
         <label className="text-xs text-muted-foreground" htmlFor="default-model">
-          Default LLM model
+          {t("defaultModel")}
         </label>
         <select
           id="default-model"
@@ -151,6 +153,7 @@ function ModulesStep({
   state: OnboardingState;
   update: (patch: Partial<OnboardingState>) => void;
 }) {
+  const t = useTranslations("onboarding.modules");
   const { data, isLoading } = useQuery({
     queryKey: queryKeys.moduleRegistry.modules(),
     queryFn: fetchModules,
@@ -170,7 +173,7 @@ function ModulesStep({
 
   return (
     <div className="space-y-2">
-      {isLoading && <div className="text-sm text-muted-foreground">Loading modules…</div>}
+      {isLoading && <div className="text-sm text-muted-foreground">{t("loading")}</div>}
       {togglable.map((m) => {
         const checked = state.modules_to_enable[m.key] ?? false;
         return (
@@ -186,7 +189,7 @@ function ModulesStep({
                 </Badge>
                 {m.status === "disabled_by_flag" && (
                   <Badge variant="outline" className="text-[10px] border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-400">
-                    Flag-disabled
+                    {t("flagDisabled")}
                   </Badge>
                 )}
               </div>
@@ -199,7 +202,7 @@ function ModulesStep({
               variant={checked ? "default" : "outline"}
               onClick={() => toggle(m.key)}
             >
-              {checked ? "On" : "Off"}
+              {checked ? t("on") : t("off")}
             </Button>
           </div>
         );
@@ -215,22 +218,21 @@ function SampleDataStep({
   state: OnboardingState;
   update: (patch: Partial<OnboardingState>) => void;
 }) {
+  const t = useTranslations("onboarding.sample");
+  const tModules = useTranslations("onboarding.modules");
   const enabled = Object.entries(state.modules_to_enable)
     .filter(([, v]) => v)
     .map(([k]) => k);
   return (
     <div className="space-y-3">
-      <p className="text-sm text-muted-foreground">
-        Seed the modules you just enabled with realistic sample data so the dashboard
-        and AI assistant have content to show on day one.
-      </p>
+      <p className="text-sm text-muted-foreground">{t("intro")}</p>
       <div className="flex items-center justify-between gap-2 p-3 rounded-md border border-border/50">
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-medium">Seed sample data</div>
+          <div className="text-sm font-medium">{t("label")}</div>
           <div className="text-[11px] text-muted-foreground mt-0.5">
             {enabled.length > 0
-              ? `Will seed: ${enabled.join(", ")}`
-              : "No modules enabled — nothing to seed."}
+              ? t("willSeed", { modules: enabled.join(", ") })
+              : t("none")}
           </div>
         </div>
         <Button
@@ -241,7 +243,7 @@ function SampleDataStep({
           aria-pressed={state.seed_sample_data}
           data-testid="seed-sample-data-toggle"
         >
-          {state.seed_sample_data ? "On" : "Off"}
+          {state.seed_sample_data ? tModules("on") : tModules("off")}
         </Button>
       </div>
     </div>
@@ -249,6 +251,7 @@ function SampleDataStep({
 }
 
 function SummaryStep({ state }: { state: OnboardingState }) {
+  const t = useTranslations("onboarding.summary");
   const enabledModules = Object.entries(state.modules_to_enable)
     .filter(([, v]) => v)
     .map(([k]) => k);
@@ -256,39 +259,38 @@ function SummaryStep({ state }: { state: OnboardingState }) {
     <div className="space-y-3">
       <div className="flex items-center gap-2 text-sm">
         <Sparkles className="h-4 w-4 text-violet-600 dark:text-violet-400" aria-hidden="true" />
-        <span>Ready to apply your configuration:</span>
+        <span>{t("intro")}</span>
       </div>
       <dl className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
         <div>
-          <dt className="text-muted-foreground">Organization</dt>
-          <dd className="font-mono">{state.org_name || "(unnamed)"}</dd>
+          <dt className="text-muted-foreground">{t("organization")}</dt>
+          <dd className="font-mono">{state.org_name || t("unnamed")}</dd>
         </div>
         <div>
-          <dt className="text-muted-foreground">Accent</dt>
+          <dt className="text-muted-foreground">{t("accent")}</dt>
           <dd className="font-mono">{state.accent}</dd>
         </div>
         <div>
-          <dt className="text-muted-foreground">AI persona</dt>
+          <dt className="text-muted-foreground">{t("persona")}</dt>
           <dd className="font-mono">{state.persona_name}</dd>
         </div>
         <div>
-          <dt className="text-muted-foreground">Default model</dt>
+          <dt className="text-muted-foreground">{t("defaultModel")}</dt>
           <dd className="font-mono">{state.default_model}</dd>
         </div>
         <div className="sm:col-span-2">
-          <dt className="text-muted-foreground">Modules to enable</dt>
+          <dt className="text-muted-foreground">{t("modules")}</dt>
           <dd className="font-mono">
-            {enabledModules.length > 0 ? enabledModules.join(", ") : "(none)"}
+            {enabledModules.length > 0 ? enabledModules.join(", ") : t("none")}
           </dd>
         </div>
         <div className="sm:col-span-2">
-          <dt className="text-muted-foreground">Sample data</dt>
-          <dd className="font-mono">{state.seed_sample_data ? "Yes (will seed)" : "No"}</dd>
+          <dt className="text-muted-foreground">{t("sampleData")}</dt>
+          <dd className="font-mono">{state.seed_sample_data ? t("seedYes") : t("seedNo")}</dd>
         </div>
       </dl>
       <p className="text-xs text-muted-foreground">
-        Click <strong>Finish</strong> to apply. You can change all of these later in
-        Admin → Settings, Modules, and Feature flags.
+        {t.rich("finishHint", { b: (chunks) => <strong>{chunks}</strong> })}
       </p>
     </div>
   );

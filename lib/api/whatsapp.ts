@@ -31,7 +31,10 @@ import { loadMockState, saveMockState } from "@/lib/api/_mock-storage";
 import { recordAuditEntry } from "@/lib/api/audit";
 import type {
   WhatsAppChat,
+  WhatsAppChatShare,
+  WhatsAppChatShareMutationResponse,
   WhatsAppChatListParams,
+  WhatsAppChatSharesResponse,
   WhatsAppChatsResponse,
   WhatsAppMessage,
   WhatsAppMessageListParams,
@@ -40,6 +43,9 @@ import type {
   WhatsAppMessageSearchResult,
   WhatsAppMessagesResponse,
   WhatsAppQrResponse,
+  WhatsAppShareChatInput,
+  WhatsAppShareRecipientsResponse,
+  WhatsAppShareUserOption,
   WhatsAppSession,
   WhatsAppSessionMutationResponse,
   WhatsAppSessionState,
@@ -49,8 +55,12 @@ import type {
 // Re-export types so existing imports `from "@/lib/api/whatsapp"` keep working.
 export type {
   WhatsAppChat,
+  WhatsAppChatAccessKind,
   WhatsAppChatKind,
   WhatsAppChatListParams,
+  WhatsAppChatShare,
+  WhatsAppChatShareMutationResponse,
+  WhatsAppChatSharesResponse,
   WhatsAppChatsMeta,
   WhatsAppChatsResponse,
   WhatsAppMessage,
@@ -61,6 +71,9 @@ export type {
   WhatsAppMessagesMeta,
   WhatsAppMessagesResponse,
   WhatsAppQrResponse,
+  WhatsAppShareChatInput,
+  WhatsAppShareRecipientsResponse,
+  WhatsAppShareUserOption,
   WhatsAppSession,
   WhatsAppSessionMutationResponse,
   WhatsAppSessionState,
@@ -69,6 +82,7 @@ export type {
 
 const BASE = "/api/proxy/whatsapp";
 const STORAGE_KEY = "whatsapp:sessions:v1";
+const SHARES_STORAGE_KEY = "whatsapp:shares:v1";
 const STORAGE_VERSION = 1;
 export const MOCK_MODE = process.env.NEXT_PUBLIC_MOCK_API !== "false";
 
@@ -85,6 +99,8 @@ const MOCK_CHATS: WhatsAppChat[] = [
     first_seen_at: "2026-05-01T08:10:00.000Z",
     last_seen_at: "2026-05-10T06:45:00.000Z",
     meta: { last_message_preview: "Can you send the invoice PDF again?" },
+    access_kind: "owner",
+    share: null,
   },
   {
     id: 11002,
@@ -98,6 +114,8 @@ const MOCK_CHATS: WhatsAppChat[] = [
     first_seen_at: "2026-04-22T09:00:00.000Z",
     last_seen_at: "2026-05-09T18:20:00.000Z",
     meta: { last_message_preview: "Shift summary uploaded to the shared folder." },
+    access_kind: "owner",
+    share: null,
   },
   {
     id: 11003,
@@ -111,6 +129,36 @@ const MOCK_CHATS: WhatsAppChat[] = [
     first_seen_at: "2026-03-18T11:35:00.000Z",
     last_seen_at: "2026-05-07T13:05:00.000Z",
     meta: { last_message_preview: "Thanks, closing this for now." },
+    access_kind: "owner",
+    share: null,
+  },
+  {
+    id: 11004,
+    wa_chat_id: "120363055555555555@g.us",
+    kind: "group",
+    display_name: "Shared escalation",
+    is_archived: false,
+    is_muted: false,
+    participant_count: 5,
+    last_message_at: "2026-05-10T05:15:00.000Z",
+    first_seen_at: "2026-05-08T10:00:00.000Z",
+    last_seen_at: "2026-05-10T05:15:00.000Z",
+    meta: { last_message_preview: "This thread was shared for case review." },
+    access_kind: "shared",
+    share: {
+      id: 88001,
+      chat_id: 11004,
+      shared_with_user_id: 42,
+      shared_with_user_name: "Current User",
+      shared_with_user_email: "current.user@example.com",
+      shared_by_user_id: 7,
+      shared_by_user_name: "Ops Lead",
+      shared_by_user_email: "ops.lead@example.com",
+      created_at: "2026-05-10T05:00:00.000Z",
+      expires_at: "2026-06-10T05:00:00.000Z",
+      note: "Review this escalation before the next shift.",
+      revoked_at: null,
+    },
   },
 ];
 
@@ -265,6 +313,57 @@ const MOCK_MESSAGES: Record<number, WhatsAppMessage[]> = {
       captured_at: "2026-05-07T13:05:04.000Z",
     },
   ],
+  11004: [
+    {
+      id: 94001,
+      wa_message_id: "mock-shared-1",
+      chat_id: 11004,
+      sender_contact_id: 7032,
+      sender_phone: "+972533333333",
+      sender_is_me: false,
+      ts: "2026-05-10T05:15:00.000Z",
+      body: "This thread was shared for case review.",
+      type: "chat",
+      has_media: false,
+      media_mime: null,
+      media_size_bytes: null,
+      media_sha256: null,
+      media_caption: null,
+      media_url_endpoint: null,
+      quoted_message_id: null,
+      mentions: [],
+      reactions: [],
+      edited_at: null,
+      revoked_at: null,
+      erased_at: null,
+      captured_at: "2026-05-10T05:15:02.000Z",
+    },
+  ],
+};
+
+const MOCK_SHARE_RECIPIENTS: WhatsAppShareUserOption[] = [
+  { id: 201, display_name: "Maya Rosen", email: "maya.rosen@example.com" },
+  { id: 202, display_name: "Amit Bar", email: "amit.bar@example.com" },
+  { id: 203, display_name: "Noa Cohen", email: "noa.cohen@example.com" },
+];
+
+const MOCK_SHARES_FIXTURE: Record<number, WhatsAppChatShare[]> = {
+  11001: [
+    {
+      id: 88002,
+      chat_id: 11001,
+      shared_with_user_id: 203,
+      shared_with_user_name: "Noa Cohen",
+      shared_with_user_email: "noa.cohen@example.com",
+      shared_by_user_id: 42,
+      shared_by_user_name: "Current User",
+      shared_by_user_email: "current.user@example.com",
+      created_at: "2026-05-10T07:00:00.000Z",
+      expires_at: null,
+      note: "Finance follow-up.",
+      revoked_at: null,
+    },
+  ],
 };
 
 const MOCK_QR = `data:image/svg+xml;utf8,${encodeURIComponent(`
@@ -290,6 +389,18 @@ function persist(items: WhatsAppSession[]): void {
   saveMockState(STORAGE_KEY, STORAGE_VERSION, items);
 }
 
+function loadShares(): Record<number, WhatsAppChatShare[]> {
+  return loadMockState<Record<number, WhatsAppChatShare[]>>(
+    SHARES_STORAGE_KEY,
+    STORAGE_VERSION,
+    MOCK_SHARES_FIXTURE,
+  );
+}
+
+function persistShares(items: Record<number, WhatsAppChatShare[]>): void {
+  saveMockState(SHARES_STORAGE_KEY, STORAGE_VERSION, items);
+}
+
 function nowIso(): string {
   return new Date().toISOString();
 }
@@ -310,6 +421,20 @@ function emitAudit(action: string, category: "create" | "update" | "delete", ses
     category,
     resource_type: "whatsapp_session",
     resource_id: String(sessionId),
+    metadata: {},
+  }).catch(() => {});
+}
+
+function emitShareAudit(
+  action: string,
+  category: "create" | "delete",
+  shareId: number,
+): void {
+  void recordAuditEntry({
+    action,
+    category,
+    resource_type: "whatsapp_chat_share",
+    resource_id: String(shareId),
     metadata: {},
   }).catch(() => {});
 }
@@ -348,6 +473,13 @@ function chatQueryString(params: WhatsAppChatListParams): string {
   if (params.kind && params.kind !== "all") search.set("kind", params.kind);
   if (params.page) search.set("page", String(params.page));
   if (params.page_size) search.set("page_size", String(params.page_size));
+  const encoded = search.toString();
+  return encoded ? `?${encoded}` : "";
+}
+
+function recipientQueryString(q: string): string {
+  const search = new URLSearchParams();
+  if (q.trim()) search.set("q", q.trim());
   const encoded = search.toString();
   return encoded ? `?${encoded}` : "";
 }
@@ -407,6 +539,134 @@ export async function fetchWhatsappChats(
     };
   }
   return apiFetch<WhatsAppChatsResponse>(`/api/chats${chatQueryString(params)}`);
+}
+
+/** Fetch chats explicitly shared with the current user. */
+export async function fetchWhatsappSharedWithMe(
+  params: WhatsAppChatListParams = {},
+): Promise<WhatsAppChatsResponse> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 60));
+    const page = Math.max(1, params.page ?? 1);
+    const pageSize = Math.min(Math.max(1, params.page_size ?? 50), 100);
+    const filtered = MOCK_CHATS.filter((chat) => chat.access_kind === "shared").filter((chat) =>
+      chatMatches(chat, params),
+    );
+    const start = (page - 1) * pageSize;
+    const data = filtered.slice(start, start + pageSize);
+    return {
+      status: "ok",
+      data,
+      meta: {
+        page,
+        page_size: pageSize,
+        total: filtered.length,
+        has_more: start + data.length < filtered.length,
+      },
+    };
+  }
+  return apiFetch<WhatsAppChatsResponse>(`/api/shared-with-me${chatQueryString(params)}`);
+}
+
+/** List active shares granted from one owned chat. */
+export async function fetchWhatsappChatShares(
+  chatId: number,
+): Promise<WhatsAppChatSharesResponse> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 60));
+    const chat = MOCK_CHATS.find((item) => item.id === chatId);
+    if (!chat || chat.access_kind === "shared") throw new Error("not_found");
+    return {
+      status: "ok",
+      data: (loadShares()[chatId] ?? []).filter((share) => !share.revoked_at),
+    };
+  }
+  return apiFetch<WhatsAppChatSharesResponse>(`/api/chats/${chatId}/shares`);
+}
+
+/** Share one owned chat with a same-org recipient. */
+export async function shareWhatsappChat(
+  chatId: number,
+  input: WhatsAppShareChatInput,
+): Promise<WhatsAppChatShareMutationResponse> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 60));
+    const chat = MOCK_CHATS.find((item) => item.id === chatId);
+    if (!chat || chat.access_kind === "shared") throw new Error("not_found");
+    const recipient = MOCK_SHARE_RECIPIENTS.find((item) => item.id === input.shared_with_user_id);
+    if (!recipient) throw new Error("recipient_not_found");
+    const shares = loadShares();
+    const activeShares = shares[chatId]?.filter((share) => !share.revoked_at) ?? [];
+    if (activeShares.some((share) => share.shared_with_user_id === recipient.id)) {
+      throw new Error("share_already_exists");
+    }
+    const shareId =
+      Math.max(88000, ...Object.values(shares).flat().map((share) => share.id)) + 1;
+    const share: WhatsAppChatShare = {
+      id: shareId,
+      chat_id: chatId,
+      shared_with_user_id: recipient.id,
+      shared_with_user_name: recipient.display_name,
+      shared_with_user_email: recipient.email,
+      shared_by_user_id: 42,
+      shared_by_user_name: "Current User",
+      shared_by_user_email: "current.user@example.com",
+      created_at: nowIso(),
+      expires_at: input.expires_at ?? null,
+      note: input.note?.trim() || null,
+      revoked_at: null,
+    };
+    persistShares({ ...shares, [chatId]: [share, ...(shares[chatId] ?? [])] });
+    emitShareAudit("whatsapp.share.created", "create", shareId);
+    return { status: "ok", share_id: shareId };
+  }
+  return apiFetch<WhatsAppChatShareMutationResponse>(`/api/chats/${chatId}/shares`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+/** Revoke one WhatsApp chat share as owner or recipient. */
+export async function revokeWhatsappShare(
+  shareId: number,
+): Promise<WhatsAppChatShareMutationResponse> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 60));
+    const shares = loadShares();
+    for (const [chatId, items] of Object.entries(shares)) {
+      const idx = items.findIndex((share) => share.id === shareId);
+      if (idx === -1) continue;
+      if (items[idx]!.revoked_at) {
+        return { status: "ok", share_id: shareId };
+      }
+      const nextItems = [...items];
+      nextItems[idx] = { ...items[idx]!, revoked_at: nowIso() };
+      persistShares({ ...shares, [Number(chatId)]: nextItems });
+      emitShareAudit("whatsapp.share.revoked", "delete", shareId);
+      return { status: "ok", share_id: shareId };
+    }
+    throw new Error("not_found");
+  }
+  return apiFetch<WhatsAppChatShareMutationResponse>(`/api/shares/${shareId}`, {
+    method: "DELETE",
+  });
+}
+
+/** Search same-org users eligible to receive a chat share. */
+export async function searchWhatsappShareRecipients(
+  q: string,
+): Promise<WhatsAppShareRecipientsResponse> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 60));
+    const term = q.trim().toLowerCase();
+    const data = term
+      ? MOCK_SHARE_RECIPIENTS.filter((user) =>
+          [user.display_name, user.email].filter(Boolean).join(" ").toLowerCase().includes(term),
+        )
+      : [];
+    return { status: "ok", data };
+  }
+  return apiFetch<WhatsAppShareRecipientsResponse>(`/api/users/typeahead${recipientQueryString(q)}`);
 }
 
 /** Fetch newest-first messages for one authorized WhatsApp chat. */

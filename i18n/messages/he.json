@@ -1215,6 +1215,40 @@
       "tryThis": "נסה זאת:",
       "skip": "דלג",
       "openAssistant": "פתח את סייען ה-AI"
+    },
+    "fields": {
+      "orgName": "שם הארגון",
+      "orgNamePlaceholder": "לדוגמה: Acme Corporation",
+      "accent": "צבע הדגשה",
+      "persona": "שם ה-persona של ה-AI",
+      "personaPlaceholder": "לדוגמה: Acme Helper",
+      "defaultModel": "מודל LLM ברירת מחדל"
+    },
+    "modules": {
+      "loading": "טוען מודולים…",
+      "flagDisabled": "מושבת ע\"י flag",
+      "on": "מופעל",
+      "off": "כבוי"
+    },
+    "sample": {
+      "intro": "אכלס את המודולים שהפעלת בנתוני דוגמה ראליסטיים כדי שלדשבורד ולסייען ה-AI יהיה תוכן להציג ביום הראשון.",
+      "label": "אכלס נתוני דוגמה",
+      "willSeed": "ייאוכלסו: {modules}",
+      "none": "לא הופעלו מודולים — אין מה לאכלס."
+    },
+    "summary": {
+      "intro": "מוכן להחיל את התצורה שלך:",
+      "organization": "ארגון",
+      "accent": "הדגשה",
+      "persona": "Persona של ה-AI",
+      "defaultModel": "מודל ברירת מחדל",
+      "modules": "מודולים להפעלה",
+      "sampleData": "נתוני דוגמה",
+      "unnamed": "(ללא שם)",
+      "none": "(אין)",
+      "seedYes": "כן (יאוכלסו)",
+      "seedNo": "לא",
+      "finishHint": "לחץ על <b>סיום</b> להחלה. ניתן לשנות את כל אלה מאוחר יותר ב-Admin → Settings, Modules ו-Feature flags."
     }
   },
   "wizard": {
@@ -2147,6 +2181,33 @@
       "never": "אף פעם",
       "noBody": "אין גוף טקסט"
     },
+    "share": {
+      "button": "שתף",
+      "title": "שיתוף צ'אט",
+      "description": "מתן גישת קריאה בלבד למשתמש אחר בארגון.",
+      "ownerBadge": "בעלים",
+      "sharedBadge": "שותף איתי",
+      "sharedBy": "שותף על ידי {user} בתאריך {date}",
+      "unknownUser": "משתמש לא ידוע",
+      "unknownDate": "תאריך לא ידוע",
+      "activeTitle": "שיתופים פעילים",
+      "empty": "הצ'אט הזה עדיין לא שותף.",
+      "newTitle": "שיתוף חדש",
+      "recipientPlaceholder": "חפש משתמשים לפי שם או אימייל",
+      "searching": "מחפש...",
+      "selected": "נבחר",
+      "alreadyShared": "כבר שותף",
+      "noRecipients": "לא נמצאו משתמשים",
+      "expiresAt": "תאריך תפוגה",
+      "notePlaceholder": "הערה אופציונלית",
+      "expires": "תפוגה: {date}",
+      "never": "אף פעם",
+      "share": "שתף צ'אט",
+      "sharing": "משתף...",
+      "revoke": "בטל שיתוף",
+      "created": "הצ'אט שותף",
+      "revoked": "השיתוף בוטל"
+    },
     "qrDialog": {
       "title": "QR של WhatsApp",
       "descriptionPrefix": "מצב חיבור: ",
@@ -2169,7 +2230,9 @@
     "errors": {
       "startFailed": "נכשל בהתחלת חיבור",
       "relinkFailed": "נכשל בחיבור מחדש",
-      "unlinkFailed": "נכשל בניתוק"
+      "unlinkFailed": "נכשל בניתוק",
+      "shareFailed": "נכשל בשיתוף הצ'אט",
+      "revokeShareFailed": "נכשל בביטול השיתוף"
     }
   },
   "dataSources": {

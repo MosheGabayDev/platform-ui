@@ -5,10 +5,15 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import {
   fetchWhatsappChats,
   fetchWhatsappChatMessages,
+  fetchWhatsappChatShares,
+  fetchWhatsappSharedWithMe,
   fetchWhatsappSessions,
   fetchWhatsappSessionQr,
   linkWhatsappSession,
+  revokeWhatsappShare,
   relinkWhatsappSession,
+  searchWhatsappShareRecipients,
+  shareWhatsappChat,
   unlinkWhatsappSession,
   searchWhatsappMessages,
   MOCK_MODE,
@@ -41,12 +46,19 @@ describe("whatsapp client (mock mode)", () => {
 
   it("fetchWhatsappChats filters by kind and query", async () => {
     const byKind = await fetchWhatsappChats({ kind: "group" });
-    expect(byKind.data).toHaveLength(1);
-    expect(byKind.data[0]!.kind).toBe("group");
+    expect(byKind.data.length).toBeGreaterThanOrEqual(1);
+    expect(byKind.data.every((chat) => chat.kind === "group")).toBe(true);
 
     const byQuery = await fetchWhatsappChats({ q: "invoice" });
     expect(byQuery.data).toHaveLength(1);
     expect(byQuery.data[0]!.display_name).toBe("Dana Levi");
+  });
+
+  it("fetchWhatsappSharedWithMe returns only shared chats", async () => {
+    const res = await fetchWhatsappSharedWithMe();
+    expect(res.status).toBe("ok");
+    expect(res.data.length).toBeGreaterThan(0);
+    expect(res.data.every((chat) => chat.access_kind === "shared")).toBe(true);
   });
 
   it("fetchWhatsappChatMessages returns chat metadata and media-safe messages", async () => {
@@ -60,6 +72,40 @@ describe("whatsapp client (mock mode)", () => {
 
   it("fetchWhatsappChatMessages rejects a missing chat", async () => {
     await expect(fetchWhatsappChatMessages(999999)).rejects.toThrow(/not_found/);
+  });
+
+  it("fetchWhatsappChatShares lists active shares for owned chats", async () => {
+    const res = await fetchWhatsappChatShares(11001);
+    expect(res.status).toBe("ok");
+    expect(res.data[0]!.shared_with_user_email).toContain("@");
+  });
+
+  it("shareWhatsappChat creates, rejects duplicate, and revoke hides a share", async () => {
+    const recipients = await searchWhatsappShareRecipients("Maya");
+    const recipient = recipients.data[0]!;
+
+    const created = await shareWhatsappChat(11001, {
+      shared_with_user_id: recipient.id,
+      note: "Please review",
+    });
+    expect(created.status).toBe("ok");
+
+    await expect(
+      shareWhatsappChat(11001, { shared_with_user_id: recipient.id }),
+    ).rejects.toThrow(/share_already_exists/);
+
+    const withShare = await fetchWhatsappChatShares(11001);
+    expect(withShare.data.some((share) => share.id === created.share_id)).toBe(true);
+
+    await revokeWhatsappShare(created.share_id);
+    const afterRevoke = await fetchWhatsappChatShares(11001);
+    expect(afterRevoke.data.some((share) => share.id === created.share_id)).toBe(false);
+  });
+
+  it("shareWhatsappChat rejects shared-in chats", async () => {
+    await expect(
+      shareWhatsappChat(11004, { shared_with_user_id: 201 }),
+    ).rejects.toThrow(/not_found/);
   });
 
   it("searchWhatsappMessages returns matching message hits", async () => {
