@@ -264,6 +264,45 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Thirty-fifth batch — billing test flake root-caused + fixed
+
+The `BillingPage › Manage payment CTA is disabled in mock-mode` test
+flaked across batches 25, 31, and 32 — passed alone in <2s, timed out
+at 5s+ in the full suite. Today's investigation pinned the cause.
+
+**Root cause:** `<UsageChart />` uses `next/dynamic` to lazy-load
+Recharts (batch 14). In happy-dom under suite load, the async
+dynamic-import resolution races with the test's `waitFor`. While
+`waitFor` polls every 50ms looking for `getByRole("button")`, the
+chart's dynamic import is still resolving — and React doesn't commit
+the page tree (including the button) until both queries + the
+dynamic import settle. Under heavy CPU contention from parallel
+test files this could exceed the 5s default timeout.
+
+The chart's own behavior is covered by
+`components/modules/billing/usage-chart.test.tsx` — there's no
+reason for the page-level test to mount the real chart at all.
+
+**Fix:** stub `<UsageChart />` to a no-op component in this test file
+only. Page-level test now isolates page behavior; chart-level test
+isolates chart behavior. Both clean.
+
+**Suites:**
+- `npx vitest run app/\(dashboard\)/billing/page.test.tsx` ×5 — all
+  green; per-test execution dropped from 700ms → 270ms (the
+  dynamic-import settle was non-trivial even on the happy path).
+- `npx vitest run` — 138 files / **1220 tests ✓**
+- `npx tsc --noEmit` — clean ✓
+
+**Files modified:**
+- `app/(dashboard)/billing/page.test.tsx` (+ `vi.mock` for UsageChart with rationale comment)
+
+**Lesson logged:** when a page test is flaky and the page mounts a
+component using `next/dynamic`, suspect the dynamic import before
+suspecting query timing. The same pattern likely applies to KpiCard's
+sparkline (batch 14). Watch for it on the next page-level test that
+mounts `<KpiCard />` consumers.
+
 ### 2026-05-10 — Thirty-fourth batch — eslint joins preflight (step 2/5)
 
 Locks in the 0-errors state from batch 33. Without a gate, the next

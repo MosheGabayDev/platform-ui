@@ -16,6 +16,16 @@ vi.mock("@/lib/api/billing", () => ({
   MOCK_MODE: true,
 }));
 
+// UsageChart uses next/dynamic to lazy-load Recharts (batch 14). The
+// async dynamic-import resolution races with this file's waitFor calls
+// when the suite is under load — surfacing as occasional 5s timeouts on
+// "Manage payment CTA disabled" and "renders the invoices table". Stub
+// the chart to a deterministic placeholder; the chart's own behavior is
+// covered by components/modules/billing/usage-chart.test.tsx.
+vi.mock("@/components/modules/billing/usage-chart", () => ({
+  UsageChart: () => null,
+}));
+
 import BillingPage from "./page";
 
 function render(node: ReactElement) {
