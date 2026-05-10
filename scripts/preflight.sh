@@ -3,9 +3,12 @@
 #
 # Runs (in order):
 #   1. typecheck (tsc --noEmit)
-#   2. vitest unit + component
-#   3. coverage baseline gate (ADR-042 floors)
-#   4. next build — catches latent prerender bugs (e.g. missing
+#   2. eslint — errors only (warnings are tolerated; see PRODUCT_LAUNCH_PLAN.md
+#      batch 33 for the audit that downgraded set-state-in-effect to warn).
+#      Codebase is 0-errors as of batch 33; this step prevents regression.
+#   3. vitest unit + component
+#   4. coverage baseline gate (ADR-042 floors)
+#   5. next build — catches latent prerender bugs (e.g. missing
 #      Suspense around useSearchParams) that don't surface in dev.
 #      See batch 27 in PRODUCT_LAUNCH_PLAN.md for the bug class this
 #      step is meant to prevent.
@@ -25,19 +28,23 @@ step() { printf "\n\033[1;36m▶ %s\033[0m\n" "$*"; }
 ok()   { printf "\033[1;32m✓ %s\033[0m\n" "$*"; }
 fail() { printf "\033[1;31m✗ %s\033[0m\n" "$*"; exit 1; }
 
-step "1/4 typecheck"
+step "1/5 typecheck"
 npx tsc --noEmit || fail "typecheck failed"
 ok "typecheck clean"
 
-step "2/4 vitest"
+step "2/5 eslint (errors only)"
+npx eslint . --quiet || fail "eslint reported errors"
+ok "eslint clean (0 errors)"
+
+step "3/5 vitest"
 npx vitest run --reporter=dot || fail "vitest failed"
 ok "vitest green"
 
-step "3/4 coverage gate"
+step "4/5 coverage gate"
 node scripts/check-coverage-baseline.mjs || fail "coverage gate failed"
 ok "coverage gate passed"
 
-step "4/4 next build"
+step "5/5 next build"
 npx next build > /tmp/preflight-build.log 2>&1 || {
   printf "\n\033[1;31m── next build output (tail) ──\033[0m\n"
   tail -30 /tmp/preflight-build.log

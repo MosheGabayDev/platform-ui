@@ -264,6 +264,32 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Thirty-fourth batch — eslint joins preflight (step 2/5)
+
+Locks in the 0-errors state from batch 33. Without a gate, the next
+batch could land an eslint regression silently.
+
+`scripts/preflight.sh` now runs `npx eslint . --quiet` as step 2/5.
+`--quiet` skips warnings (52 of them, all audited as intentional in
+batch 33), so the gate enforces errors only. Real cascading-render
+bugs would still land as errors via other rules; the warned cases
+are documented intentional patterns.
+
+```
+1/5 typecheck
+2/5 eslint --quiet     ← new: errors-only enforcement
+3/5 vitest
+4/5 coverage gate
+5/5 next build
+```
+
+**Files modified:**
+- `scripts/preflight.sh` (new step + renumbering)
+
+**Suites:**
+- `bash scripts/preflight.sh` — all 5/5 green ✓ (verified end-to-end)
+- `npx eslint . --quiet` — 0 errors, exit 0
+
 ### 2026-05-10 — Thirty-third batch — lint clean (0 errors) + audited set-state-in-effect
 
 `npx eslint .` is now **0 errors / 52 warnings** — first time the
