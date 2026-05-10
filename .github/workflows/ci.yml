@@ -37,6 +37,9 @@ jobs:
       - name: i18n debt gate (batch 53)
         run: node scripts/audit-i18n-debt.mjs --gate
 
+      - name: Test coverage gate (batch 55)
+        run: node scripts/audit-test-coverage.mjs --gate
+
       - name: High-risk commit gate (ADR-037)
         run: node scripts/check-high-risk-commit.mjs
         env:

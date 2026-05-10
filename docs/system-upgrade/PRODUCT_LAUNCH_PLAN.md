@@ -264,6 +264,40 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Fifty-fifth batch — test coverage gate (allowlist style)
+
+Same lock-in pattern as batches 53/54 applied to the test-coverage
+audit. `audit-test-coverage.mjs` now accepts `--gate` and exits 1
+when (a) a new dashboard page lands without either a sibling
+`page.test.tsx` or an E2E spec that goto's its route, OR (b) the
+ALLOWLIST contains a stale entry (page that has since been covered
+or removed — keeps the list honest).
+
+The allowlist freezes the 8 known gaps as of today:
+- `/helpdesk/tickets/*`, `/organizations/*`, `/roles/*`, `/users/*`
+  — detail pages that need session + dynamic params; backlog.
+- `/whatsapp`, `/whatsapp/chats/*`, `/whatsapp/search` — owned by
+  the parallel WhatsApp agent.
+- `/*` — the catch-all `[...slug]` page; by design no fixed route
+  to E2E against.
+
+Wired into both preflight (step 6/7) and CI (between i18n debt gate
+and high-risk-commit gate).
+
+**Verification:**
+- Clean → `exit=0` and "allowlist matches current state" line.
+- Synthetic new untested page → `exit=1`, "← NEW" annotation
+  surfaces. Test artifact removed.
+- (Stale-allowlist branch covered by code review; will fire when
+  someone covers an allowlisted page without removing it.)
+
+**Files modified:**
+- `scripts/audit-test-coverage.mjs` — `--gate`, ALLOWLIST, stale
+  detection. Also added `tests/e2e/ai-shell` to E2E search dirs.
+- `scripts/preflight.sh` — renumbered 1/6..6/6 → 1/7..7/7, added
+  step 6.
+- `.github/workflows/ci.yml` — new step after i18n gate.
+
 ### 2026-05-10 — Fifty-fourth batch — i18n debt gate wired into CI
 
 Mirrors batch 53's preflight addition into `.github/workflows/ci.yml`
