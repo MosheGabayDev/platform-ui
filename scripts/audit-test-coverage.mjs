@@ -24,14 +24,11 @@ import path from "node:path";
 // list. Adding new pages here without justification fails the spirit
 // of the gate — prefer adding the test.
 const ALLOWLIST = new Set([
-  "/helpdesk/tickets/*",
-  "/organizations/*",
-  "/roles/*",
-  "/users/*",
-  "/whatsapp",
+  // Batch 56 covered the 4 detail pages (tickets, orgs, roles, users) via
+  // tests/e2e/smoke/detail-pages.spec.ts using known fixture ids; /whatsapp
+  // is covered by tests/e2e/smoke/whatsapp.spec.ts.
   "/whatsapp/chats/*",
   "/whatsapp/search",
-  "/*", // catch-all [...slug] page — by design has no fixed route to E2E against
 ]);
 
 function walk(dir, out = []) {
@@ -43,7 +40,11 @@ function walk(dir, out = []) {
   return out;
 }
 
-const pages = walk("app/(dashboard)");
+// Skip catch-all [...slug] pages — they have no fixed route to E2E
+// against, so they cannot be tested by the same matcher rules.
+const pages = walk("app/(dashboard)").filter(
+  (p) => !p.includes("/[...") /* catch-all */,
+);
 
 function readSpecs(dir) {
   if (!fs.existsSync(dir)) return [];
@@ -70,10 +71,15 @@ for (const page of pages) {
     .replace(/\/\[\.\.\.[^\]]+\]/g, "/*")
     .replace(/\/\[[^\]]+\]/g, "/*");
   const routeForE2e = route === "" ? "/" : route;
-  const hasE2e =
-    e2eContents.includes(`page.goto("${routeForE2e}")`) ||
-    e2eContents.includes(`page.goto('${routeForE2e}')`) ||
-    e2eContents.includes(`page.goto(\`${routeForE2e}`);
+  // Convert /users/* → regex `/users/[^/"'`]+` so concrete fixture ids
+  // (e.g. /users/1) match a wildcard route. Catch-all /* never matches
+  // anything (by design — see allowlist).
+  const escaped = routeForE2e
+    .replace(/[.*+?^${}()|[\]\\]/g, (ch) => (ch === "*" ? ch : "\\" + ch))
+    .replace(/\\\*\\\*/g, "[^\"'`]*")
+    .replace(/\*/g, "[^/\"'`]+");
+  const e2ePattern = new RegExp(`page\\.goto\\(["'\`]${escaped}["'\`]?`);
+  const hasE2e = e2ePattern.test(e2eContents);
   if (!hasUnit && !hasE2e) without.push({ route: routeForE2e, page });
 }
 

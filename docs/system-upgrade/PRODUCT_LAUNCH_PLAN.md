@@ -264,6 +264,40 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Fifty-sixth batch — shrink coverage allowlist 8→2
+
+Followed up on batch 55 by adding the missing E2E coverage for the
+4 detail pages so they can leave the allowlist:
+
+- `tests/e2e/smoke/detail-pages.spec.ts` — 4 specs (`/users/1`,
+  `/organizations/1`, `/roles/1`, `/helpdesk/tickets/1001`). Each
+  asserts the `DetailHeaderCard` `<h1>` and one identifying detail
+  (email / slug / role-name / ticket number) using mock fixture ids.
+- `/whatsapp` was already covered by `whatsapp.spec.ts`; previously
+  it was hidden because the audit matcher only matched literal
+  `/whatsapp` string. Once the matcher was upgraded the spec
+  surfaced as covering both `/whatsapp` AND any detail route via
+  the wildcard rule, so the allowlist entry was stale.
+
+**Audit script upgrades:**
+- Smarter matcher: routes with `[id]` (becomes `*`) are now matched
+  by a regex `page.goto("/users/[^/]+")` — concrete fixture ids
+  count. Previously the script demanded a literal `*` in the spec.
+- Catch-all `[...slug]` pages skipped from audit entirely (they have
+  no fixed route — by design untestable through this matcher).
+- Stale-entry detection from batch 55 caught the `/whatsapp` and
+  `/*` allowlist drift after the matcher upgrade — the gate flipped
+  to fail until I removed them. Working as intended.
+
+**ALLOWLIST after batch 56:**
+- `/whatsapp/chats/*`, `/whatsapp/search` — owned by the parallel
+  WhatsApp agent. Will drop further when their specs land.
+
+**Files modified:**
+- `tests/e2e/smoke/detail-pages.spec.ts` (new) — 4 specs.
+- `scripts/audit-test-coverage.mjs` — regex matcher, catch-all
+  skip, allowlist trimmed from 8 to 2.
+
 ### 2026-05-10 — Fifty-fifth batch — test coverage gate (allowlist style)
 
 Same lock-in pattern as batches 53/54 applied to the test-coverage
