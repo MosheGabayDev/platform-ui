@@ -341,7 +341,7 @@ function AISkillsInner() {
           <div className="glass border-border/50 rounded-xl p-3 text-xs text-muted-foreground">
             <span className="font-medium text-foreground">Available to AI</span> = module enabled
             (cap 18) AND skill enabled here AND skill is `ai_callable`. Disabling a skill here
-            removes it from the AI shell's `availableActions` for this org.
+            removes it from the AI shell&apos;s `availableActions` for this org.
           </div>
 
           <div className="flex flex-wrap items-center gap-2">

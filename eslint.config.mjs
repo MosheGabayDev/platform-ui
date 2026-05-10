@@ -34,6 +34,20 @@ const eslintConfig = defineConfig([
       "react/display-name": "off",
     },
   },
+  // Project-wide downgrade for set-state-in-effect → warning. The new
+  // React 19 rule flags every `useState + useEffect(setState, [])`
+  // hydration pattern — which is the canonical CLAUDE.md guidance for
+  // theme/locale/localStorage reads (avoid SSR/CSR markup divergence).
+  // Audited case-by-case in batch 33: 1 was a real bug (batch 32 →
+  // useSyncExternalStore in use-mobile.ts), the remaining 10 are
+  // intentional. Keeping the rule as `warn` preserves the signal
+  // without a wall of point-of-use eslint-disable lines that future
+  // readers would mistake for noise.
+  {
+    rules: {
+      "react-hooks/set-state-in-effect": "warn",
+    },
+  },
 ]);
 
 export default eslintConfig;

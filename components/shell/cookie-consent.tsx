@@ -22,6 +22,10 @@ export function CookieConsent() {
   const [mounted, setMounted] = useState(false);
   const [accepted, setAccepted] = useState(true); // optimistic-hide until we know
 
+  // Hydration-safe read: localStorage is a browser-only ambient store
+  // and showing the banner during SSR would flash it for users who
+  // already accepted. The set-state-in-effect pattern is intentional;
+  // see batch 33 audit in PRODUCT_LAUNCH_PLAN.md.
   useEffect(() => {
     setMounted(true);
     setAccepted(localStorage.getItem(STORAGE_KEY) === "accepted");
