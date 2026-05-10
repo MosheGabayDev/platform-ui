@@ -1,18 +1,27 @@
 #!/usr/bin/env node
 /**
- * Run `next build` with bundle-analyzer enabled.
+ * Run the bundle analyzer.
  *
- * Cross-platform replacement for `cross-env ANALYZE=true next build` —
- * keeps dev-deps lean. Output: `.next/analyze/*.html` (server + edge +
- * client bundles). Open the HTML files manually.
+ * Next 16 ships with Turbopack as the default build engine. The
+ * `@next/bundle-analyzer` plugin is webpack-only and emits:
+ *
+ *   "The Next Bundle Analyzer is not compatible with Turbopack builds"
+ *
+ * The native replacement is `next experimental-analyze`, which uses
+ * Turbopack's own profiler. We invoke that instead. The legacy webpack
+ * plugin remains wired in `next.config.ts` for the `--webpack` escape
+ * hatch (run `next build --webpack` if you need the old report shape).
  *
  * Usage: `npm run analyze`
+ *
+ * Output: see stdout — Turbopack writes a profile that you open in the
+ * Chrome DevTools tracing viewer (chrome://tracing).
  */
 import { spawnSync } from "node:child_process";
 
 const result = spawnSync(
   process.platform === "win32" ? "npx.cmd" : "npx",
-  ["next", "build"],
+  ["next", "experimental-analyze"],
   {
     stdio: "inherit",
     env: { ...process.env, ANALYZE: "true" },

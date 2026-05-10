@@ -264,6 +264,54 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Twenty-eighth batch — preflight + analyzer hardening
+
+Two follow-ups to batch 27 (which was triggered by trying to run the
+bundle analyzer in the first place).
+
+**1. `next build` is now part of `npm run preflight`**
+
+Batch 27's prerender bug was latent for weeks because nothing in the
+local quality gate ever ran `next build`. The new step 4/4 catches
+this class of bug:
+
+```
+1/4 typecheck
+2/4 vitest
+3/4 coverage gate
+4/4 next build      ← new: prevents the OnboardingTour-class blocker
+```
+
+Build output is captured to `/tmp/preflight-build.log` so a failed
+preflight prints a 30-line tail (the relevant compile/prerender error)
+without flooding the terminal. ~1 minute extra on a warm cache; cheap
+insurance against the whole class of "works in dev, fails on deploy"
+bugs.
+
+**2. `npm run analyze` switched to `next experimental-analyze`**
+
+When we ran the legacy `@next/bundle-analyzer` for the first time in
+batch 28, Next 16 emitted:
+
+> The Next Bundle Analyzer is not compatible with Turbopack builds,
+> no report will be generated. Consider trying the new Turbopack
+> analyzer via `next experimental-analyze`.
+
+Updated `scripts/analyze.mjs` to invoke the native Turbopack analyzer.
+The legacy webpack plugin stays wired in `next.config.ts` for the
+`--webpack` escape hatch when needed. We deliberately did **not**
+delete `@next/bundle-analyzer` — keeping it lets us cross-check the
+two analyzers' numbers when the Turbopack profiler matures.
+
+**Files modified:**
+- `scripts/preflight.sh` (steps now 1/4..4/4; +next build)
+- `scripts/analyze.mjs` (legacy webpack call → next experimental-analyze)
+
+**Suites:**
+- `npx tsc --noEmit` — clean ✓
+- `npx vitest run` — 138 files / 1220 tests ✓ (no count change — script-only)
+- `npx next build` — 40/40 pages prerender ✓ (verified again post-batch-27)
+
 ### 2026-05-10 — Twenty-seventh batch — production-build blocker fix
 
 While preparing to capture bundle-size metrics for batch 14+15's
