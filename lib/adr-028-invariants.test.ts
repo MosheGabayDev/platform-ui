@@ -240,6 +240,34 @@ describe("ADR-028 enforcement invariants", () => {
     expect(broken).toEqual([]);
   });
 
+  it("rule #4 — no inline session-role string equality (use hasRole / PermissionGate)", () => {
+    // ADR-028 #4: RBAC checks go through `hasRole(session, ...)`,
+    // `<PermissionGate>`, or `usePermission()`. Inline string equality
+    // like `session?.user?.role === "system_admin"` (a) misses the
+    // role-priority hierarchy our helpers encode and (b) drifts when
+    // a new role is added — ten files quietly miss the new role.
+    //
+    // Forbidden patterns:
+    //   session.user.role === "..."
+    //   session?.user?.role === "..."
+    //   session?.user.role === "..."
+    // The `message.role === "user"` chat case (assistant messages) and
+    // the `u.role === "manager"` mock-fixture transforms are not
+    // session-scoped, so this regex doesn't touch them.
+    // Match any `<expr>.user?.role === "..."` — covers session.user.role,
+    // session?.user?.role, data?.user?.role, etc. The chat case
+    // `message.role` and mock case `u.role` lack the `.user.` segment
+    // so they don't match.
+    const re = /\.user\??\.role\s*===\s*["']/;
+    const broken: string[] = [];
+    for (const file of SOURCES) {
+      let src = fs.readFileSync(file, "utf8");
+      src = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
+      if (re.test(src)) broken.push(file.replace(/\\/g, "/"));
+    }
+    expect(broken).toEqual([]);
+  });
+
   it("rule #6 — no bare confirm() / alert() / prompt() calls either", () => {
     // The bare globals (without `window.`) are equally banned. Match
     // requires word-boundary + open paren; skip lines where the word

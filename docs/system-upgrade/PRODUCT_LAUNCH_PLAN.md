@@ -264,6 +264,26 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Seventy-first batch — ADR-028 #4 invariant (no inline session-role checks)
+
+Rule #4 added to `lib/adr-028-invariants.test.ts`: forbids any
+`<expr>.user?.role === "..."` pattern anywhere outside test files.
+RBAC checks must go through `hasRole(session, ...)`,
+`<PermissionGate>`, or `usePermission()` — these encode role
+priority + feature-flag gating that inline string equality skips.
+Adding a new role then becomes a one-line change to the helper
+instead of a sweep across every page.
+
+Rule already held — current code uses `hasRole(session, ...)`
+exclusively (verified). The chat-message `message.role === "user"`
+and mock-fixture `u.role === "manager"` cases are NOT touched
+because they lack the `.user.` segment in the chain.
+
+Sanity-checked both directions: `s?.user?.role === "system_admin"`
+in a synthetic file → flagged; current code → clean.
+
+Full suite: 1279/1279 ✓ (was 1278; +1 invariant).
+
 ### 2026-05-10 — Seventieth batch — ADR-028 #3 invariant + 2 mutation fixes
 
 **Drift found and fixed:** `lib/hooks/use-notifications.ts` was
