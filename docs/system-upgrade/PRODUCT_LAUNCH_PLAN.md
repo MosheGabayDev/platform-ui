@@ -264,6 +264,27 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Fifty-seventh batch — i18n catalog parity invariant test
+
+New cross-cutting vitest invariant at `lib/i18n-catalog.test.ts`
+asserts the he/en catalogs have identical key shapes:
+
+1. Every English leaf key exists in Hebrew.
+2. Every Hebrew leaf key exists in English.
+3. Both catalogs have ≥500 keys (sanity floor) and the same count.
+4. No leaf value is an empty string in either locale.
+
+Catches the bug class where someone adds a new English string but
+forgets the Hebrew counterpart — Hebrew users would see either an
+English fallback or a missing-key marker. Mirrors the manifest↔RBAC
+invariant in `lib/api/roles.test.ts`. Runs in unit suite — no new
+script wiring needed.
+
+Catalog has ~1100 leaf keys per locale; all 4 invariants green.
+
+**Files modified:**
+- `lib/i18n-catalog.test.ts` (new) — 4 invariant tests.
+
 ### 2026-05-10 — Fifty-sixth batch — shrink coverage allowlist 8→2
 
 Followed up on batch 55 by adding the missing E2E coverage for the
