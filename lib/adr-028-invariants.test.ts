@@ -268,6 +268,60 @@ describe("ADR-028 enforcement invariants", () => {
     expect(broken).toEqual([]);
   });
 
+  it("rule #9 — no org_id in form schemas (lib/modules/*/schemas.ts)", () => {
+    // ADR-028 #9: org_id is a server-side concern. The backend resolves
+    // it from the JWT/session — never from a form field or request body.
+    // Forms that include an org_id field create a privilege-escalation
+    // path where a malicious client claims a different org's id.
+    //
+    // Schemas under lib/modules/<m>/schemas.ts are the write contracts
+    // (CreateXxxInput, EditXxxInput, signup payload, etc.). They must
+    // not declare an `org_id` field of any kind.
+    const schemaFiles = SOURCES.filter((f) =>
+      /(?:^|\/)lib\/modules\/[^/]+\/schemas\.ts$/.test(
+        f.replace(/\\/g, "/"),
+      ),
+    );
+    expect(schemaFiles.length).toBeGreaterThan(0);
+    const broken: string[] = [];
+    for (const file of schemaFiles) {
+      let src = fs.readFileSync(file, "utf8");
+      src = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
+      // Match `org_id` as a property name (key followed by `:`) — skips
+      // string-literal references in comments / docs.
+      if (/\borg_id\s*:/.test(src)) broken.push(file.replace(/\\/g, "/"));
+    }
+    expect(broken).toEqual([]);
+  });
+
+  it("rule #9 — no org_id in mutation request bodies (lib/api/*.ts)", () => {
+    // Same rule, write-side companion. Mutation clients in lib/api/*.ts
+    // build request bodies via `JSON.stringify({ ... })`. The body must
+    // not include an `org_id` key — backend resolves it from session.
+    //
+    // We accept `org_id` references in mock fixtures (read-side display)
+    // because those simulate what the backend WOULD return. The rule
+    // targets write-payload object literals.
+    const apiFiles = SOURCES.filter((f) =>
+      /(?:^|\/)lib\/api\/[^/]+\.ts$/.test(f.replace(/\\/g, "/")),
+    );
+    const broken: string[] = [];
+    for (const file of apiFiles) {
+      let src = fs.readFileSync(file, "utf8");
+      src = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
+      // Match `body: JSON.stringify({ ... org_id ... })` — capture the
+      // stringify arg up to the first matching `})` and check for org_id.
+      const re = /body\s*:\s*JSON\.stringify\(([\s\S]*?)\)/g;
+      for (const m of src.matchAll(re)) {
+        if (/\borg_id\b/.test(m[1] ?? "")) {
+          broken.push(file.replace(/\\/g, "/"));
+          break;
+        }
+      }
+    }
+    expect(broken).toEqual([]);
+  });
+
   it("rule #6 — no bare confirm() / alert() / prompt() calls either", () => {
     // The bare globals (without `window.`) are equally banned. Match
     // requires word-boundary + open paren; skip lines where the word

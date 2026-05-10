@@ -264,6 +264,32 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Seventy-second batch — ADR-028 #9 invariant (org_id is server-side only)
+
+Two new rules in `lib/adr-028-invariants.test.ts` enforcing the
+single most security-critical ADR-028 rule:
+
+1. **Form schemas** (`lib/modules/*/schemas.ts`) must NOT declare
+   an `org_id` field of any kind. Any client-controllable `org_id`
+   creates a privilege-escalation path where a malicious client
+   claims a different org's id; the backend is required to resolve
+   `org_id` from JWT/session.
+2. **Mutation request bodies** in `lib/api/*.ts` (matched via
+   `body: JSON.stringify({ ... })`) must not include `org_id`.
+   Mock-fixture read-side `org_id` references are NOT touched —
+   those simulate what the backend WOULD return.
+
+Rule already held — verified across 4 schemas + all `lib/api`
+mutation clients. Sanity-checked both directions with synthetic
+violations (`z.object({ org_id: ... })` and
+`JSON.stringify({ org_id: 1 })`) → both flagged.
+
+`adr-028-invariants.test.ts` now covers ADR-028 rules 1, 3, 4, 5,
+6, 7, 9, 10. Rules 2 (PlatformForm) and 8 (queryKeys — already in
+`query-keys.test.ts`) round out the set.
+
+Full suite: 1281/1281 ✓ (was 1279; +2 invariants).
+
 ### 2026-05-10 — Seventy-first batch — ADR-028 #4 invariant (no inline session-role checks)
 
 Rule #4 added to `lib/adr-028-invariants.test.ts`: forbids any
