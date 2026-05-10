@@ -264,6 +264,24 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Sixty-sixth batch — ADR-028 #5 invariant (PageShell / DetailHeaderCard)
+
+Rule #5 added to `lib/adr-028-invariants.test.ts`: every
+`app/(dashboard)/**/page.tsx` must reference either `PageShell`
+(list / hub pages) or `DetailHeaderCard` (detail pages via the
+DetailView primitive set). Layout chrome belongs in shared
+primitives — pages own content + data, not the title-frame.
+
+Allowlist:
+- `[...slug]` catch-all — not-found stub, intentionally bare.
+- `app/(dashboard)/page.tsx` — custom hero layout (KpiCards +
+  service-health rail + activity feed) by design.
+
+Sanity-checked: synthetic `__shell_test/page.tsx` returning
+`<div>hello</div>` with no shell import → gate flagged it.
+
+Full suite: 1276/1276 ✓ (was 1275; +1 invariant).
+
 ### 2026-05-10 — Sixty-fifth batch — ADR-028 #10 invariant (no LLM SDK imports)
 
 Rule #10 added to `lib/adr-028-invariants.test.ts`: forbids ANY

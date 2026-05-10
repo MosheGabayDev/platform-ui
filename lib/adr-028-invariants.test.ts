@@ -136,6 +136,44 @@ describe("ADR-028 enforcement invariants", () => {
     expect(presentBanned).toEqual([]);
   });
 
+  it("rule #5 — every dashboard page uses PageShell or DetailHeaderCard", () => {
+    // ADR-028 #5: layout chrome belongs in shared primitives. Pages
+    // own content + data; the title/back-button/glass-card frame is
+    // delegated. Detail pages use DetailHeaderCard via the
+    // DetailView primitive set; list / hub pages use PageShell.
+    function walk(dir: string, out: string[] = []): string[] {
+      for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+        const p = path.join(dir, e.name);
+        if (e.isDirectory()) walk(p, out);
+        else if (e.name === "page.tsx") out.push(p);
+      }
+      return out;
+    }
+    const pages = walk("app/(dashboard)");
+    // Allowlist:
+    //   - catch-all [...slug] is the not-found stub.
+    //   - dashboard root (app/(dashboard)/page.tsx) is a custom hero
+    //     layout (KpiCards + service-health rail + activity feed) that
+    //     by design doesn't use the title-frame primitive.
+    const ALLOW_BARE = (file: string) => {
+      const norm = file.replace(/\\/g, "/");
+      return (
+        norm.includes("[...") ||
+        norm.endsWith("app/(dashboard)/page.tsx")
+      );
+    };
+
+    const broken: string[] = [];
+    for (const file of pages) {
+      if (ALLOW_BARE(file)) continue;
+      const src = fs.readFileSync(file, "utf8");
+      const usesShell = /\bPageShell\b/.test(src);
+      const usesDetail = /\bDetailHeaderCard\b/.test(src);
+      if (!usesShell && !usesDetail) broken.push(file);
+    }
+    expect(broken).toEqual([]);
+  });
+
   it("rule #6 — no bare confirm() / alert() / prompt() calls either", () => {
     // The bare globals (without `window.`) are equally banned. Match
     // requires word-boundary + open paren; skip lines where the word
