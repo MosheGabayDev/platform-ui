@@ -791,7 +791,67 @@
     },
     "approvals": {
       "title": "אישורים",
-      "subtitle": "הפעלות כלים הממתינות לאישור אנושי"
+      "subtitle": "הפעלות כלים הממתינות לאישור אנושי",
+      "risk": {
+        "low": "נמוך",
+        "medium": "בינוני",
+        "high": "גבוה",
+        "critical": "קריטי"
+      },
+      "status": {
+        "pending_approval": "ממתין לאישור",
+        "all": "כל הסטטוסים",
+        "approved": "אושר",
+        "rejected": "נדחה",
+        "success": "הצלחה (אוטומטי)",
+        "error": "שגיאה"
+      },
+      "columns": {
+        "tool": "כלי",
+        "risk": "סיכון",
+        "status": "סטטוס",
+        "requestedBy": "נשלח על ידי",
+        "when": "מתי"
+      },
+      "kpi": {
+        "pending": "ממתין",
+        "approvedToday": "אושר היום",
+        "rejectedToday": "נדחה היום"
+      },
+      "search": {
+        "placeholder": "חיפוש לפי כלי או סיבה"
+      },
+      "empty": {
+        "title": "אין בקשות אישור",
+        "description": "כשה-AI יבקש אישור, הבקשות יופיעו כאן."
+      },
+      "rowMeta": {
+        "session": "session #{id}",
+        "ticket": "ticket #{id}"
+      },
+      "actions": {
+        "approve": "אישור",
+        "reject": "דחייה"
+      },
+      "rejectDialog": {
+        "title": "דחיית קריאת AI",
+        "description": "ניתן לתעד סיבה ליומן ה-audit. ה-AI יציג את הסיבה למפעיל שביקש את הפעולה.",
+        "reasonLabel": "סיבה (אופציונלי)",
+        "reasonPlaceholder": "מחוץ למדיניות / יעד שגוי / לטיפול מאוחר יותר…",
+        "cancel": "ביטול",
+        "confirm": "דחייה"
+      },
+      "relative": {
+        "justNow": "כעת",
+        "minutesAgo": "לפני {n}ד׳",
+        "hoursAgo": "לפני {n}ש׳",
+        "daysAgo": "לפני {n} ימים"
+      },
+      "disabled": {
+        "title": "הלפדסק לא מופעל",
+        "subtitle": "מודול מושבת",
+        "description": "מודול הלפדסק אינו מופעל לארגון שלך."
+      }
     },
     "kb": {
       "title": "בסיס ידע",

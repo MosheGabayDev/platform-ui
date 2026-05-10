@@ -791,7 +791,67 @@
     },
     "approvals": {
       "title": "Approvals",
-      "subtitle": "Tool invocations awaiting human approval"
+      "subtitle": "Tool invocations awaiting human approval",
+      "risk": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High",
+        "critical": "Critical"
+      },
+      "status": {
+        "pending_approval": "Pending approval",
+        "all": "All statuses",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "success": "Success (auto)",
+        "error": "Error"
+      },
+      "columns": {
+        "tool": "Tool",
+        "risk": "Risk",
+        "status": "Status",
+        "requestedBy": "Requested by",
+        "when": "When"
+      },
+      "kpi": {
+        "pending": "Pending",
+        "approvedToday": "Approved today",
+        "rejectedToday": "Rejected today"
+      },
+      "search": {
+        "placeholder": "Search by tool or reason"
+      },
+      "empty": {
+        "title": "No pending approvals",
+        "description": "When the AI asks for approval, the requests will appear here."
+      },
+      "rowMeta": {
+        "session": "session #{id}",
+        "ticket": "ticket #{id}"
+      },
+      "actions": {
+        "approve": "Approve",
+        "reject": "Reject"
+      },
+      "rejectDialog": {
+        "title": "Reject AI tool invocation",
+        "description": "Optionally record a reason for the audit log. The AI subsystem surfaces this back to the operator who requested the action.",
+        "reasonLabel": "Reason (optional)",
+        "reasonPlaceholder": "Out of policy / wrong target / will retry later…",
+        "cancel": "Cancel",
+        "confirm": "Reject"
+      },
+      "relative": {
+        "justNow": "just now",
+        "minutesAgo": "{n}m ago",
+        "hoursAgo": "{n}h ago",
+        "daysAgo": "{n}d ago"
+      },
+      "disabled": {
+        "title": "Helpdesk not enabled",
+        "subtitle": "Module disabled",
+        "description": "The Helpdesk module is not enabled for your organization."
+      }
     },
     "kb": {
       "title": "Knowledge base",

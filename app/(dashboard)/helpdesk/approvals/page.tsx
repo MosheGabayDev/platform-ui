@@ -57,47 +57,54 @@ import type {
   ToolInvocationStatus,
 } from "@/lib/modules/helpdesk/types";
 
-// Risk level visual mapping (matches ActionPreviewCard color tones)
-const RISK_META: Record<string, { icon: LucideIcon; tone: string; label: string }> = {
+// Risk level visual mapping (matches ActionPreviewCard color tones).
+// Labels live in the i18n catalog under helpdesk.approvals.risk.* —
+// callers resolve via t(`risk.${level}`).
+type RiskLevel = "low" | "medium" | "high" | "critical";
+const RISK_META: Record<RiskLevel, { icon: LucideIcon; tone: string }> = {
   low: {
     icon: ShieldCheck,
     tone: "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
-    label: "Low",
   },
   medium: {
     icon: ShieldCheck,
     tone: "border-cyan-500/30 bg-cyan-500/15 text-cyan-700 dark:text-cyan-400",
-    label: "Medium",
   },
   high: {
     icon: ShieldAlert,
     tone: "border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-400",
-    label: "High",
   },
   critical: {
     icon: Skull,
     tone: "border-rose-500/30 bg-rose-500/15 text-rose-700 dark:text-rose-400",
-    label: "Critical",
   },
 };
 
-const STATUS_OPTIONS: Array<{ value: ToolInvocationStatus | "all"; label: string }> = [
-  { value: "pending_approval", label: "Pending approval" },
-  { value: "all", label: "All statuses" },
-  { value: "approved", label: "Approved" },
-  { value: "rejected", label: "Rejected" },
-  { value: "success", label: "Success (auto)" },
-  { value: "error", label: "Error" },
+const STATUS_VALUES: Array<ToolInvocationStatus | "all"> = [
+  "pending_approval",
+  "all",
+  "approved",
+  "rejected",
+  "success",
+  "error",
 ];
 
-function formatRelative(iso: string): string {
+// Status keys in the i18n catalog. "success (auto)" → key "success".
+function statusKey(s: ToolInvocationStatus | "all"): string {
+  return s === "all" ? "all" : s;
+}
+
+function formatRelative(
+  iso: string,
+  t: (key: string, params?: Record<string, string | number | Date>) => string,
+): string {
   const diffMs = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diffMs / 60_000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
+  if (mins < 1) return t("relative.justNow");
+  if (mins < 60) return t("relative.minutesAgo", { n: mins });
   const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  return `${Math.floor(hours / 24)}d ago`;
+  if (hours < 24) return t("relative.hoursAgo", { n: hours });
+  return t("relative.daysAgo", { n: Math.floor(hours / 24) });
 }
 
 // D11 audit fix — approval statuses now flow through the shared
@@ -167,14 +174,14 @@ function ApprovalsInner() {
     () => [
       {
         accessorKey: "tool_name",
-        header: "Tool",
+        header: t("columns.tool"),
         cell: ({ row }) => (
           <div className="flex flex-col">
             <span className="font-mono text-xs">{row.original.tool_name}</span>
             <span className="text-[10px] text-muted-foreground">
-              session #{row.original.session_id}
+              {t("rowMeta.session", { id: row.original.session_id })}
               {row.original.ticket_id !== null && row.original.ticket_id !== undefined ? (
-                <> · ticket #{row.original.ticket_id}</>
+                <> · {t("rowMeta.ticket", { id: row.original.ticket_id })}</>
               ) : null}
             </span>
           </div>
@@ -182,27 +189,27 @@ function ApprovalsInner() {
       },
       {
         accessorKey: "tool_snapshot",
-        header: "Risk",
+        header: t("columns.risk"),
         cell: ({ row }) => {
-          const risk = row.original.tool_snapshot?.risk_level ?? "low";
+          const risk = (row.original.tool_snapshot?.risk_level ?? "low") as RiskLevel;
           const meta = RISK_META[risk] ?? RISK_META.low;
           const Icon = meta.icon;
           return (
             <Badge variant="outline" className={meta.tone}>
               <Icon className="h-3 w-3 me-1" aria-hidden="true" />
-              {meta.label}
+              {t(`risk.${risk}` as never)}
             </Badge>
           );
         },
       },
       {
         accessorKey: "status",
-        header: "Status",
+        header: t("columns.status"),
         cell: ({ row }) => <JobStatusBadge status={row.original.status} />,
       },
       {
         accessorKey: "requested_by_name",
-        header: "Requested by",
+        header: t("columns.requestedBy"),
         cell: ({ row }) =>
           row.original.requested_by_name ? (
             <span className="text-sm">{row.original.requested_by_name}</span>
@@ -212,10 +219,10 @@ function ApprovalsInner() {
       },
       {
         accessorKey: "created_at",
-        header: "When",
+        header: t("columns.when"),
         cell: ({ row }) => (
           <span className="text-xs text-muted-foreground">
-            {formatRelative(row.original.created_at)}
+            {formatRelative(row.original.created_at, t)}
           </span>
         ),
       },
@@ -236,7 +243,7 @@ function ApprovalsInner() {
                 variant="default"
               >
                 <CheckCircle className="h-3.5 w-3.5 me-1" aria-hidden="true" />
-                Approve
+                {t("actions.approve")}
               </ActionButton>
               <Button
                 onClick={() => {
@@ -249,7 +256,7 @@ function ApprovalsInner() {
                 variant="outline"
               >
                 <XCircle className="h-3.5 w-3.5 me-1" aria-hidden="true" />
-                Reject
+                {t("actions.reject")}
               </Button>
             </div>
           );
@@ -271,7 +278,7 @@ function ApprovalsInner() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="glass border-border/50 rounded-xl p-4 flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Pending</span>
+                <span className="text-xs text-muted-foreground">{t("kpi.pending")}</span>
                 <Clock
                   className={`h-4 w-4 ${
                     pendingCount > 0
@@ -293,19 +300,17 @@ function ApprovalsInner() {
             </div>
             <div className="glass border-border/50 rounded-xl p-4 flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Showing</span>
+                <span className="text-xs text-muted-foreground">{t("kpi.approvedToday")}</span>
                 <ShieldAlert className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
               </div>
               <span className="text-2xl font-semibold">{total}</span>
             </div>
             <div className="glass border-border/50 rounded-xl p-4 flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Filter</span>
+                <span className="text-xs text-muted-foreground">{t("kpi.rejectedToday")}</span>
                 <ShieldCheck className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
               </div>
-              <span className="text-sm font-medium">
-                {STATUS_OPTIONS.find((o) => o.value === status)?.label}
-              </span>
+              <span className="text-sm font-medium">{t(`status.${statusKey(status)}` as never)}</span>
             </div>
           </div>
 
@@ -313,14 +318,14 @@ function ApprovalsInner() {
           <div className="flex flex-col sm:flex-row gap-2">
             <Input
               type="search"
-              placeholder="Search tool name or ticket ID…"
+              placeholder={t("search.placeholder")}
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
                 setPage(1);
               }}
               className="sm:max-w-xs"
-              aria-label="Search invocations"
+              aria-label={t("search.placeholder")}
             />
             <select
               value={status}
@@ -329,11 +334,11 @@ function ApprovalsInner() {
                 setPage(1);
               }}
               className="h-9 rounded-md border border-input bg-background px-3 text-sm sm:w-44"
-              aria-label="Filter by status"
+              aria-label={t("columns.status")}
             >
-              {STATUS_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
+              {STATUS_VALUES.map((value) => (
+                <option key={value} value={value}>
+                  {t(`status.${statusKey(value)}` as never)}
                 </option>
               ))}
             </select>
@@ -344,11 +349,7 @@ function ApprovalsInner() {
             data={invocations}
             isLoading={isLoading}
             error={error as Error | null}
-            emptyMessage={
-              status === "pending_approval"
-                ? "No invocations awaiting approval — queue clear ✨"
-                : "No invocations match your filters"
-            }
+            emptyMessage={t("empty.title")}
             pagination={{
               page,
               totalPages,
@@ -373,21 +374,20 @@ function ApprovalsInner() {
         >
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Reject AI tool invocation</DialogTitle>
-              <DialogDescription>
-                Optionally record a reason for the audit log. The AI subsystem
-                surfaces this back to the operator who requested the action.
-              </DialogDescription>
+              <DialogTitle>{t("rejectDialog.title")}</DialogTitle>
+              <DialogDescription>{t("rejectDialog.description")}</DialogDescription>
             </DialogHeader>
             <div className="space-y-1.5">
-              <Label htmlFor="approval-reject-reason">Reason (optional)</Label>
+              <Label htmlFor="approval-reject-reason">
+                {t("rejectDialog.reasonLabel")}
+              </Label>
               <Textarea
                 id="approval-reject-reason"
                 rows={4}
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
                 disabled={reject.isPending}
-                placeholder="Out of policy / wrong target / will retry later…"
+                placeholder={t("rejectDialog.reasonPlaceholder")}
                 data-testid="approval-reject-reason"
               />
             </div>
@@ -400,7 +400,7 @@ function ApprovalsInner() {
                 }}
                 disabled={reject.isPending}
               >
-                Cancel
+                {t("rejectDialog.cancel")}
               </Button>
               <Button
                 variant="destructive"
@@ -415,7 +415,7 @@ function ApprovalsInner() {
                 }}
                 data-testid="approval-reject-confirm"
               >
-                Reject
+                {t("rejectDialog.confirm")}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -425,20 +425,22 @@ function ApprovalsInner() {
   );
 }
 
+function ApprovalsDisabledFallback() {
+  const t = useTranslations("helpdesk.approvals");
+  return (
+    <PageShell icon={ShieldAlert} title={t("title")} subtitle={t("disabled.subtitle")}>
+      <EmptyState
+        icon={AlertCircle}
+        title={t("disabled.title")}
+        description={t("disabled.description")}
+      />
+    </PageShell>
+  );
+}
+
 export default function HelpdeskApprovalsPage() {
   return (
-    <FeatureGate
-      flag="helpdesk.enabled"
-      fallback={
-        <PageShell icon={ShieldAlert} title="Approvals" subtitle="Coming soon">
-          <EmptyState
-            icon={AlertCircle}
-            title="Helpdesk not enabled"
-            description="The Helpdesk module is not enabled for your organization."
-          />
-        </PageShell>
-      }
-    >
+    <FeatureGate flag="helpdesk.enabled" fallback={<ApprovalsDisabledFallback />}>
       <ApprovalsInner />
     </FeatureGate>
   );

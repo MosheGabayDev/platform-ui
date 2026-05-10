@@ -264,6 +264,57 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Forty-fourth batch — i18n cleanup of helpdesk/approvals + debt audit
+
+Same audit reflex on a new dimension: pages with **hardcoded English
+strings**. Heuristic regex (2+ word capitalized strings in JSX text /
+common attribute values / column headers) found 9 pages with 5+
+violations each — about 77 strings of i18n debt total.
+
+**This batch cleans `helpdesk/approvals`** (the page touched in
+batch 43; natural follow-through). All previously-hardcoded strings
+moved to the `helpdesk.approvals.*` i18n namespace:
+- 4 risk labels (`risk.{low,medium,high,critical}`)
+- 6 status options (`status.{pending_approval,all,approved,rejected,success,error}`)
+- 5 column headers (`columns.{tool,risk,status,requestedBy,when}`)
+- 3 KPI labels (`kpi.{pending,approvedToday,rejectedToday}`)
+- 5 reject-dialog strings (title, description, reasonLabel, reasonPlaceholder, cancel, confirm)
+- 4 relative-time formats (`relative.{justNow,minutesAgo,hoursAgo,daysAgo}` with `{n}` ICU param)
+- 3 disabled-fallback strings (title, subtitle, description)
+- 2 row-meta strings (`rowMeta.{session,ticket}` with `{id}` param)
+- 2 action labels (`actions.{approve,reject}`)
+- 2 search/empty strings
+
+`formatRelative()` now takes the `t` function as a parameter so it
+can reuse the page-level scope. Extracted `ApprovalsDisabledFallback`
+component so the FeatureGate fallback can call `useTranslations`
+properly (fallback was previously rendered outside any namespace).
+
+**Re-audit** confirms `helpdesk/approvals` dropped off the i18n
+debt list (was 8 violations, now 0). 8 pages remain (~69 strings)
+— tracked as deferred debt:
+
+| Page | Violations |
+|---|---|
+| `admin/ai-usage` | 11 |
+| `audit-log` | 10 |
+| `helpdesk/maintenance` | 10 |
+| `helpdesk/sla` | 9 |
+| `helpdesk/tickets` | 9 |
+| `helpdesk/batch` | 8 |
+| `helpdesk/technicians` | 7 |
+| `onboarding` | 5 |
+
+**Files modified:**
+- `app/(dashboard)/helpdesk/approvals/page.tsx` (full i18n migration)
+- `i18n/messages/{he,en}.json` (~30 new keys under `helpdesk.approvals.*`)
+
+**Suites:**
+- `npx vitest run` — 141 files / **1253 tests ✓** (no count change — i18n only)
+- `npx tsc --noEmit` — clean ✓
+- `npx eslint . --quiet` — 0 errors ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+
 ### 2026-05-10 — Forty-third batch — ADR-028 violation: window.prompt → Dialog
 
 Same audit reflex on a new dimension: scan for `window.confirm`,
