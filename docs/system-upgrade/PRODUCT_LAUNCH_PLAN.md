@@ -264,6 +264,32 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Sixty-eighth batch — migrate /admin/ip-allowlist to DataTable
+
+Shrank the ADR-028 #1 debt list (batch 67) by 1: replaced the
+hand-rolled `<table>` in `app/(dashboard)/admin/ip-allowlist/page.tsx`
+with `DataTable<AllowlistRow>`. 4 columns (cidr / label / addedAt /
+remove-action) preserved including all data-testids
+(`cidr-input`, `cidr-add`, `cidr-remove-<i>`) — the existing E2E
+spec didn't need any changes.
+
+Added a `AllowlistRow extends AllowlistEntry` row type with an
+`index` field so the per-row delete action knows which slot of the
+source array to remove (DataTable doesn't expose row index by
+itself). Source `AllowlistEntry` shape unchanged so localStorage
+persistence works without a migration.
+
+**Test fix:**
+- `page.test.tsx` "rejects invalid CIDR" was asserting on
+  `/CIDR/` which now collides with the DataTable column header.
+  Tightened to match the error message's range example
+  (`192.168.1.0/24`) instead. Same intent, more specific.
+
+ADR-028 #1 allowlist now: only `app/(dashboard)/billing/page.tsx`
+remains. Stale-detection branch still locks both directions.
+
+Full suite: 1277/1277 ✓.
+
 ### 2026-05-10 — Sixty-seventh batch — ADR-028 #1 invariant (DataTable for list-row UIs)
 
 Rule #1 added to `lib/adr-028-invariants.test.ts`: hand-rolled

@@ -189,7 +189,7 @@ describe("ADR-028 enforcement invariants", () => {
     // prevents new instances from sneaking in. Stale-detection branch
     // below keeps the list honest.
     const ALLOW_DEBT = new Set<string>([
-      "app/(dashboard)/admin/ip-allowlist/page.tsx",
+      // Batch 68 migrated ip-allowlist to DataTable.
       "app/(dashboard)/billing/page.tsx",
     ]);
 

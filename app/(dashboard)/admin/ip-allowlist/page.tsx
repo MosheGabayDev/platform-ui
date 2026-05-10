@@ -18,14 +18,16 @@
  * pattern.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Network, Plus, Trash2, Lock, ExternalLink } from "lucide-react";
+import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PageShell } from "@/components/shared/page-shell";
+import { DataTable } from "@/components/shared/data-table";
 import { useFeatureFlag } from "@/lib/hooks/use-feature-flag";
 import { isValidIpv4Cidr } from "@/lib/platform/security/cidr";
 import {
@@ -40,6 +42,11 @@ interface AllowlistEntry {
   cidr: string;
   label: string;
   added_at: string;
+}
+
+interface AllowlistRow extends AllowlistEntry {
+  /** Index into the source array — needed because removal is by-position. */
+  index: number;
 }
 
 function loadEntries(): AllowlistEntry[] {
@@ -102,6 +109,63 @@ function Editor() {
     toast.success(t("saved"));
   };
 
+  const rows: AllowlistRow[] = useMemo(
+    () => entries.map((e, index) => ({ ...e, index })),
+    [entries],
+  );
+
+  const columns = useMemo<ColumnDef<AllowlistRow>[]>(
+    () => [
+      {
+        accessorKey: "cidr",
+        header: tCols("cidr"),
+        cell: ({ row }) => (
+          <span className="text-sm font-mono">{row.original.cidr}</span>
+        ),
+      },
+      {
+        accessorKey: "label",
+        header: tCols("label"),
+        cell: ({ row }) => (
+          <span className="text-sm text-muted-foreground">
+            {row.original.label || "—"}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "added_at",
+        header: tCols("addedAt"),
+        cell: ({ row }) => (
+          <span className="text-xs text-muted-foreground">
+            {new Date(row.original.added_at).toLocaleDateString()}
+          </span>
+        ),
+      },
+      {
+        id: "actions",
+        header: () => <span className="block text-end">{t("remove")}</span>,
+        cell: ({ row }) => (
+          <div className="text-end">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+              onClick={() => handleRemove(row.original.index)}
+              aria-label={`${t("remove")} ${row.original.cidr}`}
+              data-testid={`cidr-remove-${row.original.index}`}
+            >
+              <Trash2 className="size-3.5" />
+            </Button>
+          </div>
+        ),
+      },
+    ],
+    // Re-build cells when entries change so handleRemove closes over the
+    // latest array. Translator hooks are stable references.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [entries, t, tCols],
+  );
+
   return (
     <PageShell icon={Network} title={t("title")} subtitle={t("subtitle")}>
       <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">{t("intro")}</p>
@@ -132,45 +196,11 @@ function Editor() {
         {error && <p className="text-xs text-destructive">{error}</p>}
       </div>
 
-      <div className="glass border-border/50 rounded-xl overflow-hidden">
-        {entries.length === 0 ? (
-          <p className="px-5 py-8 text-center text-sm text-muted-foreground">{t("empty")}</p>
-        ) : (
-          <table className="w-full">
-            <thead className="bg-muted/30 text-xs uppercase tracking-wide text-muted-foreground">
-              <tr>
-                <th className="text-start px-4 py-2 font-semibold">{tCols("cidr")}</th>
-                <th className="text-start px-4 py-2 font-semibold">{tCols("label")}</th>
-                <th className="text-start px-4 py-2 font-semibold">{tCols("addedAt")}</th>
-                <th className="text-end px-4 py-2 font-semibold">{t("remove")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {entries.map((e, i) => (
-                <tr key={`${e.cidr}-${i}`} className="border-t border-border/40">
-                  <td className="px-4 py-3 text-sm font-mono">{e.cidr}</td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground">{e.label || "—"}</td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground">
-                    {new Date(e.added_at).toLocaleDateString()}
-                  </td>
-                  <td className="px-4 py-3 text-end">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
-                      onClick={() => handleRemove(i)}
-                      aria-label={`${t("remove")} ${e.cidr}`}
-                      data-testid={`cidr-remove-${i}`}
-                    >
-                      <Trash2 className="size-3.5" />
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+      <DataTable
+        columns={columns}
+        data={rows}
+        emptyMessage={t("empty")}
+      />
     </PageShell>
   );
 }

@@ -48,7 +48,10 @@ describe("IpAllowlistPage", () => {
     render(<IpAllowlistPage />);
     fireEvent.change(screen.getByTestId("cidr-input"), { target: { value: "not-a-cidr" } });
     fireEvent.click(screen.getByTestId("cidr-add"));
-    expect(screen.getByText(/CIDR/)).toBeTruthy();
+    // The error renders as a `text-destructive` paragraph; match on its
+    // distinctive content (range example) so we don't collide with the
+    // DataTable column header named "CIDR".
+    expect(screen.getByText(/192\.168\.1\.0\/24/)).toBeTruthy();
   });
 
   it("adds a valid CIDR and surfaces it in the table", () => {
