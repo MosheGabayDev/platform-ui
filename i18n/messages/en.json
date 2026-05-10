@@ -842,7 +842,71 @@
       "title": "Tickets",
       "subtitle": "Helpdesk ticket queue",
       "comingSoon": "Coming soon",
-      "notEnabled": "Helpdesk not enabled"
+      "notEnabled": "Helpdesk not enabled",
+      "status": {
+        "all": "All statuses",
+        "new": "New",
+        "in_progress": "In progress",
+        "resolved": "Resolved",
+        "closed": "Closed"
+      },
+      "priority": {
+        "all": "All priorities",
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High",
+        "critical": "Critical"
+      },
+      "filters": {
+        "searchPlaceholder": "Search ticket title…",
+        "searchAria": "Search tickets",
+        "statusAria": "Filter by status",
+        "priorityAria": "Filter by priority"
+      },
+      "columns": {
+        "ticketNumber": "Ticket #",
+        "title": "Title",
+        "status": "Status",
+        "priority": "Priority",
+        "sla": "SLA"
+      },
+      "sla": {
+        "breached": "Breached",
+        "breachedTitle": "SLA breached",
+        "onTrack": "On track"
+      },
+      "actions": {
+        "view": "View details",
+        "take": "Take ticket",
+        "resolve": "Resolve",
+        "triggerAria": "Ticket actions"
+      },
+      "resolveConfirm": {
+        "title": "Resolve ticket",
+        "description": "The user will be notified that the ticket is resolved."
+      },
+      "toasts": {
+        "taken": "Ticket #{ticket} assigned to you.",
+        "resolved": "Ticket #{ticket} resolved.",
+        "bulkFailed": "{count, plural, =1 {1 ticket failed} other {{count} tickets failed}}."
+      },
+      "resolutions": {
+        "rowAction": "Resolved via row action"
+      },
+      "bulk": {
+        "toolbarAria": "Bulk actions",
+        "selectedCount": "{count} selected",
+        "reassignTo": "Reassign to Olivia",
+        "reassignReason": "Bulk reassign from list",
+        "markResolved": "Mark resolved",
+        "resolveReason": "Bulk resolve from list",
+        "clear": "Clear",
+        "clearAria": "Clear selection"
+      },
+      "empty": "No tickets match your filters",
+      "disabled": {
+        "description": "The Helpdesk module is not enabled for your organization."
+      }
     },
     "technicians": {
       "title": "Technicians",
@@ -1947,6 +2011,19 @@
         "private": "Private",
         "group": "Group"
       }
+    },
+    "detail": {
+      "title": "WhatsApp chat",
+      "subtitle": "Captured messages and media for this chat",
+      "back": "Back",
+      "me": "Me",
+      "unknownSender": "Unknown sender",
+      "never": "Never",
+      "media": "Media attachment",
+      "mediaReady": "Media ready",
+      "bytes": "{bytes} bytes",
+      "emptyTitle": "No messages captured",
+      "emptyDescription": "Messages will appear here after the linked session captures this chat."
     },
     "qrDialog": {
       "title": "WhatsApp QR",

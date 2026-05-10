@@ -9,6 +9,7 @@
 
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import {
   Archive,
@@ -66,7 +67,10 @@ function ChatRow({ chat }: { chat: WhatsAppChat }) {
   const name = chat.display_name ?? chat.wa_chat_id;
   const Icon = chat.kind === "group" ? Users : MessageSquare;
   return (
-    <article className="flex min-h-24 flex-col gap-3 rounded-lg border border-border bg-card p-3 sm:flex-row sm:items-center sm:justify-between">
+    <Link
+      href={`/whatsapp/chats/${chat.id}`}
+      className="flex min-h-24 flex-col gap-3 rounded-lg border border-border bg-card p-3 transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:flex-row sm:items-center sm:justify-between"
+    >
       <div className="flex min-w-0 items-start gap-3">
         <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
           <Icon className="size-5 text-primary" />
@@ -99,7 +103,7 @@ function ChatRow({ chat }: { chat: WhatsAppChat }) {
           <div className="mt-1">{t("participants", { count: chat.participant_count })}</div>
         )}
       </div>
-    </article>
+    </Link>
   );
 }
 

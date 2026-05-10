@@ -54,20 +54,20 @@ import type {
   TicketPriority,
 } from "@/lib/modules/helpdesk/types";
 
-const STATUS_OPTIONS: Array<{ value: TicketStatus | "all"; label: string }> = [
-  { value: "all", label: "All statuses" },
-  { value: "new", label: "New" },
-  { value: "in_progress", label: "In progress" },
-  { value: "resolved", label: "Resolved" },
-  { value: "closed", label: "Closed" },
+const STATUS_VALUES: Array<TicketStatus | "all"> = [
+  "all",
+  "new",
+  "in_progress",
+  "resolved",
+  "closed",
 ];
 
-const PRIORITY_OPTIONS: Array<{ value: TicketPriority | "all"; label: string }> = [
-  { value: "all", label: "All priorities" },
-  { value: "low", label: "Low" },
-  { value: "medium", label: "Medium" },
-  { value: "high", label: "High" },
-  { value: "critical", label: "Critical" },
+const PRIORITY_VALUES: Array<TicketPriority | "all"> = [
+  "all",
+  "low",
+  "medium",
+  "high",
+  "critical",
 ];
 
 function TicketsListInner() {
@@ -106,7 +106,7 @@ function TicketsListInner() {
     onSuccess: (res) => {
       toast.success(res.message);
       if (res.data.failed.length > 0) {
-        toast.error(`${res.data.failed.length} ticket(s) failed.`);
+        toast.error(t("toasts.bulkFailed", { count: res.data.failed.length }));
       }
       setSelected(new Set());
     },
@@ -118,7 +118,7 @@ function TicketsListInner() {
     onSuccess: (res) => {
       toast.success(res.message);
       if (res.data.failed.length > 0) {
-        toast.error(`${res.data.failed.length} ticket(s) failed.`);
+        toast.error(t("toasts.bulkFailed", { count: res.data.failed.length }));
       }
       setSelected(new Set());
     },
@@ -153,80 +153,83 @@ function TicketsListInner() {
       {
         id: "view",
         kind: "view",
-        label: "View details",
+        label: t("actions.view"),
         onInvoke: (tk) => router.push(`/helpdesk/tickets/${tk.id}`),
       },
       {
         id: "take",
         kind: "custom",
-        label: "Take ticket",
+        label: t("actions.take"),
         icon: Hand,
         visibleWhen: (tk) => tk.status !== "resolved" && tk.status !== "closed",
         onInvoke: async (tk) => {
           await takeTicket({ ticketId: tk.id });
-          toast.success(`Ticket #${tk.ticket_number} assigned to you.`);
+          toast.success(t("toasts.taken", { ticket: tk.ticket_number }));
           await queryClient.invalidateQueries({ queryKey: queryKeys.helpdesk.all() });
         },
       },
       {
         id: "resolve",
         kind: "custom",
-        label: "Resolve",
+        label: t("actions.resolve"),
         icon: CheckSquare,
         visibleWhen: (tk) => tk.status !== "resolved" && tk.status !== "closed",
         destructive: true,
-        confirmTitle: "Resolve ticket",
-        confirmDescription: "The user will be notified that the ticket is resolved.",
+        confirmTitle: t("resolveConfirm.title"),
+        confirmDescription: t("resolveConfirm.description"),
         onInvoke: async (tk) => {
-          await resolveTicket({ ticketId: tk.id, resolution: "Resolved via row action" });
-          toast.success(`Ticket #${tk.ticket_number} resolved.`);
+          await resolveTicket({
+            ticketId: tk.id,
+            resolution: t("resolutions.rowAction"),
+          });
+          toast.success(t("toasts.resolved", { ticket: tk.ticket_number }));
           await queryClient.invalidateQueries({ queryKey: queryKeys.helpdesk.all() });
         },
       },
     ],
-    [router, queryClient],
+    [router, queryClient, t],
   );
 
   const columns = useMemo<ColumnDef<TicketSummary>[]>(
     () => [
       {
         accessorKey: "ticket_number",
-        header: "Ticket #",
+        header: t("columns.ticketNumber"),
         cell: ({ row }) => (
           <span className="font-mono text-xs">{row.original.ticket_number}</span>
         ),
       },
       {
         accessorKey: "title",
-        header: "Title",
+        header: t("columns.title"),
         cell: ({ row }) => (
           <span className="font-medium">{row.original.title}</span>
         ),
       },
       {
         accessorKey: "status",
-        header: "Status",
+        header: t("columns.status"),
         cell: ({ row }) => <TicketStatusBadge status={row.original.status} />,
       },
       {
         accessorKey: "priority",
-        header: "Priority",
+        header: t("columns.priority"),
         cell: ({ row }) => <TicketPriorityBadge priority={row.original.priority} />,
       },
       {
         accessorKey: "sla_breached",
-        header: "SLA",
+        header: t("columns.sla"),
         cell: ({ row }) =>
           row.original.sla_breached ? (
             <span
               className="inline-flex items-center gap-1 text-rose-600 dark:text-rose-400 text-xs"
-              title="SLA breached"
+              title={t("sla.breachedTitle")}
             >
               <AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />
-              Breached
+              {t("sla.breached")}
             </span>
           ) : (
-            <span className="text-muted-foreground text-xs">On track</span>
+            <span className="text-muted-foreground text-xs">{t("sla.onTrack")}</span>
           ),
       },
       // C7 — RecordActionsMenu column. Actions are filtered server-side
@@ -243,7 +246,7 @@ function TicketsListInner() {
             <RecordActionsMenu
               record={row.original}
               actions={ticketActions}
-              triggerAriaLabel="Ticket actions"
+              triggerAriaLabel={t("actions.triggerAria")}
             />
           </div>
         ),
@@ -252,7 +255,7 @@ function TicketsListInner() {
     // Re-build the column when the actions array re-renders (e.g. after
     // a ticket changes status and `visibleWhen` predicates flip).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [ticketActions],
+    [ticketActions, t],
   );
 
   return (
@@ -266,14 +269,14 @@ function TicketsListInner() {
           <div className="flex flex-col sm:flex-row gap-2">
             <Input
               type="search"
-              placeholder="Search ticket title…"
+              placeholder={t("filters.searchPlaceholder")}
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
                 setPage(1);
               }}
               className="sm:max-w-xs"
-              aria-label="Search tickets"
+              aria-label={t("filters.searchAria")}
             />
             <select
               value={status}
@@ -282,11 +285,11 @@ function TicketsListInner() {
                 setPage(1);
               }}
               className="h-9 rounded-md border border-input bg-background px-3 text-sm sm:w-44"
-              aria-label="Filter by status"
+              aria-label={t("filters.statusAria")}
             >
-              {STATUS_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
+              {STATUS_VALUES.map((value) => (
+                <option key={value} value={value}>
+                  {t(`status.${value}` as never)}
                 </option>
               ))}
             </select>
@@ -297,11 +300,11 @@ function TicketsListInner() {
                 setPage(1);
               }}
               className="h-9 rounded-md border border-input bg-background px-3 text-sm sm:w-44"
-              aria-label="Filter by priority"
+              aria-label={t("filters.priorityAria")}
             >
-              {PRIORITY_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
+              {PRIORITY_VALUES.map((value) => (
+                <option key={value} value={value}>
+                  {t(`priority.${value}` as never)}
                 </option>
               ))}
             </select>
@@ -312,10 +315,10 @@ function TicketsListInner() {
             <div
               className="flex items-center gap-2 rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-sm"
               role="toolbar"
-              aria-label="Bulk actions"
+              aria-label={t("bulk.toolbarAria")}
             >
               <span className="font-medium">
-                {selectedIds.length} selected
+                {t("bulk.selectedCount", { count: selectedIds.length })}
               </span>
               <span className="text-muted-foreground">·</span>
               <ActionButton
@@ -323,7 +326,7 @@ function TicketsListInner() {
                   bulkReassign.mutate({
                     ticketIds: selectedIds,
                     assigneeId: 3, // mock target: OnCall Olivia
-                    reason: "Bulk reassign from list",
+                    reason: t("bulk.reassignReason"),
                   })
                 }
                 isLoading={bulkReassign.isPending}
@@ -331,14 +334,14 @@ function TicketsListInner() {
                 variant="default"
               >
                 <UsersIcon className="h-3.5 w-3.5 me-1" aria-hidden="true" />
-                Reassign to Olivia
+                {t("bulk.reassignTo")}
               </ActionButton>
               <ActionButton
                 onClick={() =>
                   bulkStatus.mutate({
                     ticketIds: selectedIds,
                     status: "resolved",
-                    reason: "Bulk resolve from list",
+                    reason: t("bulk.resolveReason"),
                   })
                 }
                 isLoading={bulkStatus.isPending}
@@ -346,17 +349,17 @@ function TicketsListInner() {
                 variant="default"
               >
                 <CheckCircle className="h-3.5 w-3.5 me-1" aria-hidden="true" />
-                Mark resolved
+                {t("bulk.markResolved")}
               </ActionButton>
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={() => setSelected(new Set())}
                 className="ms-auto"
-                aria-label="Clear selection"
+                aria-label={t("bulk.clearAria")}
               >
                 <X className="h-3.5 w-3.5 me-1" aria-hidden="true" />
-                Clear
+                {t("bulk.clear")}
               </Button>
             </div>
           )}
@@ -367,7 +370,7 @@ function TicketsListInner() {
             isLoading={isLoading}
             error={error as Error | null}
             onRowClick={(row) => router.push(`/helpdesk/tickets/${row.id}`)}
-            emptyMessage="No tickets match your filters"
+            emptyMessage={t("empty")}
             pagination={{
               page,
               totalPages,
@@ -394,7 +397,7 @@ function TicketsDisabledFallback() {
       <EmptyState
         icon={AlertCircle}
         title={t("notEnabled")}
-        description="The Helpdesk module is not enabled for your organization."
+        description={t("disabled.description")}
       />
     </PageShell>
   );

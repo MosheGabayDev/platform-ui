@@ -264,6 +264,48 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Forty-eighth batch — i18n cleanup of /helpdesk/tickets
+
+Continues batches 44–47. `/helpdesk/tickets` was tied with `/sla` for
+the next biggest offender (9 violations). Picked tickets first — most
+trafficked helpdesk page.
+
+**Refactors:**
+- `STATUS_OPTIONS`/`PRIORITY_OPTIONS` arrays → `STATUS_VALUES`/`PRIORITY_VALUES`
+  with per-locale resolution via `t(\`status.${value}\`)` /
+  `t(\`priority.${value}\`)`
+- 5 column headers (`columns.{ticketNumber,title,status,priority,sla}`)
+- SLA badge label + title + on-track text (`sla.{breached,breachedTitle,onTrack}`)
+- 3 row-action labels (`actions.{view,take,resolve}`) + trigger aria
+- Resolve confirm dialog title + description (`resolveConfirm.*`)
+- Toasts with ICU `{ticket}` param (`toasts.{taken,resolved}`)
+- Bulk-toolbar: `selectedCount` with `{count}` ICU plural,
+  `reassignTo` + `reassignReason` + `markResolved` + `resolveReason` + `clear` + clearAria
+- Bulk-failed toast uses `{count, plural}` for proper localization
+- 3 filter aria labels + search placeholder
+- Resolution string for row-action audit trail
+- Disabled-fallback description
+
+**Files modified:**
+- `app/(dashboard)/helpdesk/tickets/page.tsx` (full i18n migration)
+- `i18n/messages/{he,en}.json` (~40 new keys under `helpdesk.tickets.*`)
+
+**Audit:** `/helpdesk/tickets` dropped off the list (9 → 0).
+Plan-wide: **5 → 4 pages, 38 → 29 strings remaining.**
+
+| Page | Violations |
+|---|---|
+| `helpdesk/sla` | 9 |
+| `helpdesk/batch` | 8 |
+| `helpdesk/technicians` | 7 |
+| `onboarding` | 5 |
+
+**Suites:**
+- `npx vitest run` — 141 files / **1255 tests ✓**
+- `npx tsc --noEmit` — clean ✓
+- `npx eslint . --quiet` — 0 errors ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+
 ### 2026-05-10 — Forty-seventh batch — i18n cleanup of /helpdesk/maintenance
 
 Continues batches 44–46 i18n debt cleanup. `/helpdesk/maintenance`

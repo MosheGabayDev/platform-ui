@@ -842,7 +842,71 @@
       "title": "פניות",
       "subtitle": "תור הפניות של הלפדסק",
       "comingSoon": "בקרוב",
-      "notEnabled": "הלפדסק לא מופעל"
+      "notEnabled": "הלפדסק לא מופעל",
+      "status": {
+        "all": "כל הסטטוסים",
+        "new": "חדש",
+        "in_progress": "בתהליך",
+        "resolved": "נפתר",
+        "closed": "סגור"
+      },
+      "priority": {
+        "all": "כל הדחיפויות",
+        "low": "נמוך",
+        "medium": "בינוני",
+        "high": "גבוה",
+        "critical": "קריטי"
+      },
+      "filters": {
+        "searchPlaceholder": "חיפוש בכותרת הפנייה…",
+        "searchAria": "חיפוש פניות",
+        "statusAria": "סינון לפי סטטוס",
+        "priorityAria": "סינון לפי דחיפות"
+      },
+      "columns": {
+        "ticketNumber": "מספר",
+        "title": "כותרת",
+        "status": "סטטוס",
+        "priority": "דחיפות",
+        "sla": "SLA"
+      },
+      "sla": {
+        "breached": "חרגה",
+        "breachedTitle": "ה-SLA חרג",
+        "onTrack": "במסלול"
+      },
+      "actions": {
+        "view": "צפה בפרטים",
+        "take": "קח לטיפול",
+        "resolve": "סגור",
+        "triggerAria": "פעולות פנייה"
+      },
+      "resolveConfirm": {
+        "title": "סגירת פנייה",
+        "description": "המשתמש יקבל הודעה שהפנייה נסגרה."
+      },
+      "toasts": {
+        "taken": "פנייה #{ticket} שויכה אליך.",
+        "resolved": "פנייה #{ticket} נסגרה.",
+        "bulkFailed": "{count, plural, =1 {פנייה אחת נכשלה} other {{count} פניות נכשלו}}."
+      },
+      "resolutions": {
+        "rowAction": "נסגרה דרך פעולה ברשימה"
+      },
+      "bulk": {
+        "toolbarAria": "פעולות אצווה",
+        "selectedCount": "{count} נבחרו",
+        "reassignTo": "העבר ל-Olivia",
+        "reassignReason": "העברה מרוכזת מהרשימה",
+        "markResolved": "סמן כנסגר",
+        "resolveReason": "סגירה מרוכזת מהרשימה",
+        "clear": "נקה",
+        "clearAria": "נקה בחירה"
+      },
+      "empty": "אין פניות תואמות לסינון",
+      "disabled": {
+        "description": "מודול הלפדסק אינו מופעל לארגון שלך."
+      }
     },
     "technicians": {
       "title": "טכנאים",
@@ -1947,6 +2011,19 @@
         "private": "פרטי",
         "group": "קבוצה"
       }
+    },
+    "detail": {
+      "title": "צ'אט WhatsApp",
+      "subtitle": "הודעות ומדיה שנלכדו בצ'אט הזה",
+      "back": "חזרה",
+      "me": "אני",
+      "unknownSender": "שולח לא ידוע",
+      "never": "אף פעם",
+      "media": "קובץ מצורף",
+      "mediaReady": "מדיה זמינה",
+      "bytes": "{bytes} בתים",
+      "emptyTitle": "לא נלכדו הודעות",
+      "emptyDescription": "הודעות יופיעו כאן אחרי שהחיבור הפעיל ילכוד את הצ'אט הזה."
     },
     "qrDialog": {
       "title": "QR של WhatsApp",
