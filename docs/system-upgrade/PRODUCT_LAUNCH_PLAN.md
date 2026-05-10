@@ -264,6 +264,61 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Fortieth batch — manifest↔nav drift fixed (3) + invariant test
+
+Same audit pattern as batch 39 (RBAC drift) found 3 manifest
+nav_entries that pointed at hrefs missing from `nav-items.ts`:
+
+| Module | Declared href | Actual page | Fix |
+|---|---|---|---|
+| ai-providers | `/ai-providers` | `/admin/ai-providers` | manifest path corrected |
+| data-sources | `/data-sources` | (none) | stub page added + nav row |
+| whatsapp | `/whatsapp` | `/whatsapp/sessions` | exempted (separate agent) |
+
+**1. ai-providers manifest path fix.** `base_route` and
+`nav_entries[0].href` and `default_landing` corrected from
+`/ai-providers` to `/admin/ai-providers` to match the real page
+location. The page already existed at the correct path; only the
+manifest was wrong.
+
+**2. data-sources stub page.** The module was declared but the page
+was never built. Added `app/(dashboard)/data-sources/page.tsx` —
+FeatureGate-gated on `data_sources.enabled`, renders an EmptyState
+"coming soon" panel until a real consumer asks for the implementation.
+Plus nav row + i18n he/en (`dataSources.*` namespace,
+`nav.items.dataSources`). next build now prerenders 43 pages
+(was 40).
+
+**3. Cross-cutting invariant** — new `lib/platform/module-registry/manifests.test.ts`:
+- every manifest `nav_entries[].href` must exist in `navGroups` (one
+  exemption: `/whatsapp`, owned by another agent)
+- every nav row declares a `titleKey` (catches missing i18n)
+- every manifest's `default_landing` is consistent with `base_route`
+  (same prefix; catches rename-without-update)
+
+3 invariants passing → drift is now CI-detectable.
+
+**Files added:**
+- `app/(dashboard)/data-sources/page.tsx`
+- `lib/platform/module-registry/manifests.test.ts`
+
+**Files modified:**
+- `lib/platform/module-registry/manifests.ts` (ai-providers paths)
+- `components/shell/nav-items.ts` (+/data-sources row)
+- `i18n/messages/{he,en}.json` (+dataSources namespace +
+  nav.items.dataSources)
+
+**Suites:**
+- `npx vitest run` — 141 files / **1250 tests ✓** (+3)
+- `npx tsc --noEmit` — clean ✓
+- `npx eslint . --quiet` — 0 errors ✓
+- `npx next build` — **43/43 pages prerender ✓** (was 40/40)
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+
+**Net:** the invariant infrastructure now covers RBAC drift (batch
+39) + nav drift (batch 40). Future module additions land in CI with
+both checks live.
+
 ### 2026-05-10 — Thirty-ninth batch — RBAC catalog drift sync (19 perms) + invariant
 
 While picking the next natural step (WhatsApp now owned by another

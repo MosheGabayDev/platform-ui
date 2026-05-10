@@ -396,7 +396,8 @@
       "help": "Help",
       "notes": "Notes",
       "bookmarks": "Bookmarks",
-      "whatsapp": "WhatsApp"
+      "whatsapp": "WhatsApp",
+      "dataSources": "Data Sources"
     }
   },
   "language": {
@@ -1779,5 +1780,14 @@
       "relinkFailed": "Unable to relink session",
       "unlinkFailed": "Unable to unlink session"
     }
+  },
+  "dataSources": {
+    "title": "Data Sources",
+    "subtitle": "Generic connectors — databases, files, APIs",
+    "disabledSubtitle": "Module disabled",
+    "disabledTitle": "Data Sources is not enabled",
+    "disabledDescription": "The Data Sources module is not enabled for your organization. Contact your platform admin.",
+    "comingSoonTitle": "Coming soon",
+    "comingSoonDescription": "UI for connecting databases, files, and APIs is in development. The module is registered in the registry only for now."
   }
 }

@@ -117,6 +117,7 @@ export const navGroups: NavGroup[] = [
       { title: "אוטומציה", titleKey: "nav.items.automation", href: "/automation", icon: Zap },
       { title: "אינטגרציות", titleKey: "nav.items.integrations", href: "/integrations", icon: Puzzle },
       { title: "ווטסאפ", titleKey: "nav.items.whatsapp", href: "/whatsapp/sessions", icon: MessageCircle },
+      { title: "מקורות נתונים", titleKey: "nav.items.dataSources", href: "/data-sources", icon: HardDrive },
     ],
   },
   {

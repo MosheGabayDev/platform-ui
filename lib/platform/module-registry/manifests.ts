@@ -129,9 +129,9 @@ const MANIFESTS: ModuleManifest[] = [
     description: "Configure LLM providers — OpenAI, Anthropic, Bedrock, local.",
     category: "ai",
     icon: "Cpu",
-    base_route: "/ai-providers",
+    base_route: "/admin/ai-providers",
     nav_entries: [
-      { label: "AI Providers", label_he: "ספקי AI", href: "/ai-providers", icon: "Cpu", order: 1 },
+      { label: "AI Providers", label_he: "ספקי AI", href: "/admin/ai-providers", icon: "Cpu", order: 1 },
     ],
     ai_actions: [],
     permissions: ["ai_providers.view", "ai_providers.configure"],
@@ -142,7 +142,7 @@ const MANIFESTS: ModuleManifest[] = [
     required_plans: [],
     conflicts_with: [],
     dashboard_tile: null,
-    default_landing: "/ai-providers",
+    default_landing: "/admin/ai-providers",
     org_admin_can_toggle: true,
   },
   {

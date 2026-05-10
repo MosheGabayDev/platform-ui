@@ -396,7 +396,8 @@
       "help": "עזרה",
       "notes": "פתקים",
       "bookmarks": "סימניות",
-      "whatsapp": "ווטסאפ"
+      "whatsapp": "ווטסאפ",
+      "dataSources": "מקורות נתונים"
     }
   },
   "language": {
@@ -1779,5 +1780,14 @@
       "relinkFailed": "נכשל בחיבור מחדש",
       "unlinkFailed": "נכשל בניתוק"
     }
+  },
+  "dataSources": {
+    "title": "מקורות נתונים",
+    "subtitle": "מחברים גנריים — מסדי נתונים, קבצים, APIs",
+    "disabledSubtitle": "המודול מושבת",
+    "disabledTitle": "מקורות נתונים אינם מופעלים",
+    "disabledDescription": "מודול 'מקורות נתונים' אינו מופעל לארגון שלך. פנה למנהל המערכת.",
+    "comingSoonTitle": "בקרוב",
+    "comingSoonDescription": "ממשק חיבור מסדי נתונים, קבצים ו-APIs בפיתוח. כרגע המודול רשום ב-registry בלבד."
   }
 }
