@@ -264,6 +264,28 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Sixty-third batch — ADR-028 #6 invariant (no browser modals)
+
+New cross-cutting test file `lib/adr-028-invariants.test.ts`
+opened with rule #6 enforcement: scans every `.ts/.tsx` under
+`app/components/lib` (excl. tests) for any of:
+- `window.confirm(...)` / `window.alert(...)` / `window.prompt(...)`
+- bare `confirm(...)` / `alert(...)` / `prompt(...)` (without
+  `window.` and not following `.` or `_`)
+
+Both pre-stripped of block + line + JSX comments and string
+literals so the ADR-028-reference comments in
+`helpdesk/approvals/page.tsx` and `whatsapp/sessions/page.tsx`
+don't false-positive. Sanity-checked with a synthetic violation
+(`window.confirm('test')`) — gate flagged it. File removed.
+
+This file is the home for the remaining 9 ADR-028 rules; each
+becomes a new `it` block as it's gated. Currently rule #8
+(queryKey registry) lives in `lib/api/query-keys.test.ts` for
+proximity; future rules without a natural home land here.
+
+Full suite: 1273/1273 ✓ (was 1271; +2 from this file).
+
 ### 2026-05-10 — Sixty-second batch — migrate prefix-spread queryKey patterns to registry
 
 Followup on batch 61. The invariant landed in 61 only blocked
