@@ -24,6 +24,16 @@ const eslintConfig = defineConfig([
       "react-hooks/rules-of-hooks": "off",
     },
   },
+  // Test files use anonymous Wrapper components for QueryClientProvider /
+  // intl / etc. injection. Display names matter for production
+  // debugging and React DevTools, not test wrappers — those never
+  // appear in any UI a human sees. Silence display-name in tests only.
+  {
+    files: ["**/*.test.ts", "**/*.test.tsx"],
+    rules: {
+      "react/display-name": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

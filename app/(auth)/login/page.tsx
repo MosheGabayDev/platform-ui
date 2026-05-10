@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useTranslations } from "next-intl";
@@ -99,12 +100,12 @@ function LoginForm() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">{t("passwordLabel")}</Label>
-                  <a
+                  <Link
                     href="/reset-password"
                     className="text-xs text-primary hover:underline"
                   >
                     {t("forgotPassword")}
-                  </a>
+                  </Link>
                 </div>
                 <div className="relative">
                   <Input

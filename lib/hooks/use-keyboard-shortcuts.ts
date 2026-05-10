@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 const ROUTES: Record<string, string> = {
@@ -16,8 +16,12 @@ const ROUTES: Record<string, string> = {
 
 export function useKeyboardShortcuts() {
   const router = useRouter();
-  let gPressed = false;
-  let gTimer: ReturnType<typeof setTimeout>;
+  // gPressed + gTimer must outlive a render — `let` in the function
+  // body resets on every render, so the previous handler closure
+  // fights with the new render's locals (caught by react-hooks
+  // immutability rule). Refs preserve state across renders.
+  const gPressed = useRef(false);
+  const gTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handler = useCallback((e: KeyboardEvent) => {
     const target = e.target as HTMLElement;
@@ -26,16 +30,16 @@ export function useKeyboardShortcuts() {
 
     /* g + <key> navigation */
     if (e.key === "g" && !e.metaKey && !e.ctrlKey) {
-      gPressed = true;
-      clearTimeout(gTimer);
-      gTimer = setTimeout(() => { gPressed = false; }, 800);
+      gPressed.current = true;
+      if (gTimer.current) clearTimeout(gTimer.current);
+      gTimer.current = setTimeout(() => { gPressed.current = false; }, 800);
       return;
     }
 
-    if (gPressed && ROUTES[e.key]) {
+    if (gPressed.current && ROUTES[e.key]) {
       e.preventDefault();
-      gPressed = false;
-      clearTimeout(gTimer);
+      gPressed.current = false;
+      if (gTimer.current) clearTimeout(gTimer.current);
       router.push(ROUTES[e.key]);
       return;
     }

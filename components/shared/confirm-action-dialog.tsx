@@ -124,7 +124,7 @@ export function ConfirmActionDialog({
           {needsTypedConfirm && (
             <div className="space-y-1.5">
               <Label htmlFor="action-typed-confirm" className="text-sm">
-                הקלד <span className="font-semibold text-foreground">"{confirmPhrase}"</span> לאישור
+                הקלד <span className="font-semibold text-foreground">&quot;{confirmPhrase}&quot;</span> לאישור
               </Label>
               <Input
                 id="action-typed-confirm"

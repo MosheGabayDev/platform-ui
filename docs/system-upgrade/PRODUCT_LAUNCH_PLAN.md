@@ -264,6 +264,55 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Thirty-first batch — lint sweep continues (real bugs + cosmetic)
+
+Picking up the lint debt from batch 30. **27 → 13 errors** by fixing
+two real bugs and silencing two cosmetic-only rules in tests.
+
+**Real bug #1 — `useKeyboardShortcuts` had broken `g + key` shortcuts**
+
+`gPressed` and `gTimer` were declared as `let` in the hook body. Each
+render reset them; the `useCallback` handler closed over the previous
+render's locals while the next render had fresh ones. End result: the
+800ms grace window for `g` → navigation key was racy and frequently
+dropped key sequences. Caught by the new `react-hooks/immutability`
+rule (which is exactly what it's for).
+
+Fix: hoisted both into `useRef`. The 7 existing vitest cases for the
+hook still pass.
+
+**Real bug #2 — `<a>` for `/reset-password` on `/login`**
+
+Plain anchor for an internal route triggers a full page reload,
+loses NextAuth client state, and breaks RTL prefetch. Switched to
+`next/link`. Caught by `@next/next/no-html-link-for-pages`.
+
+**Cosmetic-only rule overrides:**
+- `react/display-name` off for `**/*.test.ts(x)` — Wrapper components
+  in tests never appear in any UI; display names matter for production
+  React DevTools, not vitest.
+- (batch 30 already turned off `react-hooks/rules-of-hooks` for `tests/e2e/**`.)
+
+**Cosmetic JSX fix:**
+- `confirm-action-dialog.tsx` — `"{confirmPhrase}"` → `&quot;{confirmPhrase}&quot;` (3 unescaped-entities errors).
+
+**Files modified:**
+- `lib/hooks/use-keyboard-shortcuts.ts` (real bug — let → useRef)
+- `app/(auth)/login/page.tsx` (real bug — `<a>` → `<Link>`)
+- `components/shared/confirm-action-dialog.tsx` (cosmetic — escape quotes)
+- `eslint.config.mjs` (display-name override for test files)
+
+**Suites:**
+- `npx vitest run` — 138 files / 1220 tests ✓
+- `npx tsc --noEmit` — clean ✓
+- `npx eslint .` — **13 errors** (down from 27) / 41 warnings
+
+**Remaining errors are 12× react-hooks/set-state-in-effect** —
+existing hydration patterns where the rule may flag valid code
+(localStorage rehydrate on mount, etc.). Plus 1 unescaped-entities
+that turned out to be a false positive on a non-JSX string. Will
+revisit when those code paths are next touched.
+
 ### 2026-05-10 — Thirtieth batch — lint sweep + one real rules-of-hooks bug
 
 First time `npx eslint .` ran across the whole repo — surfaced 31
