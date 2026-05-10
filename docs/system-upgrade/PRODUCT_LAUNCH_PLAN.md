@@ -264,6 +264,46 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Twenty-ninth batch — preflight verified + perf baseline captured
+
+**1. Preflight runs end-to-end.**
+
+First full live execution of `bash scripts/preflight.sh` after batch 28
+wired the new `next build` step. All four steps passed:
+- typecheck — clean
+- vitest — 138 files / 1220 tests ✓
+- coverage gate — 10/10 layers
+- next build — 40/40 pages prerender
+
+The Git Bash environment maps `/tmp` to a real Windows directory, so
+the build-log path I picked in batch 28 works on the dev machine
+without a portability tweak. (CI runs Linux anyway.)
+
+**2. Perf baseline doc — `docs/system-upgrade/PERF_BASELINE.md`**
+
+Snapshot of the production build, captured the first time the build
+ran green (post-batch-27):
+- `.next/static` total: **3.6 MB** uncompressed
+- 71 chunks, largest 290 KB
+- 40/40 pages prerendered
+
+Verified the lazy-Recharts work from batches 14+15 actually landed in
+a separate chunk: the 277 KB `0zey9o01ny9vi.js` contains `AreaChart`,
+proving the dynamic-import code-split is alive in the production
+bundle. Without that split, every dashboard page would carry recharts
++ d3 in its initial entry.
+
+This baseline is the lower bound. Future perf-touching batches must
+compare against it and call out regressions (>10% on `.next/static`
+total, or any single chunk above 350 KB).
+
+**Files added:**
+- `docs/system-upgrade/PERF_BASELINE.md`
+
+**Suites:**
+- `bash scripts/preflight.sh` — all 4 steps green ✓
+- `npx next build` — 40/40 pages prerender ✓
+
 ### 2026-05-10 — Twenty-eighth batch — preflight + analyzer hardening
 
 Two follow-ups to batch 27 (which was triggered by trying to run the
