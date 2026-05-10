@@ -264,6 +264,43 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Twenty-seventh batch — production-build blocker fix
+
+While preparing to capture bundle-size metrics for batch 14+15's
+lazy-Recharts work, `npx next build` failed prerender on **every
+dashboard page** with:
+
+> useSearchParams() should be wrapped in a suspense boundary at page
+> "/admin/ai-skills"
+
+Root cause: `OnboardingTour` (mounted unconditionally in the dashboard
+layout) calls `useSearchParams()` to honor `?tour=start` deep-links.
+Without a Suspense boundary the static export of every prerendered
+dashboard route bails out — meaning **no production deploy was
+possible**. Latent since OnboardingTour landed; only surfaces on
+`next build`, not `dev`.
+
+**Fix:** wrap `<OnboardingTour />` in `<Suspense fallback={null}>` in
+`app/(dashboard)/layout.tsx`. One-line scope; no API or behavior
+change.
+
+**Result:**
+- Before: build fails on `/admin/ai-skills`, `/helpdesk/maintenance` (and
+  by inference would fail on every other prerendered dashboard route).
+- After: all **40 pages** prerender successfully — `/notes`, `/bookmarks`,
+  `/billing`, the entire admin tree, and the legal/docs surfaces.
+
+This is the kind of bug that sits silent until the day someone runs
+`next build` on CI for the first time. Worth investing the minute now.
+
+**Files modified:**
+- `app/(dashboard)/layout.tsx` (+ `Suspense` import + boundary)
+
+**Suites:**
+- `npx next build` — **40/40 pages prerendered ✓** (was: failing)
+- `npx vitest run` — 138 files / 1220 tests ✓ (no count change — wrapper-only)
+- `npx tsc --noEmit` — clean ✓
+
 ### 2026-05-10 — Twenty-sixth batch — AI shortcuts in /help for new verticals
 
 12th integration layer. Notes + Bookmarks now appear in the

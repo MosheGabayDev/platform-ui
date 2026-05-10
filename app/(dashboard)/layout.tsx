@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/shell/app-sidebar";
 import { Topbar } from "@/components/shell/topbar";
@@ -60,7 +61,13 @@ export default function DashboardLayout({
         <ShortcutsDialog />
         <FloatingAIButton />
         <AIDrawer />
-        <OnboardingTour />
+        {/* Suspense boundary required for prerender — OnboardingTour reads
+            useSearchParams() to honor ?tour=start deep-links. Without the
+            boundary, every prerendered dashboard page bails out of static
+            generation. */}
+        <Suspense fallback={null}>
+          <OnboardingTour />
+        </Suspense>
         <SupportWidget />
       </SidebarProvider>
     </LazyMotion>
