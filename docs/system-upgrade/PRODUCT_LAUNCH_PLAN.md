@@ -264,6 +264,38 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Seventy-third batch — ADR-028 #2 invariant (PlatformForm) — full set complete
+
+Final ADR-028 rule landed in `lib/adr-028-invariants.test.ts`:
+every file that calls `useForm(` (React Hook Form) must also
+reference `PlatformForm`. The shared shell wraps `<form>` with
+`aria-busy`, `aria-label`, and consistent `space-y-4` spacing —
+raw `<form>` JSX skips that contract. Allowed locations:
+`components/shared/form/**` (the shell itself + family) and
+`app/api/**` (server-side, no JSX forms).
+
+Verified all 6 current `useForm` consumers (signup page, 3 module
+forms × create/edit) reference `PlatformForm`. Sanity-checked
+with synthetic `Bad()` returning `<form>` after `useForm()` →
+gate flagged.
+
+**ADR-028 enforcement set complete (10/10):**
+
+| Rule | Topic | Where |
+|---|---|---|
+| #1 | DataTable for list rows | `lib/adr-028-invariants.test.ts` |
+| #2 | PlatformForm for forms | (this batch) |
+| #3 | usePlatformMutation for writes | (batch 70) |
+| #4 | hasRole / PermissionGate (no inline role checks) | (batch 71) |
+| #5 | PageShell / DetailHeaderCard | (batch 66) |
+| #6 | No window.confirm / alert / prompt | (batch 63) |
+| #7 | No raw fetch outside lib/api | (batch 64) |
+| #8 | queryKeys registry | `lib/api/query-keys.test.ts` |
+| #9 | org_id is server-side only | (batch 72) |
+| #10 | No LLM provider SDKs | (batch 65) |
+
+11 invariant `it` blocks. Full suite: 1282/1282 ✓.
+
 ### 2026-05-10 — Seventy-second batch — ADR-028 #9 invariant (org_id is server-side only)
 
 Two new rules in `lib/adr-028-invariants.test.ts` enforcing the

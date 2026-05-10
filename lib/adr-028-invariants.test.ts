@@ -322,6 +322,35 @@ describe("ADR-028 enforcement invariants", () => {
     expect(broken).toEqual([]);
   });
 
+  it("rule #2 — every useForm() consumer uses PlatformForm (not raw <form>)", () => {
+    // ADR-028 #2: forms in the dashboard / module surfaces use the
+    // shared `PlatformForm` shell so spacing, aria-busy, and aria-label
+    // are consistent. Raw `<form>` JSX skips that contract.
+    //
+    // Allowed:
+    //   - components/shared/form/**         — the shell + family
+    //   - app/api/**                        — server-side, no JSX forms
+    // Plus public marketing-style pages that ship before the dashboard
+    // shell (e.g. login). The dashboard surfaces are the strict scope.
+    const ALLOW_PATH_RE = [
+      /(?:^|\/)components\/shared\/form\//,
+      /(?:^|\/)app\/api\//,
+    ];
+    const broken: string[] = [];
+    for (const file of SOURCES) {
+      const norm = file.replace(/\\/g, "/");
+      if (ALLOW_PATH_RE.some((re) => re.test(norm))) continue;
+      let src = fs.readFileSync(file, "utf8");
+      src = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
+      // File uses RHF's useForm? then it must also reference PlatformForm.
+      const hasUseForm = /(?<![.\w])useForm\s*\(/.test(src);
+      if (!hasUseForm) continue;
+      const usesPlatformForm = /\bPlatformForm\b/.test(src);
+      if (!usesPlatformForm) broken.push(norm);
+    }
+    expect(broken).toEqual([]);
+  });
+
   it("rule #6 — no bare confirm() / alert() / prompt() calls either", () => {
     // The bare globals (without `window.`) are equally banned. Match
     // requires word-boundary + open paren; skip lines where the word
