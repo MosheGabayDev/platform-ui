@@ -264,6 +264,42 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Fifty-first batch — i18n cleanup of /helpdesk/technicians
+
+Closes the helpdesk-cluster i18n cleanup. `/helpdesk/technicians` had
+7 violations.
+
+**Refactors:**
+- 5 column headers (`columns.{name,status,load,skills,shift}`)
+- 2 status badges (`status.{available,offShift}`)
+- 3 KPI labels (`kpi.{total,availableNow,avgUtilization}`)
+- DataTable empty message
+- Disabled-fallback now uses its own `disabled.{subtitle,description}`
+  keys (was borrowing `helpdesk.tickets.comingSoon` + hardcoded English)
+- Renamed loop var `t` → `tech` to avoid shadowing the translator
+
+**Files modified:**
+- `app/(dashboard)/helpdesk/technicians/page.tsx`
+- `i18n/messages/{he,en}.json` (~14 new keys under `helpdesk.technicians.*`)
+
+**Audit:** technicians dropped off (7 → 0).
+Plan-wide: **2 → 1 page, 12 → 5 strings remaining.**
+
+| Page | Violations |
+|---|---|
+| `onboarding` | 5 |
+
+**Helpdesk module fully i18n-clean** — 6 admin pages cleaned across
+8 batches (44–51): approvals, maintenance, tickets, sla, batch,
+technicians. Plus audit-log (45) + admin/ai-usage (46). Only the
+onboarding wizard remains.
+
+**Suites:**
+- `npx vitest run` — 141 files / **1259 tests ✓**
+- `npx tsc --noEmit` — clean ✓
+- `npx eslint . --quiet` — 0 errors ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+
 ### 2026-05-10 — Fiftieth batch — i18n cleanup of /helpdesk/batch
 
 Continues batches 44–49. `/helpdesk/batch` had 8 violations.

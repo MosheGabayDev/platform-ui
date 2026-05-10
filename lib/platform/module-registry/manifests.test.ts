@@ -14,14 +14,8 @@ import { describe, it, expect } from "vitest";
 import { getAllManifests } from "./manifests";
 import { navGroups as NAV_GROUPS } from "@/components/shell/nav-items";
 
-// Modules whose nav rows live under a sub-route the manifest doesn't
-// flag explicitly (e.g. WhatsApp manifest declares /whatsapp but the
-// actual nav row points at /whatsapp/sessions). These are tracked by
-// other agents; the exemption keeps the invariant useful without
-// stepping on parallel work. Empty most of the time.
-const NAV_HREF_EXEMPT = new Set<string>([
-  "/whatsapp", // wired as /whatsapp/sessions; ownership: separate agent
-]);
+// Temporary escape hatch for parallel module work. Keep empty in normal use.
+const NAV_HREF_EXEMPT = new Set<string>();
 
 describe("module manifest cross-cuts", () => {
   it("every manifest nav_entries[].href is wired in nav-items.ts (no broken nav)", () => {

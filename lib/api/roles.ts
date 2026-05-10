@@ -51,7 +51,7 @@ const MOCK_PERMISSIONS: RolePermission[] = [
   { id: 14, name: "bookmarks.view", description: "View bookmarks library", created_at: null },
   { id: 15, name: "bookmarks.create", description: "Add bookmarks", created_at: null },
   { id: 16, name: "bookmarks.delete_own", description: "Delete bookmarks you authored", created_at: null },
-  { id: 17, name: "whatsapp.view", description: "View WhatsApp sessions", created_at: null },
+  { id: 17, name: "whatsapp.access", description: "Access own WhatsApp archive and shared-in chats", created_at: null },
   { id: 18, name: "whatsapp.session.manage", description: "Link/relink/unlink WhatsApp sessions", created_at: null },
   // Batch 39 — sync with manifest declarations.
   { id: 19, name: "helpdesk.maintenance.manage", description: "Schedule, edit, and cancel helpdesk maintenance windows", created_at: null },

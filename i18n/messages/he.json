@@ -469,6 +469,8 @@
       "notes": "פתקים",
       "bookmarks": "סימניות",
       "whatsapp": "ווטסאפ",
+      "whatsappSearch": "חיפוש ווטסאפ",
+      "whatsappSessions": "חיבורי ווטסאפ",
       "dataSources": "מקורות נתונים"
     }
   },
@@ -911,7 +913,28 @@
     "technicians": {
       "title": "טכנאים",
       "subtitle": "צוות הלפדסק וניצולת",
-      "notEnabled": "הלפדסק לא מופעל"
+      "notEnabled": "הלפדסק לא מופעל",
+      "columns": {
+        "name": "שם",
+        "status": "סטטוס",
+        "load": "עומס",
+        "skills": "כישורים",
+        "shift": "משמרת"
+      },
+      "status": {
+        "available": "פנוי",
+        "offShift": "לא במשמרת"
+      },
+      "kpi": {
+        "total": "סה״כ",
+        "availableNow": "פנויים כעת",
+        "avgUtilization": "ניצולת ממוצעת"
+      },
+      "empty": "לא הוגדרו טכנאים בארגון",
+      "disabled": {
+        "description": "מודול הלפדסק אינו מופעל לארגון שלך.",
+        "subtitle": "המודול מושבת"
+      }
     },
     "sla": {
       "title": "SLA",

@@ -127,8 +127,8 @@ describe("roles client (mock mode)", () => {
     expect(names.has("bookmarks.view")).toBe(true);
     expect(names.has("bookmarks.create")).toBe(true);
     expect(names.has("bookmarks.delete_own")).toBe(true);
-    // WhatsApp — manifest declares whatsapp.{view,session.manage}
-    expect(names.has("whatsapp.view")).toBe(true);
+    // WhatsApp — manifest mirrors the platformengineer RBAC seed.
+    expect(names.has("whatsapp.access")).toBe(true);
     expect(names.has("whatsapp.session.manage")).toBe(true);
   });
 

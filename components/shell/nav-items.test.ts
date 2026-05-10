@@ -51,6 +51,18 @@ describe("filterNavByEnabledModules", () => {
     expect(hd?.items.find((i) => i.href === "/helpdesk/tickets")).toBeDefined();
   });
 
+  it("filters all WhatsApp archive routes behind the whatsapp module key", () => {
+    const disabled = filterNavByEnabledModules(navGroups, new Set());
+    const disabledOps = disabled.find((g) => g.labelKey === "nav.groups.operations");
+    expect(disabledOps?.items.find((i) => i.href.startsWith("/whatsapp"))).toBeUndefined();
+
+    const enabled = filterNavByEnabledModules(navGroups, new Set(["whatsapp"]));
+    const enabledOps = enabled.find((g) => g.labelKey === "nav.groups.operations");
+    expect(enabledOps?.items.find((i) => i.href === "/whatsapp")).toBeDefined();
+    expect(enabledOps?.items.find((i) => i.href === "/whatsapp/search")).toBeDefined();
+    expect(enabledOps?.items.find((i) => i.href === "/whatsapp/sessions")).toBeDefined();
+  });
+
   it("removes a group entirely when all its items are filtered out", () => {
     // Voice group items map to 'voice' module. When voice is disabled and
     // no items remain, the whole group should be dropped from the result.

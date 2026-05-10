@@ -53,7 +53,7 @@ function TechniciansInner() {
     () => [
       {
         accessorKey: "name",
-        header: "Name",
+        header: tt("columns.name"),
         cell: ({ row }) => (
           <div>
             <div className="font-medium">{row.original.name}</div>
@@ -63,30 +63,30 @@ function TechniciansInner() {
       },
       {
         accessorKey: "is_available",
-        header: "Status",
+        header: tt("columns.status"),
         cell: ({ row }) =>
           row.original.is_available ? (
             <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
               <CheckCircle className="h-3 w-3 me-1" aria-hidden="true" />
-              Available
+              {tt("status.available")}
             </Badge>
           ) : (
             <Badge variant="outline" className="border-muted text-muted-foreground">
               <XCircle className="h-3 w-3 me-1" aria-hidden="true" />
-              Off-shift
+              {tt("status.offShift")}
             </Badge>
           ),
       },
       {
         accessorKey: "active_tickets",
-        header: "Load",
+        header: tt("columns.load"),
         cell: ({ row }) => {
-          const t = row.original;
-          const pct = t.max_concurrent > 0 ? Math.round((t.active_tickets / t.max_concurrent) * 100) : 0;
+          const tech = row.original;
+          const pct = tech.max_concurrent > 0 ? Math.round((tech.active_tickets / tech.max_concurrent) * 100) : 0;
           return (
             <div className="flex items-center gap-2">
               <span className="text-sm font-mono">
-                {t.active_tickets}/{t.max_concurrent}
+                {tech.active_tickets}/{tech.max_concurrent}
               </span>
               <span className={`text-xs ${utilizationTone(pct)}`}>({pct}%)</span>
             </div>
@@ -95,7 +95,7 @@ function TechniciansInner() {
       },
       {
         accessorKey: "skills",
-        header: "Skills",
+        header: tt("columns.skills"),
         cell: ({ row }) => (
           <div className="flex flex-wrap gap-1">
             {row.original.skills.slice(0, 3).map((skill) => (
@@ -111,14 +111,14 @@ function TechniciansInner() {
       },
       {
         accessorKey: "shift_start",
-        header: "Shift",
+        header: tt("columns.shift"),
         cell: ({ row }) =>
           row.original.shift_start && row.original.shift_end
             ? `${row.original.shift_start.slice(0, 5)}–${row.original.shift_end.slice(0, 5)}`
             : "—",
       },
     ],
-    [],
+    [tt],
   );
 
   return (
@@ -132,17 +132,17 @@ function TechniciansInner() {
           {util?.data && (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="glass border-border/50 rounded-xl p-4">
-                <div className="text-xs text-muted-foreground">Total</div>
+                <div className="text-xs text-muted-foreground">{tt("kpi.total")}</div>
                 <div className="text-2xl font-semibold">{util.data.technicians.length}</div>
               </div>
               <div className="glass border-border/50 rounded-xl p-4">
-                <div className="text-xs text-muted-foreground">Available now</div>
+                <div className="text-xs text-muted-foreground">{tt("kpi.availableNow")}</div>
                 <div className="text-2xl font-semibold text-emerald-600 dark:text-emerald-400">
                   {util.data.technicians.filter((t) => t.is_available).length}
                 </div>
               </div>
               <div className="glass border-border/50 rounded-xl p-4">
-                <div className="text-xs text-muted-foreground">Avg utilization</div>
+                <div className="text-xs text-muted-foreground">{tt("kpi.avgUtilization")}</div>
                 <div className={`text-2xl font-semibold ${utilizationTone(util.data.avg_utilization_pct)}`}>
                   {util.data.avg_utilization_pct.toFixed(1)}%
                 </div>
@@ -155,7 +155,7 @@ function TechniciansInner() {
             data={technicians}
             isLoading={listLoading}
             error={listError as Error | null}
-            emptyMessage="No technicians configured for this org"
+            emptyMessage={tt("empty")}
           />
         </motion.div>
       </PageShell>
@@ -165,13 +165,12 @@ function TechniciansInner() {
 
 function TechniciansDisabledFallback() {
   const tt = useTranslations("helpdesk.technicians");
-  const tHd = useTranslations("helpdesk.tickets");
   return (
-    <PageShell icon={UsersIcon} title={tt("title")} subtitle={tHd("comingSoon")}>
+    <PageShell icon={UsersIcon} title={tt("title")} subtitle={tt("disabled.subtitle")}>
       <EmptyState
         icon={AlertCircle}
         title={tt("notEnabled")}
-        description="The Helpdesk module is not enabled for your organization."
+        description={tt("disabled.description")}
       />
     </PageShell>
   );

@@ -469,6 +469,8 @@
       "notes": "Notes",
       "bookmarks": "Bookmarks",
       "whatsapp": "WhatsApp",
+      "whatsappSearch": "WhatsApp search",
+      "whatsappSessions": "WhatsApp sessions",
       "dataSources": "Data Sources"
     }
   },
@@ -911,7 +913,28 @@
     "technicians": {
       "title": "Technicians",
       "subtitle": "Helpdesk staff + utilization",
-      "notEnabled": "Helpdesk not enabled"
+      "notEnabled": "Helpdesk not enabled",
+      "columns": {
+        "name": "Name",
+        "status": "Status",
+        "load": "Load",
+        "skills": "Skills",
+        "shift": "Shift"
+      },
+      "status": {
+        "available": "Available",
+        "offShift": "Off-shift"
+      },
+      "kpi": {
+        "total": "Total",
+        "availableNow": "Available now",
+        "avgUtilization": "Avg utilization"
+      },
+      "empty": "No technicians configured for this org",
+      "disabled": {
+        "description": "The Helpdesk module is not enabled for your organization.",
+        "subtitle": "Module disabled"
+      }
     },
     "sla": {
       "title": "SLA",
