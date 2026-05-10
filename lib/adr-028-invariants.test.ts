@@ -174,6 +174,46 @@ describe("ADR-028 enforcement invariants", () => {
     expect(broken).toEqual([]);
   });
 
+  it("rule #1 — no raw <table> JSX outside DataTable / shadcn primitives", () => {
+    // ADR-028 #1: list + columns + rows = DataTable<T>. Hand-rolled
+    // <table> shells skip the bulk-select / sort / pagination / a11y
+    // wiring DataTable provides. Static legal-page content tables and
+    // the shadcn primitive itself are exempt.
+    const ALLOW_PATH_RE = [
+      /(?:^|\/)components\/ui\/table\.tsx$/,
+      /(?:^|\/)components\/shared\/data-table\//,
+      /(?:^|\/)app\/legal\//,
+    ];
+    // Known-debt list-style consumers that still hand-roll <table>.
+    // Migration tracked separately; allowlist surfaces the debt and
+    // prevents new instances from sneaking in. Stale-detection branch
+    // below keeps the list honest.
+    const ALLOW_DEBT = new Set<string>([
+      "app/(dashboard)/admin/ip-allowlist/page.tsx",
+      "app/(dashboard)/billing/page.tsx",
+    ]);
+
+    const broken: string[] = [];
+    const seen = new Set<string>();
+    for (const file of SOURCES) {
+      const norm = file.replace(/\\/g, "/");
+      if (ALLOW_PATH_RE.some((re) => re.test(norm))) continue;
+      let src = fs.readFileSync(file, "utf8");
+      src = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
+      // Match `<table` (JSX open tag), not <Table> (the shadcn primitive,
+      // capital T).
+      if (/<table\b/.test(src)) {
+        seen.add(norm);
+        if (!ALLOW_DEBT.has(norm)) broken.push(norm);
+      }
+    }
+    expect(broken).toEqual([]);
+    // Stale-detection: if a debt entry no longer hand-rolls <table>
+    // (good — got migrated, or file deleted), shrink the allowlist.
+    const stale = [...ALLOW_DEBT].filter((p) => !seen.has(p));
+    expect(stale).toEqual([]);
+  });
+
   it("rule #6 — no bare confirm() / alert() / prompt() calls either", () => {
     // The bare globals (without `window.`) are equally banned. Match
     // requires word-boundary + open paren; skip lines where the word

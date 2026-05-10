@@ -264,6 +264,28 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Sixty-seventh batch — ADR-028 #1 invariant (DataTable for list-row UIs)
+
+Rule #1 added to `lib/adr-028-invariants.test.ts`: hand-rolled
+`<table>` JSX is forbidden anywhere outside:
+- `components/ui/table.tsx` — shadcn primitive.
+- `components/shared/data-table/**` — the DataTable<T> primitive.
+- `app/legal/**` — public legal pages with static content tables.
+
+Two known-debt list pages still hand-roll `<table>`:
+- `app/(dashboard)/admin/ip-allowlist/page.tsx` (CIDR list + delete).
+- `app/(dashboard)/billing/page.tsx` (invoices list + download).
+
+Migration to `DataTable<T>` tracked separately; allowlist surfaces
+the debt while preventing new instances. Stale-detection branch
+fails the gate if either page stops using `<table>` (got migrated)
+without removing the allowlist entry.
+
+Sanity-checked: synthetic `_violation_table.tsx` returning
+`<table>` → gate flagged it.
+
+Full suite: 1277/1277 ✓ (was 1276; +1 invariant).
+
 ### 2026-05-10 — Sixty-sixth batch — ADR-028 #5 invariant (PageShell / DetailHeaderCard)
 
 Rule #5 added to `lib/adr-028-invariants.test.ts`: every
