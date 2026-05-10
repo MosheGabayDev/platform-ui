@@ -264,6 +264,55 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Thirtieth batch — lint sweep + one real rules-of-hooks bug
+
+First time `npx eslint .` ran across the whole repo — surfaced 31
+errors / 43 warnings. This batch picks the cherries: one real bug,
+one false-positive class silenced. The remaining ~27 errors are
+existing patterns (set-state-in-effect, display-name, etc.) that are
+debatable rather than broken; left as documented technical debt for
+future batches.
+
+**1. Real bug fixed — rules-of-hooks in ContextDebugPanel**
+
+`components/shell/ai-assistant/context-debug.tsx` early-returned
+**before** calling `useAssistantSession`. In a future world where
+`NODE_ENV` flips between `development` and other values during a render
+session (HMR, env-flag toggles), the hook order would shift and
+React's hook invariant would break. Fixed by moving the selector call
+above the env guard.
+
+The component's existing 4 vitest cases all still pass after the
+reorder (Zustand selector returns whatever's in the store; the dev-
+only render gate is unchanged).
+
+**2. Playwright fixtures' `use(value)` no longer flagged as a hook**
+
+The eslint react-hooks plugin can't tell the difference between
+React 19's `use()` hook and Playwright's `use(value)` fixture-
+injection helper. Added a targeted `react-hooks/rules-of-hooks: off`
+override for `tests/e2e/**` in `eslint.config.mjs`. Silences 3 false
+positives in `tests/e2e/fixtures/base.ts` without weakening the rule
+anywhere else in the codebase.
+
+**Files modified:**
+- `components/shell/ai-assistant/context-debug.tsx` (real bug)
+- `eslint.config.mjs` (e2e fixture override)
+
+**Suites:**
+- `npx vitest run` — 138 files / 1220 tests ✓ (no count change)
+- `npx eslint .` — **27 errors** (down from 31) / **43 warnings**
+
+**Open lint debt (not addressed this batch):**
+- ~12 react-hooks/set-state-in-effect — existing hydration patterns
+  (wizard storage rehydrate, etc.). React 19 rule; many are correct
+  but flagged. Decide rule severity vs. refactor in a follow-up.
+- 9 react/display-name — anonymous Wrapper components in test files.
+  Cosmetic; fix when those tests are next touched.
+- 3 react/no-unescaped-entities — admin pages with literal apostrophes
+  in JSX text.
+- 2 immutability errors in some hook + 1 next/link suggestion.
+
 ### 2026-05-10 — Twenty-ninth batch — preflight verified + perf baseline captured
 
 **1. Preflight runs end-to-end.**

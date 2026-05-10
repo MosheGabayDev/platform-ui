@@ -11,9 +11,12 @@
 import { useAssistantSession } from "@/lib/hooks/use-assistant-session";
 
 export function ContextDebugPanel() {
-  if (process.env.NODE_ENV !== "development") return null;
-
+  // Hooks must run unconditionally — selector subscribes to the
+  // assistant store regardless of env, then the panel renders only in
+  // development. Reordering broke rules-of-hooks (caught by eslint).
   const ctx = useAssistantSession((s) => s.currentPageContext);
+
+  if (process.env.NODE_ENV !== "development") return null;
 
   return (
     <details className="rounded-md border border-dashed border-border bg-muted/30 text-xs">
