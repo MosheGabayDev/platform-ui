@@ -58,6 +58,37 @@ describe("ADR-028 enforcement invariants", () => {
     expect(broken).toEqual([]);
   });
 
+  it("rule #7 — no raw fetch() in components/ or in app/(...) page/component code", () => {
+    // All API calls must go through lib/api/<module>.ts. Allowed
+    // locations:
+    //   - lib/api/**            (the clients themselves)
+    //   - lib/auth/options.ts   (NextAuth server callbacks → Flask auth)
+    //   - app/api/**            (route handlers + proxy)
+    // Anywhere else means a UI file is reaching for the network directly,
+    // bypassing the typed clients + queryKeys + cache invariants.
+    const ALLOW_PATH_RE = [
+      /(?:^|\/)lib\/api\//,
+      /(?:^|\/)lib\/auth\/options\.ts$/,
+      /(?:^|\/)app\/api\//,
+    ];
+    const broken: string[] = [];
+    for (const file of SOURCES) {
+      const norm = file.replace(/\\/g, "/");
+      if (ALLOW_PATH_RE.some((re) => re.test(norm))) continue;
+      let src = fs.readFileSync(file, "utf8");
+      src = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
+      src = src
+        .replace(/"(?:[^"\\]|\\.)*"/g, '""')
+        .replace(/'(?:[^'\\]|\\.)*'/g, "''")
+        .replace(/`(?:[^`\\]|\\.)*`/g, "``");
+      // Match `fetch(` at word boundary, not preceded by `.` (e.g. queryClient.fetch)
+      // or by other identifier chars (e.g. prefetch, refetch).
+      const re = /(?<![.\w])fetch\s*\(/;
+      if (re.test(src)) broken.push(file);
+    }
+    expect(broken).toEqual([]);
+  });
+
   it("rule #6 — no bare confirm() / alert() / prompt() calls either", () => {
     // The bare globals (without `window.`) are equally banned. Match
     // requires word-boundary + open paren; skip lines where the word

@@ -264,6 +264,26 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Sixty-fourth batch — ADR-028 #7 invariant (no raw fetch outside lib/api)
+
+Added rule #7 to `lib/adr-028-invariants.test.ts`: bare `fetch(`
+calls allowed ONLY in:
+- `lib/api/**` — the typed clients themselves.
+- `lib/auth/options.ts` — NextAuth server callbacks → Flask `/api/auth/*`.
+- `app/api/**` — Next.js route handlers + the `[...path]` proxy.
+
+Anywhere else means a UI file is bypassing the typed client +
+queryKeys + cache invariants. Rule already held in current code
+(grep returned 0 violations); this commit locks it in. Match
+ignores `.fetch(`, `prefetch(`, `refetch(` via the same lookbehind
+trick used for rule #6 confirm/alert/prompt. Comments + string
+literals stripped first.
+
+Sanity-checked with `components/_violation.ts` containing a real
+`fetch('/x')` — gate flagged it. File removed.
+
+Full suite: 1274/1274 ✓ (was 1273; +1 invariant).
+
 ### 2026-05-10 — Sixty-third batch — ADR-028 #6 invariant (no browser modals)
 
 New cross-cutting test file `lib/adr-028-invariants.test.ts`
