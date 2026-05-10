@@ -264,6 +264,35 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Sixty-second batch — migrate prefix-spread queryKey patterns to registry
+
+Followup on batch 61. The invariant landed in 61 only blocked
+inline string literals, not prefix-spread (`[...PREFIX, "x"]`). Six
+remaining call sites used module-local prefix constants
+(`_aiProvidersQueryPrefix`, `_aiSkillsQueryPrefix`,
+`SETTINGS_QUERY_PREFIX`) which all just aliased back to the
+registry. Migrated each to call the registry directly:
+
+- `lib/hooks/use-setting.ts` — 3 sites: `useSetting`,
+  `useSettingsByCategory`, `useSettingDefinitions` now use
+  `queryKeys.settings.{one,byCategory,definitions}`.
+- `app/(dashboard)/admin/ai-providers/page.tsx` — 3 sites
+  (catalog, configs, invalidate-all) now use
+  `queryKeys.aiProviders.{catalog,configs,all}`.
+- `app/(dashboard)/admin/ai-skills/page.tsx` — 2 sites
+  (invalidate, list) now use `queryKeys.aiSkills.{all,list}`.
+
+**Dead exports removed:**
+- `lib/hooks/use-ai-provider-configs.ts` `_aiProvidersQueryPrefix`
+- `lib/hooks/use-ai-skills.ts` `_aiSkillsQueryPrefix`
+- `lib/hooks/use-setting.ts` `_settingsQueryPrefix`
+
+`use-job-polling.ts`'s `[...queryKeyPrefix, "job", jobId]` is left
+intentionally — that hook accepts a generic prefix as a parameter
+so it can be reused across modules; that's not drift.
+
+Typecheck clean. Full suite: 1271/1271 ✓.
+
 ### 2026-05-10 — Sixty-first batch — queryKey registry invariant + 2 ADR-028 #8 fixes
 
 **Drift found and fixed:**

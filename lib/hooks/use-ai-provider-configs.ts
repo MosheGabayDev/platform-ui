@@ -67,10 +67,3 @@ export function useRoutingDecision(input: ResolveRoutingInput | null) {
   });
   return { decision: data?.data, isLoading, isError };
 }
-
-/**
- * @deprecated Use `queryKeys.aiProviders.all()` directly.
- * Kept for back-compat with consumers that still call
- * `queryClient.invalidateQueries({ queryKey: _aiProvidersQueryPrefix })`.
- */
-export const _aiProvidersQueryPrefix = queryKeys.aiProviders.all();

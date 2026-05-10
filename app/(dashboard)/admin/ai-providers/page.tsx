@@ -49,7 +49,7 @@ import {
   updateProviderConfig,
   testProviderConnection,
 } from "@/lib/api/ai-providers";
-import { _aiProvidersQueryPrefix } from "@/lib/hooks/use-ai-provider-configs";
+import { queryKeys } from "@/lib/api/query-keys";
 import { usePlatformMutation } from "@/lib/hooks/use-platform-mutation";
 import { useRegisterPageContext } from "@/lib/hooks/use-register-page-context";
 import { PAGE_EASE } from "@/lib/ui/motion";
@@ -373,12 +373,12 @@ function AIProvidersInner() {
   const [activeCategory, setActiveCategory] = useState<ProviderCategory | "all">("all");
 
   const catalog = useQuery({
-    queryKey: [..._aiProvidersQueryPrefix, "catalog"],
+    queryKey: queryKeys.aiProviders.catalog(),
     queryFn: fetchProviderCatalog,
     staleTime: 60 * 60_000,
   });
   const configs = useQuery({
-    queryKey: [..._aiProvidersQueryPrefix, "configs"],
+    queryKey: queryKeys.aiProviders.configs(),
     queryFn: fetchProviderConfigs,
     staleTime: 5 * 60_000,
   });
@@ -399,7 +399,7 @@ function AIProvidersInner() {
   }
 
   function invalidate() {
-    void queryClient.invalidateQueries({ queryKey: _aiProvidersQueryPrefix });
+    void queryClient.invalidateQueries({ queryKey: queryKeys.aiProviders.all() });
   }
 
   const enabledCount = cfgList.filter((c) => c.enabled).length;

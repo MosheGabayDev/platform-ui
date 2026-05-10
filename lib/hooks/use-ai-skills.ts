@@ -39,8 +39,3 @@ export function useSkillValidation(input: ValidateSkillInput | null) {
   });
   return { validation: data?.data, isLoading, isError };
 }
-
-/**
- * @deprecated Use `queryKeys.aiSkills.all()` directly.
- */
-export const _aiSkillsQueryPrefix = queryKeys.aiSkills.all();

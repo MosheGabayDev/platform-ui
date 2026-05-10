@@ -44,7 +44,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { fetchAISkills, setSkillEnablement } from "@/lib/api/ai-skills";
-import { _aiSkillsQueryPrefix } from "@/lib/hooks/use-ai-skills";
+import { queryKeys } from "@/lib/api/query-keys";
 import { usePlatformMutation } from "@/lib/hooks/use-platform-mutation";
 import { useRegisterPageContext } from "@/lib/hooks/use-register-page-context";
 import { PAGE_EASE } from "@/lib/ui/motion";
@@ -137,7 +137,7 @@ function SkillCard({ entry }: { entry: SkillEntry }) {
     mutationFn: setSkillEnablement,
     onSuccess: (d) => {
       toast.success(d.message);
-      void queryClient.invalidateQueries({ queryKey: _aiSkillsQueryPrefix });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.aiSkills.all() });
     },
   });
 
@@ -280,7 +280,7 @@ function AISkillsInner() {
   );
 
   const { data, isLoading, error } = useQuery({
-    queryKey: [..._aiSkillsQueryPrefix, "list", filter],
+    queryKey: queryKeys.aiSkills.list(filter),
     queryFn: () => fetchAISkills(filter),
     staleTime: 5 * 60_000,
   });
