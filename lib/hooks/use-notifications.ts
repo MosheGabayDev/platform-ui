@@ -8,20 +8,19 @@
  *
  * Security: org-scoped + user-scoped on the backend. This hook renders only what it receives.
  */
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/api/query-keys";
 import {
   fetchNotifications,
   markNotificationRead,
   markAllNotificationsRead,
 } from "@/lib/api/notifications";
+import { usePlatformMutation } from "@/lib/hooks/use-platform-mutation";
 
 /** 30-second polling interval (ms). Replace with SSE in cap 23 upgrade. */
 const POLL_INTERVAL_MS = 30_000;
 
 export function useNotifications() {
-  const queryClient = useQueryClient();
-
   const { data, isLoading, isError } = useQuery({
     queryKey: queryKeys.notifications.list(),
     queryFn: fetchNotifications,
@@ -33,18 +32,14 @@ export function useNotifications() {
   const notifications = data?.data.notifications ?? [];
   const unreadCount   = data?.data.unread_count   ?? 0;
 
-  const markRead = useMutation({
+  const markRead = usePlatformMutation({
     mutationFn: markNotificationRead,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all() });
-    },
+    invalidateKeys: [queryKeys.notifications.all()],
   });
 
-  const markAllRead = useMutation({
+  const markAllRead = usePlatformMutation({
     mutationFn: markAllNotificationsRead,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all() });
-    },
+    invalidateKeys: [queryKeys.notifications.all()],
   });
 
   return {
@@ -53,7 +48,7 @@ export function useNotifications() {
     isLoading,
     isError,
     markRead:    (id: string) => markRead.mutate(id),
-    markAllRead: () => markAllRead.mutate(),
+    markAllRead: () => markAllRead.mutate(undefined as void),
     isMarkingRead:    markRead.isPending,
     isMarkingAllRead: markAllRead.isPending,
   };

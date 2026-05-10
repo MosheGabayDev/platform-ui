@@ -213,6 +213,33 @@ describe("ADR-028 enforcement invariants", () => {
     expect(stale).toEqual([]);
   });
 
+  it("rule #3 — no raw useMutation outside the usePlatformMutation wrapper", () => {
+    // ADR-028 #3: every mutation goes through usePlatformMutation so
+    // we get consistent error normalization (`serverError`), cache
+    // invalidation (`invalidateKeys`), and pending/reset semantics.
+    // Raw `useMutation(...)` skips that contract — error toasts diverge,
+    // invalidation gets forgotten, etc.
+    const ALLOW_PATH_RE = [
+      /(?:^|\/)lib\/hooks\/use-platform-mutation\.ts$/,
+    ];
+    const broken: string[] = [];
+    for (const file of SOURCES) {
+      const norm = file.replace(/\\/g, "/");
+      if (ALLOW_PATH_RE.some((re) => re.test(norm))) continue;
+      let src = fs.readFileSync(file, "utf8");
+      src = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
+      src = src
+        .replace(/"(?:[^"\\]|\\.)*"/g, '""')
+        .replace(/'(?:[^'\\]|\\.)*'/g, "''")
+        .replace(/`(?:[^`\\]|\\.)*`/g, "``");
+      // Match `useMutation(` at word boundary, not preceded by `.` or
+      // any identifier char (skips `usePlatformMutation`).
+      const re = /(?<![.\w])useMutation\s*\(/;
+      if (re.test(src)) broken.push(norm);
+    }
+    expect(broken).toEqual([]);
+  });
+
   it("rule #6 — no bare confirm() / alert() / prompt() calls either", () => {
     // The bare globals (without `window.`) are equally banned. Match
     // requires word-boundary + open paren; skip lines where the word

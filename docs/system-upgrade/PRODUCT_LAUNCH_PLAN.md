@@ -264,6 +264,28 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Seventieth batch — ADR-028 #3 invariant + 2 mutation fixes
+
+**Drift found and fixed:** `lib/hooks/use-notifications.ts` was
+calling `useMutation(...)` directly for both `markRead` and
+`markAllRead` — bypassing the standard `usePlatformMutation`
+wrapper and its error-normalization / cache-invalidation contract.
+Both migrated; cache invalidation pattern preserved
+(`invalidateKeys: [queryKeys.notifications.all()]`).
+
+**Invariant added** in `lib/adr-028-invariants.test.ts`: bare
+`useMutation(` calls allowed ONLY in
+`lib/hooks/use-platform-mutation.ts`. Lookbehind `(?<![.\w])`
+ensures `usePlatformMutation` itself is not flagged. Sanity-checked
+with synthetic `import { useMutation } from "@tanstack/react-query"`
+in a temp file → gate flagged it. File removed.
+
+This is the partner gate to batch 61 (queryKey registry):
+together they enforce ADR-028's two cache-related rules — every
+read uses the registry, every write uses the wrapper.
+
+Full suite: 1278/1278 ✓ (was 1277; +1 invariant). Typecheck clean.
+
 ### 2026-05-10 — Sixty-ninth batch — migrate /billing invoices to DataTable (debt cleared)
 
 Last entry of the ADR-028 #1 allowlist gone. The hand-rolled
