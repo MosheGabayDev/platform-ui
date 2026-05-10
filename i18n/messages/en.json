@@ -1013,7 +1013,61 @@
     },
     "batch": {
       "title": "Batch tasks",
-      "subtitle": "Long-running ticket operations queue"
+      "subtitle": "Long-running ticket operations queue",
+      "status": {
+        "all": "All statuses",
+        "running": "Running",
+        "queued": "Queued",
+        "succeeded": "Succeeded",
+        "partial": "Partial success",
+        "failed": "Failed",
+        "cancelled": "Cancelled"
+      },
+      "columns": {
+        "task": "Task",
+        "status": "Status",
+        "progress": "Progress",
+        "when": "When",
+        "by": "By"
+      },
+      "kpi": {
+        "running": "Running",
+        "queued": "Queued",
+        "total": "Total in view"
+      },
+      "filters": {
+        "statusAria": "Filter by status"
+      },
+      "empty": "No batch tasks match your filter",
+      "rowMeta": {
+        "done": "done {when}"
+      },
+      "actions": {
+        "download": "Download",
+        "downloadAria": "Download artifact for batch task {id}",
+        "cancel": "Cancel",
+        "cancelAria": "Cancel batch task {id}"
+      },
+      "failures": {
+        "taskError": "task error",
+        "itemFailures": "{n} item failures",
+        "taskErrorPrefix": "Task error:"
+      },
+      "cancelDialog": {
+        "label": "Cancel \"{label}\"",
+        "description": "Cancel batch task #{id}? In-flight items will halt at the next checkpoint; processed items remain."
+      },
+      "relative": {
+        "justNow": "just now",
+        "minutesAgo": "{n}m ago",
+        "hoursAgo": "{n}h ago",
+        "daysAgo": "{n}d ago"
+      },
+      "disabled": {
+        "subtitle": "Module disabled",
+        "title": "Helpdesk not enabled",
+        "description": "The Helpdesk module is not enabled for your organization."
+      }
     },
     "approvals": {
       "title": "Approvals",
@@ -2027,6 +2081,7 @@
       "searchPlaceholder": "Search chats",
       "emptyTitle": "No chats found",
       "emptyDescription": "Try a different search or connect a WhatsApp session.",
+      "searchAction": "Search messages",
       "noPreview": "No message preview yet",
       "never": "Never",
       "muted": "Muted",
@@ -2054,6 +2109,20 @@
       "bytes": "{bytes} bytes",
       "emptyTitle": "No messages captured",
       "emptyDescription": "Messages will appear here after the linked session captures this chat."
+    },
+    "search": {
+      "title": "Search WhatsApp",
+      "subtitle": "Search across messages captured from your own linked sessions",
+      "back": "Back",
+      "placeholder": "Search message text",
+      "idleTitle": "Search your archive",
+      "idleDescription": "Enter a word or phrase to search across your captured WhatsApp messages.",
+      "emptyTitle": "No matching messages",
+      "emptyDescription": "Try another term or narrow the search later from a specific chat.",
+      "resultCount": "{count} matches",
+      "unknownChat": "Unknown chat",
+      "never": "Never",
+      "noBody": "No text body"
     },
     "qrDialog": {
       "title": "WhatsApp QR",

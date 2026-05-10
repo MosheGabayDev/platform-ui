@@ -35,6 +35,9 @@ import type {
   WhatsAppChatsResponse,
   WhatsAppMessage,
   WhatsAppMessageListParams,
+  WhatsAppMessageSearchParams,
+  WhatsAppMessageSearchResponse,
+  WhatsAppMessageSearchResult,
   WhatsAppMessagesResponse,
   WhatsAppQrResponse,
   WhatsAppSession,
@@ -52,6 +55,9 @@ export type {
   WhatsAppChatsResponse,
   WhatsAppMessage,
   WhatsAppMessageListParams,
+  WhatsAppMessageSearchParams,
+  WhatsAppMessageSearchResponse,
+  WhatsAppMessageSearchResult,
   WhatsAppMessagesMeta,
   WhatsAppMessagesResponse,
   WhatsAppQrResponse,
@@ -354,6 +360,30 @@ function messageQueryString(params: WhatsAppMessageListParams): string {
   return encoded ? `?${encoded}` : "";
 }
 
+function searchQueryString(params: WhatsAppMessageSearchParams): string {
+  const search = new URLSearchParams();
+  if (params.q?.trim()) search.set("q", params.q.trim());
+  if (params.chat_id) search.set("chat_id", String(params.chat_id));
+  if (params.type?.trim()) search.set("type", params.type.trim());
+  if (params.page) search.set("page", String(params.page));
+  if (params.page_size) search.set("page_size", String(params.page_size));
+  const encoded = search.toString();
+  return encoded ? `?${encoded}` : "";
+}
+
+function mockSearchResult(message: WhatsAppMessage, q: string): WhatsAppMessageSearchResult {
+  const body = message.body ?? "";
+  const lowerBody = body.toLowerCase();
+  const idx = lowerBody.indexOf(q.toLowerCase());
+  const start = idx === -1 ? 0 : Math.max(0, idx - 60);
+  const end = idx === -1 ? 160 : Math.min(body.length, idx + q.length + 60);
+  return {
+    message,
+    chat: MOCK_CHATS.find((chat) => chat.id === message.chat_id) ?? null,
+    highlight: `${start > 0 ? "..." : ""}${body.slice(start, end)}${end < body.length ? "..." : ""}`,
+  };
+}
+
 /** Fetch the current user's owned WhatsApp chats. */
 export async function fetchWhatsappChats(
   params: WhatsAppChatListParams = {},
@@ -409,6 +439,39 @@ export async function fetchWhatsappChatMessages(
   return apiFetch<WhatsAppMessagesResponse>(
     `/api/chats/${chatId}/messages${messageQueryString(params)}`,
   );
+}
+
+/** Search owned WhatsApp messages. */
+export async function searchWhatsappMessages(
+  params: WhatsAppMessageSearchParams = {},
+): Promise<WhatsAppMessageSearchResponse> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 60));
+    const q = params.q?.trim() ?? "";
+    const page = Math.max(1, params.page ?? 1);
+    const pageSize = Math.min(Math.max(1, params.page_size ?? 50), 100);
+    const allMessages = Object.values(MOCK_MESSAGES).flat();
+    const filtered = q
+      ? allMessages.filter((message) => {
+          if (params.chat_id && message.chat_id !== params.chat_id) return false;
+          if (params.type && message.type !== params.type) return false;
+          return (message.body ?? "").toLowerCase().includes(q.toLowerCase());
+        })
+      : [];
+    const start = (page - 1) * pageSize;
+    const data = filtered.slice(start, start + pageSize).map((message) => mockSearchResult(message, q));
+    return {
+      status: "ok",
+      data,
+      meta: {
+        page,
+        page_size: pageSize,
+        total: filtered.length,
+        has_more: start + data.length < filtered.length,
+      },
+    };
+  }
+  return apiFetch<WhatsAppMessageSearchResponse>(`/api/search${searchQueryString(params)}`);
 }
 
 /** Fetch the current user's personal WhatsApp session rows. */

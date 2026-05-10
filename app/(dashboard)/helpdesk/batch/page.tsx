@@ -46,25 +46,28 @@ import type {
   BatchTaskStatus,
 } from "@/lib/modules/helpdesk/types";
 
-const STATUS_OPTIONS: Array<{ value: BatchTaskStatus | "all"; label: string }> = [
-  { value: "all", label: "All statuses" },
-  { value: "running", label: "Running" },
-  { value: "queued", label: "Queued" },
-  { value: "succeeded", label: "Succeeded" },
-  { value: "partial", label: "Partial success" },
-  { value: "failed", label: "Failed" },
-  { value: "cancelled", label: "Cancelled" },
+const STATUS_VALUES: Array<BatchTaskStatus | "all"> = [
+  "all",
+  "running",
+  "queued",
+  "succeeded",
+  "partial",
+  "failed",
+  "cancelled",
 ];
 
-function formatRelative(iso: string | null): string {
+function formatRelative(
+  iso: string | null,
+  t: (key: string, params?: Record<string, string | number | Date>) => string,
+): string {
   if (!iso) return "—";
   const diffMs = Date.now() - new Date(iso).getTime();
   const mins = Math.round(diffMs / 60_000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
+  if (mins < 1) return t("relative.justNow");
+  if (mins < 60) return t("relative.minutesAgo", { n: mins });
   const hours = Math.round(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  return `${Math.round(hours / 24)}d ago`;
+  if (hours < 24) return t("relative.hoursAgo", { n: hours });
+  return t("relative.daysAgo", { n: Math.round(hours / 24) });
 }
 
 function BatchInner() {
@@ -112,7 +115,7 @@ function BatchInner() {
     () => [
       {
         accessorKey: "label",
-        header: "Task",
+        header: t("columns.task"),
         cell: ({ row }) => (
           <div className="flex flex-col gap-0.5 max-w-md">
             <span className="text-sm font-medium">{row.original.label}</span>
@@ -124,12 +127,12 @@ function BatchInner() {
       },
       {
         accessorKey: "status",
-        header: "Status",
+        header: t("columns.status"),
         cell: ({ row }) => <JobStatusBadge status={row.original.status} />,
       },
       {
         accessorKey: "progress",
-        header: "Progress",
+        header: t("columns.progress"),
         cell: ({ row }) => (
           <JobProgress
             progress={row.original.progress}
@@ -139,13 +142,15 @@ function BatchInner() {
       },
       {
         accessorKey: "created_at",
-        header: "When",
+        header: t("columns.when"),
         cell: ({ row }) => (
           <div className="flex flex-col text-xs">
-            <span>{formatRelative(row.original.created_at)}</span>
+            <span>{formatRelative(row.original.created_at, t)}</span>
             {row.original.completed_at && (
               <span className="text-[10px] text-muted-foreground">
-                done {formatRelative(row.original.completed_at)}
+                {t("rowMeta.done", {
+                  when: formatRelative(row.original.completed_at, t),
+                })}
               </span>
             )}
           </div>
@@ -153,7 +158,7 @@ function BatchInner() {
       },
       {
         accessorKey: "created_by_name",
-        header: "By",
+        header: t("columns.by"),
         cell: ({ row }) =>
           row.original.created_by_name ? (
             <span className="text-xs">{row.original.created_by_name}</span>
@@ -165,22 +170,22 @@ function BatchInner() {
         id: "actions",
         header: "",
         cell: ({ row }) => {
-          const t = row.original;
-          const isCancellable = t.status === "queued" || t.status === "running";
-          const hasArtifact = t.result?.artifact_url;
-          if (!isCancellable && !hasArtifact && !t.error_message) {
+          const task = row.original;
+          const isCancellable = task.status === "queued" || task.status === "running";
+          const hasArtifact = task.result?.artifact_url;
+          if (!isCancellable && !hasArtifact && !task.error_message) {
             return null;
           }
           return (
             <div className="flex justify-end gap-1">
               {hasArtifact && (
                 <a
-                  href={t.result!.artifact_url!}
+                  href={task.result!.artifact_url!}
                   className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md border border-border/60 hover:bg-muted/60"
-                  aria-label={`Download artifact for batch task ${t.id}`}
+                  aria-label={t("actions.downloadAria", { id: task.id })}
                 >
                   <Download className="h-3.5 w-3.5" aria-hidden="true" />
-                  Download
+                  {t("actions.download")}
                 </a>
               )}
               {isCancellable && (
@@ -188,11 +193,11 @@ function BatchInner() {
                   size="sm"
                   variant="outline"
                   disabled={cancel.isPending}
-                  onClick={() => setCancelTarget(t)}
-                  aria-label={`Cancel batch task ${t.id}`}
+                  onClick={() => setCancelTarget(task)}
+                  aria-label={t("actions.cancelAria", { id: task.id })}
                 >
                   <CircleSlash2 className="h-3.5 w-3.5 me-1" aria-hidden="true" />
-                  Cancel
+                  {t("actions.cancel")}
                 </Button>
               )}
             </div>
@@ -200,7 +205,7 @@ function BatchInner() {
         },
       },
     ],
-    [cancel],
+    [cancel, t],
   );
 
   return (
@@ -215,7 +220,7 @@ function BatchInner() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="glass border-border/50 rounded-xl p-4 flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Running</span>
+                <span className="text-xs text-muted-foreground">{t("kpi.running")}</span>
                 <CircleDot
                   className={`h-4 w-4 ${
                     runningCount > 0
@@ -237,14 +242,14 @@ function BatchInner() {
             </div>
             <div className="glass border-border/50 rounded-xl p-4 flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Queued</span>
+                <span className="text-xs text-muted-foreground">{t("kpi.queued")}</span>
                 <Clock className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
               </div>
               <span className="text-2xl font-semibold">{queuedCount}</span>
             </div>
             <div className="glass border-border/50 rounded-xl p-4 flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Total in view</span>
+                <span className="text-xs text-muted-foreground">{t("kpi.total")}</span>
                 <Layers className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
               </div>
               <span className="text-2xl font-semibold">{total}</span>
@@ -260,11 +265,11 @@ function BatchInner() {
                 setPage(1);
               }}
               className="h-9 rounded-md border border-input bg-background px-3 text-sm sm:w-44"
-              aria-label="Filter by status"
+              aria-label={t("filters.statusAria")}
             >
-              {STATUS_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
+              {STATUS_VALUES.map((value) => (
+                <option key={value} value={value}>
+                  {t(`status.${value}` as never)}
                 </option>
               ))}
             </select>
@@ -275,7 +280,7 @@ function BatchInner() {
             data={tasks}
             isLoading={isLoading}
             error={error as Error | null}
-            emptyMessage="No batch tasks match your filter"
+            emptyMessage={t("empty")}
             pagination={{
               page,
               totalPages,
@@ -291,25 +296,30 @@ function BatchInner() {
           {(status === "partial" || status === "failed") &&
             tasks.length > 0 && (
               <div className="space-y-2">
-                {tasks.map((t) =>
-                  t.error_message || (t.result?.failures.length ?? 0) > 0 ? (
+                {tasks.map((task) =>
+                  task.error_message || (task.result?.failures.length ?? 0) > 0 ? (
                     <details
-                      key={t.id}
+                      key={task.id}
                       className="glass border-border/50 rounded-xl p-3 text-sm"
                     >
                       <summary className="cursor-pointer font-medium">
-                        #{t.id} {t.label} —{" "}
+                        #{task.id} {task.label} —{" "}
                         <span className="text-muted-foreground">
-                          {t.error_message ? "task error" : `${t.result?.failures.length} item failures`}
+                          {task.error_message
+                            ? t("failures.taskError")
+                            : t("failures.itemFailures", {
+                                n: task.result?.failures.length ?? 0,
+                              })}
                         </span>
                       </summary>
                       <div className="mt-2 space-y-1 text-xs">
-                        {t.error_message && (
+                        {task.error_message && (
                           <p className="text-rose-600 dark:text-rose-400">
-                            <strong>Task error:</strong> {t.error_message}
+                            <strong>{t("failures.taskErrorPrefix")}</strong>{" "}
+                            {task.error_message}
                           </p>
                         )}
-                        {t.result?.failures.map((f) => (
+                        {task.result?.failures.map((f) => (
                           <div
                             key={f.id}
                             className="flex gap-2 font-mono text-[11px]"
@@ -332,8 +342,8 @@ function BatchInner() {
             action={
               {
                 id: "helpdesk.batch.cancel",
-                label: `Cancel "${cancelTarget.label}"`,
-                description: `Cancel batch task #${cancelTarget.id}? In-flight items will halt at the next checkpoint; processed items remain.`,
+                label: t("cancelDialog.label", { label: cancelTarget.label }),
+                description: t("cancelDialog.description", { id: cancelTarget.id }),
                 dangerLevel: "medium",
                 requiresConfirmation: true,
                 requiresReason: false,
@@ -362,20 +372,22 @@ function BatchInner() {
   );
 }
 
+function BatchDisabledFallback() {
+  const t = useTranslations("helpdesk.batch");
+  return (
+    <PageShell icon={Layers} title={t("title")} subtitle={t("disabled.subtitle")}>
+      <EmptyState
+        icon={AlertCircle}
+        title={t("disabled.title")}
+        description={t("disabled.description")}
+      />
+    </PageShell>
+  );
+}
+
 export default function HelpdeskBatchPage() {
   return (
-    <FeatureGate
-      flag="helpdesk.enabled"
-      fallback={
-        <PageShell icon={Layers} title="Batch tasks" subtitle="Coming soon">
-          <EmptyState
-            icon={AlertCircle}
-            title="Helpdesk not enabled"
-            description="The Helpdesk module is not enabled for your organization."
-          />
-        </PageShell>
-      }
-    >
+    <FeatureGate flag="helpdesk.enabled" fallback={<BatchDisabledFallback />}>
       <BatchInner />
     </FeatureGate>
   );

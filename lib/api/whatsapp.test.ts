@@ -10,6 +10,7 @@ import {
   linkWhatsappSession,
   relinkWhatsappSession,
   unlinkWhatsappSession,
+  searchWhatsappMessages,
   MOCK_MODE,
 } from "./whatsapp";
 import { clearMockState } from "@/lib/api/_mock-storage";
@@ -59,6 +60,20 @@ describe("whatsapp client (mock mode)", () => {
 
   it("fetchWhatsappChatMessages rejects a missing chat", async () => {
     await expect(fetchWhatsappChatMessages(999999)).rejects.toThrow(/not_found/);
+  });
+
+  it("searchWhatsappMessages returns matching message hits", async () => {
+    const res = await searchWhatsappMessages({ q: "invoice" });
+    expect(res.status).toBe("ok");
+    expect(res.meta.total).toBeGreaterThan(0);
+    expect(res.data[0]!.chat?.id).toBe(11001);
+    expect(res.data[0]!.highlight.toLowerCase()).toContain("invoice");
+  });
+
+  it("searchWhatsappMessages returns an empty result for empty q", async () => {
+    const res = await searchWhatsappMessages({ q: "" });
+    expect(res.data).toEqual([]);
+    expect(res.meta.total).toBe(0);
   });
 
   it("link → fetch shows a needs_qr session", async () => {

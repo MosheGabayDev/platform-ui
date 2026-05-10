@@ -344,8 +344,9 @@ const MANIFESTS: ModuleManifest[] = [
     icon: "MessageCircle",
     base_route: "/whatsapp",
     nav_entries: [
+      { label: "Search", label_he: "חיפוש", href: "/whatsapp/search", icon: "Search", order: 1 },
       { label: "Chats", label_he: "צ'אטים", href: "/whatsapp", icon: "MessageCircle", order: 0 },
-      { label: "WhatsApp", label_he: "ווטסאפ", href: "/whatsapp/sessions", icon: "MessageCircle", order: 1 },
+      { label: "WhatsApp", label_he: "ווטסאפ", href: "/whatsapp/sessions", icon: "MessageCircle", order: 2 },
     ],
     ai_actions: [
       "whatsapp.session.link",

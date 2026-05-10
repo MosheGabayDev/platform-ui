@@ -1013,7 +1013,61 @@
     },
     "batch": {
       "title": "משימות אצווה",
-      "subtitle": "תור משימות פנייה ארוכות"
+      "subtitle": "תור משימות פנייה ארוכות",
+      "status": {
+        "all": "כל הסטטוסים",
+        "running": "רץ",
+        "queued": "בתור",
+        "succeeded": "הצליח",
+        "partial": "הצלחה חלקית",
+        "failed": "נכשל",
+        "cancelled": "בוטל"
+      },
+      "columns": {
+        "task": "משימה",
+        "status": "סטטוס",
+        "progress": "התקדמות",
+        "when": "מתי",
+        "by": "על ידי"
+      },
+      "kpi": {
+        "running": "רץ",
+        "queued": "בתור",
+        "total": "סה״כ בתצוגה"
+      },
+      "filters": {
+        "statusAria": "סינון לפי סטטוס"
+      },
+      "empty": "אין משימות אצווה תואמות לסינון",
+      "rowMeta": {
+        "done": "הסתיים {when}"
+      },
+      "actions": {
+        "download": "הורדה",
+        "downloadAria": "הורד תוצר עבור משימת אצווה {id}",
+        "cancel": "ביטול",
+        "cancelAria": "בטל משימת אצווה {id}"
+      },
+      "failures": {
+        "taskError": "שגיאת משימה",
+        "itemFailures": "{n} כשלי פריטים",
+        "taskErrorPrefix": "שגיאת משימה:"
+      },
+      "cancelDialog": {
+        "label": "ביטול \"{label}\"",
+        "description": "לבטל משימת אצווה #{id}? פריטים בתהליך יעצרו ב-checkpoint הבא; פריטים שעובדו נשארים."
+      },
+      "relative": {
+        "justNow": "כעת",
+        "minutesAgo": "לפני {n}ד׳",
+        "hoursAgo": "לפני {n}ש׳",
+        "daysAgo": "לפני {n} ימים"
+      },
+      "disabled": {
+        "subtitle": "המודול מושבת",
+        "title": "הלפדסק לא מופעל",
+        "description": "מודול הלפדסק אינו מופעל לארגון שלך."
+      }
     },
     "approvals": {
       "title": "אישורים",
@@ -2027,6 +2081,7 @@
       "searchPlaceholder": "חפש צ'אטים",
       "emptyTitle": "לא נמצאו צ'אטים",
       "emptyDescription": "נסה חיפוש אחר או חבר חשבון WhatsApp.",
+      "searchAction": "חיפוש הודעות",
       "noPreview": "אין תצוגת הודעה עדיין",
       "never": "אף פעם",
       "muted": "מושתק",
@@ -2054,6 +2109,20 @@
       "bytes": "{bytes} בתים",
       "emptyTitle": "לא נלכדו הודעות",
       "emptyDescription": "הודעות יופיעו כאן אחרי שהחיבור הפעיל ילכוד את הצ'אט הזה."
+    },
+    "search": {
+      "title": "חיפוש WhatsApp",
+      "subtitle": "חיפוש בהודעות שנלכדו מהחיבורים האישיים שלך",
+      "back": "חזרה",
+      "placeholder": "חפש טקסט בהודעות",
+      "idleTitle": "חפש בארכיון שלך",
+      "idleDescription": "הכנס מילה או ביטוי כדי לחפש בהודעות WhatsApp שנלכדו.",
+      "emptyTitle": "לא נמצאו הודעות תואמות",
+      "emptyDescription": "נסה ביטוי אחר או צמצם בהמשך מתוך צ'אט ספציפי.",
+      "resultCount": "{count} תוצאות",
+      "unknownChat": "צ'אט לא ידוע",
+      "never": "אף פעם",
+      "noBody": "אין גוף טקסט"
     },
     "qrDialog": {
       "title": "QR של WhatsApp",

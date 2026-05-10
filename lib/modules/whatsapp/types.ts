@@ -114,6 +114,31 @@ export interface WhatsAppMessageListParams {
   page_size?: number;
 }
 
+export interface WhatsAppMessageSearchResult {
+  message: WhatsAppMessage;
+  chat: WhatsAppChat | null;
+  highlight: string;
+}
+
+export interface WhatsAppMessageSearchParams {
+  q?: string;
+  chat_id?: number | null;
+  type?: string | null;
+  page?: number;
+  page_size?: number;
+}
+
+export interface WhatsAppMessageSearchResponse {
+  status: "ok";
+  data: WhatsAppMessageSearchResult[];
+  meta: {
+    page: number;
+    page_size: number;
+    total: number;
+    has_more: boolean;
+  };
+}
+
 export interface WhatsAppSessionMutationResponse {
   status: "ok";
   session_id: number;

@@ -264,6 +264,46 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Fiftieth batch — i18n cleanup of /helpdesk/batch
+
+Continues batches 44–49. `/helpdesk/batch` had 8 violations.
+
+**Refactors:**
+- `STATUS_OPTIONS` array → `STATUS_VALUES` of keys; `t(\`status.${value}\`)`
+- `formatRelative` takes `t` parameter (matches batches 44/45/47/48 pattern)
+- 5 column headers (`columns.{task,status,progress,when,by}`)
+- 3 KPI labels (`kpi.{running,queued,total}`)
+- DataTable empty + filter aria
+- Row actions: download (with `{id}` aria) + cancel (with `{id}` aria)
+- Failure-detail summary: `failures.taskError` / `failures.itemFailures` (with `{n}` ICU param) + `failures.taskErrorPrefix`
+- ConfirmActionDialog `cancelDialog.{label,description}` with `{label}/{id}` ICU params
+- 4 relative-time formats (justNow, minutesAgo, hoursAgo, daysAgo)
+- Renamed `tasks.map((t) => ...)` to `tasks.map((task) => ...)` to
+  avoid shadowing the `t` translator that's now used inside the loop
+- Extracted `BatchDisabledFallback` for `useTranslations` scope
+
+**Files modified:**
+- `app/(dashboard)/helpdesk/batch/page.tsx` (full i18n migration)
+- `i18n/messages/{he,en}.json` (~30 new keys under `helpdesk.batch.*`)
+
+**Audit:** batch dropped off (8 → 0).
+Plan-wide: **3 → 2 pages, 20 → 12 strings remaining.**
+
+| Page | Violations |
+|---|---|
+| `helpdesk/technicians` | 7 |
+| `onboarding` | 5 |
+
+**Suites:**
+- `npx vitest run` — 141 files / **1257 tests ✓**
+- `npx tsc --noEmit` — clean ✓
+- `npx eslint . --quiet` — 0 errors ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+
+**helpdesk-cluster fully cleaned** — approvals (44) → maintenance (47)
+→ tickets (48) → sla (49) → batch (50). The 5 helpdesk admin pages
+that drove the original i18n debt list are all i18n-clean.
+
 ### 2026-05-10 — Forty-ninth batch — i18n cleanup of /helpdesk/sla
 
 Continues batches 44–48. `/helpdesk/sla` had 9 violations.

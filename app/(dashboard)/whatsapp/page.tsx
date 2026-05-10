@@ -144,6 +144,14 @@ function WhatsAppArchiveInner() {
           <span className="font-medium">{total}</span>
         </div>
       }
+      actions={
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/whatsapp/search">
+            <Search />
+            {tArchive("searchAction")}
+          </Link>
+        </Button>
+      }
     >
       {MOCK_MODE && (
         <div

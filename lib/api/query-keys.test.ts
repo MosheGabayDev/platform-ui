@@ -57,6 +57,29 @@ describe("queryKeys registry", () => {
     expect(queryKeys.notifications.list()).toEqual(["notifications", "list"]);
   });
 
+  it("whatsapp keys", () => {
+    expect(queryKeys.whatsapp.all()).toEqual(["whatsapp"]);
+    expect(queryKeys.whatsapp.chats({ q: "invoice" })).toEqual([
+      "whatsapp",
+      "chats",
+      { q: "invoice" },
+    ]);
+    expect(queryKeys.whatsapp.chatMessages(7, { page_size: 50 })).toEqual([
+      "whatsapp",
+      "chats",
+      7,
+      "messages",
+      { page_size: 50 },
+    ]);
+    expect(queryKeys.whatsapp.search({ q: "invoice" })).toEqual([
+      "whatsapp",
+      "search",
+      { q: "invoice" },
+    ]);
+    expect(queryKeys.whatsapp.sessions()).toEqual(["whatsapp", "sessions"]);
+    expect(queryKeys.whatsapp.sessionQr(3)).toEqual(["whatsapp", "sessions", 3, "qr"]);
+  });
+
   it("audit keys", () => {
     expect(queryKeys.audit.all()).toEqual(["audit"]);
     expect(queryKeys.audit.stats()).toEqual(["audit", "stats"]);
