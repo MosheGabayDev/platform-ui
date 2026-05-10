@@ -84,9 +84,14 @@ export const queryKeys = {
 
   // Cap 27: PlatformPolicy Engine
   policies: {
-    all:    () => ["policies"]                                              as const,
-    list:   () => ["policies", "list"]                                      as const,
-    detail: (id: string) => ["policies", "detail", id]                      as const,
+    all:      () => ["policies"]                                            as const,
+    list:     () => ["policies", "list"]                                    as const,
+    detail:   (id: string) => ["policies", "detail", id]                    as const,
+    evaluate: (
+      actionId: string | undefined,
+      params: unknown,
+      resource: unknown,
+    ) => ["policies", "evaluate", actionId, params, resource]               as const,
   },
 
   // Cap 11: PlatformSearch / Command Palette

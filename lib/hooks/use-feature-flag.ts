@@ -23,6 +23,7 @@ import {
   STATIC_FLAG_DEFAULTS,
   type FlagKey,
 } from "@/lib/api/feature-flags";
+import { queryKeys } from "@/lib/api/query-keys";
 
 export type FlagSource = "api" | "default";
 
@@ -39,7 +40,7 @@ export interface UseFlagResult {
 
 export function useFeatureFlag(key: FlagKey): UseFlagResult {
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["feature-flags", "flag", key],
+    queryKey: queryKeys.featureFlags.flag(key),
     queryFn: () => fetchFeatureFlag(key),
     retry: false,
     staleTime: 5 * 60_000,

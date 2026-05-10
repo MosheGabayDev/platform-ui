@@ -2,6 +2,8 @@
  * Query key registry — every shape should be stable, deterministic, and
  * include params where present (so React Query distinguishes cache entries).
  */
+import fs from "node:fs";
+import path from "node:path";
 import { describe, it, expect } from "vitest";
 import { queryKeys } from "./query-keys";
 
@@ -129,6 +131,13 @@ describe("queryKeys registry", () => {
     expect(queryKeys.policies.all()).toEqual(["policies"]);
     expect(queryKeys.policies.list()).toEqual(["policies", "list"]);
     expect(queryKeys.policies.detail("p.x")).toEqual(["policies", "detail", "p.x"]);
+    expect(queryKeys.policies.evaluate("a.b", { x: 1 }, null)).toEqual([
+      "policies",
+      "evaluate",
+      "a.b",
+      { x: 1 },
+      null,
+    ]);
   });
 
   it("search keys", () => {
@@ -244,6 +253,41 @@ describe("queryKeys registry", () => {
       "task",
       99,
     ]);
+  });
+
+  it("no inline string-literal queryKey arrays outside the registry", () => {
+    // ADR-028 #8: every useQuery / useMutation must source its queryKey
+    // from the central registry. The dangerous pattern is a raw inline
+    // array of string literals like `queryKey: ["feature-flags", ...]`
+    // because typos silently break invalidation. Spread-from-prefix
+    // patterns (`[...PREFIX, "x"]`) and identifier args are allowed.
+    function walk(dir: string, out: string[] = []): string[] {
+      for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+        const p = path.join(dir, e.name);
+        if (e.isDirectory()) {
+          if (e.name === "node_modules" || e.name === ".next") continue;
+          walk(p, out);
+        } else if (
+          /\.(tsx?|jsx?)$/.test(e.name) &&
+          !/\.test\.(tsx?|jsx?)$/.test(e.name)
+        ) {
+          out.push(p);
+        }
+      }
+      return out;
+    }
+    const sources = [...walk("app"), ...walk("components"), ...walk("lib")];
+    // Match `queryKey: [` followed by a string literal as the FIRST element.
+    // `[...PREFIX, "x"]` starts with `...` so it won't match this pattern.
+    const re = /queryKey\s*:\s*\[\s*["'][^"']+["']/;
+    const broken: string[] = [];
+    for (const file of sources) {
+      // Skip the registry itself.
+      if (file.replace(/\\/g, "/").endsWith("lib/api/query-keys.ts")) continue;
+      const src = fs.readFileSync(file, "utf8");
+      if (re.test(src)) broken.push(file);
+    }
+    expect(broken).toEqual([]);
   });
 
   it("identical params produce equal arrays (referential equality not required)", () => {

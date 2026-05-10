@@ -264,6 +264,37 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Sixty-first batch — queryKey registry invariant + 2 ADR-028 #8 fixes
+
+**Drift found and fixed:**
+- `lib/hooks/use-feature-flag.ts` was using inline
+  `["feature-flags", "flag", key]` instead of
+  `queryKeys.featureFlags.flag(key)` (which already existed).
+- `lib/hooks/use-policy-decision.ts` was using inline
+  `["policies", "evaluate", input?.action_id, ...]`. Added
+  `queryKeys.policies.evaluate(actionId, params, resource)` to the
+  registry to give it a home.
+
+Both are silent-bug-class violations: a typo in the inline string
+would silently break cache invalidation (mutation completes but UI
+doesn't refresh).
+
+**Invariant added** in `lib/api/query-keys.test.ts`: scans every
+`.ts/.tsx` file under `app/components/lib` (excl. tests + the
+registry itself) for the pattern `queryKey: ["literal-string", ...`
+and fails if any match. Allows spread-from-prefix patterns
+(`[...PREFIX, "x"]`) and identifier args (no string literal as
+first element). Catches the next regression of this kind.
+
+**Files modified:**
+- `lib/api/query-keys.ts` — added `policies.evaluate()`.
+- `lib/api/query-keys.test.ts` — +1 invariant + 1 evaluate
+  assertion. 22 tests total (was 20).
+- `lib/hooks/use-feature-flag.ts` — wired to registry.
+- `lib/hooks/use-policy-decision.ts` — wired to registry.
+
+Full suite: 1271/1271 ✓ (was 1270; +1 from the invariant test).
+
 ### 2026-05-10 — Sixtieth batch — nav href resolution invariant
 
 New invariant in `components/shell/nav-items.test.ts`: every

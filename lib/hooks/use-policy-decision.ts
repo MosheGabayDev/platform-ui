@@ -11,6 +11,7 @@
  */
 import { useQuery } from "@tanstack/react-query";
 import { evaluatePolicy } from "@/lib/api/policies";
+import { queryKeys } from "@/lib/api/query-keys";
 import type { EvaluateInput, PolicyDecision } from "@/lib/modules/policies/types";
 
 export interface UsePolicyDecisionResult {
@@ -36,7 +37,11 @@ export function usePolicyDecision(
 ): UsePolicyDecisionResult {
   const enabled = (options.enabled ?? true) && input !== null;
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["policies", "evaluate", input?.action_id, input?.params, input?.resource],
+    queryKey: queryKeys.policies.evaluate(
+      input?.action_id,
+      input?.params,
+      input?.resource,
+    ),
     queryFn: () => evaluatePolicy(input as EvaluateInput),
     enabled,
     staleTime: SHORT_STALE_MS,
