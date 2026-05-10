@@ -264,6 +264,47 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Twenty-sixth batch — AI shortcuts in /help for new verticals
+
+12th integration layer. Notes + Bookmarks now appear in the
+`/help` natural-language AI shortcuts list, alongside ticket/user
+actions.
+
+**Shortcuts registered:**
+- `create note <title>` → `notes.create` (capability_level: WRITE_LOW)
+- `add bookmark <url>` → `bookmarks.create` (capability_level: WRITE_LOW)
+
+The existing invariant (`every aiShortcut.action_id matches a
+registered skill`) caught this without modification — both ids
+already resolve to live skills from batch 21.
+
+**Files modified:**
+- `lib/docs/content.ts` (+2 AI_SHORTCUTS entries)
+- `lib/docs/content.test.ts` (+1 explicit cross-vertical assertion)
+- `i18n/messages/{he,en}.json` (+help.aiShortcuts.{createNote, createBookmark})
+
+**Suites:**
+- `npx vitest run` — 138 files / **1220 tests ✓** (+1)
+- `npx tsc --noEmit` — clean ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+
+**Integration parity refresh — 12 layers now matched:**
+
+| Layer | helpdesk | notes | bookmarks |
+|---|---|---|---|
+| module-registry manifest | ✓ | ✓ | ✓ |
+| nav | ✓ | ✓ | ✓ |
+| i18n he/en | ✓ | ✓ | ✓ |
+| MOCK_MODE flip checklist | ✓ | ✓ | ✓ |
+| queryKeys namespace | ✓ | ✓ | ✓ |
+| Cmd+K search | ✓ | ✓ | ✓ |
+| AI skill registry | ✓ | ✓ | ✓ |
+| audit emit on mutations | ✓ | ✓ | ✓ |
+| policy engine governance | ✓ | ✓ | ✓ |
+| RBAC permissions catalog | ✓ | ✓ | ✓ |
+| **/help AI natural-language shortcuts** | ✓ | ✓ | ✓ |
+| unit + page + E2E tests | ✓ | ✓ | ✓ |
+
 ### 2026-05-10 — Twenty-fifth batch — Notes edit-flow (CRUD complete)
 
 UX completeness for the Notes vertical. The MVP shipped create + delete

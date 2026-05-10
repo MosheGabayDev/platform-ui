@@ -343,6 +343,18 @@ const AI_SHORTCUTS: AIShortcut[] = [
     descriptionKey: "help.aiShortcuts.resetPassword",
     capability_level: "WRITE_LOW",
   },
+  {
+    phrase: "create note <title>",
+    action_id: "notes.create",
+    descriptionKey: "help.aiShortcuts.createNote",
+    capability_level: "WRITE_LOW",
+  },
+  {
+    phrase: "add bookmark <url>",
+    action_id: "bookmarks.create",
+    descriptionKey: "help.aiShortcuts.createBookmark",
+    capability_level: "WRITE_LOW",
+  },
 ];
 
 const KEYBOARD_SHORTCUTS: KeyboardShortcut[] = [

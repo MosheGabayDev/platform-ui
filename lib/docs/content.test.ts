@@ -131,6 +131,12 @@ describe("searchCatalog", () => {
     expect(res.aiShortcuts.some((s) => s.action_id === "helpdesk.ticket.take")).toBe(true);
   });
 
+  it("Notes + Bookmarks AI shortcuts are registered (cross-vertical AI surface)", () => {
+    const ids = new Set(DOCS_CATALOG.aiShortcuts.map((s) => s.action_id));
+    expect(ids.has("notes.create")).toBe(true);
+    expect(ids.has("bookmarks.create")).toBe(true);
+  });
+
   it("filters keyboard shortcuts by labelKey or key", () => {
     const res = searchCatalog("openCommandPalette");
     expect(res.keyboardShortcuts.length).toBeGreaterThan(0);

@@ -1036,7 +1036,9 @@
       "cancelBatch": "Cancels batch task NNNN.",
       "searchUsers": "Searches users by name / email / id.",
       "deactivateUser": "Deactivates user NNNN — they can no longer log in.",
-      "resetPassword": "Sends a password-reset email to user NNNN."
+      "resetPassword": "Sends a password-reset email to user NNNN.",
+      "createNote": "Create a note with the given title",
+      "createBookmark": "Add a bookmark for the given URL"
     },
     "keyboardShortcuts": {
       "dashboard": "Dashboard",

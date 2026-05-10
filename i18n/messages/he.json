@@ -1036,7 +1036,9 @@
       "cancelBatch": "מבטל משימת אצווה NNNN.",
       "searchUsers": "חיפוש משתמשים לפי שם / אימייל / מזהה.",
       "deactivateUser": "השבתת משתמש NNNN — לא יוכל יותר להתחבר.",
-      "resetPassword": "שולח אימייל לאיפוס סיסמה למשתמש NNNN."
+      "resetPassword": "שולח אימייל לאיפוס סיסמה למשתמש NNNN.",
+      "createNote": "צור פתק עם כותרת",
+      "createBookmark": "הוסף סימנייה לכתובת URL"
     },
     "keyboardShortcuts": {
       "dashboard": "דשבורד",
