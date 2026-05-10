@@ -264,6 +264,54 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Thirty-second batch — useSyncExternalStore for media query
+
+Demonstrates the canonical fix for the `react-hooks/set-state-in-effect`
+class. `hooks/use-mobile.ts` was the textbook anti-pattern: useState
+seeded undefined, useEffect sets the value on mount and on every
+matchMedia change. React 19's new rule flags this because each
+setState during effect cascades into another render — exactly what
+`useSyncExternalStore` was added to avoid.
+
+**Refactor:**
+```ts
+// Before — ping-pongs through render → effect → setState → render
+useEffect(() => { setIsMobile(window.matchMedia(QUERY).matches); ... }, [])
+
+// After — value read during render via the external-store contract
+useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
+```
+
+`getServerSnapshot` returns `false` to match the pre-refactor SSR
+behavior (where `!!undefined === false`). Keeps the hook a drop-in
+replacement; consumers don't change.
+
+**Suites:**
+- `npx vitest run` — 138 files / 1220 tests ✓ (one flaky billing test
+  in the full run; passed in isolation, unrelated to this batch)
+- `npx tsc --noEmit` — clean ✓
+- `npx eslint .` — **12 errors** (down from 13) / 41 warnings
+
+**Files modified:**
+- `hooks/use-mobile.ts` (useEffect+setState → useSyncExternalStore)
+
+**Open: 11 remaining set-state-in-effect cases**
+
+The rest are the canonical CLAUDE.md hydration pattern:
+
+```tsx
+const [mounted, setMounted] = useState(false);
+useEffect(() => setMounted(true), []);
+if (!mounted) return null;
+```
+
+This is documented in CLAUDE.md as the safe path against hydration
+mismatch when client state (theme, localStorage) diverges from SSR.
+The right cleanup needs a small `useLocalStorageSnapshot` helper so
+each call site can swap to `useSyncExternalStore` over `localStorage`
+events. Out of scope for this batch — file the helper separately
+when the next consumer touches one of these paths.
+
 ### 2026-05-10 — Thirty-first batch — lint sweep continues (real bugs + cosmetic)
 
 Picking up the lint debt from batch 30. **27 → 13 errors** by fixing
