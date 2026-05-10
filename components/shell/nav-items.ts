@@ -31,6 +31,7 @@ import {
   Sparkles,
   NotebookText,
   Bookmark as BookmarkIcon,
+  MessageCircle,
 } from "lucide-react";
 
 export type NavItem = {
@@ -115,6 +116,7 @@ export const navGroups: NavGroup[] = [
     items: [
       { title: "אוטומציה", titleKey: "nav.items.automation", href: "/automation", icon: Zap },
       { title: "אינטגרציות", titleKey: "nav.items.integrations", href: "/integrations", icon: Puzzle },
+      { title: "ווטסאפ", titleKey: "nav.items.whatsapp", href: "/whatsapp/sessions", icon: MessageCircle },
     ],
   },
   {

@@ -264,6 +264,58 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-10 — Thirty-seventh batch — WhatsApp module → platform parity
+
+The WhatsApp self-service sessions module landed externally
+(lib/api/whatsapp.ts + app/(dashboard)/whatsapp/sessions/page.tsx +
+queryKeys.whatsapp) but skipped the platform-integration layers we
+codified in batches 17–26. This batch closes the gaps so the module
+behaves like every other vertical.
+
+**Audit + fixes (this batch):**
+| Layer | Before | After |
+|---|---|---|
+| queryKeys namespace | ✓ (landed externally) | ✓ |
+| FeatureGate (`whatsapp.enabled`) | ✓ already wired | ✓ |
+| module-registry manifest | ✗ missing | ✓ added (status: experimental, required_flags: [whatsapp.enabled]) |
+| FIXTURE_ENABLEMENT row | ✗ missing | ✓ added (default disabled — flag-gated) |
+| RBAC permissions catalog | ✗ missing | ✓ `whatsapp.view` (id 17), `whatsapp.session.manage` (id 18) |
+| system_admin permission_count | 16 | **18** |
+| RBAC manifest cross-check test | ✗ no whatsapp assertions | ✓ extended |
+| nav entry | ✗ missing | ✓ in operations group, MessageCircle icon |
+| i18n he/en | ✗ missing | ✓ `nav.items.whatsapp`, `help.modules.whatsapp` |
+| DOCS_CATALOG quick-start | ✗ would fail invariant | ✓ added |
+
+**Deferred (out of scope this batch, tracked):**
+- MOCK_MODE shim — module has live BE; demo-mode less critical than
+  for the FE-first verticals (Notes/Bookmarks). File when first demo
+  scenario asks.
+- API tests — would need MOCK_MODE first.
+- Page-level vitest test — the page is non-trivial (QR polling, lease
+  state machine); skip for this scope.
+- E2E spec — needs feature-flag enablement + a working backend mock.
+
+**Files modified:**
+- `lib/platform/module-registry/manifests.ts` (+whatsapp manifest)
+- `lib/api/module-registry.ts` (+FIXTURE_ENABLEMENT row, default false)
+- `lib/api/roles.ts` (+2 permissions, system_admin count 16→18)
+- `lib/api/roles.test.ts` (+whatsapp assertions in cross-check test)
+- `lib/docs/content.ts` (+quick-start-whatsapp article)
+- `components/shell/nav-items.ts` (+/whatsapp/sessions row + icon import)
+- `i18n/messages/{he,en}.json` (+nav.items.whatsapp, +help.modules.whatsapp)
+
+**Suites:**
+- `npx vitest run` — 138 files / **1226 tests ✓** (unchanged — only
+  invariant tests touched, no new test files)
+- `npx tsc --noEmit` — clean ✓
+- `npx eslint . --quiet` — 0 errors ✓
+- `node scripts/check-coverage-baseline.mjs` — gate ✓
+
+**Net:** WhatsApp now satisfies 9/12 of the integration parity
+matrix (manifest, nav, i18n, queryKeys, RBAC, FeatureGate, /help
+quick-start, FIXTURE_ENABLEMENT, manifest invariants). Missing 3:
+MOCK_MODE, audit emit, AI skills — all flag-gated future work.
+
 ### 2026-05-10 — Thirty-sixth batch — Bookmarks delete-flow (CRD parity with Notes)
 
 Promotes Bookmarks from "lite" (one mutation) to full CRD: read +

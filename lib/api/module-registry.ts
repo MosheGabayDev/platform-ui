@@ -45,6 +45,7 @@ const FIXTURE_ENABLEMENT: Array<[string, boolean]> = [
   ["data-sources", false],
   ["notes", true],
   ["bookmarks", true],
+  ["whatsapp", false],
 ];
 
 // Mock per-org enablement. Defaults below match a "Pro" tenant.

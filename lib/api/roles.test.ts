@@ -123,8 +123,12 @@ describe("roles client (mock mode)", () => {
     expect(names.has("notes.view")).toBe(true);
     expect(names.has("notes.create")).toBe(true);
     expect(names.has("notes.delete_own")).toBe(true);
-    // Bookmarks — manifest declares bookmarks.{view,create}
+    // Bookmarks — manifest declares bookmarks.{view,create,delete_own}
     expect(names.has("bookmarks.view")).toBe(true);
     expect(names.has("bookmarks.create")).toBe(true);
+    expect(names.has("bookmarks.delete_own")).toBe(true);
+    // WhatsApp — manifest declares whatsapp.{view,session.manage}
+    expect(names.has("whatsapp.view")).toBe(true);
+    expect(names.has("whatsapp.session.manage")).toBe(true);
   });
 });

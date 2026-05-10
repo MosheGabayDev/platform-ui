@@ -193,6 +193,18 @@ const QUICK_STARTS: DocArticle[] = [
     ],
     tags: ["bookmarks", "links"],
   },
+  {
+    id: "quick-start-whatsapp",
+    category: "quick-start",
+    module_key: "whatsapp",
+    titleKey: "help.modules.whatsapp.title",
+    summaryKey: "help.modules.whatsapp.summary",
+    stepKeys: [
+      "help.modules.whatsapp.steps.0",
+      "help.modules.whatsapp.steps.1",
+    ],
+    tags: ["whatsapp", "messaging"],
+  },
 ];
 
 // 2026-05-07 §7 task 10.08 — KB scaffolding. Three new categories added

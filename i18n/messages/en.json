@@ -395,7 +395,8 @@
       "usageLimits": "Usage limits",
       "help": "Help",
       "notes": "Notes",
-      "bookmarks": "Bookmarks"
+      "bookmarks": "Bookmarks",
+      "whatsapp": "WhatsApp"
     }
   },
   "language": {
@@ -1026,6 +1027,14 @@
         "steps": [
           "Click 'New bookmark' and enter a title + URL.",
           "URL must start with http:// or https://."
+        ]
+      },
+      "whatsapp": {
+        "title": "WhatsApp — quick start",
+        "summary": "Link, refresh QR, and unlink a personal WhatsApp account for your org.",
+        "steps": [
+          "Click 'Link' to start the QR flow. Scan with your device within 60 seconds.",
+          "If the session drops, use 'Refresh QR'. 'Unlink' detaches but keeps archived data."
         ]
       }
     },
