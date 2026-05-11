@@ -264,6 +264,29 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-11 — Seventy-fifth batch — manifest.search_types ↔ actual search results parity
+
+New cross-cut in `lib/platform/module-registry/manifests.test.ts`:
+every `type` returned by `searchGlobal()` from the mock fixture
+must be declared by at least one manifest's `search_types`. Drift
+direction caught: backend returns a `type` no manifest claims to
+surface → command palette + `/search` UIs lose the per-module
+icon + label and fall back to a generic chip (silent UX
+regression).
+
+Sanity floor: test runs 6 broad queries through the search client
+and asserts at least one result type was discovered.
+
+Status after batch:
+- ticket → helpdesk ✓
+- kb → helpdesk + knowledge ✓
+- user → users ✓
+- org → users ✓
+- note → notes ✓
+- bookmark → bookmarks ✓
+
+Full suite: 1284/1284 ✓ (was 1283; +1 invariant).
+
 ### 2026-05-11 — Seventy-fourth batch — manifest.ai_actions ↔ skill-registry parity
 
 **Drift found and fixed:** the `users` module manifest declared

@@ -83,6 +83,34 @@ describe("module manifest cross-cuts", () => {
     expect(drift).toEqual([]);
   });
 
+  it("every search result type is declared by at least one manifest", async () => {
+    // Cross-cut: PlatformSearch (cap 11) returns results carrying a
+    // `type` discriminator. UIs (command palette, /search) render an
+    // icon + module label per type. If the search backend returns a
+    // type no manifest claims to surface, the palette falls back to a
+    // generic icon and loses the per-module routing — a silent UX
+    // regression.
+    //
+    // Walk every result the mock client can produce and check that at
+    // least one manifest's `search_types` declares it.
+    const { searchGlobal } = await import("@/lib/api/search");
+    const allTypes = new Set<string>();
+    // Use broad queries + a high limit so the mock returns every
+    // fixture type across its categories.
+    for (const q of ["a", "e", "i", "o", "u", "r"]) {
+      const res = await searchGlobal({ q, limit: 25 });
+      for (const r of res.data.results) allTypes.add(r.type);
+    }
+    expect(allTypes.size).toBeGreaterThan(0);
+
+    const declared = new Set<string>();
+    for (const m of getAllManifests()) {
+      for (const t of m.search_types) declared.add(t);
+    }
+    const orphans = [...allTypes].filter((t) => !declared.has(t));
+    expect(orphans).toEqual([]);
+  });
+
   it("every manifest base_route + default_landing is consistent (same prefix)", () => {
     for (const m of getAllManifests()) {
       const base = m.base_route;
