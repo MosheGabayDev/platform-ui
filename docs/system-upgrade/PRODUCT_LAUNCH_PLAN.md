@@ -264,6 +264,34 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-11 — Seventy-fourth batch — manifest.ai_actions ↔ skill-registry parity
+
+**Drift found and fixed:** the `users` module manifest declared
+`ai_actions: []` while `lib/modules/users/skills.ts` shipped 3 AI
+skills (`users.search`, `users.deactivate`,
+`users.reset_password`) that the AI shell can actually invoke via
+the skill registry. Admin UIs that introspect the manifest (the
+`/admin/modules` capabilities table, for one) would underreport
+the module's AI surface. Manifest updated.
+
+**Invariant added** in `lib/platform/module-registry/manifests.test.ts`:
+bidirectional parity between `manifest.ai_actions` and the per-
+module set returned by `getAllSkills()`:
+
+- declared but unregistered → AI claims it can do something the
+  shell will fail at runtime.
+- registered but undeclared → action is reachable but introspection
+  tooling misses it.
+
+Status after batch:
+- helpdesk: 4/4 ✓
+- users: 3/3 ✓ (was 0/3 — fixed)
+- notes: 1/1 ✓
+- bookmarks: 1/1 ✓
+- whatsapp: 3/3 ✓
+
+Full suite: 1283/1283 ✓ (was 1282; +1 invariant; +1 manifest row).
+
 ### 2026-05-10 — Seventy-third batch — ADR-028 #2 invariant (PlatformForm) — full set complete
 
 Final ADR-028 rule landed in `lib/adr-028-invariants.test.ts`:

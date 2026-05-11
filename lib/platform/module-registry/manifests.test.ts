@@ -12,6 +12,7 @@
  */
 import { describe, it, expect } from "vitest";
 import { getAllManifests } from "./manifests";
+import { getAllSkills } from "@/lib/platform/ai-skills/registry";
 import { navGroups as NAV_GROUPS } from "@/components/shell/nav-items";
 
 // Temporary escape hatch for parallel module work. Keep empty in normal use.
@@ -45,6 +46,41 @@ describe("module manifest cross-cuts", () => {
         expect(item.titleKey, `${item.href} missing titleKey`).toBeTruthy();
       }
     }
+  });
+
+  it("manifest.ai_actions matches the skill registry per-module (both directions)", () => {
+    // Cross-cut: the manifest is the public contract ("this module
+    // exposes these AI actions"). The skill registry is what the AI
+    // shell actually calls. Drift either way is a bug:
+    //   - manifest declares an action but no skill exists → AI says
+    //     it can do it, request fails at runtime.
+    //   - skill exists but manifest doesn't list it → action is
+    //     reachable but admin UIs that introspect manifests miss it.
+    //
+    // Caught batch 74: users manifest declared 0 ai_actions while
+    // users/skills.ts shipped 3 (search/deactivate/reset_password).
+    const skillsByModule = new Map<string, string[]>();
+    for (const skill of getAllSkills()) {
+      const arr = skillsByModule.get(skill.module_key) ?? [];
+      arr.push(skill.id);
+      skillsByModule.set(skill.module_key, arr);
+    }
+    const drift: string[] = [];
+    for (const m of getAllManifests()) {
+      const declared = new Set(m.ai_actions);
+      const registered = new Set(skillsByModule.get(m.key) ?? []);
+      for (const id of declared) {
+        if (!registered.has(id)) {
+          drift.push(`${m.key}: declared "${id}" but no skill registered`);
+        }
+      }
+      for (const id of registered) {
+        if (!declared.has(id)) {
+          drift.push(`${m.key}: skill "${id}" registered but not in manifest`);
+        }
+      }
+    }
+    expect(drift).toEqual([]);
   });
 
   it("every manifest base_route + default_landing is consistent (same prefix)", () => {

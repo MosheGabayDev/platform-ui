@@ -87,7 +87,11 @@ const MANIFESTS: ModuleManifest[] = [
       { label: "Roles", label_he: "תפקידים והרשאות", href: "/roles", icon: "ShieldCheck", order: 2 },
       { label: "Organizations", label_he: "ארגונים", href: "/organizations", icon: "Building2", order: 3 },
     ],
-    ai_actions: [],
+    ai_actions: [
+      "users.search",
+      "users.deactivate",
+      "users.reset_password",
+    ],
     permissions: ["users.view", "users.create", "users.edit", "users.delete"],
     search_types: ["user", "org"],
     introduced_in_version: "0.40.0",
