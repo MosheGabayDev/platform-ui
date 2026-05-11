@@ -129,6 +129,29 @@ describe("module manifest cross-cuts", () => {
     expect(orphans).toEqual([]);
   });
 
+  it("every action executor maps to a registered ai-callable skill", async () => {
+    // Cross-cut: the executor registry in lib/platform/ai-actions/executors.ts
+    // is the run-side of the AI action pipeline. Every registered
+    // executor MUST correspond to an `ai_callable` skill — otherwise
+    // there's no UI path that can trigger it (dead code on the
+    // executor side) and it never gets audit-wired through the AI
+    // shell's confirmation flow.
+    //
+    // The reverse direction (skill without executor) is INTENTIONALLY
+    // not failed — the AI shell handles missing executors gracefully
+    // (toast + fail), and several skills are recognized by the mock
+    // LLM grammar before their executor lands. That gap is tracked
+    // in the executor file's roadmap, not here.
+    const { _registeredActions } = await import(
+      "@/lib/platform/ai-actions/executors"
+    );
+    const aiCallable = new Set(
+      getAllSkills().filter((s) => s.ai_callable).map((s) => s.id),
+    );
+    const orphans = _registeredActions().filter((a) => !aiCallable.has(a));
+    expect(orphans).toEqual([]);
+  });
+
   it("every manifest base_route + default_landing is consistent (same prefix)", () => {
     for (const m of getAllManifests()) {
       const base = m.base_route;

@@ -264,6 +264,29 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-11 — Seventy-seventh batch — executor registry ↔ ai_callable skill parity
+
+New cross-cut in `lib/platform/module-registry/manifests.test.ts`:
+every action in `lib/platform/ai-actions/executors.ts`
+(`_registeredActions()`) must correspond to a skill in the
+registry with `ai_callable: true`. Catches the dead-code case
+where an executor exists but no UI path can trigger it through
+the AI confirmation flow (executor never gets audit-wired, never
+runs).
+
+The reverse direction (ai_callable skill with no executor) is
+INTENTIONALLY not enforced — the AI shell handles missing
+executors gracefully (toast + fail-chat), and several skills are
+recognized by the mock LLM grammar before their executor lands.
+That gap is roadmap, not drift.
+
+Current state: 4 helpdesk executors (take/resolve/maint.cancel/
+batch.cancel) all map to ai_callable skills. 8 ai_callable skills
+without executors (users×3, notes×1, bookmarks×1, whatsapp×3)
+remain as known partial-state.
+
+Full suite: 1286/1286 ✓ (was 1285; +1 invariant).
+
 ### 2026-05-11 — Seventy-sixth batch — manifest.required_flags ↔ FlagKey union parity
 
 New cross-cut in `lib/platform/module-registry/manifests.test.ts`:
