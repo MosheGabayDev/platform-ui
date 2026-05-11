@@ -237,6 +237,28 @@ describe("module manifest cross-cuts", () => {
     expect(orphans).toEqual([]);
   });
 
+  it("every manifest icon (top-level + nav_entries[]) is a real lucide-react export", async () => {
+    // Cross-cut: icon strings on the manifest (`m.icon`) and on
+    // `nav_entries[].icon` are intended to be resolved to lucide-react
+    // components by future synthesized chrome. A typo today fails
+    // silently — no icon renders OR a default fallback hides the bug.
+    // Validate now against the actual lucide-react module exports.
+    //
+    // Catches: "HeadphoneIcon" vs "HeadphonesIcon" / "Trash" vs "Trash2".
+    const lucide = await import("lucide-react");
+    const exported = new Set(Object.keys(lucide));
+    const orphans: string[] = [];
+    for (const m of getAllManifests()) {
+      if (!exported.has(m.icon)) orphans.push(`${m.key} → ${m.icon}`);
+      for (const e of m.nav_entries) {
+        if (!exported.has(e.icon)) {
+          orphans.push(`${m.key} nav "${e.label}" → ${e.icon}`);
+        }
+      }
+    }
+    expect(orphans).toEqual([]);
+  });
+
   it("every manifest base_route + default_landing is consistent (same prefix)", () => {
     for (const m of getAllManifests()) {
       const base = m.base_route;

@@ -264,6 +264,23 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — Eighty-first batch — manifest icon names ↔ lucide-react exports
+
+New cross-cut: every `manifest.icon` (top-level) AND every
+`nav_entries[].icon` across all manifests must be an actual
+`lucide-react` named export. Currently 24 distinct icon strings;
+all resolve cleanly.
+
+Test does a real dynamic `import("lucide-react")` and validates
+against `Object.keys()` of the module. Catches typos like
+`"HeadphoneIcon"` vs `"HeadphonesIcon"` or `"Trash"` vs `"Trash2"`
+that today fail silently (no icon renders OR a fallback hides the
+bug). Once future code synthesizes nav/cards from manifest icon
+strings — already prepped, see /admin/modules CATEGORY_META
+pattern — this gate prevents a typo from breaking visuals.
+
+Full suite: 1291/1291 ✓ (was 1290; +1 invariant).
+
 ### 2026-05-12 — Eightieth batch — manifest.required_plans ↔ PlanTier parity
 
 Companion to batch 76 (required_flags ↔ FlagKey). Every
