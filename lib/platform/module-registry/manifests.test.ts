@@ -222,6 +222,21 @@ describe("module manifest cross-cuts", () => {
     expect(orphans).toEqual([]);
   });
 
+    it("every manifest.required_plans entry is a known PlanTier", () => {
+    // Cross-cut: manifest `required_plans` is typed `string[]` (open
+    // enum), but every value MUST be a known `PlanTier`. Unknown plan
+    // gates the module behind a tier no tenant can be on → permanently
+    // locked with no signal. Mirrors batch 76's required_flags invariant.
+    const KNOWN: ReadonlySet<string> = new Set(["free", "pro", "enterprise"]);
+    const orphans: string[] = [];
+    for (const m of getAllManifests()) {
+      for (const plan of m.required_plans) {
+        if (!KNOWN.has(plan)) orphans.push(`${m.key} → ${plan}`);
+      }
+    }
+    expect(orphans).toEqual([]);
+  });
+
   it("every manifest base_route + default_landing is consistent (same prefix)", () => {
     for (const m of getAllManifests()) {
       const base = m.base_route;

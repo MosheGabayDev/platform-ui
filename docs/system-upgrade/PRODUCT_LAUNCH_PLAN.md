@@ -264,6 +264,21 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — Eightieth batch — manifest.required_plans ↔ PlanTier parity
+
+Companion to batch 76 (required_flags ↔ FlagKey). Every
+`manifest.required_plans` entry must be a member of the `PlanTier`
+union (free / pro / enterprise). The field is typed `string[]` to
+keep room for future backend-sourced values, but an unknown plan
+gates the module behind a tier no tenant can be on → permanently
+locked with no signal — the same silent-failure mode as unknown
+flag keys.
+
+Current values exercised: pro, enterprise. Status clean across
+all 15 manifests.
+
+Full suite: 1290/1290 ✓ (was 1289; +1 invariant).
+
 ### 2026-05-11 — Seventy-ninth batch — reverse-direction RBAC parity + 2 orphan fixes
 
 Companion to the batch-39 invariant (manifest perms ⊆ catalog).
