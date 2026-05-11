@@ -6,11 +6,42 @@ import fs from "node:fs";
 import path from "node:path";
 import { describe, it, expect } from "vitest";
 import { navGroups, filterNavByEnabledModules } from "./nav-items";
+import { getAllManifests } from "@/lib/platform/module-registry/manifests";
 
 describe("navGroups static definition", () => {
   it("includes the dashboard root", () => {
     const main = navGroups.find((g) => g.labelKey === "nav.groups.main");
     expect(main?.items.some((i) => i.href === "/")).toBe(true);
+  });
+
+  it("ROUTE_TO_MODULE values are all real manifest keys (no orphan refs)", () => {
+    // Cross-cut: nav filter calls moduleKeyForHref → ROUTE_TO_MODULE
+    // → uses that key against enabled-modules set. If the value is
+    // a typo / removed manifest key, the route gets filtered as
+    // "module not enabled" even when the module is enabled.
+    //
+    // Read the raw file rather than importing the private map to
+    // avoid having to widen its export.
+    const src = fs.readFileSync(
+      path.join(__dirname, "nav-items.ts"),
+      "utf8",
+    );
+    // Capture `"<route>": "<moduleKey>"` rows inside the
+    // ROUTE_TO_MODULE block.
+    const block = src.match(
+      /ROUTE_TO_MODULE[^{]*=\s*\{([\s\S]*?)\};/,
+    );
+    expect(block, "ROUTE_TO_MODULE block found").toBeTruthy();
+    const referenced = new Set<string>();
+    for (const m of (block?.[1] ?? "").matchAll(
+      /"[^"]+":\s*"([^"]+)"/g,
+    )) {
+      referenced.add(m[1]!);
+    }
+    expect(referenced.size).toBeGreaterThan(5);
+    const manifestKeys = new Set(getAllManifests().map((m) => m.key));
+    const orphans = [...referenced].filter((k) => !manifestKeys.has(k));
+    expect(orphans).toEqual([]);
   });
 
   it("every nav href resolves to a real dashboard page or known route", () => {

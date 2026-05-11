@@ -264,6 +264,26 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — Eighty-third batch — ROUTE_TO_MODULE ↔ manifest keys parity
+
+New cross-cut in `components/shell/nav-items.test.ts`: every value
+in the `ROUTE_TO_MODULE` map (nav-items.ts) must be a real
+manifest key. A typo / orphan reference here would silently break
+the nav filter — `moduleKeyForHref` returns a key not in the
+enabled-set, so the route gets filtered as "not enabled" even
+when the module IS enabled.
+
+Test reads the raw `nav-items.ts` source for the map block
+(parser keeps the const private) and parses `"route": "key"`
+pairs from it. Sanity floor: at least 5 entries.
+
+Current state: 13 unique module-keys referenced (helpdesk, users,
+audit-log, ai-agents, ai-providers, knowledge, voice, automation,
+integrations, whatsapp, monitoring, billing, data-sources), all
+resolve cleanly against the 15-manifest registry.
+
+Full suite: 1293/1293 ✓ (was 1292; +1 invariant).
+
 ### 2026-05-12 — Eighty-second batch — stable-module default_landing ↔ real page + status fix
 
 **Drift found and fixed:** `monitoring` manifest was
