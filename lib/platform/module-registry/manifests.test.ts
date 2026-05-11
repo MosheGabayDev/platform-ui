@@ -194,6 +194,34 @@ describe("module manifest cross-cuts", () => {
     expect(orphans).toEqual([]);
   });
 
+  it("every RBAC catalog permission is referenced by some manifest or skill", async () => {
+    // Reverse direction of the roles.test.ts invariant (which checks
+    // every manifest perm is in the catalog). This one fails if a
+    // permission exists in `MOCK_PERMISSIONS` but no manifest declares
+    // it and no skill requires it.
+    //
+    // Orphan permissions are admin-grantable but never checked at
+    // runtime — UI rows that intend to gate on them remain visible
+    // to everyone, and operators waste time toggling a permission
+    // that does nothing.
+    //
+    // Caught batch 79: `helpdesk.approve` was orphaned (catalog only)
+    // → added to helpdesk manifest permissions.
+    const { fetchAllPermissions } = await import("@/lib/api/roles");
+    const res = await fetchAllPermissions();
+
+    // Aggregate all permissions referenced by any manifest OR any skill.
+    const referenced = new Set<string>();
+    for (const m of getAllManifests()) for (const p of m.permissions) referenced.add(p);
+    for (const skill of getAllSkills())
+      for (const p of skill.required_permissions) referenced.add(p);
+
+    const orphans = res.data.permissions
+      .map((p) => p.name)
+      .filter((name) => !referenced.has(name));
+    expect(orphans).toEqual([]);
+  });
+
   it("every manifest base_route + default_landing is consistent (same prefix)", () => {
     for (const m of getAllManifests()) {
       const base = m.base_route;

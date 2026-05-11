@@ -264,6 +264,28 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-11 — Seventy-ninth batch — reverse-direction RBAC parity + 2 orphan fixes
+
+Companion to the batch-39 invariant (manifest perms ⊆ catalog).
+Reverse-direction invariant now lives in
+`lib/platform/module-registry/manifests.test.ts`: every entry in
+the RBAC catalog (`MOCK_PERMISSIONS`) must be referenced by SOME
+manifest's `permissions` array OR by SOME skill's
+`required_permissions`. Orphan permissions are admin-grantable but
+never checked — UI rows meant to gate on them stay visible to
+everyone.
+
+**Drift found and fixed:**
+- `helpdesk.approve` — existed in catalog (seeded for the
+  approval flow) but no manifest declared it. Added to helpdesk
+  manifest permissions.
+- `users.deactivate` — same shape. Added to users manifest
+  permissions.
+
+Catalog (38 rows) and manifest declarations now have 1:1 coverage.
+
+Full suite: 1289/1289 ✓ (was 1288; +1 invariant).
+
 ### 2026-05-11 — Seventy-eighth batch — two skill ↔ catalog invariants + 1 real drift fix
 
 Two new cross-cuts in `lib/platform/module-registry/manifests.test.ts`:
