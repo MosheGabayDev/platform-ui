@@ -264,6 +264,22 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-11 — Seventy-sixth batch — manifest.required_flags ↔ FlagKey union parity
+
+New cross-cut in `lib/platform/module-registry/manifests.test.ts`:
+every `required_flags` entry across all manifests must be a key
+present in `STATIC_FLAG_DEFAULTS` (i.e. a known `FlagKey`). The
+manifest type opens `required_flags: string[]` so it could later
+source from backend, but an unknown flag is a silent module-lock:
+the resolver returns `false` for unknown keys → the module is
+gated off permanently with no signal anywhere.
+
+Status: all 8 declared flags (helpdesk/ai_agents/ai_providers/
+knowledge/voice_agent/integrations/data_sources/whatsapp .enabled)
+resolve cleanly.
+
+Full suite: 1285/1285 ✓ (was 1284; +1 invariant).
+
 ### 2026-05-11 — Seventy-fifth batch — manifest.search_types ↔ actual search results parity
 
 New cross-cut in `lib/platform/module-registry/manifests.test.ts`:

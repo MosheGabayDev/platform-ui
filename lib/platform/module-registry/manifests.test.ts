@@ -13,6 +13,7 @@
 import { describe, it, expect } from "vitest";
 import { getAllManifests } from "./manifests";
 import { getAllSkills } from "@/lib/platform/ai-skills/registry";
+import { STATIC_FLAG_DEFAULTS } from "@/lib/api/feature-flags";
 import { navGroups as NAV_GROUPS } from "@/components/shell/nav-items";
 
 // Temporary escape hatch for parallel module work. Keep empty in normal use.
@@ -108,6 +109,23 @@ describe("module manifest cross-cuts", () => {
       for (const t of m.search_types) declared.add(t);
     }
     const orphans = [...allTypes].filter((t) => !declared.has(t));
+    expect(orphans).toEqual([]);
+  });
+
+  it("every manifest.required_flags entry is a known FlagKey", () => {
+    // Cross-cut: manifest `required_flags` is typed `string[]` (open
+    // enum so it could one day source from backend), but every value
+    // MUST resolve through the FlagKey union — otherwise the module
+    // is permanently locked: the feature-flag resolver returns false
+    // for unknown keys, blocking the module from ever loading. Silent
+    // failure mode.
+    const known = new Set(Object.keys(STATIC_FLAG_DEFAULTS));
+    const orphans: string[] = [];
+    for (const m of getAllManifests()) {
+      for (const flag of m.required_flags) {
+        if (!known.has(flag)) orphans.push(`${m.key} → ${flag}`);
+      }
+    }
     expect(orphans).toEqual([]);
   });
 
