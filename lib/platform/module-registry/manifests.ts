@@ -261,7 +261,9 @@ const MANIFESTS: ModuleManifest[] = [
     permissions: ["monitoring.view"],
     search_types: [],
     introduced_in_version: "0.41.0",
-    status: "stable",
+    // Demoted in batch 82: /monitoring + sub-routes are catch-all
+    // stubs; module isn't really shipped yet. Promote when pages land.
+    status: "beta",
     required_flags: [],
     required_plans: [],
     conflicts_with: [],

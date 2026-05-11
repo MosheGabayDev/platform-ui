@@ -10,6 +10,8 @@
  *
  * Adding a new module → these tests catch the cracks before users do.
  */
+import fs from "node:fs";
+import path from "node:path";
 import { describe, it, expect } from "vitest";
 import { getAllManifests } from "./manifests";
 import { getAllSkills } from "@/lib/platform/ai-skills/registry";
@@ -257,6 +259,46 @@ describe("module manifest cross-cuts", () => {
       }
     }
     expect(orphans).toEqual([]);
+  });
+
+  it("stable module default_landing must resolve to a real (dashboard) page", () => {
+    // Cross-cut: a `status: stable` manifest is the contract that the
+    // module is fully shipped. If `default_landing` resolves only via
+    // the catch-all `[...slug]` stub, clicking "Open module" lands the
+    // user on a placeholder — broken expectation. beta/experimental
+    // modules are explicitly allowed to land on stubs.
+    //
+    // Caught batch 82: monitoring was status:"stable" with
+    // default_landing:"/monitoring" but no page existed → demoted to
+    // beta.
+    const pageRoutes = new Set<string>();
+    function walk(dir: string) {
+      if (!fs.existsSync(dir)) return;
+      for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+        const p = path.join(dir, e.name);
+        if (e.isDirectory()) {
+          if (e.name.startsWith("[...")) continue; // skip catch-all
+          walk(p);
+        } else if (e.name === "page.tsx") {
+          const route = p
+            .replace(/\\/g, "/")
+            .replace(/^.*app\/\(dashboard\)/, "")
+            .replace(/\/page\.tsx$/, "")
+            .replace(/\/\[[^\]]+\]/g, ""); // strip [id] segments
+          pageRoutes.add(route === "" ? "/" : route);
+        }
+      }
+    }
+    walk("app/(dashboard)");
+    const broken: string[] = [];
+    for (const m of getAllManifests()) {
+      if (m.status !== "stable") continue;
+      // default_landing might point at /<base>/<sub> — accept exact match.
+      if (!pageRoutes.has(m.default_landing)) {
+        broken.push(`${m.key} (stable) → ${m.default_landing}`);
+      }
+    }
+    expect(broken).toEqual([]);
   });
 
   it("every manifest base_route + default_landing is consistent (same prefix)", () => {

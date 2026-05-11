@@ -264,6 +264,26 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — Eighty-second batch — stable-module default_landing ↔ real page + status fix
+
+**Drift found and fixed:** `monitoring` manifest was
+`status: "stable"` with `default_landing: "/monitoring"`, but no
+page exists at `app/(dashboard)/monitoring/`. Clicking "Open
+module" landed users on the `[...slug]` placeholder stub —
+broken expectation that the module is shipped. Demoted to
+`status: "beta"` with a comment to promote when pages land.
+
+**Invariant added** in `lib/platform/module-registry/manifests.test.ts`:
+every `status: "stable"` manifest's `default_landing` MUST resolve
+to a real `app/(dashboard)/**/page.tsx`. beta/experimental
+modules are explicitly allowed to land on stub routes (they're
+work-in-progress by definition). Walker skips catch-all `[...]`
+dirs so the stub itself can't satisfy the check.
+
+Stable modules now: helpdesk, audit-log, users — all resolve.
+
+Full suite: 1292/1292 ✓ (was 1291; +1 invariant; +1 manifest fix).
+
 ### 2026-05-12 — Eighty-first batch — manifest icon names ↔ lucide-react exports
 
 New cross-cut: every `manifest.icon` (top-level) AND every
