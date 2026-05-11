@@ -152,6 +152,48 @@ describe("module manifest cross-cuts", () => {
     expect(orphans).toEqual([]);
   });
 
+  it("every skill.policy_action_id equals its skill.id (consistency)", () => {
+    // Cross-cut: a skill's `policy_action_id` is what the policy
+    // engine receives when validating the action. If it diverges
+    // from `skill.id`, policy rules written against the skill id
+    // won't match, and operators get a confusing "policy says allow
+    // but action ID differs" debugging session.
+    //
+    // Convention: they MUST be identical. Same string, one source.
+    // (If a future skill genuinely needs to evaluate against a
+    // different policy-action key, document the exception here and
+    // narrow the assertion — but no current skill does.)
+    const drift: string[] = [];
+    for (const skill of getAllSkills()) {
+      if (skill.policy_action_id !== skill.id) {
+        drift.push(`${skill.id} → policy_action_id="${skill.policy_action_id}"`);
+      }
+    }
+    expect(drift).toEqual([]);
+  });
+
+  it("every skill.required_permissions entry is in the RBAC catalog", async () => {
+    // Cross-cut: required_permissions are what the validate-skill
+    // pipeline checks before AI can call. A permission that isn't
+    // in the RBAC catalog (lib/api/roles.ts MOCK_PERMISSIONS) can
+    // never be granted to a role → the skill is permanently
+    // un-callable for any user. Silent failure — UI shows
+    // "permission denied" with no hint that the permission itself
+    // is the typo.
+    const { fetchAllPermissions } = await import("@/lib/api/roles");
+    const res = await fetchAllPermissions();
+    const known = new Set(res.data.permissions.map((p) => p.name));
+    const orphans: string[] = [];
+    for (const skill of getAllSkills()) {
+      for (const perm of skill.required_permissions) {
+        if (!known.has(perm)) {
+          orphans.push(`${skill.id} → "${perm}"`);
+        }
+      }
+    }
+    expect(orphans).toEqual([]);
+  });
+
   it("every manifest base_route + default_landing is consistent (same prefix)", () => {
     for (const m of getAllManifests()) {
       const base = m.base_route;

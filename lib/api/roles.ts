@@ -73,10 +73,13 @@ const MOCK_PERMISSIONS: RolePermission[] = [
   { id: 35, name: "billing.manage", description: "Change plan, payment method, and quotas", created_at: null },
   { id: 36, name: "data_sources.view", description: "View configured data sources", created_at: null },
   { id: 37, name: "data_sources.configure", description: "Add/edit/disable data source connectors", created_at: null },
+  // Batch 78 — required by helpdesk.batch.cancel skill; was missing from the catalog so AI
+  // confirmation flow would deny with no diagnosable reason.
+  { id: 38, name: "helpdesk.batch.manage", description: "Schedule, edit, and cancel helpdesk batch operations", created_at: null },
 ];
 
 const MOCK_ROLES: RoleSummary[] = [
-  { id: 1, name: "system_admin", description: "Cross-tenant platform operator", permission_count: 37, user_count: 1, created_at: null, updated_at: null },
+  { id: 1, name: "system_admin", description: "Cross-tenant platform operator", permission_count: 38, user_count: 1, created_at: null, updated_at: null },
   { id: 2, name: "manager", description: "Org manager — team operations", permission_count: 8, user_count: 1, created_at: null, updated_at: null },
   { id: 3, name: "technician", description: "Operator — handles tickets", permission_count: 5, user_count: 1, created_at: null, updated_at: null },
   { id: 4, name: "viewer", description: "Read-only role", permission_count: 2, user_count: 0, created_at: null, updated_at: null },

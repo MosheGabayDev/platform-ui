@@ -264,6 +264,34 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-11 — Seventy-eighth batch — two skill ↔ catalog invariants + 1 real drift fix
+
+Two new cross-cuts in `lib/platform/module-registry/manifests.test.ts`:
+
+1. **`skill.policy_action_id === skill.id`** — convention. They
+   must be the same string; divergence makes policy rules silently
+   miss the skill and confuses debugging.
+2. **`skill.required_permissions` ⊆ RBAC catalog** — every
+   permission a skill demands must exist in
+   `MOCK_PERMISSIONS` (lib/api/roles.ts). Unknown permissions are
+   impossible to grant → skill is permanently denied with no
+   diagnosable cause.
+
+**Drift found and fixed:** `helpdesk.batch.cancel` skill required
+the permission `helpdesk.batch.manage` which did NOT exist in the
+catalog. AI confirmation flow would deny with no operator-visible
+hint that the permission name was the missing piece. Added:
+
+- `lib/api/roles.ts` — new permission row id=38
+  `helpdesk.batch.manage` ("Schedule, edit, and cancel helpdesk
+  batch operations"). Bumped `system_admin` permission_count
+  37 → 38.
+- `lib/platform/module-registry/manifests.ts` — added
+  `helpdesk.batch.manage` to the helpdesk manifest's permissions
+  list so it's reachable through admin/roles.
+
+Full suite: 1288/1288 ✓ (was 1286; +2 invariants).
+
 ### 2026-05-11 — Seventy-seventh batch — executor registry ↔ ai_callable skill parity
 
 New cross-cut in `lib/platform/module-registry/manifests.test.ts`:

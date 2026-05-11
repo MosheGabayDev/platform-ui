@@ -40,6 +40,7 @@ const MANIFESTS: ModuleManifest[] = [
       "helpdesk.assign",
       "helpdesk.resolve",
       "helpdesk.maintenance.manage",
+      "helpdesk.batch.manage",
     ],
     search_types: ["ticket", "kb"],
     introduced_in_version: "0.42.0",
