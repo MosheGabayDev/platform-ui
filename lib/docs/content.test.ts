@@ -40,6 +40,21 @@ describe("DOCS_CATALOG invariants", () => {
     }
   });
 
+  it("every article.module_key resolves to a real manifest key (reverse)", () => {
+    // Batch 86 — reverse direction of "every module has an article".
+    // An article tagged with a typo'd / removed manifest key would
+    // show up in /help with no per-module routing — clicking through
+    // could land on a stub.
+    const manifestKeys = new Set(getAllManifests().map((m) => m.key));
+    const orphans: string[] = [];
+    for (const a of DOCS_CATALOG.articles) {
+      if (a.module_key && !manifestKeys.has(a.module_key)) {
+        orphans.push(`${a.id} → ${a.module_key}`);
+      }
+    }
+    expect(orphans).toEqual([]);
+  });
+
   it("every aiShortcut.action_id matches a registered skill", () => {
     const skillIds = new Set(getAllSkills().map((s) => s.id));
     for (const sc of DOCS_CATALOG.aiShortcuts) {

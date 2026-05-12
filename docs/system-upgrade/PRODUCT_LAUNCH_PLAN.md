@@ -264,6 +264,20 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — Eighty-sixth batch — DOCS_CATALOG.article.module_key ↔ manifest keys (reverse)
+
+New cross-cut in `lib/docs/content.test.ts`: every
+`DOCS_CATALOG.articles[].module_key` must resolve to a real
+manifest key. The existing test already covered the forward
+direction ("every module has a quick-start article"); this is the
+reverse — an article tagged with a typo'd / removed module key
+would surface in `/help` with no per-module routing, potentially
+landing users on the catch-all stub when they click through.
+
+Sanity floor implicit — 15 articles, all module_keys resolve.
+
+Full suite: 1296/1296 ✓ (was 1295; +1 invariant).
+
 ### 2026-05-12 — Eighty-fifth batch — tier-flags ↔ FlagKey parity
 
 New cross-cut in `lib/platform/billing/tier-flags.test.ts`: every
