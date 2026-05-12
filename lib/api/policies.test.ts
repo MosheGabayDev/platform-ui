@@ -372,4 +372,24 @@ describe("policies API surface", () => {
     });
     expect(res.data.decision.allowed).toBe(false);
   });
+
+  it("every literal (non-glob) action_pattern resolves to a registered skill (batch 89)", async () => {
+    // Cross-cut: policy rules use action_pattern (glob). Patterns
+    // WITH wildcards (*) are intentional matchers; patterns WITHOUT
+    // are literal action_ids that MUST exist in the skill registry
+    // — otherwise the rule will never fire and operators wonder why
+    // their "deny notes.creat" guardrail does nothing (typo).
+    const { getAllSkills } = await import("@/lib/platform/ai-skills/registry");
+    const skillIds = new Set(getAllSkills().map((s) => s.id));
+    const res = await fetchPolicies();
+    const orphans: string[] = [];
+    for (const p of res.data.policies) {
+      for (const r of p.rules) {
+        const pat = r.action_pattern;
+        if (pat.includes("*")) continue;
+        if (!skillIds.has(pat)) orphans.push(`${p.id}/${r.id}: ${pat}`);
+      }
+    }
+    expect(orphans).toEqual([]);
+  });
 });

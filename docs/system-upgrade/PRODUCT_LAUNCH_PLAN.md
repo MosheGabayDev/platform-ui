@@ -264,6 +264,20 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — Eighty-ninth batch — policy action_pattern ↔ skill registry
+
+New cross-cut in `lib/api/policies.test.ts`: every policy rule's
+`action_pattern` that is a LITERAL (no `*` wildcard) must resolve
+to a real skill in the registry. Glob patterns (`helpdesk.batch.*`,
+`*.delete`, `admin.*`) are skipped because they're intentional
+matchers — but `helpdesk.ticket.resolve`, `notes.create`,
+`bookmarks.create` are literal IDs that MUST exist or the rule
+never fires (typo would silently disable the guardrail).
+
+Checks 4 seeded system policies × N rules; current state clean.
+
+Full suite: 1299/1299 ✓ (was 1298; +1 invariant).
+
 ### 2026-05-12 — Eighty-eighth batch — category-union ↔ i18n label parity
 
 New cross-cut in `lib/i18n-catalog.test.ts`: every value of the
