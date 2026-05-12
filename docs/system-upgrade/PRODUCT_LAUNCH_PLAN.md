@@ -264,6 +264,20 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — Eighty-seventh batch — mock LLM intent grammar ↔ skill registry
+
+New cross-cut in `lib/api/ai.test.ts`: every action_id proposed
+by the mock LLM intent grammar (lib/api/ai.ts) must be a real
+entry in the AI skill registry. Tests the 5 recognized phrases
+end-to-end (take/resolve ticket, cancel maintenance/batch, search
+users) and asserts each `actionProposal.actionId` resolves
+through `getAllSkills()`. Catches the bug class where someone
+adds a new intent regex but typos the actionId, or renames a
+skill without updating the grammar → user confirms → validate-
+invocation pipeline can't find the skill → confusing error.
+
+Full suite: 1297/1297 ✓ (was 1296; +1 invariant).
+
 ### 2026-05-12 — Eighty-sixth batch — DOCS_CATALOG.article.module_key ↔ manifest keys (reverse)
 
 New cross-cut in `lib/docs/content.test.ts`: every

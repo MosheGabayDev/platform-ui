@@ -137,4 +137,29 @@ describe("sendChatMessage (mock mode)", () => {
     const res = await sendChatMessage({ message: "take ticket 99", context: null });
     expect(res.actionProposal).toBeNull();
   });
+
+  it("every recognized intent.actionId maps to a registered skill (batch 87)", async () => {
+    // Cross-cut: the mock LLM grammar in lib/api/ai.ts proposes 5
+    // action_ids. Each MUST be a real entry in the AI skill registry.
+    // Typo here → user confirms → validateInvocation can't find the
+    // skill → confusing "skill not registered" error in the UI.
+    const { getAllSkills } = await import("@/lib/platform/ai-skills/registry");
+    const skillIds = new Set(getAllSkills().map((s) => s.id));
+    const phrases = [
+      "take ticket 1001",
+      "resolve ticket 1002",
+      "cancel maintenance 1003",
+      "cancel batch 1004",
+      "search users for alice",
+    ];
+    const seen = new Set<string>();
+    for (const phrase of phrases) {
+      const res = await sendChatMessage({ message: phrase, context: null });
+      expect(res.actionProposal, `phrase "${phrase}" must propose`).toBeTruthy();
+      seen.add(res.actionProposal!.actionId);
+    }
+    const orphans = [...seen].filter((id) => !skillIds.has(id));
+    expect(orphans).toEqual([]);
+    expect(seen.size).toBe(5);
+  });
 });
