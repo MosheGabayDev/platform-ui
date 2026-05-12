@@ -8,7 +8,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { Share2, Trash2, Users } from "lucide-react";
+import { LogOut, Share2, Trash2, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -104,19 +104,38 @@ export function WhatsAppShareDialog({ chat }: { chat: WhatsAppChat }) {
   });
 
   if (isSharedChat) {
+    const shareId = chat.share?.id;
+
     return (
       <div className="rounded-md border border-sky-500/30 bg-sky-500/5 px-3 py-2 text-sm">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="secondary" className="gap-1">
-            <Users className="size-3" />
-            {t("sharedBadge")}
-          </Badge>
-          <span className="text-muted-foreground">
-            {t("sharedBy", {
-              user: chat.share?.shared_by_user_name ?? chat.share?.shared_by_user_email ?? t("unknownUser"),
-              date: formatDate(chat.share?.created_at ?? null, t("unknownDate")),
-            })}
-          </span>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <Badge variant="secondary" className="gap-1">
+              <Users className="size-3" />
+              {t("sharedBadge")}
+            </Badge>
+            <span className="text-muted-foreground">
+              {t("sharedBy", {
+                user: chat.share?.shared_by_user_name ?? chat.share?.shared_by_user_email ?? t("unknownUser"),
+                date: formatDate(chat.share?.created_at ?? null, t("unknownDate")),
+              })}
+            </span>
+            <span className="text-muted-foreground">
+              {t("expires", { date: formatDate(chat.share?.expires_at ?? null, t("never")) })}
+            </span>
+          </div>
+          {shareId && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={revokeMutation.isPending}
+              onClick={() => revokeMutation.mutate(shareId)}
+            >
+              <LogOut />
+              {t("revokeMyAccess")}
+            </Button>
+          )}
         </div>
         {chat.share?.note && <p className="mt-2 text-muted-foreground">{chat.share.note}</p>}
       </div>

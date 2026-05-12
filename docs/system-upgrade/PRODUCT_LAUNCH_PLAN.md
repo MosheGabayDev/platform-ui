@@ -264,6 +264,21 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — Eighty-fifth batch — tier-flags ↔ FlagKey parity
+
+New cross-cut in `lib/platform/billing/tier-flags.test.ts`: every
+flag string returned by `flagsForTier("enterprise")` (the strict
+superset, so it covers FREE/PRO/ENTERPRISE arrays) must be a known
+`FlagKey` per `STATIC_FLAG_DEFAULTS`. Misspelling a flag in
+tier-flags.ts (e.g. `audit_log.export_data` vs `audit_log.export`)
+makes `flagsForTier()` advertise a flag the resolver doesn't know
+→ entitlement checks silently fall back to "off". Catches the
+typo at unit-test time.
+
+10 enterprise flags verified clean.
+
+Full suite: 1295/1295 ✓ (was 1294; +1 invariant).
+
 ### 2026-05-12 — Eighty-fourth batch — nav titleKey/labelKey ↔ i18n catalog parity
 
 New cross-cut in `components/shell/nav-items.test.ts`: every

@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { flagsForTier, isFlagAutoEnabledForTier, minTierForFlag } from "./tier-flags";
+import { STATIC_FLAG_DEFAULTS } from "@/lib/api/feature-flags";
 
 describe("flagsForTier", () => {
   it("free tier returns just helpdesk.enabled", () => {
@@ -88,5 +89,21 @@ describe("minTierForFlag", () => {
   });
   it("returns null for unknown flags (env/org controlled)", () => {
     expect(minTierForFlag("not.a.real.flag")).toBeNull();
+  });
+});
+
+describe("tier-flags ↔ FlagKey parity (batch 85)", () => {
+  // Cross-cut: every flag string declared in FREE/PRO/ENTERPRISE
+  // arrays must be a real FlagKey. Misspelling a flag here (e.g.
+  // "audit_log.export_data" vs "audit_log.export") returns a flag
+  // from `flagsForTier()` that the resolver doesn't know about —
+  // entitlement checks silently fall back to "off".
+  it("every tier flag is a known FlagKey (no typos)", () => {
+    const known = new Set(Object.keys(STATIC_FLAG_DEFAULTS));
+    // Enterprise tier is the strict superset — covers all 3 lists.
+    const all = flagsForTier("enterprise");
+    const orphans = all.filter((f) => !known.has(f));
+    expect(orphans).toEqual([]);
+    expect(all.length).toBeGreaterThan(5);
   });
 });
