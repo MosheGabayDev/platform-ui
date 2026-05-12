@@ -166,6 +166,44 @@ describe("i18n catalog parity (he ↔ en)", () => {
     expect(validatedKeys).toBeGreaterThan(100);
   });
 
+  it("every SettingCategory / ModuleCategory / AuditCategory has an i18n label in both locales", () => {
+    // Cross-cut: discriminated union types listed at type-level have
+    // matching i18n leaf keys at runtime. A new category in the
+    // union without a label → page renders "categories.X" literal.
+    // A removed/typo'd label → same. TypeScript catches one direction
+    // (the code calling `t(category)` requires the union), but not
+    // the catalog side.
+    const cases: Array<{ scope: string; values: readonly string[] }> = [
+      {
+        scope: "admin.settings.categories",
+        // SettingCategory values from lib/modules/settings/types.ts
+        values: ["ai", "branding", "notifications", "rate_limits", "integrations", "experimental"],
+      },
+      {
+        scope: "admin.modules.categories",
+        // ModuleCategory values from lib/modules/module-registry/types.ts
+        values: ["core", "ai", "operations", "growth", "experimental"],
+      },
+    ];
+    function resolve(obj: Catalog, dotted: string): unknown {
+      let node: unknown = obj;
+      for (const seg of dotted.split(".")) {
+        if (node === null || typeof node !== "object" || Array.isArray(node)) return undefined;
+        node = (node as Record<string, unknown>)[seg];
+      }
+      return node;
+    }
+    const missing: string[] = [];
+    for (const { scope, values } of cases) {
+      for (const val of values) {
+        const path = `${scope}.${val}`;
+        if (typeof resolve(he as Catalog, path) !== "string") missing.push(`he: ${path}`);
+        if (typeof resolve(en as Catalog, path) !== "string") missing.push(`en: ${path}`);
+      }
+    }
+    expect(missing).toEqual([]);
+  });
+
   it("no leaf value is empty string in either locale", () => {
     function emptyLeaves(obj: Catalog, prefix = ""): string[] {
       const out: string[] = [];

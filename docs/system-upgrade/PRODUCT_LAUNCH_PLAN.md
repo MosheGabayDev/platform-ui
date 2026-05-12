@@ -264,6 +264,24 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — Eighty-eighth batch — category-union ↔ i18n label parity
+
+New cross-cut in `lib/i18n-catalog.test.ts`: every value of the
+runtime category discriminated unions has a matching i18n leaf
+in both catalogs:
+
+- `SettingCategory` (ai/branding/notifications/rate_limits/
+  integrations/experimental) → `admin.settings.categories.*`
+- `ModuleCategory` (core/ai/operations/growth/experimental) →
+  `admin.modules.categories.*`
+
+TypeScript catches one direction (calling `t(category)` types the
+arg via the union), but not the catalog side. Adding a new
+category to the union without a label → page renders the dotted
+key literal. Removing a label → same.
+
+Full suite: 1298/1298 ✓ (was 1297; +1 invariant).
+
 ### 2026-05-12 — Eighty-seventh batch — mock LLM intent grammar ↔ skill registry
 
 New cross-cut in `lib/api/ai.test.ts`: every action_id proposed
