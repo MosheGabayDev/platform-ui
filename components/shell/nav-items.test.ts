@@ -7,6 +7,8 @@ import path from "node:path";
 import { describe, it, expect } from "vitest";
 import { navGroups, filterNavByEnabledModules } from "./nav-items";
 import { getAllManifests } from "@/lib/platform/module-registry/manifests";
+import he from "@/i18n/messages/he.json";
+import en from "@/i18n/messages/en.json";
 
 describe("navGroups static definition", () => {
   it("includes the dashboard root", () => {
@@ -42,6 +44,40 @@ describe("navGroups static definition", () => {
     const manifestKeys = new Set(getAllManifests().map((m) => m.key));
     const orphans = [...referenced].filter((k) => !manifestKeys.has(k));
     expect(orphans).toEqual([]);
+  });
+
+  it("every titleKey + labelKey resolves to a string leaf in BOTH catalogs", () => {
+    // Cross-cut: nav-items.ts declares 46+ titleKey and 9 labelKey
+    // paths used by useTranslations() in the sidebar / topbar /
+    // command-palette. A typo here yields the literal key as the
+    // rendered label — easy to miss in QA when most rows are fine.
+    type Catalog = Record<string, unknown>;
+    function resolve(obj: Catalog, dotted: string): unknown {
+      let node: unknown = obj;
+      for (const seg of dotted.split(".")) {
+        if (node === null || typeof node !== "object" || Array.isArray(node)) return undefined;
+        node = (node as Record<string, unknown>)[seg];
+      }
+      return node;
+    }
+    const keys = new Set<string>();
+    for (const g of navGroups) {
+      keys.add(g.labelKey);
+      for (const item of g.items) {
+        keys.add(item.titleKey);
+        if (item.children) for (const c of item.children) keys.add(c.titleKey);
+      }
+    }
+    expect(keys.size).toBeGreaterThan(20);
+    const broken: string[] = [];
+    for (const k of keys) {
+      const heVal = resolve(he as Catalog, k);
+      const enVal = resolve(en as Catalog, k);
+      if (typeof heVal !== "string" || typeof enVal !== "string") {
+        broken.push(k);
+      }
+    }
+    expect(broken).toEqual([]);
   });
 
   it("every nav href resolves to a real dashboard page or known route", () => {

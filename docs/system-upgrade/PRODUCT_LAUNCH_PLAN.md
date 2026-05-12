@@ -264,6 +264,20 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — Eighty-fourth batch — nav titleKey/labelKey ↔ i18n catalog parity
+
+New cross-cut in `components/shell/nav-items.test.ts`: every
+`titleKey` (46+) and `labelKey` (9) declared on `navGroups[]` must
+resolve to a STRING leaf in BOTH `he.json` and `en.json`. A typo
+here yields the literal key as the rendered label — easy to miss
+in QA when most rows are fine. Complements batch-58's invariant
+(every `useTranslations("scope")` resolves to a sub-object) by
+covering the specific leaf keys nav uses.
+
+Sanity floor: ≥20 keys aggregated.
+
+Full suite: 1294/1294 ✓ (was 1293; +1 invariant).
+
 ### 2026-05-12 — Eighty-third batch — ROUTE_TO_MODULE ↔ manifest keys parity
 
 New cross-cut in `components/shell/nav-items.test.ts`: every value
