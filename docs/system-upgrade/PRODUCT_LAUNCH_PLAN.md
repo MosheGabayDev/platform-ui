@@ -264,6 +264,32 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-thirty-seventh batch — smoke-test the 7 new executors
+
+Locked in batches 130–134's executor work with smoke tests in
+`lib/platform/ai-actions/executors.test.ts`. Each new executor
+runs once against its mock client with valid params and asserts
+the expected message:
+
+- `users.search` — "Found N user…"
+- `users.deactivate` — "User #N deactivated."
+- `users.reset_password` — "(mock) password-reset email queued…"
+- `notes.create` — "Note created: …"
+- `bookmarks.create` — "Bookmark added: …"
+- `whatsapp.session.{link,relink,unlink}` — wrapped in a nested
+  `describe` block sharing a `sessionId` across three sequential
+  tests. The mock-storage shim only allows one active session at
+  a time, so the link step reuses any pre-existing session in
+  storage instead of failing on `session_already_exists`.
+
+The whatsapp tests use `fetchWhatsappSessions()` to discover the
+active session id directly — the response shape is
+`{ status, data: WhatsAppSession[] }`, so `data.find(...)` (not
+`data.sessions.find(...)` — easy mistake; first attempt assumed
+the latter shape and failed).
+
+Tests: 1300 → 1308 (+8 smoke tests). Typecheck clean.
+
 ### 2026-05-14 — One-hundred-and-thirty-sixth batch — mock LLM grammar for WhatsApp + bump test TTL
 
 3 new intent regexes in `lib/api/ai.ts` for the WhatsApp
