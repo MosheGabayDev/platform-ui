@@ -264,6 +264,25 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — One-hundred-and-third batch — feedback + billing parity (4 more)
+
+Four more discriminated unions locked:
+
+- `admin.feedback.filters` (4 keys: all + bug/feature/insight) —
+  FeedbackType filter dropdown + per-item type badge.
+- `admin.feedback.status` (5 keys: new/triaged/converted/duplicate/
+  wontFix) — FeedbackStatus badge.
+- `billing.plans` (3 keys: free/pro/enterprise) — PlanTier badge
+  on /billing.
+- `billing.invoices.status` (3 keys: paid/pending/failed) —
+  InvoiceStatus badge in the invoices DataTable column.
+
+All scopes already populated and rendered via i18n; this batch
+adds the gate. Running tally: **21 discriminated unions**
+parity-locked.
+
+Full suite: 1300/1300 ✓.
+
 ### 2026-05-12 — One-hundred-and-second batch — admin feature-flag + usage-range parity
 
 Two more discriminated unions locked in `lib/i18n-catalog.test.ts`:

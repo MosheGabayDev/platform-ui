@@ -261,6 +261,30 @@ describe("i18n catalog parity (he ↔ en)", () => {
         values: ["24h", "7d", "mtd", "30d"],
       },
       {
+        scope: "admin.feedback.filters",
+        // FeedbackType values + "all" filter option on /admin/feedback.
+        // Doubles as type-badge labels (tType(item.type)).
+        values: ["all", "bug", "feature", "insight"],
+      },
+      {
+        scope: "admin.feedback.status",
+        // FeedbackStatus values rendered by the status badge on
+        // /admin/feedback.
+        values: ["new", "triaged", "converted", "duplicate", "wontFix"],
+      },
+      {
+        scope: "billing.plans",
+        // PlanTier values from lib/modules/billing/types.ts —
+        // rendered by the plan-tier badge on /billing.
+        values: ["free", "pro", "enterprise"],
+      },
+      {
+        scope: "billing.invoices.status",
+        // InvoiceStatus values rendered by the status badge on the
+        // invoices DataTable column on /billing.
+        values: ["paid", "pending", "failed"],
+      },
+      {
         scope: "admin.aiSkills.risk",
         // SkillRiskLevel values from lib/modules/ai-skills/types.ts
         values: ["low", "medium", "high", "critical"],
