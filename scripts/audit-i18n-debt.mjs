@@ -50,6 +50,10 @@ function walkComponents(dir, out = []) {
 const pages = [
   ...walkPages("app/(dashboard)"),
   ...walkComponents("components/modules"),
+  // Batch 124: components/shell/ swept clean in batches 118-120 (sidebar
+  // brand, ai-assistant chrome). Lock that in so future inline strings
+  // in shell chrome (topbar, drawer, command palette, etc.) fail the gate.
+  ...walkComponents("components/shell"),
 ];
 const results = [];
 // Batch 107: even a single inline `label: "X"` in a discriminated-union

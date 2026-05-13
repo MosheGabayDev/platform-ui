@@ -264,6 +264,26 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-twenty-fourth batch — i18n gate extended to components/shell
+
+`audit-i18n-debt.mjs` walker now covers `components/shell/**`
+(sidebar, ai-assistant, topbar chrome, command palette, etc.) in
+addition to `app/(dashboard)` pages and `components/modules`
+consumer surfaces. Locks in the cleanup from batches 118–120
+(`shell.brand`, `shell.aiAssistant.*`) so future inline strings
+in shell chrome fail the gate before push.
+
+Sanity-checked: synthetic violation file
+`components/shell/_violation_test/bad.tsx` with 5 capitalized
+strings → gate exits 1 listing the file. Test artifact removed.
+
+Audit gate now spans the three biggest UI surfaces:
+- `app/(dashboard)/**/page.tsx`
+- `components/modules/**/*.tsx`
+- `components/shell/**/*.tsx`
+
+Full suite: 1300/1300 ✓.
+
 ### 2026-05-14 — One-hundred-and-twenty-third batch — auth pages reuse shell.brand
 
 `/login` and `/signup` each hardcoded the "PE" monogram + "Platform
