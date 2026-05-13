@@ -132,20 +132,22 @@ function KpiTile({ icon: Icon, label, value, tone }: KpiTileProps) {
   );
 }
 
+function HelpdeskDisabledFallback() {
+  const t = useTranslations("helpdesk.root");
+  return (
+    <PageShell icon={HeadphonesIcon} title={t("title")} subtitle={t("comingSoon")}>
+      <EmptyState
+        icon={HeadphonesIcon}
+        title={t("disabledTitle")}
+        description={t("disabledDescription")}
+      />
+    </PageShell>
+  );
+}
+
 export default function HelpdeskPage() {
   return (
-    <FeatureGate
-      flag="helpdesk.enabled"
-      fallback={
-        <PageShell icon={HeadphonesIcon} title="Helpdesk" subtitle="Coming soon">
-          <EmptyState
-            icon={HeadphonesIcon}
-            title="Helpdesk not enabled"
-            description="The Helpdesk module is not enabled for your organization. Contact your admin to enable it."
-          />
-        </PageShell>
-      }
-    >
+    <FeatureGate flag="helpdesk.enabled" fallback={<HelpdeskDisabledFallback />}>
       <HelpdeskPageInner />
     </FeatureGate>
   );

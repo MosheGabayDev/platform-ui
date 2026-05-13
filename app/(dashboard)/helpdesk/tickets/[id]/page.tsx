@@ -139,15 +139,15 @@ function TicketDetailInner({ id }: TicketDetailInnerProps) {
 
   if (Number.isNaN(ticketId)) {
     return (
-      <PageShell icon={HeadphonesIcon} title="Ticket" subtitle="Invalid ticket ID">
-        <EmptyState icon={AlertCircle} title="Invalid ticket ID" />
+      <PageShell icon={HeadphonesIcon} title={tDetail("title")} subtitle={tDetail("invalidId")}>
+        <EmptyState icon={AlertCircle} title={tDetail("invalidId")} />
       </PageShell>
     );
   }
 
   if (isLoading) {
     return (
-      <PageShell icon={HeadphonesIcon} title="Ticket" subtitle="Loading…">
+      <PageShell icon={HeadphonesIcon} title={tDetail("title")} subtitle={tDetail("loading")}>
         <DetailLoadingSkeleton />
       </PageShell>
     );
@@ -155,7 +155,7 @@ function TicketDetailInner({ id }: TicketDetailInnerProps) {
 
   if (error || !ticket) {
     return (
-      <PageShell icon={HeadphonesIcon} title="Ticket">
+      <PageShell icon={HeadphonesIcon} title={tDetail("title")}>
         <ErrorState error={error} />
       </PageShell>
     );
@@ -165,7 +165,7 @@ function TicketDetailInner({ id }: TicketDetailInnerProps) {
     <LazyMotion features={domAnimation}>
       <PageShell
         icon={HeadphonesIcon}
-        title={`Ticket ${ticket.ticket_number}`}
+        title={tDetail("titleWithNumber", { number: ticket.ticket_number })}
         subtitle={ticket.title}
       >
         <motion.div
@@ -177,7 +177,10 @@ function TicketDetailInner({ id }: TicketDetailInnerProps) {
 
           <DetailHeaderCard
             title={ticket.title}
-            subtitle={`${ticket.ticket_number} • opened ${formatDate(ticket.created_at)}`}
+            subtitle={tDetail("openedAtSubtitle", {
+              number: ticket.ticket_number,
+              date: formatDate(ticket.created_at),
+            })}
             badges={
               <div className="flex flex-wrap gap-2">
                 <TicketStatusBadge status={ticket.status} />
@@ -185,7 +188,7 @@ function TicketDetailInner({ id }: TicketDetailInnerProps) {
                 {ticket.sla_breached && (
                   <span className="inline-flex items-center gap-1 rounded-md border border-rose-500/30 bg-rose-500/15 px-2 py-0.5 text-xs text-rose-700 dark:text-rose-400">
                     <AlertTriangle className="h-3 w-3" aria-hidden="true" />
-                    SLA breached
+                    {tDetail("slaBreached")}
                   </span>
                 )}
               </div>
@@ -197,7 +200,7 @@ function TicketDetailInner({ id }: TicketDetailInnerProps) {
             }
           />
 
-          <DetailSection title="Description">
+          <DetailSection title={tSections("description")}>
             <p className="text-sm text-foreground whitespace-pre-wrap">
               {ticket.description}
             </p>
@@ -267,6 +270,20 @@ function TicketDetailInner({ id }: TicketDetailInnerProps) {
   );
 }
 
+function DisabledFallback() {
+  const tDetail = useTranslations("helpdesk.tickets.detail");
+  const tRoot = useTranslations("helpdesk.root");
+  return (
+    <PageShell icon={HeadphonesIcon} title={tDetail("title")} subtitle={tRoot("comingSoon")}>
+      <EmptyState
+        icon={AlertCircle}
+        title={tRoot("disabledTitle")}
+        description={tRoot("disabledDescription")}
+      />
+    </PageShell>
+  );
+}
+
 export default function HelpdeskTicketDetailPage({
   params,
 }: {
@@ -274,18 +291,7 @@ export default function HelpdeskTicketDetailPage({
 }) {
   const { id } = use(params);
   return (
-    <FeatureGate
-      flag="helpdesk.enabled"
-      fallback={
-        <PageShell icon={HeadphonesIcon} title="Ticket" subtitle="Coming soon">
-          <EmptyState
-            icon={AlertCircle}
-            title="Helpdesk not enabled"
-            description="The Helpdesk module is not enabled for your organization."
-          />
-        </PageShell>
-      }
-    >
+    <FeatureGate flag="helpdesk.enabled" fallback={<DisabledFallback />}>
       <TicketDetailInner id={id} />
     </FeatureGate>
   );

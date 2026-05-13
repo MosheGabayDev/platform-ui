@@ -264,6 +264,37 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — One-hundred-and-thirteenth batch — helpdesk root + ticket-detail chrome i18n
+
+Cleanup of PageShell + EmptyState chrome on /helpdesk root and
+/helpdesk/tickets/[id]:
+
+`/helpdesk` root:
+- 4 inline strings ("Helpdesk", "Coming soon", "Helpdesk not
+  enabled", + long disabled description) → 4 keys under
+  `helpdesk.root.{title,comingSoon,disabledTitle,disabledDescription}`.
+- Extracted to a `HelpdeskDisabledFallback` component (same
+  pattern as other pages — needs translator scope outside the
+  `FeatureGate` `fallback` JSX).
+
+`/helpdesk/tickets/[id]`:
+- 5 PageShell instances + 1 EmptyState + 1 DetailSection title
+  inline strings: "Ticket", "Invalid ticket ID", "Loading…",
+  "Coming soon", "Helpdesk not enabled", and the
+  `\`Ticket ${number}\`` template + `\`${number} • opened ${date}\``
+  subtitle template + "Description" section + "SLA breached" badge.
+- New keys under `helpdesk.tickets.detail.{title,titleWithNumber,
+  openedAtSubtitle,slaBreached,invalidId,loading,sections.description}`
+  with ICU `{number}` / `{date}` params.
+- Extracted `DisabledFallback` component for the FeatureGate
+  fallback prop.
+
+~11 strings i18n'd across two pages. Hebrew: פנייה / פנייה {number}
+/ {number} • נפתחה {date} / SLA הופר / מזהה פנייה לא תקין / טוען…
+/ בקרוב / הלפדסק לא מופעל.
+
+Full suite: 1300/1300 ✓. Typecheck clean.
+
 ### 2026-05-12 — One-hundred-and-twelfth batch — helpdesk/orgs/users detail page misc strings
 
 Six more inline strings cleaned across three pages:

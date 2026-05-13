@@ -916,7 +916,10 @@
         "avgResolution": "Avg resolution",
         "slaCompliance": "SLA compliance"
       },
-      "backToTickets": "Back to tickets"
+      "backToTickets": "Back to tickets",
+      "comingSoon": "Coming soon",
+      "disabledTitle": "Helpdesk not enabled",
+      "disabledDescription": "The Helpdesk module is not enabled for your organization. Contact your admin to enable it."
     },
     "tickets": {
       "title": "Tickets",
@@ -991,7 +994,8 @@
         "sections": {
           "details": "Details",
           "timeline": "Timeline",
-          "actions": "Actions"
+          "actions": "Actions",
+          "description": "Description"
         },
         "fields": {
           "requesterId": "Requester ID",
@@ -1007,7 +1011,13 @@
           "watchers": "Watchers",
           "tags": "Tags"
         },
-        "noTimelineEvents": "No timeline events yet."
+        "noTimelineEvents": "No timeline events yet.",
+        "title": "Ticket",
+        "titleWithNumber": "Ticket {number}",
+        "openedAtSubtitle": "{number} • opened {date}",
+        "slaBreached": "SLA breached",
+        "invalidId": "Invalid ticket ID",
+        "loading": "Loading…"
       }
     },
     "technicians": {

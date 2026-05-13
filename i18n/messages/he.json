@@ -916,7 +916,10 @@
         "avgResolution": "זמן סגירה ממוצע",
         "slaCompliance": "עמידה ב-SLA"
       },
-      "backToTickets": "חזרה לפניות"
+      "backToTickets": "חזרה לפניות",
+      "comingSoon": "בקרוב",
+      "disabledTitle": "הלפדסק לא מופעל",
+      "disabledDescription": "מודול הלפדסק לא מופעל לארגון שלך. פנה למנהל המערכת כדי להפעיל אותו."
     },
     "tickets": {
       "title": "פניות",
@@ -991,7 +994,8 @@
         "sections": {
           "details": "פרטים",
           "timeline": "ציר זמן",
-          "actions": "פעולות"
+          "actions": "פעולות",
+          "description": "תיאור"
         },
         "fields": {
           "requesterId": "מזהה מבקש",
@@ -1007,7 +1011,13 @@
           "watchers": "צופים",
           "tags": "תגיות"
         },
-        "noTimelineEvents": "אין אירועים בציר הזמן."
+        "noTimelineEvents": "אין אירועים בציר הזמן.",
+        "title": "פנייה",
+        "titleWithNumber": "פנייה {number}",
+        "openedAtSubtitle": "{number} • נפתחה {date}",
+        "slaBreached": "SLA הופר",
+        "invalidId": "מזהה פנייה לא תקין",
+        "loading": "טוען…"
       }
     },
     "technicians": {
