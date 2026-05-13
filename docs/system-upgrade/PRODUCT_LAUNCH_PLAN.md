@@ -264,6 +264,30 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — One-hundred-and-first batch — helpdesk filter scopes parity
+
+Discovered four helpdesk-side filter dropdowns whose status/risk
+labels already lived in i18n but were not locked by the parity
+invariant. Extended `lib/i18n-catalog.test.ts` to cover them all:
+
+- `helpdesk.approvals.risk` (4 keys: low/medium/high/critical) —
+  RiskLevel union local to the approvals page.
+- `helpdesk.approvals.status` (6 keys + "all") —
+  ToolInvocationStatus filter dropdown.
+- `helpdesk.batch.status` (7 keys + "all") — BatchTask.status
+  filter dropdown.
+- `helpdesk.maintenance.status` (5 keys + "all") —
+  MaintenanceWindow.status filter dropdown.
+
+Each scope was already populated correctly; this batch just adds
+the gate. Future code that removes a status key or renames one
+(without updating the page filter) now fails the gate immediately
+instead of rendering the dotted key at runtime.
+
+Running tally: **15 discriminated unions** parity-locked.
+
+Full suite: 1300/1300 ✓.
+
 ### 2026-05-12 — One-hundredth batch — admin pages CATEGORY_META cleanup 🎯
 
 Triple cleanup pass across admin pages using the same pattern:

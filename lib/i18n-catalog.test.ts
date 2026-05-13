@@ -226,6 +226,29 @@ describe("i18n catalog parity (he ↔ en)", () => {
         values: ["allow", "deny", "require_approval"],
       },
       {
+        scope: "helpdesk.approvals.risk",
+        // RiskLevel values rendered by ApprovalRow on /helpdesk/approvals
+        // (mirrors SkillRiskLevel — same 4 levels).
+        values: ["low", "medium", "high", "critical"],
+      },
+      {
+        scope: "helpdesk.approvals.status",
+        // ToolInvocationStatus values + "all" filter option on
+        // /helpdesk/approvals.
+        values: ["all", "pending_approval", "approved", "rejected", "success", "error"],
+      },
+      {
+        scope: "helpdesk.batch.status",
+        // BatchTask.status values + "all" filter option on /helpdesk/batch.
+        values: ["all", "running", "queued", "succeeded", "partial", "failed", "cancelled"],
+      },
+      {
+        scope: "helpdesk.maintenance.status",
+        // MaintenanceWindow.status values + "all" filter option on
+        // /helpdesk/maintenance.
+        values: ["all", "scheduled", "in_progress", "completed", "cancelled"],
+      },
+      {
         scope: "admin.aiSkills.risk",
         // SkillRiskLevel values from lib/modules/ai-skills/types.ts
         values: ["low", "medium", "high", "critical"],
