@@ -140,6 +140,7 @@
         "require_approval": "מצריך אישור"
       },
       "actions": {
+        "menuAria": "פעולות policy",
         "copyPolicyId": "העתק policy id",
         "deletePolicy": "מחק policy",
         "deleteConfirmTitle": "מחק policy",

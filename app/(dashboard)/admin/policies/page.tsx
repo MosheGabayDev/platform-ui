@@ -194,7 +194,7 @@ function PolicyCard({ policy }: { policy: Policy }) {
             <RecordActionsMenu
               record={policy}
               actions={policyActions}
-              triggerAriaLabel="Policy actions"
+              triggerAriaLabel={tActions("menuAria")}
             />
           </div>
         </div>

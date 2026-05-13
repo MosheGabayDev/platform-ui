@@ -140,6 +140,7 @@
         "require_approval": "Approval"
       },
       "actions": {
+        "menuAria": "Policy actions",
         "copyPolicyId": "Copy policy id",
         "deletePolicy": "Delete policy",
         "deleteConfirmTitle": "Delete policy",

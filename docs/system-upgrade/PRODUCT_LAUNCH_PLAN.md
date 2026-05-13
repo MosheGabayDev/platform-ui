@@ -264,6 +264,19 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — One-hundred-and-seventeenth batch — policies RecordActionsMenu aria
+
+Last `aria-label="<English>"` in admin pages: the
+`RecordActionsMenu` triggerAriaLabel on the policy card was hard-
+coded as `"Policy actions"`. Moved to
+`admin.policies.actions.menuAria` (he: פעולות policy).
+
+This closes the inline-string sweep across admin pages — the
+audit gate reports 0/0 and no inline `"[A-Z]..."` pattern remains
+in `app/(dashboard)` admin or settings surfaces.
+
+Full suite: 1300/1300 ✓.
+
 ### 2026-05-12 — One-hundred-and-sixteenth batch — /settings/ai full content i18n
 
 Big sweep of `/settings/ai`. The page had 9 more inline strings:
