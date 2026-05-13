@@ -105,6 +105,7 @@ function TicketDetailInner({ id }: TicketDetailInnerProps) {
   const tDetail = useTranslations("helpdesk.tickets.detail");
   const tSections = useTranslations("helpdesk.tickets.detail.sections");
   const tFields = useTranslations("helpdesk.tickets.detail.fields");
+  const tRoot = useTranslations("helpdesk.root");
   const { data: session } = useSession();
   const isAdmin = hasRole(session, "admin", "system_admin", "manager");
   const { data, isLoading, error } = useQuery({
@@ -172,7 +173,7 @@ function TicketDetailInner({ id }: TicketDetailInnerProps) {
           animate={{ opacity: 1, y: 0, transition: { duration: 0.3, ease: PAGE_EASE } }}
           className="space-y-6 pb-20 md:pb-0"
         >
-          <DetailBackButton href="/helpdesk/tickets" label="Back to tickets" />
+          <DetailBackButton href="/helpdesk/tickets" label={tRoot("backToTickets")} />
 
           <DetailHeaderCard
             title={ticket.title}

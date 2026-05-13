@@ -588,6 +588,7 @@
         "lastLogin": "כניסה אחרונה",
         "createdAt": "נוצר",
         "emailConfirmed": "אימייל אומת",
+        "mfa": "MFA",
         "admin": "אדמין",
         "manager": "מנהל",
         "systemAdmin": "מנהל מערכת",
@@ -808,6 +809,7 @@
       "fields": {
         "id": "מזהה",
         "name": "שם",
+        "slug": "Slug",
         "description": "תיאור",
         "users": "משתמשים",
         "active": "פעיל",
@@ -907,7 +909,14 @@
   "helpdesk": {
     "root": {
       "title": "הלפדסק",
-      "subtitle": "תור פניות ו-KPI ברמת שירות"
+      "subtitle": "תור פניות ו-KPI ברמת שירות",
+      "kpi": {
+        "openTickets": "פניות פתוחות",
+        "resolvedToday": "נסגרו היום",
+        "avgResolution": "זמן סגירה ממוצע",
+        "slaCompliance": "עמידה ב-SLA"
+      },
+      "backToTickets": "חזרה לפניות"
     },
     "tickets": {
       "title": "פניות",

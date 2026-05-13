@@ -71,7 +71,7 @@ function HelpdeskPageInner() {
               <motion.div variants={KPI_FRAMES} initial="initial" animate="animate">
                 <KpiTile
                   icon={AlertTriangle}
-                  label="Open tickets"
+                  label={t("kpi.openTickets")}
                   value={stats.open_tickets}
                   tone="warning"
                 />
@@ -79,7 +79,7 @@ function HelpdeskPageInner() {
               <motion.div variants={KPI_FRAMES} initial="initial" animate="animate">
                 <KpiTile
                   icon={CheckCircle}
-                  label="Resolved today"
+                  label={t("kpi.resolvedToday")}
                   value={stats.resolved_today}
                   tone="success"
                 />
@@ -87,7 +87,7 @@ function HelpdeskPageInner() {
               <motion.div variants={KPI_FRAMES} initial="initial" animate="animate">
                 <KpiTile
                   icon={Clock}
-                  label="Avg resolution"
+                  label={t("kpi.avgResolution")}
                   value={`${stats.avg_resolution_hours.toFixed(1)}h`}
                   tone="default"
                 />
@@ -95,7 +95,7 @@ function HelpdeskPageInner() {
               <motion.div variants={KPI_FRAMES} initial="initial" animate="animate">
                 <KpiTile
                   icon={CheckCircle}
-                  label="SLA compliance"
+                  label={t("kpi.slaCompliance")}
                   value={`${stats.sla_compliance_pct.toFixed(1)}%`}
                   tone={stats.sla_compliance_pct >= 95 ? "success" : "warning"}
                 />

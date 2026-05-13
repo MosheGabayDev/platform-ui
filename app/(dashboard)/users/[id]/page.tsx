@@ -214,7 +214,7 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
 
             <DetailSection title={t("sections.security")}>
               <InfoRow icon={CheckCircle} label={t("fields.emailConfirmed")} value={<BoolBadge value={user.email_confirmed} />} />
-              <InfoRow icon={Shield} label="MFA" value={<BoolBadge value={user.mfa_enabled} />} />
+              <InfoRow icon={Shield} label={t("fields.mfa")} value={<BoolBadge value={user.mfa_enabled} />} />
               <InfoRow icon={Shield} label={t("fields.admin")} value={<BoolBadge value={user.is_admin} />} />
               <InfoRow icon={Shield} label={t("fields.manager")} value={<BoolBadge value={user.is_manager} />} />
               <InfoRow icon={Shield} label={t("fields.systemAdmin")} value={<BoolBadge value={user.is_system_admin} />} />

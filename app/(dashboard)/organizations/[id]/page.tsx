@@ -146,7 +146,7 @@ export default function OrgDetailPage({ params }: { params: Promise<{ id: string
               <InfoRow icon={Building2} label={t("fields.name")} value={org.name} />
               <InfoRow
                 icon={FileText}
-                label="Slug"
+                label={t("fields.slug")}
                 value={<span className="font-mono text-xs">{org.slug}</span>}
               />
               {org.description && (

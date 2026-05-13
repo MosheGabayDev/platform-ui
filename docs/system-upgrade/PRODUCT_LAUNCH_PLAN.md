@@ -264,6 +264,27 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — One-hundred-and-twelfth batch — helpdesk/orgs/users detail page misc strings
+
+Six more inline strings cleaned across three pages:
+
+`/helpdesk` (root): 4 KpiTile labels ("Open tickets", "Resolved
+today", "Avg resolution", "SLA compliance") → new
+`helpdesk.root.kpi.*` block. Hebrew: פניות פתוחות / נסגרו היום /
+זמן סגירה ממוצע / עמידה ב-SLA.
+
+`/helpdesk/tickets/[id]`: DetailBackButton label "Back to tickets"
+→ `helpdesk.root.backToTickets`. Added `tRoot` translator.
+
+`/organizations/[id]`: "Slug" InfoRow label → new
+`organizations.detail.fields.slug` (he kept "Slug" — it's a
+universal URL convention).
+
+`/users/[id]`: "MFA" InfoRow label → new `users.detail.fields.mfa`
+(both locales keep "MFA" — universal acronym).
+
+Full suite: 1300/1300 ✓. Typecheck clean.
+
 ### 2026-05-12 — One-hundred-and-eleventh batch — /helpdesk/tickets/[id] detail page i18n
 
 The biggest single-page sweep in this arc. The ticket detail page

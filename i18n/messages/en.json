@@ -588,6 +588,7 @@
         "lastLogin": "Last login",
         "createdAt": "Created",
         "emailConfirmed": "Email verified",
+        "mfa": "MFA",
         "admin": "Admin",
         "manager": "Manager",
         "systemAdmin": "System admin",
@@ -808,6 +809,7 @@
       "fields": {
         "id": "ID",
         "name": "Name",
+        "slug": "Slug",
         "description": "Description",
         "users": "Members",
         "active": "Active",
@@ -907,7 +909,14 @@
   "helpdesk": {
     "root": {
       "title": "Helpdesk",
-      "subtitle": "Ticket queue + service-level KPIs"
+      "subtitle": "Ticket queue + service-level KPIs",
+      "kpi": {
+        "openTickets": "Open tickets",
+        "resolvedToday": "Resolved today",
+        "avgResolution": "Avg resolution",
+        "slaCompliance": "SLA compliance"
+      },
+      "backToTickets": "Back to tickets"
     },
     "tickets": {
       "title": "Tickets",
