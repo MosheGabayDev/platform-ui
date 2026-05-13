@@ -264,6 +264,22 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — One-hundred-and-second batch — admin feature-flag + usage-range parity
+
+Two more discriminated unions locked in `lib/i18n-catalog.test.ts`:
+
+- `admin.featureFlags.categories` (6 keys: all + ai/modules/
+  integrations/platform/experimental) — `FlagDefinition.category`
+  filter dropdown on /admin/feature-flags. Catalog had keys, page
+  already rendered via i18n, just missing from the parity gate.
+- `admin.aiUsage.ranges` (4 keys: 24h/7d/mtd/30d) — `UsageRange`
+  filter dropdown on /admin/ai-usage. Same shape.
+
+Both scopes already populated correctly; this batch locks them.
+Running tally: **17 discriminated unions** parity-locked.
+
+Full suite: 1300/1300 ✓.
+
 ### 2026-05-12 — One-hundred-and-first batch — helpdesk filter scopes parity
 
 Discovered four helpdesk-side filter dropdowns whose status/risk

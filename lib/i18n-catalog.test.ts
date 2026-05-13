@@ -249,6 +249,18 @@ describe("i18n catalog parity (he ↔ en)", () => {
         values: ["all", "scheduled", "in_progress", "completed", "cancelled"],
       },
       {
+        scope: "admin.featureFlags.categories",
+        // FlagDefinition.category values + "all" filter option on
+        // /admin/feature-flags.
+        values: ["all", "ai", "modules", "integrations", "platform", "experimental"],
+      },
+      {
+        scope: "admin.aiUsage.ranges",
+        // UsageRange values from lib/modules/ai-usage/types.ts —
+        // rendered by the range filter dropdown on /admin/ai-usage.
+        values: ["24h", "7d", "mtd", "30d"],
+      },
+      {
         scope: "admin.aiSkills.risk",
         // SkillRiskLevel values from lib/modules/ai-skills/types.ts
         values: ["low", "medium", "high", "critical"],
