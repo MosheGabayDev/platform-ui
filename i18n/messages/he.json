@@ -1702,6 +1702,11 @@
     "user": "משתמש"
   },
   "shell": {
+    "brand": {
+      "name": "Platform Engineer",
+      "tagline": "פלטפורמה מבוססת AI",
+      "monogram": "PE"
+    },
     "notifications": {
       "title": "התראות",
       "markAllRead": "סמן הכל כנקרא",

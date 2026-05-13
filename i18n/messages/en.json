@@ -1702,6 +1702,11 @@
     "user": "User"
   },
   "shell": {
+    "brand": {
+      "name": "Platform Engineer",
+      "tagline": "AI-Powered Platform",
+      "monogram": "PE"
+    },
     "notifications": {
       "title": "Notifications",
       "markAllRead": "Mark all as read",

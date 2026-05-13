@@ -264,6 +264,23 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — One-hundred-and-eighteenth batch — sidebar brand strings i18n
+
+Sidebar header carried 3 inline brand strings: monogram "PE",
+product name "Platform Engineer", tagline "AI-Powered Platform".
+All three were rendered raw regardless of locale.
+
+New `shell.brand` scope (he/en):
+- monogram: "PE" (same in both — initials)
+- name: "Platform Engineer" (same — brand name)
+- tagline: "פלטפורמה מבוססת AI" / "AI-Powered Platform"
+
+Sidebar reads via new `tBrand` translator. Now an org could
+theoretically white-label by editing the catalog — brand name +
+tagline are no longer hardcoded.
+
+Full suite: 1300/1300 ✓. Typecheck clean.
+
 ### 2026-05-12 — One-hundred-and-seventeenth batch — policies RecordActionsMenu aria
 
 Last `aria-label="<English>"` in admin pages: the

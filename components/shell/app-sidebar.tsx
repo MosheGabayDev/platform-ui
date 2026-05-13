@@ -251,6 +251,7 @@ function PinnedItems() {
 /* ─── Main sidebar ─────────────────────────────────────────── */
 export function AppSidebar() {
   const t = useTranslations("shell.sidebar");
+  const tBrand = useTranslations("shell.brand");
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -271,13 +272,13 @@ export function AppSidebar() {
       <SidebarHeader className="border-b border-sidebar-border px-4 py-4 pb-3">
         <div className="flex items-center gap-3 mb-3">
           <div className="size-9 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-primary-foreground font-bold text-sm shadow-lg shadow-primary/20">
-            PE
+            {tBrand("monogram")}
           </div>
           <div>
-            <p className="text-sm font-bold text-sidebar-foreground tracking-tight">Platform Engineer</p>
+            <p className="text-sm font-bold text-sidebar-foreground tracking-tight">{tBrand("name")}</p>
             <div className="flex items-center gap-1 mt-0.5">
               <Sparkles className="size-2.5 text-primary/80" />
-              <p className="text-[10px] text-sidebar-foreground/50 leading-none">AI-Powered Platform</p>
+              <p className="text-[10px] text-sidebar-foreground/50 leading-none">{tBrand("tagline")}</p>
             </div>
           </div>
         </div>
