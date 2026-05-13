@@ -202,6 +202,32 @@ describe("i18n catalog parity (he ↔ en)", () => {
         // TicketPriorityBadge and the /helpdesk/tickets filter dropdown.
         values: ["all", "low", "medium", "high", "critical"],
       },
+      {
+        scope: "jobStatus",
+        // JobStatus union from lib/modules/job-runner/types.ts — 17
+        // known statuses + the "unknown" fallback used by JobStatusBadge.
+        // Open-enum `(string & {})` values bypass i18n and render raw.
+        values: [
+          "pending",
+          "queued",
+          "running",
+          "success",
+          "succeeded",
+          "partial",
+          "failed",
+          "cancelled",
+          "scheduled",
+          "in_progress",
+          "completed",
+          "pending_approval",
+          "approved",
+          "rejected",
+          "healthy",
+          "disabled_by_flag",
+          "unavailable",
+          "unknown",
+        ],
+      },
     ];
     function resolve(obj: Catalog, dotted: string): unknown {
       let node: unknown = obj;

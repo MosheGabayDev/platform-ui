@@ -264,6 +264,25 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — Ninety-sixth batch — JobStatus catalog parity lock-in
+
+Followup on batch 94. Extended the category-union ↔ i18n parity
+invariant in `lib/i18n-catalog.test.ts` to also cover the 18-value
+`jobStatus.*` scope: 17 known JobStatus members + `unknown`
+fallback used by `JobStatusBadge`. Open-enum `(string & {})`
+values bypass the badge's translator path and render raw, so
+they're not required in the catalog.
+
+Now every category-style discriminated union the UI exposes has
+matching i18n parity:
+- SettingCategory ✓
+- ModuleCategory ✓
+- AuditCategory ✓
+- TicketStatus / TicketPriority ✓
+- JobStatus (this batch) ✓
+
+Full suite: 1300/1300 ✓.
+
 ### 2026-05-12 — Ninety-fifth batch — sidebar shows real session user (not hardcoded "Moshe Gabay")
 
 **Real bug fixed:** `components/shell/app-sidebar.tsx` rendered a
