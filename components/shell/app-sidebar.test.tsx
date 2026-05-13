@@ -24,6 +24,13 @@ vi.mock("next-themes", () => ({
   useTheme: () => themeState,
 }));
 
+vi.mock("next-auth/react", () => ({
+  useSession: () => ({
+    data: { user: { id: 1, username: "moshe.gabay", email: "moshe@example.com", role: "system_admin", permissions: [] } },
+    status: "authenticated",
+  }),
+}));
+
 import { AppSidebar } from "./app-sidebar";
 import { useNavHistory } from "@/lib/hooks/use-nav-history";
 

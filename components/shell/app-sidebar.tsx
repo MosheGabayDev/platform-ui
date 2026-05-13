@@ -7,6 +7,7 @@ import {
   Pin, PinOff, Clock, ChevronRight,
 } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslations } from "next-intl";
@@ -255,6 +256,14 @@ export function AppSidebar() {
   useEffect(() => setMounted(true), []);
   useTrackNavHistory();
   const navGroups = useNavGroups();
+  const { data: session } = useSession();
+  const userName = session?.user?.username ?? session?.user?.email ?? "—";
+  const initials = userName
+    .split(/[\s._-]+/)
+    .filter(Boolean)
+    .map((p: string) => p[0]!.toUpperCase())
+    .slice(0, 2)
+    .join("") || "—";
 
   return (
     <Sidebar side="right" className="border-s border-sidebar-border">
@@ -299,11 +308,11 @@ export function AppSidebar() {
                 <SidebarMenuButton className="h-11 hover:bg-sidebar-accent/80 transition-colors">
                   <Avatar className="size-7 ring-2 ring-primary/20">
                     <AvatarFallback className="text-xs bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-bold">
-                      MG
+                      {initials}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col items-start text-xs">
-                    <span className="font-semibold">Moshe Gabay</span>
+                    <span className="font-semibold">{userName}</span>
                     <span className="text-sidebar-foreground/50 text-[10px]">{t("systemAdmin")}</span>
                   </div>
                   <ChevronDown className="size-3 me-auto opacity-50" />

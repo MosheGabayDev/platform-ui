@@ -264,6 +264,29 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — Ninety-fifth batch — sidebar shows real session user (not hardcoded "Moshe Gabay")
+
+**Real bug fixed:** `components/shell/app-sidebar.tsx` rendered a
+hardcoded "Moshe Gabay" name + "MG" avatar initials regardless of
+who was logged in. Every user — including future tenants — saw
+the developer's name in their sidebar. Caught while auditing
+inlined English strings in `components/shell/`.
+
+Now reads from `useSession()`:
+- Name: `session.user.username ?? session.user.email ?? "—"`.
+- Initials: 2-letter derive from the name, splitting on whitespace
+  or `._-` so `moshe.gabay` → "MG", `alice@org` → "A".
+
+Test fixed: `app-sidebar.test.tsx` mocks `useSession` with a
+deterministic fixture (id=1 `moshe.gabay` / `system_admin`) so
+the 10 existing assertions stay stable.
+
+`session.user.username` comes from `NormalizedAuthUser` — populated
+by the next-auth options.ts callback from the Flask login payload.
+
+Full suite: 1300/1300 ✓. Typecheck clean (excluding pre-existing
+`.next/dev/types/validator.ts` Next 16 layout-route noise).
+
 ### 2026-05-12 — Ninety-fourth batch — JobStatusBadge i18n (17 statuses)
 
 Biggest single-component i18n fix in the cleanup arc. `JobStatusBadge`
