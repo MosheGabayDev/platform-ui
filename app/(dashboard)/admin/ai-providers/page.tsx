@@ -93,6 +93,7 @@ function ProviderCard({
 }) {
   const t = useTranslations("admin.aiProviders");
   const tCat = useTranslations("admin.aiProviders.categories");
+  const tButtons = useTranslations("admin.aiProviders.buttons");
   const [editing, setEditing] = useState(false);
   // Draft state for non-sensitive + plaintext for sensitive (only used while editing).
   const [draft, setDraft] = useState<{
@@ -227,14 +228,14 @@ function ProviderCard({
               variant="outline"
               onClick={() => test.mutate(undefined as never)}
               disabled={test.isPending}
-              aria-label={`Test connection to ${provider.name}`}
+              aria-label={tButtons("testConnectionAria", { provider: provider.name })}
             >
               <PlugZap className="h-3.5 w-3.5 me-1" aria-hidden="true" />
-              Test
+              {tButtons("test")}
             </Button>
             <Button size="sm" variant="outline" onClick={startEdit}>
               <Pencil className="h-3.5 w-3.5 me-1" aria-hidden="true" />
-              Configure
+              {tButtons("configure")}
             </Button>
           </div>
         )}
@@ -362,11 +363,11 @@ function ProviderCard({
           <div className="flex justify-end gap-2">
             <Button size="sm" variant="outline" onClick={() => setEditing(false)}>
               <X className="h-3.5 w-3.5 me-1" aria-hidden="true" />
-              Cancel
+              {tButtons("cancel")}
             </Button>
             <Button size="sm" variant="default" disabled={update.isPending} onClick={save}>
               <Save className="h-3.5 w-3.5 me-1" aria-hidden="true" />
-              Save
+              {tButtons("save")}
             </Button>
           </div>
           {update.serverError && (

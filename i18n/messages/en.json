@@ -170,8 +170,10 @@
       "buttons": {
         "configure": "Configure",
         "testConnection": "Test connection",
+        "test": "Test",
         "save": "Save",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "testConnectionAria": "Test connection to {provider}"
       },
       "toasts": {
         "saved": "Saved.",

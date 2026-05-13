@@ -264,6 +264,31 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-twenty-fifth batch — orphan audit + ai-providers button drift
+
+New diagnostic script `scripts/audit-i18n-orphans.mjs`: walks every
+catalog leaf, flags ones that aren't referenced in `app/components/lib`.
+Lenient heuristic — matches dotted suffix, leaf segment, parent scope,
+and template-string prefix patterns. Informational only (not gated).
+
+First run surfaced **5 orphan keys** under
+`admin.aiProviders.buttons.*` (configure/testConnection/save) — the
+page had inline English ("Test", "Configure", "Cancel", "Save") AND
+unused i18n keys. The keys were named but the buttons rendered raw.
+
+**Drift fixed:**
+- ProviderCard's `aria-label="Test connection to ${name}"` →
+  `admin.aiProviders.buttons.testConnectionAria` with ICU `{provider}`.
+- "Test" button → `buttons.test` (new key).
+- "Configure" / "Save" / "Cancel" → existing
+  `buttons.{configure,save,cancel}` keys.
+
+After fix: orphan count 13 → 10. Remaining orphans are legitimate
+dynamic-key references (`exportCsv.columns.*`, `aiSkills.fields.*`)
+my heuristic can't see through.
+
+Full suite: 1300/1300 ✓. Typecheck clean.
+
 ### 2026-05-14 — One-hundred-and-twenty-fourth batch — i18n gate extended to components/shell
 
 `audit-i18n-debt.mjs` walker now covers `components/shell/**`
