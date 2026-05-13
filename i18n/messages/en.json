@@ -260,6 +260,12 @@
           "tokens": "Tokens",
           "cost": "Cost",
           "outcome": "Outcome"
+        },
+        "outcomes": {
+          "success": "OK",
+          "error": "Error",
+          "cached": "Cached",
+          "cancelled": "Cancelled"
         }
       }
     },

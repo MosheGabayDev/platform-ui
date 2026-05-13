@@ -264,6 +264,27 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — Ninety-ninth batch — /admin/ai-usage OutcomeBadge i18n
+
+`OutcomeBadge` on `/admin/ai-usage` rendered 4 inline English
+labels (`OK`/`Error`/`Cached`/`Cancelled`) regardless of locale.
+Same pattern as the JobStatusBadge fix in batch 94: separate the
+icon+tone descriptor from the label, resolve the label through
+i18n.
+
+New `admin.aiUsage.recent.outcomes` block (he/en) with 4 keys:
+- success → תקין / OK
+- error → שגיאה / Error
+- cached → מטמון / Cached
+- cancelled → בוטל / Cancelled
+
+Open-enum tolerance preserved: unknown outcome strings render raw
+(not the i18n "unknown" fallback) so admins see what came in.
+
+Parity invariant extended to lock these 4 keys against drift.
+
+Full suite: 1300/1300 ✓. Typecheck clean.
+
 ### 2026-05-12 — Ninety-eighth batch — /admin/ai-providers categories i18n
 
 Sister to batch 97. Same pattern in `/admin/ai-providers`:

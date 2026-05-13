@@ -260,6 +260,12 @@
           "tokens": "Tokens",
           "cost": "עלות",
           "outcome": "תוצאה"
+        },
+        "outcomes": {
+          "success": "תקין",
+          "error": "שגיאה",
+          "cached": "מטמון",
+          "cancelled": "בוטל"
         }
       }
     },

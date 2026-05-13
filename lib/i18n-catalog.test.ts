@@ -214,6 +214,12 @@ describe("i18n catalog parity (he ↔ en)", () => {
         values: ["all", "cloud", "hosted", "local", "openai_compatible"],
       },
       {
+        scope: "admin.aiUsage.recent.outcomes",
+        // UsageEvent.outcome values from lib/modules/ai-usage/types.ts —
+        // rendered by OutcomeBadge on /admin/ai-usage.
+        values: ["success", "error", "cached", "cancelled"],
+      },
+      {
         scope: "admin.aiSkills.risk",
         // SkillRiskLevel values from lib/modules/ai-skills/types.ts
         values: ["low", "medium", "high", "critical"],

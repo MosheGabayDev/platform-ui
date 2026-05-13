@@ -569,39 +569,38 @@ function TopUsersSection({
 }
 
 function OutcomeBadge({ outcome }: { outcome: string }) {
-  const meta: Record<string, { tone: string; icon: LucideIcon; label: string }> = {
+  const t = useTranslations("admin.aiUsage.recent.outcomes");
+  const meta: Record<string, { tone: string; icon: LucideIcon }> = {
     success: {
       tone:
         "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
       icon: CheckCircle2,
-      label: "OK",
     },
     error: {
       tone: "border-rose-500/30 bg-rose-500/15 text-rose-700 dark:text-rose-400",
       icon: AlertCircle,
-      label: "Error",
     },
     cached: {
       tone: "border-cyan-500/30 bg-cyan-500/15 text-cyan-700 dark:text-cyan-400",
       icon: Activity,
-      label: "Cached",
     },
     cancelled: {
       tone: "border-muted text-muted-foreground",
       icon: Activity,
-      label: "Cancelled",
     },
   };
   const m = meta[outcome] ?? {
     tone: "border-muted text-muted-foreground",
     icon: Activity,
-    label: outcome,
   };
   const Icon = m.icon;
+  // Open-enum: known outcomes get i18n; unknown ones surface the raw
+  // string so admins can see what came in.
+  const label = outcome in meta ? t(outcome) : outcome;
   return (
     <Badge variant="outline" className={`text-[10px] ${m.tone}`}>
       <Icon className="h-3 w-3 me-1" aria-hidden="true" />
-      {m.label}
+      {label}
     </Badge>
   );
 }
