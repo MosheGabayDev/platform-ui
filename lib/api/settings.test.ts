@@ -3,6 +3,8 @@
  * Covers: definitions list, resolution hierarchy, set/clear, secret masking,
  * schema validation, scope rejection.
  */
+import fs from "node:fs";
+import path from "node:path";
 import { describe, it, expect } from "vitest";
 import {
   fetchSettingDefinitions,
@@ -179,5 +181,46 @@ describe("settings client (mock mode)", () => {
     expect(res.data.has_value).toBe(true);
     expect(res.data.masked).toBeTruthy();
     expect(JSON.stringify(res.data)).not.toContain("SECRET-TOKEN");
+  });
+
+  it("every literal useSetting / setSetting key in app+components+lib resolves to a catalog entry (batch 90)", async () => {
+    // Cross-cut: settings keys are typed as `string`, so a typo
+    // compiles fine but fetchSetting silently returns "not found"
+    // → page renders empty value, save mutation 404s. Walk the
+    // dashboard sources for literal `useSetting("X")` and
+    // `setSetting({ key: "X", ... })` calls and assert each key
+    // exists in the live catalog.
+    function walk(dir: string, out: string[] = []): string[] {
+      if (!fs.existsSync(dir)) return out;
+      for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+        const p = path.join(dir, e.name);
+        if (e.isDirectory()) {
+          if (e.name === "node_modules" || e.name === ".next") continue;
+          walk(p, out);
+        } else if (
+          /\.(tsx?|jsx?)$/.test(e.name) &&
+          !/\.test\.(tsx?|jsx?)$/.test(e.name)
+        ) {
+          out.push(p);
+        }
+      }
+      return out;
+    }
+    const sources = [...walk("app"), ...walk("components"), ...walk("lib")];
+    const refs = new Set<string>();
+    for (const file of sources) {
+      const src = fs.readFileSync(file, "utf8");
+      for (const m of src.matchAll(/useSetting\(\s*"([^"]+)"\s*\)/g))
+        refs.add(m[1]!);
+      // setSetting({ key: "...", ...) — key may not be the first prop.
+      for (const m of src.matchAll(
+        /setSetting\(\s*\{[^{}]*?key:\s*"([^"]+)"/g,
+      )) refs.add(m[1]!);
+    }
+    expect(refs.size).toBeGreaterThan(3);
+    const defs = await fetchSettingDefinitions();
+    const known = new Set(defs.data.definitions.map((d) => d.key));
+    const orphans = [...refs].filter((k) => !known.has(k));
+    expect(orphans).toEqual([]);
   });
 });

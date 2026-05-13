@@ -264,6 +264,24 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — Ninetieth batch — settings key consumers ↔ catalog parity 🎯
+
+New cross-cut in `lib/api/settings.test.ts`: every literal
+`useSetting("X")` and `setSetting({ key: "X", ... })` call across
+`app/`, `components/`, `lib/` (excluding test files and the
+settings client itself) must reference a key in the live settings
+catalog (`fetchSettingDefinitions().data.definitions`). Settings
+keys are typed as `string`, so a typo compiles fine — silently
+returning "not found" at runtime (empty UI value, 404 on save).
+
+8 consumer call sites today across onboarding wizard, /settings/ai,
+onboarding-tour, and sample-data seeder. All resolve cleanly to
+the 17-key catalog.
+
+**Milestone: 1300 unit tests passing.**
+
+Full suite: 1300/1300 ✓ (was 1299; +1 invariant).
+
 ### 2026-05-12 — Eighty-ninth batch — policy action_pattern ↔ skill registry
 
 New cross-cut in `lib/api/policies.test.ts`: every policy rule's
