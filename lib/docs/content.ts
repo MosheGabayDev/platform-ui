@@ -356,13 +356,13 @@ const AI_SHORTCUTS: AIShortcut[] = [
     capability_level: "WRITE_LOW",
   },
   {
-    phrase: "create note <title>",
+    phrase: "create note <title> | <body>",
     action_id: "notes.create",
     descriptionKey: "help.aiShortcuts.createNote",
     capability_level: "WRITE_LOW",
   },
   {
-    phrase: "add bookmark <url>",
+    phrase: "add bookmark <title> <url>",
     action_id: "bookmarks.create",
     descriptionKey: "help.aiShortcuts.createBookmark",
     capability_level: "WRITE_LOW",

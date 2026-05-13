@@ -139,7 +139,7 @@ describe("sendChatMessage (mock mode)", () => {
   });
 
   it("every recognized intent.actionId maps to a registered skill (batch 87)", async () => {
-    // Cross-cut: the mock LLM grammar in lib/api/ai.ts proposes 5
+    // Cross-cut: the mock LLM grammar in lib/api/ai.ts proposes
     // action_ids. Each MUST be a real entry in the AI skill registry.
     // Typo here → user confirms → validateInvocation can't find the
     // skill → confusing "skill not registered" error in the UI.
@@ -151,6 +151,9 @@ describe("sendChatMessage (mock mode)", () => {
       "cancel maintenance 1003",
       "cancel batch 1004",
       "search users for alice",
+      "deactivate user 7",
+      "create note Standup recap | We discussed Q2 priorities.",
+      "add bookmark Postmortem template https://wiki.example/pm-template",
     ];
     const seen = new Set<string>();
     for (const phrase of phrases) {
@@ -160,6 +163,6 @@ describe("sendChatMessage (mock mode)", () => {
     }
     const orphans = [...seen].filter((id) => !skillIds.has(id));
     expect(orphans).toEqual([]);
-    expect(seen.size).toBe(5);
+    expect(seen.size).toBe(8);
   });
 });

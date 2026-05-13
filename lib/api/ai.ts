@@ -63,6 +63,11 @@ const RESOLVE_TICKET_RE = /\bresolve\s+ticket\s+#?(\d{3,6})\b/i;
 const CANCEL_MAINTENANCE_RE = /\bcancel\s+maintenance\s+#?(\d{3,6})\b/i;
 const CANCEL_BATCH_RE = /\bcancel\s+batch\s+#?(\d{3,6})\b/i;
 const SEARCH_USERS_RE = /\bsearch\s+users?\s+(?:for\s+)?["']?([\w@. .-]+?)["']?\s*$/i;
+const DEACTIVATE_USER_RE = /\bdeactivate\s+user\s+#?(\d{1,8})\b/i;
+// note: "create note <title> | <body>" — pipe separates title from body.
+const CREATE_NOTE_RE = /\bcreate\s+note\s+(.+?)\s*\|\s*(.+)$/i;
+// "add bookmark <title> https://..."
+const ADD_BOOKMARK_RE = /\badd\s+bookmark\s+(.+?)\s+(https?:\/\/\S+)\s*$/i;
 
 function makeTokenId(): string {
   // Stable-ish synthetic token; backend will mint real tokens per R051
@@ -151,6 +156,59 @@ function extractIntent(message: string): MockIntent {
         capabilityLevel: "READ",
         expiresAt: Date.now() + 60_000,
         params: { query },
+      },
+    };
+  }
+
+  const deactivateUser = message.match(DEACTIVATE_USER_RE);
+  if (deactivateUser) {
+    const userId = Number(deactivateUser[1]);
+    return {
+      text: `Deactivate user #${userId}? Their session will end and they will not be able to sign in until reactivated.`,
+      proposal: {
+        tokenId: makeTokenId(),
+        actionId: "users.deactivate",
+        label: `Deactivate user #${userId}`,
+        targetSummary: `Deactivate user account #${userId}`,
+        capabilityLevel: "DESTRUCTIVE",
+        expiresAt: Date.now() + 30_000,
+        params: { userId, reason: "Deactivated via AI assistant" },
+      },
+    };
+  }
+
+  const createNote = message.match(CREATE_NOTE_RE);
+  if (createNote) {
+    const title = createNote[1]!.trim();
+    const body = createNote[2]!.trim();
+    return {
+      text: `I'll create a note titled "${title}".`,
+      proposal: {
+        tokenId: makeTokenId(),
+        actionId: "notes.create",
+        label: `Create note: ${title}`,
+        targetSummary: `New personal note "${title}"`,
+        capabilityLevel: "WRITE_LOW",
+        expiresAt: Date.now() + 60_000,
+        params: { title, body },
+      },
+    };
+  }
+
+  const addBookmark = message.match(ADD_BOOKMARK_RE);
+  if (addBookmark) {
+    const title = addBookmark[1]!.trim();
+    const url = addBookmark[2]!.trim();
+    return {
+      text: `I'll add the bookmark "${title}" pointing at ${url}.`,
+      proposal: {
+        tokenId: makeTokenId(),
+        actionId: "bookmarks.create",
+        label: `Add bookmark: ${title}`,
+        targetSummary: `Shared bookmark "${title}" → ${url}`,
+        capabilityLevel: "WRITE_LOW",
+        expiresAt: Date.now() + 60_000,
+        params: { title, url },
       },
     };
   }

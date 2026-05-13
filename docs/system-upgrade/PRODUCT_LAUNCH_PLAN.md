@@ -264,6 +264,29 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-thirty-second batch — mock LLM grammar for 3 new actions
+
+`lib/api/ai.ts` mock intent grammar gained 3 new patterns matching
+the 3 executors landed in batches 130–131:
+
+- `DEACTIVATE_USER_RE = /\bdeactivate\s+user\s+#?(\d{1,8})\b/i` →
+  `users.deactivate` (DESTRUCTIVE, 30s TTL).
+- `CREATE_NOTE_RE = /\bcreate\s+note\s+(.+?)\s*\|\s*(.+)$/i` →
+  `notes.create` (WRITE_LOW). Pipe separates title from body so
+  the LLM can split structured args from natural prose.
+- `ADD_BOOKMARK_RE = /\badd\s+bookmark\s+(.+?)\s+(https?:\/\/\S+)\s*$/i`
+  → `bookmarks.create` (WRITE_LOW).
+
+Batch-87 cross-cut test extended: 5 phrases → 8. All resolve
+through the AI skill registry; the proposal → confirm → execute
+chain is now end-to-end functional for `users.deactivate`,
+`notes.create`, `bookmarks.create`.
+
+Help-docs `aiShortcuts` phrases tightened to match the grammar
+verbatim (`create note <title> | <body>`, `add bookmark <title> <url>`).
+
+Full suite: 1300/1300 ✓. Typecheck clean.
+
 ### 2026-05-14 — One-hundred-and-thirty-first batch — notes.create + bookmarks.create executors
 
 Continues closing the batch-77 executor gap. New entries in
