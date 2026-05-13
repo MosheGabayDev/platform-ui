@@ -131,27 +131,36 @@ describe("module manifest cross-cuts", () => {
     expect(orphans).toEqual([]);
   });
 
-  it("every action executor maps to a registered ai-callable skill", async () => {
+  it("executor registry ↔ ai_callable skills (bidirectional)", async () => {
     // Cross-cut: the executor registry in lib/platform/ai-actions/executors.ts
-    // is the run-side of the AI action pipeline. Every registered
-    // executor MUST correspond to an `ai_callable` skill — otherwise
-    // there's no UI path that can trigger it (dead code on the
-    // executor side) and it never gets audit-wired through the AI
-    // shell's confirmation flow.
+    // is the run-side of the AI action pipeline. Both directions must
+    // hold:
+    //   1. Every registered executor MUST correspond to an
+    //      `ai_callable` skill — otherwise there's no UI path that can
+    //      trigger it (dead code on the executor side).
+    //   2. Every `ai_callable: true` skill MUST have an executor —
+    //      otherwise the AI shell proposes an action that fails at
+    //      `runActionExecutor` with "No executor registered".
     //
-    // The reverse direction (skill without executor) is INTENTIONALLY
-    // not failed — the AI shell handles missing executors gracefully
-    // (toast + fail), and several skills are recognized by the mock
-    // LLM grammar before their executor lands. That gap is tracked
-    // in the executor file's roadmap, not here.
+    // Direction (1) has held since batch 77. Direction (2) was waived
+    // there because executors were being added incrementally; batch 134
+    // closed the last gap (whatsapp.session.{link,relink,unlink}). This
+    // tightening locks the bidirectional state in.
     const { _registeredActions } = await import(
       "@/lib/platform/ai-actions/executors"
     );
     const aiCallable = new Set(
       getAllSkills().filter((s) => s.ai_callable).map((s) => s.id),
     );
-    const orphans = _registeredActions().filter((a) => !aiCallable.has(a));
-    expect(orphans).toEqual([]);
+    const registered = new Set(_registeredActions());
+
+    const executorOrphans = [...registered].filter((a) => !aiCallable.has(a));
+    expect(executorOrphans).toEqual([]);
+
+    const skillsWithoutExecutor = [...aiCallable].filter(
+      (id) => !registered.has(id),
+    );
+    expect(skillsWithoutExecutor).toEqual([]);
   });
 
   it("every skill.policy_action_id equals its skill.id (consistency)", () => {

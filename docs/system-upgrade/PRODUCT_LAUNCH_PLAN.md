@@ -264,6 +264,30 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-thirty-fifth batch — tighten executor↔skill invariant bidirectional
+
+Following batch 134 closing the parity gap, the batch-77
+invariant in `lib/platform/module-registry/manifests.test.ts`
+upgraded to enforce both directions:
+
+1. **Executor → ai_callable skill** (already enforced since
+   batch 77).
+2. **ai_callable skill → registered executor** (NEW). Was waived
+   in batch 77 because executors were being added incrementally;
+   no longer needed.
+
+Title updated: `every action executor maps to a registered
+ai-callable skill` → `executor registry ↔ ai_callable skills
+(bidirectional)`. Test body asserts both `executorOrphans` and
+`skillsWithoutExecutor` are empty.
+
+Future drift in either direction now fails at unit-test time:
+add a skill marked `ai_callable: true` without wiring an executor
+→ gate fails; remove an executor while the skill stays callable →
+gate fails.
+
+Full suite: 1300/1300 ✓.
+
 ### 2026-05-14 — One-hundred-and-thirty-fourth batch — WhatsApp executors close the parity gap 🎯
 
 Final 3 ai_callable skills without executors wired:
