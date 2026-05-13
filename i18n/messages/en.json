@@ -1294,7 +1294,24 @@
     "systemPrompt": {
       "placeholder": "You are a helpful operations assistant for {orgPlaceholder}…",
       "tip": "Tip: use <code>{orgPlaceholder}</code> as a placeholder."
-    }
+    },
+    "sections": {
+      "persona": "Persona",
+      "model": "Model",
+      "preview": "Preview"
+    },
+    "fields": {
+      "displayName": "Display name",
+      "systemPrompt": "System prompt",
+      "defaultModel": "Default model",
+      "maxTokens": "Max tokens per response"
+    },
+    "model": {
+      "costSummary": "Estimated cost: ${costIn}/M input tokens, ${costOut}/M output tokens.",
+      "freeLocal": " (free / local)",
+      "costSuffix": " (${costIn}/M in · ${costOut}/M out)"
+    },
+    "maxTokensHelp": "Hard cap on response length — prevents runaway costs."
   },
   "onboarding": {
     "title": "Welcome — let's set up your platform",

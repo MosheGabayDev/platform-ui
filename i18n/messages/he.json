@@ -1294,7 +1294,24 @@
     "systemPrompt": {
       "placeholder": "אתה עוזר תפעולי שימושי עבור {orgPlaceholder}…",
       "tip": "טיפ: השתמשו ב-<code>{orgPlaceholder}</code> כ-placeholder."
-    }
+    },
+    "sections": {
+      "persona": "פרסונה",
+      "model": "מודל",
+      "preview": "תצוגה מקדימה"
+    },
+    "fields": {
+      "displayName": "שם תצוגה",
+      "systemPrompt": "system prompt",
+      "defaultModel": "מודל ברירת מחדל",
+      "maxTokens": "מקסימום tokens לתשובה"
+    },
+    "model": {
+      "costSummary": "עלות מוערכת: ${costIn}/M input tokens, ${costOut}/M output tokens.",
+      "freeLocal": " (חינמי / מקומי)",
+      "costSuffix": " (${costIn}/M in · ${costOut}/M out)"
+    },
+    "maxTokensHelp": "מגבלה קשיחה על אורך התשובה — מונע עלויות מתפרצות."
   },
   "onboarding": {
     "title": "ברוך הבא — נגדיר יחד את הפלטפורמה",

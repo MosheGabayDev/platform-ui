@@ -264,6 +264,28 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — One-hundred-and-sixteenth batch — /settings/ai full content i18n
+
+Big sweep of `/settings/ai`. The page had 9 more inline strings:
+3 section headers (`Persona` / `Model` / `Preview`), 4 form
+labels (`Display name` / `System prompt` / `Default model` /
+`Max tokens per response`), the model-cost summary line + per-
+option price suffix (`($X/M in · $Y/M out)` / `(free / local)`),
+and the `Hard cap on response length…` help.
+
+New scopes under `selfServiceAi`:
+- `sections.{persona,model,preview}` (he: פרסונה / מודל / תצוגה
+  מקדימה).
+- `fields.{displayName,systemPrompt,defaultModel,maxTokens}`.
+- `model.{costSummary,freeLocal,costSuffix}` with ICU `{costIn}`
+  / `{costOut}` params.
+- `maxTokensHelp`.
+
+The dollar prefixes in the cost templates are written into the
+catalog string itself so RTL doesn't have to fight ICU bidi.
+
+Full suite: 1300/1300 ✓. Typecheck clean.
+
 ### 2026-05-12 — One-hundred-and-fifteenth batch — settings + ai-providers misc labels
 
 4 more inline labels:

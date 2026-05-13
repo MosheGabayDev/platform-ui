@@ -193,11 +193,11 @@ function AISettingsInner() {
               <section className="glass border-border/50 rounded-xl p-4 space-y-3">
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-violet-600 dark:text-violet-400" aria-hidden="true" />
-                  <h2 className="font-medium text-sm">Persona</h2>
+                  <h2 className="font-medium text-sm">{t("sections.persona")}</h2>
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs text-muted-foreground" htmlFor="persona-name">
-                    Display name
+                    {t("fields.displayName")}
                   </label>
                   <Input
                     id="persona-name"
@@ -220,7 +220,7 @@ function AISettingsInner() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs text-muted-foreground" htmlFor="system-prompt">
-                    System prompt
+                    {t("fields.systemPrompt")}
                   </label>
                   <Textarea
                     id="system-prompt"
@@ -258,11 +258,11 @@ function AISettingsInner() {
               <section className="glass border-border/50 rounded-xl p-4 space-y-3">
                 <div className="flex items-center gap-2">
                   <Cpu className="h-4 w-4 text-cyan-600 dark:text-cyan-400" aria-hidden="true" />
-                  <h2 className="font-medium text-sm">Model</h2>
+                  <h2 className="font-medium text-sm">{t("sections.model")}</h2>
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs text-muted-foreground" htmlFor="default-model">
-                    Default model
+                    {t("fields.defaultModel")}
                   </label>
                   <select
                     id="default-model"
@@ -276,15 +276,17 @@ function AISettingsInner() {
                       <option key={`${m.provider_name}::${m.id}`} value={m.id}>
                         {m.provider_name} · {m.display_name}
                         {m.cost_in > 0
-                          ? ` ($${m.cost_in}/M in · $${m.cost_out}/M out)`
-                          : " (free / local)"}
+                          ? t("model.costSuffix", { costIn: m.cost_in, costOut: m.cost_out })
+                          : t("model.freeLocal")}
                       </option>
                     ))}
                   </select>
                   {selectedModel && (
                     <p className="text-[11px] text-muted-foreground">
-                      Estimated cost: ${selectedModel.cost_in.toFixed(2)}/M input tokens,
-                      ${selectedModel.cost_out.toFixed(2)}/M output tokens.
+                      {t("model.costSummary", {
+                        costIn: selectedModel.cost_in.toFixed(2),
+                        costOut: selectedModel.cost_out.toFixed(2),
+                      })}
                     </p>
                   )}
                 </div>
@@ -293,7 +295,7 @@ function AISettingsInner() {
                     className="text-xs text-muted-foreground"
                     htmlFor="max-tokens"
                   >
-                    Max tokens per response
+                    {t("fields.maxTokens")}
                   </label>
                   <Input
                     id="max-tokens"
@@ -319,7 +321,7 @@ function AISettingsInner() {
                     </p>
                   ) : (
                     <p className="text-[11px] text-muted-foreground">
-                      Hard cap on response length — prevents runaway costs.
+                      {t("maxTokensHelp")}
                     </p>
                   )}
                 </div>
@@ -332,7 +334,7 @@ function AISettingsInner() {
                     className="h-4 w-4 text-emerald-600 dark:text-emerald-400"
                     aria-hidden="true"
                   />
-                  <h2 className="font-medium text-sm">Preview</h2>
+                  <h2 className="font-medium text-sm">{t("sections.preview")}</h2>
                 </div>
                 <p className="text-sm text-muted-foreground italic" data-testid="ai-settings-preview">
                   {previewText}
