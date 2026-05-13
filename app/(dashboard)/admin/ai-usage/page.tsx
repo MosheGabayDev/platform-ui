@@ -508,6 +508,7 @@ function Section({
   rows: SectionRow[];
   valueKey: "cost_usd";
 }) {
+  const tSections = useTranslations("admin.aiUsage.sections");
   const max = rows.reduce((m, r) => Math.max(m, r.cost_usd), 0);
   return (
     <div className="glass border-border/50 rounded-xl p-4">
@@ -533,7 +534,7 @@ function Section({
           );
         })}
         {rows.length === 0 && (
-          <div className="text-xs text-muted-foreground">No data in this range.</div>
+          <div className="text-xs text-muted-foreground">{tSections("noDataInRange")}</div>
         )}
       </div>
     </div>
@@ -545,11 +546,12 @@ function TopUsersSection({
 }: {
   rows: { user_id: number; user_name: string; events: number; cost_usd: number }[];
 }) {
+  const tSections = useTranslations("admin.aiUsage.sections");
   return (
     <div className="glass border-border/50 rounded-xl p-4">
       <div className="font-medium text-sm mb-2 flex items-center gap-2">
         <UsersIcon className="h-3.5 w-3.5" aria-hidden="true" />
-        Top users
+        {tSections("topUsers")}
       </div>
       <ul className="space-y-1.5 text-xs">
         {rows.map((u) => (
@@ -561,7 +563,7 @@ function TopUsersSection({
           </li>
         ))}
         {rows.length === 0 && (
-          <li className="text-muted-foreground">No users in this range.</li>
+          <li className="text-muted-foreground">{tSections("noUsersInRange")}</li>
         )}
       </ul>
     </div>

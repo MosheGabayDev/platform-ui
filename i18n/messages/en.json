@@ -174,6 +174,12 @@
         "connectionFailed": "Connection failed: {error}",
         "errorUnknown": "unknown"
       },
+      "defaultModelLabel": "Default model:",
+      "modelsAvailable": "{count, plural, =1 {1 model available} other {# models available}}",
+      "credentialsExplainer": {
+        "label": "Sensitive credentials:",
+        "body": " stored encrypted at rest. Reads return masked values; entering a new value replaces the stored one. Plaintext is never logged or returned to the client."
+      },
       "states": {
         "verified": "Verified",
         "unverified": "Unverified",
@@ -221,7 +227,16 @@
         "copySkillId": "Copy skill id",
         "copyPolicyActionId": "Copy policy action id",
         "copied": "Copied {value}"
-      }
+      },
+      "availableToAiExplainer": {
+        "label": "Available to AI",
+        "body": " = module enabled (cap 18) AND skill enabled here AND skill is `ai_callable`. Disabling a skill here removes it from the AI shell's `availableActions` for this org."
+      },
+      "filterAll": "All ({count})",
+      "filterModule": "{module} ({count})",
+      "aiCallableOnly": "AI-callable only",
+      "loadingRegistry": "Loading registry…",
+      "loadError": "Could not load AI skills"
     },
     "aiUsage": {
       "title": "AI usage",
@@ -270,7 +285,9 @@
         "byPurpose": "By purpose",
         "topUsers": "Top users",
         "recentEvents": "Recent events",
-        "dailyCost": "Daily cost"
+        "dailyCost": "Daily cost",
+        "noDataInRange": "No data in this range.",
+        "noUsersInRange": "No users in this range."
       },
       "loading": "Loading…",
       "errors": {

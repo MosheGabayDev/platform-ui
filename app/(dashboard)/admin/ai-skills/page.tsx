@@ -339,9 +339,10 @@ function AISkillsInner() {
           </div>
 
           <div className="glass border-border/50 rounded-xl p-3 text-xs text-muted-foreground">
-            <span className="font-medium text-foreground">Available to AI</span> = module enabled
-            (cap 18) AND skill enabled here AND skill is `ai_callable`. Disabling a skill here
-            removes it from the AI shell&apos;s `availableActions` for this org.
+            <span className="font-medium text-foreground">
+              {t("availableToAiExplainer.label")}
+            </span>
+            {t("availableToAiExplainer.body")}
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -350,7 +351,9 @@ function AISkillsInner() {
               variant={activeModule === "all" ? "default" : "outline"}
               onClick={() => setActiveModule("all")}
             >
-              All ({Object.values(moduleCounts).reduce((a, b) => a + b, 0)})
+              {t("filterAll", {
+                count: Object.values(moduleCounts).reduce((a, b) => a + b, 0),
+              })}
             </Button>
             {moduleKeys.map((m) => (
               <Button
@@ -359,7 +362,7 @@ function AISkillsInner() {
                 variant={activeModule === m ? "default" : "outline"}
                 onClick={() => setActiveModule(m)}
               >
-                {m} ({moduleCounts[m] ?? 0})
+                {t("filterModule", { module: m, count: moduleCounts[m] ?? 0 })}
               </Button>
             ))}
             <div className="ms-auto flex items-center gap-2">
@@ -369,18 +372,18 @@ function AISkillsInner() {
                 onClick={() => setAiCallableOnly((v) => !v)}
                 aria-pressed={aiCallableOnly}
               >
-                AI-callable only
+                {t("aiCallableOnly")}
               </Button>
             </div>
           </div>
 
           {isLoading && (
-            <div className="text-sm text-muted-foreground">Loading registry…</div>
+            <div className="text-sm text-muted-foreground">{t("loadingRegistry")}</div>
           )}
           {error && (
             <EmptyState
               icon={AlertCircle}
-              title="Could not load AI skills"
+              title={t("loadError")}
               description={(error as Error).message}
             />
           )}

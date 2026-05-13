@@ -91,6 +91,7 @@ function ProviderCard({
   config: ProviderConfig;
   onSaved: () => void;
 }) {
+  const t = useTranslations("admin.aiProviders");
   const tCat = useTranslations("admin.aiProviders.categories");
   const [editing, setEditing] = useState(false);
   // Draft state for non-sensitive + plaintext for sensitive (only used while editing).
@@ -211,9 +212,11 @@ function ProviderCard({
           </div>
           <p className="text-xs text-muted-foreground mt-1">{provider.description}</p>
           <div className="text-[11px] text-muted-foreground mt-1">
-            <span>Default model: <strong>{config.default_model}</strong></span>
+            <span>
+              {t("defaultModelLabel")} <strong>{config.default_model}</strong>
+            </span>
             <span className="mx-2">·</span>
-            <span>{provider.models.length} models available</span>
+            <span>{t("modelsAvailable", { count: provider.models.length })}</span>
           </div>
         </div>
 
@@ -463,8 +466,10 @@ function AIProvidersInner() {
           </div>
 
           <div className="glass border-border/50 rounded-xl p-3 text-xs text-muted-foreground">
-            <span className="font-medium text-foreground">Sensitive credentials:</span>{" "}
-            stored encrypted at rest. Reads return masked values; entering a new value replaces the stored one. Plaintext is never logged or returned to the client.
+            <span className="font-medium text-foreground">
+              {t("credentialsExplainer.label")}
+            </span>
+            {t("credentialsExplainer.body")}
           </div>
 
           <div className="flex flex-wrap gap-2">

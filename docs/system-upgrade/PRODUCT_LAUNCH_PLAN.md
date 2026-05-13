@@ -264,6 +264,37 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — One-hundred-and-tenth batch — admin pages misc inline strings 🎯
+
+Sweep across three admin pages caught 10 more inlined English
+strings missed by the heuristic gates:
+
+`/admin/ai-usage`:
+- `Section` empty state "No data in this range."
+- `TopUsersSection` header "Top users" + empty "No users in this range."
+→ all read via `admin.aiUsage.sections.{topUsers,noDataInRange,noUsersInRange}`.
+Added the two `no...InRange` keys; `topUsers` already existed.
+
+`/admin/ai-skills`:
+- "Available to AI" + the 3-sentence cap-18 explainer
+- "All ({count})" + "{module} ({count})" filter buttons
+- "AI-callable only" toggle
+- "Loading registry…" + "Could not load AI skills"
+→ new keys: `availableToAiExplainer.{label,body}`, `filterAll`,
+`filterModule`, `aiCallableOnly`, `loadingRegistry`, `loadError`.
+
+`/admin/ai-providers`:
+- "Default model: …" + "{N} models available" per-provider footer
+- "Sensitive credentials: …" 2-sentence explainer
+→ new keys: `defaultModelLabel`, `modelsAvailable` (ICU plural),
+`credentialsExplainer.{label,body}`. ProviderCard gained the
+page-level `t` translator.
+
+Total: ~14 strings i18n'd, 8 catalog scopes touched. The three
+biggest admin admin pages are now clean of inline English.
+
+🎯 **110 batches.** Full suite: 1300/1300 ✓. Typecheck clean.
+
 ### 2026-05-12 — One-hundred-and-ninth batch — /admin/policies PolicyTester i18n
 
 `PolicyTester` block on `/admin/policies` carried 9 inlined
