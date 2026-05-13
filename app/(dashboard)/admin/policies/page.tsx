@@ -209,6 +209,7 @@ function PolicyCard({ policy }: { policy: Policy }) {
 }
 
 function PolicyTester() {
+  const tTester = useTranslations("admin.policies.tester");
   const [actionId, setActionId] = useState("helpdesk.batch.bulk_status");
   const [paramsText, setParamsText] = useState('{"affected_count": 100}');
   const [resourceText, setResourceText] = useState("");
@@ -236,14 +237,14 @@ function PolicyTester() {
     <div className="glass border-border/50 rounded-xl p-4 space-y-3">
       <div className="flex items-center gap-2">
         <ShieldCheck className="h-4 w-4 text-cyan-600 dark:text-cyan-400" aria-hidden="true" />
-        <span className="font-medium text-sm">Policy tester</span>
+        <span className="font-medium text-sm">{tTester("title")}</span>
         <span className="text-xs text-muted-foreground">
-          Run an action through the live ruleset
+          {tTester("subtitle")}
         </span>
       </div>
       <div className="space-y-2">
         <label className="text-xs text-muted-foreground" htmlFor="tester-action">
-          action_id
+          {tTester("actionIdLabel")}
         </label>
         <Input
           id="tester-action"
@@ -256,7 +257,7 @@ function PolicyTester() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         <div className="space-y-2">
           <label className="text-xs text-muted-foreground" htmlFor="tester-params">
-            params (JSON)
+            {tTester("paramsLabel")}
           </label>
           <Textarea
             id="tester-params"
@@ -268,7 +269,7 @@ function PolicyTester() {
         </div>
         <div className="space-y-2">
           <label className="text-xs text-muted-foreground" htmlFor="tester-resource">
-            resource (JSON, optional)
+            {tTester("resourceLabel")}
           </label>
           <Textarea
             id="tester-resource"
@@ -283,7 +284,7 @@ function PolicyTester() {
       <div className="flex justify-end">
         <Button size="sm" disabled={isPending} onClick={run}>
           <Play className="h-3.5 w-3.5 me-1" aria-hidden="true" />
-          Evaluate
+          {tTester("evaluate")}
         </Button>
       </div>
       {error && (
@@ -296,22 +297,22 @@ function PolicyTester() {
               decision.requires_approval ? (
                 <Badge variant="outline" className={EFFECT_META.require_approval.tone}>
                   <Clock className="h-3 w-3 me-1" aria-hidden="true" />
-                  Allowed — requires approval
+                  {tTester("allowedRequiresApproval")}
                 </Badge>
               ) : (
                 <Badge variant="outline" className={EFFECT_META.allow.tone}>
                   <CheckCircle2 className="h-3 w-3 me-1" aria-hidden="true" />
-                  Allowed
+                  {tTester("allowed")}
                 </Badge>
               )
             ) : (
               <Badge variant="outline" className={EFFECT_META.deny.tone}>
                 <XCircle className="h-3 w-3 me-1" aria-hidden="true" />
-                Denied
+                {tTester("denied")}
               </Badge>
             )}
             <code className="text-[10px] text-muted-foreground font-mono">
-              decision: {decision.decision_id}
+              {tTester("decisionLabel", { id: decision.decision_id })}
             </code>
           </div>
           {decision.reasons.length > 0 && (
@@ -327,7 +328,7 @@ function PolicyTester() {
           {decision.matched_rules.length > 0 && (
             <details className="text-xs">
               <summary className="cursor-pointer text-muted-foreground">
-                Matched rules ({decision.matched_rules.length})
+                {tTester("matchedRulesSummary", { count: decision.matched_rules.length })}
               </summary>
               <ul className="mt-2 space-y-1 ms-4">
                 {decision.matched_rules.map((r, i) => (

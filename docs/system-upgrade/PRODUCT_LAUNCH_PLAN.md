@@ -264,6 +264,25 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — One-hundred-and-ninth batch — /admin/policies PolicyTester i18n
+
+`PolicyTester` block on `/admin/policies` carried 9 inlined
+English labels — title/subtitle, 3 form labels, "Evaluate"
+button, 3 decision-badge phrases ("Allowed", "Allowed — requires
+approval", "Denied"), and the "Matched rules (N)" summary.
+
+`admin.policies.tester` scope extended with 7 new keys
+(resourceLabel, decisionLabel with `{id}` ICU, matchedRulesSummary
+with `{count}` ICU, allowed/allowedRequiresApproval/denied) and
+the subtitle was harmonised to match the literal page copy
+("Run an action through the live ruleset" / "הרצת פעולה דרך
+ה-ruleset הפעיל").
+
+All 9 strings now resolve through `tTester(...)`. Hebrew badges:
+מותר / מותר — דורש אישור / נחסם.
+
+Full suite: 1300/1300 ✓. Typecheck clean.
+
 ### 2026-05-12 — One-hundred-and-eighth batch — admin toast labels i18n
 
 6 inlined English `toast.success/info/error` calls across three

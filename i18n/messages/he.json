@@ -116,13 +116,19 @@
       },
       "tester": {
         "title": "בודק policies",
-        "subtitle": "הדבק action_id ופרמטרים — תראה את ההחלטה והכללים שהתאימו",
+        "subtitle": "הרצת פעולה דרך ה-ruleset הפעיל",
         "actionIdLabel": "action_id",
         "paramsLabel": "פרמטרים (JSON)",
+        "resourceLabel": "resource (JSON, אופציונלי)",
         "evaluate": "הערך",
         "decision": "החלטה",
+        "decisionLabel": "decision: {id}",
         "matchedRules": "כללים שהתאימו",
-        "noMatch": "לא נמצאו כללים תואמים — דיפולט: allow"
+        "matchedRulesSummary": "כללים שהתאימו ({count})",
+        "noMatch": "לא נמצאו כללים תואמים — דיפולט: allow",
+        "allowed": "מותר",
+        "allowedRequiresApproval": "מותר — דורש אישור",
+        "denied": "נחסם"
       },
       "effects": {
         "allow": "אישור",

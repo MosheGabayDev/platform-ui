@@ -116,13 +116,19 @@
       },
       "tester": {
         "title": "Policy tester",
-        "subtitle": "Paste action_id + params — see decision and matched rules",
+        "subtitle": "Run an action through the live ruleset",
         "actionIdLabel": "action_id",
-        "paramsLabel": "Params (JSON)",
+        "paramsLabel": "params (JSON)",
+        "resourceLabel": "resource (JSON, optional)",
         "evaluate": "Evaluate",
         "decision": "Decision",
+        "decisionLabel": "decision: {id}",
         "matchedRules": "Matched rules",
-        "noMatch": "No rules matched — default: allow"
+        "matchedRulesSummary": "Matched rules ({count})",
+        "noMatch": "No rules matched — default: allow",
+        "allowed": "Allowed",
+        "allowedRequiresApproval": "Allowed — requires approval",
+        "denied": "Denied"
       },
       "effects": {
         "allow": "Allow",
