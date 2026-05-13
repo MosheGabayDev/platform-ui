@@ -179,23 +179,23 @@ function SkillCard({ entry }: { entry: SkillEntry }) {
                 className="text-[10px] border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
               >
                 <CheckCircle2 className="h-3 w-3 me-1" aria-hidden="true" />
-                Available to AI
+                {t("states.availableToAi")}
               </Badge>
             ) : (
               <Badge variant="outline" className="text-[10px] border-muted text-muted-foreground">
                 <PowerOff className="h-3 w-3 me-1" aria-hidden="true" />
-                Not available
+                {t("states.notAvailable")}
               </Badge>
             )}
           </div>
           <p className="text-xs text-muted-foreground mt-1">{skill.description}</p>
           <div className="text-[11px] text-muted-foreground mt-2 flex flex-wrap gap-x-3 gap-y-1">
-            <span>cost: <strong>{skill.estimated_cost_class}</strong></span>
-            <span>policy: <code>{skill.policy_action_id}</code></span>
+            <span>{t("fields.estimatedCost")}: <strong>{skill.estimated_cost_class}</strong></span>
+            <span>{t("fields.policy")}: <code>{skill.policy_action_id}</code></span>
             {skill.required_permissions.length > 0 && (
-              <span>permissions: {skill.required_permissions.join(", ")}</span>
+              <span>{t("fields.permissions")}: {skill.required_permissions.join(", ")}</span>
             )}
-            <span>source: {enablement.source}</span>
+            <span>{t("fields.source")}: {enablement.source}</span>
           </div>
 
           {/* Parameter schema preview */}

@@ -213,12 +213,17 @@
         "enabled": "מופעל",
         "disabled": "כבוי",
         "aiCallable": "AI",
-        "humanOnly": "רק בני אדם"
+        "humanOnly": "רק בני אדם",
+        "availableToAi": "זמין ל-AI",
+        "notAvailable": "לא זמין"
       },
       "fields": {
         "parameters": "פרמטרים",
         "riskLevel": "רמת סיכון",
-        "estimatedCost": "עלות מוערכת"
+        "estimatedCost": "עלות",
+        "policy": "policy",
+        "permissions": "הרשאות",
+        "source": "מקור"
       },
       "categories": {
         "read": "קריאה",

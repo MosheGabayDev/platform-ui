@@ -213,12 +213,17 @@
         "enabled": "Enabled",
         "disabled": "Disabled",
         "aiCallable": "AI",
-        "humanOnly": "Humans only"
+        "humanOnly": "Humans only",
+        "availableToAi": "Available to AI",
+        "notAvailable": "Not available"
       },
       "fields": {
         "parameters": "Parameters",
         "riskLevel": "Risk level",
-        "estimatedCost": "Estimated cost"
+        "estimatedCost": "cost",
+        "policy": "policy",
+        "permissions": "permissions",
+        "source": "source"
       },
       "categories": {
         "read": "Read",

@@ -264,6 +264,29 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-twenty-sixth batch — ai-skills card inline-string sweep
+
+`/admin/ai-skills` SkillCard had 6 more inline strings caught by
+the batch-125 orphan audit:
+
+- "Available to AI" / "Not available" badges → new
+  `states.{availableToAi,notAvailable}` (catalog already had
+  `humanOnly`; extended the same block).
+- "cost:" / "policy:" / "permissions:" / "source:" inline labels →
+  resolved through `fields.{estimatedCost,policy,permissions,source}`
+  (the `estimatedCost` key existed but was unused — heuristic
+  caught it as orphan).
+
+Orphan count 10 → 9. Remaining orphans:
+- `aiSkills.fields.riskLevel` — heuristic gap (page renders the
+  badge directly, no label).
+- `auditLog.kpi.{totalEvents,securityEvents}` — likely-removed KPI.
+- `auditLog.exportCsv.columns.*` — dynamic CSV column build.
+- `users.actions.menuLabel`, `signup.errors.orgNameRequired` —
+  one-off keys, worth investigating but not this batch.
+
+Full suite: 1300/1300 ✓. Typecheck clean.
+
 ### 2026-05-14 — One-hundred-and-twenty-fifth batch — orphan audit + ai-providers button drift
 
 New diagnostic script `scripts/audit-i18n-orphans.mjs`: walks every
