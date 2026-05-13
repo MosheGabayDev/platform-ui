@@ -264,6 +264,22 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-twenty-ninth batch — bump components/shell coverage baseline
+
+`components/shell/` coverage drifted from 57.87 → 89.24 during the
+i18n cleanup arc (batches 95+) as test files added intl wrappers
+that incidentally exercised more lines (drawer + sidebar render
+paths). Per the `baseline_update_rule` (≥5pp gain locks new
+floor), bumped the baseline 57.87 → 85.0 with a ~4pp tolerance
+below current. Locks in the gain — any future regression in
+shell test coverage now fails the gate.
+
+Coverage gate after: components/shell shows
+`current=89.24% baseline=85% drop=-4.24pp ✓`.
+
+Other layers untouched — they're either at 100% or already at a
+tight margin.
+
 ### 2026-05-14 — One-hundred-and-twenty-eighth batch — orphan gate wired to preflight + CI
 
 `audit-i18n-orphans.mjs --gate` now runs:

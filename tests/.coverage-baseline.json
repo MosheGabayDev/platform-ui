@@ -60,11 +60,11 @@
       "note": "TARGET FLOOR EXCEEDED. Lifted from 34.09% by coverage sprint — added smoke tests for detail-view (BoolBadge/InfoRow/DetailSection/DetailHeaderCard/DetailLoadingSkeleton/DetailBackButton), stats (StatCard/StatsGrid/KpiCard), empty-state, error-state, skeleton-card, page-shell, form (PlatformForm/FormError/FormActions), error-boundary, permission-gate, feature-gate, data-table (TableSkeleton/TablePagination), timeline (PlatformTimeline/TimelineEventItem/TimelineSkeleton). 2026-05-07."
     },
     "components/shell/": {
-      "lines": 57.87,
+      "lines": 85.0,
       "branches": 14,
       "functions": 17.18,
       "target_floor": 50,
-      "note": "TARGET FLOOR EXCEEDED. Lifted from 27.12% by coverage sprint — added smoke tests for aurora-background, bottom-nav, nav-items (filterNavByEnabledModules), connection-indicator, shortcuts-dialog, notification-drawer, accent-picker, sidebar-search. Bumped further to 57.87% by gap-closure sprint side-effects. 2026-05-07."
+      "note": "Bumped 57.87 → 85.0 (current 89.24) in batch 129 — i18n cleanup arc (batches 95+ ai-assistant + sidebar + brand) added incidental coverage as tests grew to cover useTranslations + locale wrappers. Per baseline_update_rule: ≥5pp gain locks new floor."
     },
     "app/api/proxy/": {
       "lines": 100,
