@@ -230,13 +230,16 @@ function AISettingsInner() {
                     }
                     rows={5}
                     maxLength={4000}
-                    placeholder="You are a helpful operations assistant for {org_name}…"
+                    placeholder={t("systemPrompt.placeholder", { orgPlaceholder: "{org_name}" })}
                     aria-invalid={Boolean(errors.system_prompt)}
                     aria-describedby={errors.system_prompt ? "system-prompt-error" : undefined}
                   />
                   <div className="flex justify-between text-[10px] text-muted-foreground">
                     <span>
-                      Tip: use <code>{"{org_name}"}</code> as a placeholder.
+                      {t.rich("systemPrompt.tip", {
+                        orgPlaceholder: "{org_name}",
+                        code: (chunks) => <code>{chunks}</code>,
+                      })}
                     </span>
                     <span>{draft.system_prompt.length}/4000</span>
                   </div>

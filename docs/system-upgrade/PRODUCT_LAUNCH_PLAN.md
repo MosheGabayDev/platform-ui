@@ -264,6 +264,31 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — One-hundred-and-fourteenth batch — three more admin string fixes
+
+Sweep of the remaining `title="X"` / `placeholder="X"` matches
+across admin pages — 4 more strings:
+
+`/admin/ai-providers`:
+- EmptyState `title="Could not load AI provider catalog"` →
+  `admin.aiProviders.loadError`.
+
+`/admin/settings`:
+- Clear-override button `aria-label` template + `title` →
+  `admin.settings.clearOverrideAria` (ICU `{scope}` + `{label}`)
+  and `admin.settings.clearOverrideTitle`. Added page-level `t`
+  in SettingRow.
+
+`/settings/ai`:
+- System-prompt Textarea `placeholder="You are a helpful operations
+  assistant for {org_name}…"` and the adjacent
+  `Tip: use <code>{org_name}</code> as a placeholder.` →
+  `selfServiceAi.systemPrompt.{placeholder,tip}` (rich text with
+  `<code>` and `{orgPlaceholder}` ICU param resolving to the literal
+  string `{org_name}` since users paste it verbatim into the prompt).
+
+Full suite: 1300/1300 ✓. Typecheck clean.
+
 ### 2026-05-12 — One-hundred-and-thirteenth batch — helpdesk root + ticket-detail chrome i18n
 
 Cleanup of PageShell + EmptyState chrome on /helpdesk root and

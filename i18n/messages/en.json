@@ -76,6 +76,8 @@
       "stats": {
         "settingCount": "{count, plural, =1 {1 setting} other {# settings}}"
       },
+      "clearOverrideAria": "Clear {scope}-scope override for {label}",
+      "clearOverrideTitle": "Clear override at this scope",
       "errors": {
         "mustBeNumber": "Value must be a number",
         "invalidJson": "Invalid JSON"
@@ -174,6 +176,7 @@
         "connectionFailed": "Connection failed: {error}",
         "errorUnknown": "unknown"
       },
+      "loadError": "Could not load AI provider catalog",
       "defaultModelLabel": "Default model:",
       "modelsAvailable": "{count, plural, =1 {1 model available} other {# models available}}",
       "credentialsExplainer": {
@@ -1283,6 +1286,10 @@
     "toasts": {
       "saved": "AI settings saved.",
       "reverted": "Reverted unsaved changes."
+    },
+    "systemPrompt": {
+      "placeholder": "You are a helpful operations assistant for {orgPlaceholder}…",
+      "tip": "Tip: use <code>{orgPlaceholder}</code> as a placeholder."
     }
   },
   "onboarding": {

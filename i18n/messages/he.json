@@ -76,6 +76,8 @@
       "stats": {
         "settingCount": "{count, plural, =1 {הגדרה אחת} other {# הגדרות}}"
       },
+      "clearOverrideAria": "נקה override ב-{scope} עבור {label}",
+      "clearOverrideTitle": "נקה override ברמת ה-scope הזה",
       "errors": {
         "mustBeNumber": "ערך חייב להיות מספר",
         "invalidJson": "JSON לא תקין"
@@ -174,6 +176,7 @@
         "connectionFailed": "החיבור נכשל: {error}",
         "errorUnknown": "לא ידוע"
       },
+      "loadError": "טעינת קטלוג ספקי ה-AI נכשלה",
       "defaultModelLabel": "מודל ברירת מחדל:",
       "modelsAvailable": "{count, plural, =1 {מודל אחד זמין} other {# מודלים זמינים}}",
       "credentialsExplainer": {
@@ -1283,6 +1286,10 @@
     "toasts": {
       "saved": "הגדרות AI נשמרו.",
       "reverted": "השינויים שלא נשמרו בוטלו."
+    },
+    "systemPrompt": {
+      "placeholder": "אתה עוזר תפעולי שימושי עבור {orgPlaceholder}…",
+      "tip": "טיפ: השתמשו ב-<code>{orgPlaceholder}</code> כ-placeholder."
     }
   },
   "onboarding": {

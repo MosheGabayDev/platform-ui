@@ -95,6 +95,7 @@ function SettingRow({
   onSaved: () => void;
 }) {
   const tErr = useTranslations("admin.settings.errors");
+  const t = useTranslations("admin.settings");
   const writeScope = def.allowed_scopes.includes("org") ? "org" : def.allowed_scopes[0];
   const writeScopeId = writeScope === "org" ? orgId : writeScope === "user" ? userId : null;
 
@@ -210,8 +211,8 @@ function SettingRow({
                 variant="outline"
                 disabled={mutation.isPending}
                 onClick={clear}
-                aria-label={`Clear ${writeScope}-scope override for ${def.label}`}
-                title="Clear override at this scope"
+                aria-label={t("clearOverrideAria", { scope: writeScope, label: def.label })}
+                title={t("clearOverrideTitle")}
               >
                 <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
               </Button>

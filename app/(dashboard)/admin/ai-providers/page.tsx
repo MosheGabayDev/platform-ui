@@ -491,7 +491,7 @@ function AIProvidersInner() {
           {(catalog.error || configs.error) && (
             <EmptyState
               icon={AlertCircle}
-              title="Could not load AI provider catalog"
+              title={t("loadError")}
               description={(catalog.error ?? configs.error)?.message ?? ""}
             />
           )}
