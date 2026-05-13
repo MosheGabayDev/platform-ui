@@ -977,6 +977,28 @@
       "empty": "אין פניות תואמות לסינון",
       "disabled": {
         "description": "מודול הלפדסק אינו מופעל לארגון שלך."
+      },
+      "detail": {
+        "sections": {
+          "details": "פרטים",
+          "timeline": "ציר זמן",
+          "actions": "פעולות"
+        },
+        "fields": {
+          "requesterId": "מזהה מבקש",
+          "assigneeId": "מזהה משויך",
+          "unassigned": "לא משויך",
+          "created": "נוצר",
+          "lastUpdate": "עדכון אחרון",
+          "responseSla": "SLA תגובה",
+          "resolutionSla": "SLA סגירה",
+          "breached": "(הופר)",
+          "category": "קטגוריה",
+          "comments": "תגובות",
+          "watchers": "צופים",
+          "tags": "תגיות"
+        },
+        "noTimelineEvents": "אין אירועים בציר הזמן."
       }
     },
     "technicians": {

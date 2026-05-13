@@ -977,6 +977,28 @@
       "empty": "No tickets match your filters",
       "disabled": {
         "description": "The Helpdesk module is not enabled for your organization."
+      },
+      "detail": {
+        "sections": {
+          "details": "Details",
+          "timeline": "Timeline",
+          "actions": "Actions"
+        },
+        "fields": {
+          "requesterId": "Requester ID",
+          "assigneeId": "Assignee ID",
+          "unassigned": "Unassigned",
+          "created": "Created",
+          "lastUpdate": "Last update",
+          "responseSla": "Response SLA",
+          "resolutionSla": "Resolution SLA",
+          "breached": "(BREACHED)",
+          "category": "Category",
+          "comments": "Comments",
+          "watchers": "Watchers",
+          "tags": "Tags"
+        },
+        "noTimelineEvents": "No timeline events yet."
       }
     },
     "technicians": {

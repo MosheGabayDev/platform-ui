@@ -9,6 +9,7 @@
  */
 import { use } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { motion, LazyMotion, domAnimation } from "framer-motion";
 import {
   HeadphonesIcon,
@@ -101,6 +102,9 @@ interface TicketDetailInnerProps {
 
 function TicketDetailInner({ id }: TicketDetailInnerProps) {
   const ticketId = Number(id);
+  const tDetail = useTranslations("helpdesk.tickets.detail");
+  const tSections = useTranslations("helpdesk.tickets.detail.sections");
+  const tFields = useTranslations("helpdesk.tickets.detail.fields");
   const { data: session } = useSession();
   const isAdmin = hasRole(session, "admin", "system_admin", "manager");
   const { data, isLoading, error } = useQuery({
@@ -198,37 +202,37 @@ function TicketDetailInner({ id }: TicketDetailInnerProps) {
             </p>
           </DetailSection>
 
-          <DetailSection title="Details">
+          <DetailSection title={tSections("details")}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
-              <InfoRow icon={User} label="Requester ID" value={ticket.requester_id} />
+              <InfoRow icon={User} label={tFields("requesterId")} value={ticket.requester_id} />
               <InfoRow
                 icon={UserPlus}
-                label="Assignee ID"
-                value={ticket.assignee_id ?? "Unassigned"}
+                label={tFields("assigneeId")}
+                value={ticket.assignee_id ?? tFields("unassigned")}
               />
-              <InfoRow icon={Calendar} label="Created" value={formatDate(ticket.created_at)} />
-              <InfoRow icon={Clock} label="Last update" value={formatDate(ticket.updated_at)} />
+              <InfoRow icon={Calendar} label={tFields("created")} value={formatDate(ticket.created_at)} />
+              <InfoRow icon={Clock} label={tFields("lastUpdate")} value={formatDate(ticket.updated_at)} />
               <InfoRow
                 icon={AlertTriangle}
-                label="Response SLA"
+                label={tFields("responseSla")}
                 value={
                   ticket.response_due_at
-                    ? `${formatDate(ticket.response_due_at)}${ticket.sla_response_breached ? " (BREACHED)" : ""}`
+                    ? `${formatDate(ticket.response_due_at)}${ticket.sla_response_breached ? ` ${tFields("breached")}` : ""}`
                     : "—"
                 }
               />
               <InfoRow
                 icon={AlertTriangle}
-                label="Resolution SLA"
+                label={tFields("resolutionSla")}
                 value={
                   ticket.resolution_due_at
-                    ? `${formatDate(ticket.resolution_due_at)}${ticket.sla_resolution_breached ? " (BREACHED)" : ""}`
+                    ? `${formatDate(ticket.resolution_due_at)}${ticket.sla_resolution_breached ? ` ${tFields("breached")}` : ""}`
                     : "—"
                 }
               />
               <InfoRow
                 icon={Tag}
-                label="Category"
+                label={tFields("category")}
                 value={
                   ticket.category
                     ? ticket.subcategory
@@ -237,23 +241,23 @@ function TicketDetailInner({ id }: TicketDetailInnerProps) {
                     : "—"
                 }
               />
-              <InfoRow icon={MessageSquare} label="Comments" value={ticket.comment_count} />
-              <InfoRow icon={Eye} label="Watchers" value={ticket.watchers.length} />
+              <InfoRow icon={MessageSquare} label={tFields("comments")} value={ticket.comment_count} />
+              <InfoRow icon={Eye} label={tFields("watchers")} value={ticket.watchers.length} />
               {ticket.tags.length > 0 && (
-                <InfoRow icon={Tag} label="Tags" value={ticket.tags.join(", ")} />
+                <InfoRow icon={Tag} label={tFields("tags")} value={ticket.tags.join(", ")} />
               )}
             </div>
           </DetailSection>
 
-          <DetailSection title="Timeline">
+          <DetailSection title={tSections("timeline")}>
             {events.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No timeline events yet.</p>
+              <p className="text-sm text-muted-foreground">{tDetail("noTimelineEvents")}</p>
             ) : (
               <PlatformTimeline events={toTimelineEvents(events)} />
             )}
           </DetailSection>
 
-          <DetailSection title="Actions">
+          <DetailSection title={tSections("actions")}>
             <TicketActions ticket={ticket} canManage={isAdmin} />
           </DetailSection>
         </motion.div>

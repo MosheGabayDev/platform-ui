@@ -264,6 +264,30 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — One-hundred-and-eleventh batch — /helpdesk/tickets/[id] detail page i18n
+
+The biggest single-page sweep in this arc. The ticket detail page
+had ~15 inlined English strings — 3 DetailSection titles
+(Details/Timeline/Actions), 10 InfoRow field labels (Requester ID
+/ Assignee ID / Created / Last update / Response SLA / Resolution
+SLA / Category / Comments / Watchers / Tags), the "Unassigned" /
+"(BREACHED)" fallback strings, and the timeline empty state.
+
+New i18n block `helpdesk.tickets.detail` (he/en) with three
+sub-scopes:
+- `sections`: details / timeline / actions
+- `fields`: requesterId / assigneeId / unassigned / created /
+  lastUpdate / responseSla / resolutionSla / breached / category
+  / comments / watchers / tags
+- `noTimelineEvents`
+
+Page now reads via three translators (`tDetail`, `tSections`,
+`tFields`). Hebrew: פרטים / ציר זמן / פעולות; מזהה מבקש / מזהה
+משויך / לא משויך / נוצר / עדכון אחרון / SLA תגובה / SLA סגירה /
+(הופר) / קטגוריה / תגובות / צופים / תגיות.
+
+Full suite: 1300/1300 ✓. Typecheck clean.
+
 ### 2026-05-12 — One-hundred-and-tenth batch — admin pages misc inline strings 🎯
 
 Sweep across three admin pages caught 10 more inlined English
