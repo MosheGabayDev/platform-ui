@@ -40,6 +40,9 @@ jobs:
       - name: Test coverage gate (batch 55)
         run: node scripts/audit-test-coverage.mjs --gate
 
+      - name: i18n orphan gate (batch 128)
+        run: node scripts/audit-i18n-orphans.mjs --gate
+
       - name: High-risk commit gate (ADR-037)
         run: node scripts/check-high-risk-commit.mjs
         env:

@@ -264,6 +264,24 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-twenty-eighth batch — orphan gate wired to preflight + CI
+
+`audit-i18n-orphans.mjs --gate` now runs:
+- preflight step 7/8 (between test-coverage gate and `next build`).
+- CI step right after the test-coverage gate.
+
+Locks in the 0/1626 orphan state from batch 127. Future commits
+that add a catalog key without a consumer reference (or that
+remove a consumer while leaving the key) fail before push.
+
+Three audit-style gates now active in preflight + CI:
+- i18n debt (no inline hardcoded English)
+- test coverage (every page has unit or E2E)
+- i18n orphan (no unused catalog leaves)
+
+Same lock-in pattern as eslint 0-errors (batch 33) and i18n
+0-debt (batch 53).
+
 ### 2026-05-14 — One-hundred-and-twenty-seventh batch — i18n orphans 9 → 0 🎯
 
 Improved `audit-i18n-orphans.mjs` heuristic to match dotted-path
