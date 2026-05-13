@@ -149,6 +149,55 @@ describe("AI demo slice — end-to-end (ADR-038)", () => {
     expect(res.actionProposal!.params).toEqual({ query: "tim" });
   });
 
+  it("notes.create chain runs end-to-end and writes audit entry (batch 138)", async () => {
+    // Same shape as the helpdesk.ticket.take chain above — exercises
+    // the new mutation surface (proposal → confirm → executor →
+    // category=ai audit) for one of the verticals wired in batches
+    // 131-132 to make sure the platform plumbing covers more than
+    // helpdesk.
+    useAssistantSession.getState().openDrawer();
+    const chat = await sendChatMessage({
+      message: "create note QBR notes | quarter business review action items",
+      context: null,
+    });
+    expect(chat.actionProposal).not.toBeNull();
+    expect(chat.actionProposal!.actionId).toBe("notes.create");
+
+    useAssistantSession.getState().sendMessage("create note QBR notes | ...");
+    useAssistantSession.getState().receiveResponse(chat.text);
+    useAssistantSession.getState().proposeAction(chat.actionProposal!);
+
+    const proposal = useAssistantSession.getState().pendingProposal!;
+    useAssistantSession.getState().confirmAction(proposal.tokenId);
+
+    const qc = new QueryClient();
+    const auditBefore = await fetchAuditLog({
+      page: 1,
+      per_page: 1000,
+      category: "ai",
+    });
+    const result = await runActionExecutor(
+      proposal.actionId,
+      proposal.params,
+      qc,
+    );
+    expect(result.message).toMatch(/Note created/i);
+    await flush();
+    const auditAfter = await fetchAuditLog({
+      page: 1,
+      per_page: 1000,
+      category: "ai",
+    });
+    expect(auditAfter.data.total).toBeGreaterThan(auditBefore.data.total);
+    const entry = auditAfter.data.entries.find(
+      (e) =>
+        e.action === "notes.create" &&
+        e.metadata.outcome === "success" &&
+        e.resource_type === "note",
+    );
+    expect(entry).toBeDefined();
+  });
+
   it("executor failure surfaces audit entry with outcome=error", async () => {
     const qc = new QueryClient();
     const auditBefore = await fetchAuditLog({

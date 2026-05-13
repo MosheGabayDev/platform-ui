@@ -264,6 +264,27 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-thirty-eighth batch — `notes.create` end-to-end demo-slice test
+
+Upgraded the AI action coverage from unit-level (batch 137) to
+end-to-end in `lib/platform/ai-actions/demo-slice.test.tsx`. Added
+an `it()` block that exercises the full
+`sendChatMessage → proposeAction → confirmAction → runActionExecutor → AuditLog`
+chain for `notes.create`, mirroring the existing `helpdesk.ticket.take`
+test. Verifies:
+
+- mock LLM proposes `notes.create` for `"create note … | …"`
+- executor returns `"Note created: …"`
+- audit log gains a `category="ai"` entry with
+  `action="notes.create"`, `outcome="success"`, `resource_type="note"`
+
+Locks in that the platform plumbing (proposal → confirmation →
+executor → audit emitter) covers more than just helpdesk now that
+batches 131–134 wired up four new verticals.
+
+Tests run: `npx vitest run` → **1309 passed (was 1308 — +1)**,
+`tsc --noEmit` clean, `check-coverage-baseline.mjs` ✓.
+
 ### 2026-05-14 — One-hundred-and-thirty-seventh batch — smoke-test the 7 new executors
 
 Locked in batches 130–134's executor work with smoke tests in
