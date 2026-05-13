@@ -264,6 +264,34 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — One-hundred-and-sixth batch — action-menu labels i18n (skills + policies)
+
+Four inlined English labels on action-menu rows fixed:
+
+`/admin/ai-skills`:
+- `"Copy skill id"` → `admin.aiSkills.actions.copySkillId`
+- `"Copy policy action id"` → `admin.aiSkills.actions.copyPolicyActionId`
+- `\`Copied ${id}\`` toast → `admin.aiSkills.actions.copied` with
+  `{value}` ICU param.
+
+`/admin/policies`:
+- `"Copy policy id"` → `admin.policies.actions.copyPolicyId`
+- `"Delete policy"` (label + confirmTitle) →
+  `admin.policies.actions.{deletePolicy,deleteConfirmTitle}`
+- Long delete-confirm description + the
+  "Policy deletion is not yet supported by the backend" toast →
+  matching `actions.*` keys.
+- `\`Copied ${id}\`` toast → `admin.policies.actions.copied`.
+
+i18n catalogs gained two new `actions` blocks (he/en) under
+admin.aiSkills + admin.policies. RecordAction labels and toast
+templates all flow through `tActions()` now. Hebrew strings use
+the natural action wording (העתק / מחק) plus the bilingual policy
+nomenclature ("policy id" left as the literal technical term in
+Hebrew per existing catalog pattern).
+
+Full suite: 1300/1300 ✓. Typecheck clean.
+
 ### 2026-05-12 — One-hundred-and-fifth batch — /admin/settings dead-label cleanup
 
 Last admin page in the cleanup arc. `/admin/settings`:

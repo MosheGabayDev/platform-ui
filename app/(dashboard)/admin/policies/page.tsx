@@ -106,39 +106,39 @@ function RuleRow({ rule }: { rule: PolicyRule }) {
 
 function PolicyCard({ policy }: { policy: Policy }) {
   const queryClient = useQueryClient();
+  const tActions = useTranslations("admin.policies.actions");
   const policyActions = useMemo<RecordAction<Policy>[]>(
     () => [
       {
         id: "copy-id",
         kind: "custom",
-        label: "Copy policy id",
+        label: tActions("copyPolicyId"),
         icon: ClipboardCopy,
         onInvoke: async (p) => {
           if (typeof navigator !== "undefined" && navigator.clipboard) {
             await navigator.clipboard.writeText(p.id);
-            toast.success(`Copied ${p.id}`);
+            toast.success(tActions("copied", { value: p.id }));
           }
         },
       },
       {
         id: "delete",
         kind: "delete",
-        label: "Delete policy",
+        label: tActions("deletePolicy"),
         // Out-of-scope until backend ships — gated to system_admin only.
         requiredRoles: ["system_admin"],
         visibleWhen: (p) => p.org_id !== null, // never delete system policies
         destructive: true,
-        confirmTitle: "Delete policy",
-        confirmDescription:
-          "This permanently removes the policy. Audit entries reference it by id.",
+        confirmTitle: tActions("deleteConfirmTitle"),
+        confirmDescription: tActions("deleteConfirmDescription"),
         confirmTypedName: (p) => p.id,
         onInvoke: () => {
           // Backend not implemented yet (Phase 5). Toast + tracker.
-          toast.info("Policy deletion is not yet supported by the backend.");
+          toast.info(tActions("deleteNotImplemented"));
         },
       },
     ],
-    [],
+    [tActions],
   );
   const mutation = usePlatformMutation({
     mutationFn: ({ id, enabled }: { id: string; enabled: boolean }) =>

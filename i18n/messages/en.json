@@ -128,6 +128,14 @@
         "allow": "Allow",
         "deny": "Deny",
         "require_approval": "Approval"
+      },
+      "actions": {
+        "copyPolicyId": "Copy policy id",
+        "deletePolicy": "Delete policy",
+        "deleteConfirmTitle": "Delete policy",
+        "deleteConfirmDescription": "This permanently removes the policy. Audit entries reference it by id.",
+        "deleteNotImplemented": "Policy deletion is not yet supported by the backend.",
+        "copied": "Copied {value}"
       }
     },
     "aiProviders": {
@@ -194,6 +202,11 @@
         "medium": "Medium",
         "high": "High",
         "critical": "Critical"
+      },
+      "actions": {
+        "copySkillId": "Copy skill id",
+        "copyPolicyActionId": "Copy policy action id",
+        "copied": "Copied {value}"
       }
     },
     "aiUsage": {

@@ -102,35 +102,36 @@ function SkillCard({ entry }: { entry: SkillEntry }) {
   const t = useTranslations("admin.aiSkills");
   const tCat = useTranslations("admin.aiSkills.categories");
   const tRisk = useTranslations("admin.aiSkills.risk");
+  const tActions = useTranslations("admin.aiSkills.actions");
   const skillActions = useMemo<RecordAction<SkillEntry>[]>(
     () => [
       {
         id: "copy-id",
         kind: "custom",
-        label: "Copy skill id",
+        label: tActions("copySkillId"),
         icon: ClipboardCopy,
         onInvoke: async (e) => {
           if (typeof navigator !== "undefined" && navigator.clipboard) {
             await navigator.clipboard.writeText(e.skill.id);
-            toast.success(`Copied ${e.skill.id}`);
+            toast.success(tActions("copied", { value: e.skill.id }));
           }
         },
       },
       {
         id: "copy-policy-action",
         kind: "custom",
-        label: "Copy policy action id",
+        label: tActions("copyPolicyActionId"),
         icon: ClipboardCopy,
         visibleWhen: (e) => Boolean(e.skill.policy_action_id),
         onInvoke: async (e) => {
           if (typeof navigator !== "undefined" && navigator.clipboard) {
             await navigator.clipboard.writeText(e.skill.policy_action_id);
-            toast.success(`Copied ${e.skill.policy_action_id}`);
+            toast.success(tActions("copied", { value: e.skill.policy_action_id }));
           }
         },
       },
     ],
-    [],
+    [tActions],
   );
   const mutation = usePlatformMutation({
     mutationFn: setSkillEnablement,

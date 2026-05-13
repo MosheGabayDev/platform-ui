@@ -128,6 +128,14 @@
         "allow": "אישור",
         "deny": "דחייה",
         "require_approval": "מצריך אישור"
+      },
+      "actions": {
+        "copyPolicyId": "העתק policy id",
+        "deletePolicy": "מחק policy",
+        "deleteConfirmTitle": "מחק policy",
+        "deleteConfirmDescription": "פעולה זו תמחק את ה-policy לצמיתות. רישומי audit ימשיכו להפנות אליו לפי id.",
+        "deleteNotImplemented": "מחיקת policy עדיין לא נתמכת ב-backend.",
+        "copied": "הועתק {value}"
       }
     },
     "aiProviders": {
@@ -194,6 +202,11 @@
         "medium": "בינוני",
         "high": "גבוה",
         "critical": "קריטי"
+      },
+      "actions": {
+        "copySkillId": "העתק skill id",
+        "copyPolicyActionId": "העתק policy action id",
+        "copied": "הועתק {value}"
       }
     },
     "aiUsage": {
