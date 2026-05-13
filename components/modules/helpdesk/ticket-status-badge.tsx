@@ -1,7 +1,11 @@
 "use client";
 /**
  * TicketStatusBadge — colored chip for ticket status.
+ *
+ * Labels resolve through `helpdesk.tickets.status.<status>` so the
+ * badge reads in both locales.
  */
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import type { TicketStatus } from "@/lib/modules/helpdesk/types";
 
@@ -12,17 +16,11 @@ const STATUS_CLASSES: Record<TicketStatus, string> = {
   closed: "bg-muted text-muted-foreground border-border",
 };
 
-const STATUS_LABELS: Record<TicketStatus, string> = {
-  new: "New",
-  in_progress: "In progress",
-  resolved: "Resolved",
-  closed: "Closed",
-};
-
 export function TicketStatusBadge({ status }: { status: TicketStatus }) {
+  const t = useTranslations("helpdesk.tickets.status");
   return (
     <Badge variant="outline" className={STATUS_CLASSES[status]}>
-      {STATUS_LABELS[status]}
+      {t(status)}
     </Badge>
   );
 }

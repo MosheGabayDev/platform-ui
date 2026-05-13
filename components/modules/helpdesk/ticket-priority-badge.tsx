@@ -1,7 +1,13 @@
 "use client";
 /**
  * TicketPriorityBadge — colored chip for ticket priority.
+ *
+ * Labels resolve through `helpdesk.tickets.priority.<priority>` so the
+ * badge reads in both locales. The category-union ↔ i18n parity
+ * invariant in `lib/i18n-catalog.test.ts` guarantees every
+ * TicketPriority value has matching he/en leaves once added.
  */
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import type { TicketPriority } from "@/lib/modules/helpdesk/types";
 
@@ -12,17 +18,11 @@ const PRIORITY_CLASSES: Record<TicketPriority, string> = {
   critical: "bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-500/30",
 };
 
-const PRIORITY_LABELS: Record<TicketPriority, string> = {
-  low: "Low",
-  medium: "Medium",
-  high: "High",
-  critical: "Critical",
-};
-
 export function TicketPriorityBadge({ priority }: { priority: TicketPriority }) {
+  const t = useTranslations("helpdesk.tickets.priority");
   return (
     <Badge variant="outline" className={PRIORITY_CLASSES[priority]}>
-      {PRIORITY_LABELS[priority]}
+      {t(priority)}
     </Badge>
   );
 }

@@ -264,6 +264,29 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — Ninety-third batch — TicketStatusBadge + TicketPriorityBadge i18n
+
+Two more module badges had inlined English labels — `TicketStatusBadge`
+(New/In progress/Resolved/Closed) and `TicketPriorityBadge` (Low/
+Medium/High/Critical). The audit gate's heuristic regex requires
+2+ words per match, so single-word labels stayed below the
+5-string threshold and slipped through. Caught by direct inspection
+after batch 91/92.
+
+Both now read via:
+- `helpdesk.tickets.status.<status>` (i18n keys already existed
+  for the page filter dropdown).
+- `helpdesk.tickets.priority.<priority>` (same).
+
+**Category-union ↔ i18n parity extended** to include:
+- `TicketStatus` (5 keys incl. "all").
+- `TicketPriority` (5 keys incl. "all").
+
+Both already had matching catalog entries — invariant now locks
+them in.
+
+Full suite: 1300/1300 ✓. Typecheck clean.
+
 ### 2026-05-12 — Ninety-second batch — extend i18n debt gate to components/modules
 
 Followup on batch 91. `audit-i18n-debt.mjs` previously only scanned

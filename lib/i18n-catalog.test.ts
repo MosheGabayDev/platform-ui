@@ -190,6 +190,18 @@ describe("i18n catalog parity (he ↔ en)", () => {
         // filter option used by /audit-log page.
         values: ["all", "login", "create", "update", "delete", "admin", "ai", "security"],
       },
+      {
+        scope: "helpdesk.tickets.status",
+        // TicketStatus values + the "all" filter option. Used by
+        // TicketStatusBadge and the /helpdesk/tickets filter dropdown.
+        values: ["all", "new", "in_progress", "resolved", "closed"],
+      },
+      {
+        scope: "helpdesk.tickets.priority",
+        // TicketPriority values + the "all" filter option. Used by
+        // TicketPriorityBadge and the /helpdesk/tickets filter dropdown.
+        values: ["all", "low", "medium", "high", "critical"],
+      },
     ];
     function resolve(obj: Catalog, dotted: string): unknown {
       let node: unknown = obj;
