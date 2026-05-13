@@ -1525,6 +1525,26 @@
       "active": "פעיל"
     }
   },
+  "jobStatus": {
+    "pending": "ממתין",
+    "queued": "בתור",
+    "running": "רץ",
+    "success": "הצלחה",
+    "succeeded": "הסתיים בהצלחה",
+    "partial": "חלקי",
+    "failed": "נכשל",
+    "cancelled": "בוטל",
+    "scheduled": "מתוזמן",
+    "in_progress": "בתהליך",
+    "completed": "הושלם",
+    "pending_approval": "ממתין לאישור",
+    "approved": "אושר",
+    "rejected": "נדחה",
+    "healthy": "תקין",
+    "disabled_by_flag": "מושבת ב-flag",
+    "unavailable": "נעול בתוכנית",
+    "unknown": "לא ידוע"
+  },
   "roleBadge": {
     "admin": "אדמין",
     "system_admin": "אדמין מערכת",

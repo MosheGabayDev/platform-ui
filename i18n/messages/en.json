@@ -1525,6 +1525,26 @@
       "active": "Active"
     }
   },
+  "jobStatus": {
+    "pending": "Pending",
+    "queued": "Queued",
+    "running": "Running",
+    "success": "Success",
+    "succeeded": "Succeeded",
+    "partial": "Partial",
+    "failed": "Failed",
+    "cancelled": "Cancelled",
+    "scheduled": "Scheduled",
+    "in_progress": "In progress",
+    "completed": "Completed",
+    "pending_approval": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "healthy": "Healthy",
+    "disabled_by_flag": "Flag-disabled",
+    "unavailable": "Plan-locked",
+    "unknown": "Unknown"
+  },
   "roleBadge": {
     "admin": "Admin",
     "system_admin": "System admin",

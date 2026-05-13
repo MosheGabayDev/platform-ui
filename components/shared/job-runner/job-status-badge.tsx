@@ -18,110 +18,112 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import type { JobStatus } from "@/lib/modules/job-runner/types";
 
 interface StatusMeta {
   icon: LucideIcon;
   tone: string;
-  label: string;
+  /** i18n leaf under `jobStatus.<status>`. */
+  labelKey: string;
 }
 
 const STATUS_META: Record<string, StatusMeta> = {
   pending: {
     icon: Clock,
     tone: "border-cyan-500/30 bg-cyan-500/15 text-cyan-700 dark:text-cyan-400",
-    label: "Pending",
+    labelKey: "pending",
   },
   queued: {
     icon: Clock,
     tone: "border-cyan-500/30 bg-cyan-500/15 text-cyan-700 dark:text-cyan-400",
-    label: "Queued",
+    labelKey: "queued",
   },
   running: {
     icon: Loader2,
     tone: "border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-400",
-    label: "Running",
+    labelKey: "running",
   },
   success: {
     icon: CheckCircle2,
     tone: "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
-    label: "Success",
+    labelKey: "success",
   },
   succeeded: {
     icon: CheckCircle2,
     tone: "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
-    label: "Succeeded",
+    labelKey: "succeeded",
   },
   partial: {
     icon: AlertTriangle,
     tone: "border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-400",
-    label: "Partial",
+    labelKey: "partial",
   },
   failed: {
     icon: XCircle,
     tone: "border-rose-500/30 bg-rose-500/15 text-rose-700 dark:text-rose-400",
-    label: "Failed",
+    labelKey: "failed",
   },
   cancelled: {
     icon: CircleSlash2,
     tone: "border-muted text-muted-foreground",
-    label: "Cancelled",
+    labelKey: "cancelled",
   },
   // Long-running lifecycle statuses (e.g. maintenance windows)
   scheduled: {
     icon: CalendarClock,
     tone: "border-cyan-500/30 bg-cyan-500/15 text-cyan-700 dark:text-cyan-400",
-    label: "Scheduled",
+    labelKey: "scheduled",
   },
   in_progress: {
     icon: CircleDot,
     tone: "border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-400",
-    label: "In progress",
+    labelKey: "in_progress",
   },
   completed: {
     icon: CheckCircle2,
     tone: "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
-    label: "Completed",
+    labelKey: "completed",
   },
   // Approval-flow statuses (cap 13)
   pending_approval: {
     icon: Clock,
     tone: "border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-400",
-    label: "Pending",
+    labelKey: "pending_approval",
   },
   approved: {
     icon: ShieldCheck,
     tone: "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
-    label: "Approved",
+    labelKey: "approved",
   },
   rejected: {
     icon: XCircle,
     tone: "border-rose-500/30 bg-rose-500/15 text-rose-700 dark:text-rose-400",
-    label: "Rejected",
+    labelKey: "rejected",
   },
   // Module-registry statuses (cap 18)
   healthy: {
     icon: CheckCircle2,
     tone: "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
-    label: "Healthy",
+    labelKey: "healthy",
   },
   disabled_by_flag: {
     icon: AlertTriangle,
     tone: "border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-400",
-    label: "Flag-disabled",
+    labelKey: "disabled_by_flag",
   },
   unavailable: {
     icon: Lock,
     tone: "border-rose-500/30 bg-rose-500/15 text-rose-700 dark:text-rose-400",
-    label: "Plan-locked",
+    labelKey: "unavailable",
   },
 };
 
 const FALLBACK: StatusMeta = {
   icon: Clock,
   tone: "border-muted text-muted-foreground",
-  label: "Unknown",
+  labelKey: "unknown",
 };
 
 interface JobStatusBadgeProps {
@@ -132,16 +134,21 @@ interface JobStatusBadgeProps {
 }
 
 export function JobStatusBadge({ status, label, className }: JobStatusBadgeProps) {
-  const meta = STATUS_META[String(status)] ?? { ...FALLBACK, label: String(status) || FALLBACK.label };
+  const t = useTranslations("jobStatus");
+  const meta = STATUS_META[String(status)] ?? FALLBACK;
   const Icon = meta.icon;
   const isRunning = status === "running";
+  // Unknown status: surface the raw string rather than the i18n "unknown"
+  // fallback so admins can see what came in.
+  const translated =
+    meta === FALLBACK && String(status) ? String(status) : t(meta.labelKey);
   return (
     <Badge variant="outline" className={`${meta.tone} ${className ?? ""}`.trim()}>
       <Icon
         className={`h-3 w-3 me-1 ${isRunning ? "animate-spin" : ""}`}
         aria-hidden="true"
       />
-      {label ?? meta.label}
+      {label ?? translated}
     </Badge>
   );
 }

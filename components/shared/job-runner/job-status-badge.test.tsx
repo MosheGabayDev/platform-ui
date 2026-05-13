@@ -1,8 +1,15 @@
 import { describe, it, expect, afterEach } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { screen, cleanup } from "@testing-library/react";
+import { renderWithIntl } from "@/lib/test-utils/intl";
 import { JobStatusBadge } from "./job-status-badge";
 
 afterEach(cleanup);
+
+// Default to English locale so label assertions stay stable. Hebrew
+// rendering is covered by the i18n catalog parity tests.
+function render(ui: React.ReactElement) {
+  return renderWithIntl(ui, { locale: "en" });
+}
 
 describe("JobStatusBadge", () => {
   it("renders the canonical label for known statuses", () => {

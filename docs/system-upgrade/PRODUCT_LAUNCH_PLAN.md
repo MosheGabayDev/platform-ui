@@ -264,6 +264,42 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — Ninety-fourth batch — JobStatusBadge i18n (17 statuses)
+
+Biggest single-component i18n fix in the cleanup arc. `JobStatusBadge`
+is the shared primitive rendering status chips for jobs, lifecycle
+events (maintenance windows), approvals, and module-registry
+states — used across `/admin/modules`, `/helpdesk/approvals`,
+`/helpdesk/batch`, `/helpdesk/maintenance`. It carried 17 inlined
+English `label` fields per `StatusMeta` row. None of the call sites
+passed the `label` prop override, so the badge always displayed
+English regardless of locale.
+
+Refactor:
+- `StatusMeta.label` → `StatusMeta.labelKey` (i18n key under new
+  `jobStatus.*` scope).
+- Component reads via `useTranslations("jobStatus")`.
+- Open-enum fallback for unknown statuses surfaces the raw string
+  (not the i18n "unknown" leaf) so admins see what came in.
+
+i18n catalogs gained a new top-level `jobStatus` block with all
+17 statuses + `unknown`:
+- pending/queued/running/success/succeeded/partial/failed/cancelled
+- scheduled/in_progress/completed
+- pending_approval/approved/rejected
+- healthy/disabled_by_flag/unavailable
+
+Hebrew translations follow the pricing-tiers + helpdesk patterns:
+ממתין / בתור / רץ / הצלחה / נכשל / בוטל / מתוזמן / בתהליך / הושלם /
+ממתין לאישור / אושר / נדחה / תקין / מושבת ב-flag / נעול בתוכנית.
+
+Tests fixed: `job-status-badge.test.tsx` now wraps each render with
+`renderWithIntl` (locale: "en" — label assertions stay stable;
+Hebrew rendering covered by the catalog parity invariants). 15/15
+existing assertions preserved.
+
+Full suite: 1300/1300 ✓. Typecheck clean.
+
 ### 2026-05-12 — Ninety-third batch — TicketStatusBadge + TicketPriorityBadge i18n
 
 Two more module badges had inlined English labels — `TicketStatusBadge`
