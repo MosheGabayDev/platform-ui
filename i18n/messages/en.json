@@ -1606,6 +1606,7 @@
       "createNote": "Create a note with the given title",
       "createBookmark": "Add a bookmark for the given URL",
       "linkWhatsapp": "Start a WhatsApp linking flow",
+      "relinkWhatsapp": "Generate a fresh QR for an existing WhatsApp session",
       "unlinkWhatsapp": "Unlink the WhatsApp session by id"
     },
     "keyboardShortcuts": {

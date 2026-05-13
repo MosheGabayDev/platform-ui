@@ -65,6 +65,9 @@ const CANCEL_BATCH_RE = /\bcancel\s+batch\s+#?(\d{3,6})\b/i;
 const SEARCH_USERS_RE = /\bsearch\s+users?\s+(?:for\s+)?["']?([\w@. .-]+?)["']?\s*$/i;
 const DEACTIVATE_USER_RE = /\bdeactivate\s+user\s+#?(\d{1,8})\b/i;
 const RESET_PASSWORD_RE = /\breset\s+password\s+(?:for\s+)?user\s+#?(\d{1,8})\b/i;
+const LINK_WHATSAPP_RE = /\blink\s+whatsapp\b/i;
+const RELINK_WHATSAPP_RE = /\brelink\s+whatsapp\s+(?:session\s+)?#?(\d{1,6})\b/i;
+const UNLINK_WHATSAPP_RE = /\bunlink\s+whatsapp\s+(?:session\s+)?#?(\d{1,6})\b/i;
 // note: "create note <title> | <body>" — pipe separates title from body.
 const CREATE_NOTE_RE = /\bcreate\s+note\s+(.+?)\s*\|\s*(.+)$/i;
 // "add bookmark <title> https://..."
@@ -227,6 +230,55 @@ function extractIntent(message: string): MockIntent {
         capabilityLevel: "WRITE_LOW",
         expiresAt: Date.now() + 60_000,
         params: { title, url },
+      },
+    };
+  }
+
+  const unlinkWa = message.match(UNLINK_WHATSAPP_RE);
+  if (unlinkWa) {
+    const sessionId = Number(unlinkWa[1]);
+    return {
+      text: `Unlink WhatsApp session #${sessionId}? Archived chats stay; only the live link is severed.`,
+      proposal: {
+        tokenId: makeTokenId(),
+        actionId: "whatsapp.session.unlink",
+        label: `Unlink WhatsApp session #${sessionId}`,
+        targetSummary: `Sever live WhatsApp link for session #${sessionId}`,
+        capabilityLevel: "DESTRUCTIVE",
+        expiresAt: Date.now() + 30_000,
+        params: { sessionId },
+      },
+    };
+  }
+
+  const relinkWa = message.match(RELINK_WHATSAPP_RE);
+  if (relinkWa) {
+    const sessionId = Number(relinkWa[1]);
+    return {
+      text: `Re-link WhatsApp session #${sessionId}? A fresh QR will be generated.`,
+      proposal: {
+        tokenId: makeTokenId(),
+        actionId: "whatsapp.session.relink",
+        label: `Re-link WhatsApp session #${sessionId}`,
+        targetSummary: `Generate a new QR for WhatsApp session #${sessionId}`,
+        capabilityLevel: "WRITE_LOW",
+        expiresAt: Date.now() + 60_000,
+        params: { sessionId },
+      },
+    };
+  }
+
+  if (LINK_WHATSAPP_RE.test(message)) {
+    return {
+      text: `Start a new WhatsApp linking flow? You'll be prompted to scan a QR code.`,
+      proposal: {
+        tokenId: makeTokenId(),
+        actionId: "whatsapp.session.link",
+        label: `Link a new WhatsApp account`,
+        targetSummary: `Start WhatsApp QR linking flow`,
+        capabilityLevel: "WRITE_LOW",
+        expiresAt: Date.now() + 60_000,
+        params: {},
       },
     };
   }

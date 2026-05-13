@@ -264,6 +264,36 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-thirty-sixth batch — mock LLM grammar for WhatsApp + bump test TTL
+
+3 new intent regexes in `lib/api/ai.ts` for the WhatsApp
+executors from batch 134:
+
+- `LINK_WHATSAPP_RE = /\blink\s+whatsapp\b/i` → zero-arg
+  `whatsapp.session.link` (WRITE_LOW, 60s TTL).
+- `RELINK_WHATSAPP_RE = /\brelink\s+whatsapp\s+(?:session\s+)?#?(\d{1,6})\b/i`
+  → `whatsapp.session.relink({ sessionId })` (WRITE_LOW, 60s TTL).
+- `UNLINK_WHATSAPP_RE = /\bunlink\s+whatsapp\s+(?:session\s+)?#?(\d{1,6})\b/i`
+  → `whatsapp.session.unlink({ sessionId })` (DESTRUCTIVE, 30s
+  TTL).
+
+Batch-87 grammar↔skill invariant test extended: 9 → 12 phrases.
+Help-docs `aiShortcuts` gained the missing
+`whatsapp.session.relink` entry with a new
+`help.aiShortcuts.relinkWhatsapp` i18n key (he: "צור QR חדש לסשן
+WhatsApp קיים").
+
+**End-to-end functional surface across the whole AI shell:**
+12 ai_callable skills × 12 grammar phrases × 12 executors.
+Every `proposal → confirm → execute → audit` chain works for
+every registered skill.
+
+Side fix: the grammar↔skill invariant test runs `sendChatMessage`
+12 times; each call sleeps 400ms (mock latency), so the total
+exceeds vitest's 5s default. Set a 15s per-test timeout.
+
+Full suite: 1300/1300 ✓. Typecheck clean.
+
 ### 2026-05-14 — One-hundred-and-thirty-fifth batch — tighten executor↔skill invariant bidirectional
 
 Following batch 134 closing the parity gap, the batch-77

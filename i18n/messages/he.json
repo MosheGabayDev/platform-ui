@@ -1606,6 +1606,7 @@
       "createNote": "צור פתק עם כותרת",
       "createBookmark": "הוסף סימנייה לכתובת URL",
       "linkWhatsapp": "התחל זרימת חיבור WhatsApp",
+      "relinkWhatsapp": "צור QR חדש לסשן WhatsApp קיים",
       "unlinkWhatsapp": "נתק חיבור WhatsApp לפי מספר"
     },
     "keyboardShortcuts": {

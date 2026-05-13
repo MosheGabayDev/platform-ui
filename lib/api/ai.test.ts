@@ -138,7 +138,7 @@ describe("sendChatMessage (mock mode)", () => {
     expect(res.actionProposal).toBeNull();
   });
 
-  it("every recognized intent.actionId maps to a registered skill (batch 87)", async () => {
+  it("every recognized intent.actionId maps to a registered skill (batch 87)", { timeout: 15_000 }, async () => {
     // Cross-cut: the mock LLM grammar in lib/api/ai.ts proposes
     // action_ids. Each MUST be a real entry in the AI skill registry.
     // Typo here → user confirms → validateInvocation can't find the
@@ -155,6 +155,9 @@ describe("sendChatMessage (mock mode)", () => {
       "reset password for user 9",
       "create note Standup recap | We discussed Q2 priorities.",
       "add bookmark Postmortem template https://wiki.example/pm-template",
+      "link whatsapp",
+      "relink whatsapp 3",
+      "unlink whatsapp session 4",
     ];
     const seen = new Set<string>();
     for (const phrase of phrases) {
@@ -164,6 +167,6 @@ describe("sendChatMessage (mock mode)", () => {
     }
     const orphans = [...seen].filter((id) => !skillIds.has(id));
     expect(orphans).toEqual([]);
-    expect(seen.size).toBe(9);
+    expect(seen.size).toBe(12);
   });
 });

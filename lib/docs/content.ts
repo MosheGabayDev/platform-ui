@@ -374,6 +374,12 @@ const AI_SHORTCUTS: AIShortcut[] = [
     capability_level: "WRITE_LOW",
   },
   {
+    phrase: "relink whatsapp NNNN",
+    action_id: "whatsapp.session.relink",
+    descriptionKey: "help.aiShortcuts.relinkWhatsapp",
+    capability_level: "WRITE_LOW",
+  },
+  {
     phrase: "unlink whatsapp NNNN",
     action_id: "whatsapp.session.unlink",
     descriptionKey: "help.aiShortcuts.unlinkWhatsapp",
