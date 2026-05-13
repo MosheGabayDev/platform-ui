@@ -1701,6 +1701,10 @@
     "technician": "Technician",
     "user": "User"
   },
+  "dataTable": {
+    "selectAllAria": "Select all on page",
+    "selectRowAria": "Select row {id}"
+  },
   "shell": {
     "brand": {
       "name": "Platform Engineer",

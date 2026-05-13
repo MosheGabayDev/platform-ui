@@ -12,6 +12,7 @@
  */
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   useReactTable,
   getCoreRowModel,
@@ -44,6 +45,7 @@ export function DataTable<TData>({
   loadingRows = 5,
   selection,
 }: DataTableProps<TData>) {
+  const t = useTranslations("dataTable");
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const table = useReactTable({
@@ -98,7 +100,7 @@ export function DataTable<TData>({
                   <TableHead className="w-9 text-xs font-medium">
                     <input
                       type="checkbox"
-                      aria-label="Select all on page"
+                      aria-label={t("selectAllAria")}
                       checked={!!allOnPageSelected}
                       onChange={togglePage}
                       onClick={(e) => e.stopPropagation()}
@@ -163,7 +165,7 @@ export function DataTable<TData>({
                       <TableCell className="py-2.5 w-9">
                         <input
                           type="checkbox"
-                          aria-label={`Select row ${rowId}`}
+                          aria-label={t("selectRowAria", { id: rowId })}
                           checked={!!isSelected}
                           onChange={() => toggleRow(rowId)}
                           onClick={(e) => e.stopPropagation()}

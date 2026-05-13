@@ -264,6 +264,26 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — One-hundred-and-twenty-first batch — DataTable selection aria i18n
+
+Two inline aria-labels in the shared `DataTable` primitive:
+"Select all on page" and `\`Select row ${rowId}\``. Both fire on
+every row across the entire app — visible to screen readers in
+all locales.
+
+New top-level `dataTable` scope (he/en):
+- `selectAllAria` — סמן הכל בעמוד / Select all on page
+- `selectRowAria` (ICU `{id}`) — סמן שורה {id} / Select row {id}
+
+DataTable now reads via `useTranslations("dataTable")`. Existing
+7 tests for the primitive still pass — they don't assert on
+aria-labels.
+
+The shared primitive being i18n-aware means every list-row
+surface across the app automatically respects locale.
+
+Full suite: 1300/1300 ✓. Typecheck clean.
+
 ### 2026-05-12 — One-hundred-and-twentieth batch — AI assistant chrome i18n
 
 The four remaining ai-assistant components — `FloatingAIButton`,

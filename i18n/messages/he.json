@@ -1701,6 +1701,10 @@
     "technician": "טכנאי",
     "user": "משתמש"
   },
+  "dataTable": {
+    "selectAllAria": "סמן הכל בעמוד",
+    "selectRowAria": "סמן שורה {id}"
+  },
   "shell": {
     "brand": {
       "name": "Platform Engineer",
