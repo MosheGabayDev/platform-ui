@@ -184,6 +184,12 @@ describe("i18n catalog parity (he ↔ en)", () => {
         // ModuleCategory values from lib/modules/module-registry/types.ts
         values: ["core", "ai", "operations", "growth", "experimental"],
       },
+      {
+        scope: "admin.auditLog.categories",
+        // AuditCategory values from lib/modules/audit/types.ts + the "all"
+        // filter option used by /audit-log page.
+        values: ["all", "login", "create", "update", "delete", "admin", "ai", "security"],
+      },
     ];
     function resolve(obj: Catalog, dotted: string): unknown {
       let node: unknown = obj;

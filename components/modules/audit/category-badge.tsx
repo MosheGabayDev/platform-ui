@@ -1,7 +1,13 @@
 "use client";
 /**
  * AuditCategoryBadge — colored chip for audit event category.
+ *
+ * Labels resolve through `admin.auditLog.categories.<category>` so the
+ * badge reads correctly in both locales. The i18n catalog parity
+ * invariant (lib/i18n-catalog.test.ts) guarantees every AuditCategory
+ * value has matching he/en leaves.
  */
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import type { AuditCategory } from "@/lib/modules/audit/types";
 
@@ -15,20 +21,11 @@ const TONE: Record<AuditCategory, string> = {
   security: "border-red-500/40 bg-red-500/15 text-red-700 dark:text-red-400",
 };
 
-const LABEL: Record<AuditCategory, string> = {
-  login: "Login",
-  create: "Create",
-  update: "Update",
-  delete: "Delete",
-  admin: "Admin",
-  ai: "AI",
-  security: "Security",
-};
-
 export function AuditCategoryBadge({ category }: { category: AuditCategory }) {
+  const t = useTranslations("admin.auditLog.categories");
   return (
     <Badge variant="outline" className={TONE[category]}>
-      {LABEL[category]}
+      {t(category)}
     </Badge>
   );
 }

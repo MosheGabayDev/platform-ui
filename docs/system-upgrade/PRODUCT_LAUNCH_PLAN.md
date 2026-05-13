@@ -264,6 +264,29 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — Ninety-first batch — AuditCategory i18n debt + parity extension
+
+**i18n debt fixed:** `components/modules/audit/category-badge.tsx`
+inlined English labels (`Login/Create/Update/Delete/Admin/AI/
+Security`) — the `audit-i18n-debt.mjs` script missed it because it
+only scans `app/(dashboard)`, not `components/`. The badge now
+reads via `useTranslations("admin.auditLog.categories")` so it
+renders in Hebrew (התחברות / יצירה / עדכון / מחיקה / מנהל / AI /
+אבטחה) when the catalog is loaded with `locale=he`.
+
+**Invariant extended:** the batch-88 category-union parity check
+(in `lib/i18n-catalog.test.ts`) now covers `AuditCategory` too —
+8 values: login/create/update/delete/admin/ai/security + "all"
+(the filter dropdown option used by `/audit-log` page).
+
+Now every category discriminated union the UI exposes has a
+matching i18n leaf set:
+- SettingCategory (6 keys + all) ✓
+- ModuleCategory (5 keys + all) ✓
+- AuditCategory (7 keys + all) ✓
+
+Full suite: 1300/1300 ✓.
+
 ### 2026-05-12 — Ninetieth batch — settings key consumers ↔ catalog parity 🎯
 
 New cross-cut in `lib/api/settings.test.ts`: every literal
