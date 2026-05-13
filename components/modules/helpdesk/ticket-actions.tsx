@@ -65,7 +65,7 @@ export function TicketActions({ ticket, canManage }: TicketActionsProps) {
   if (!canManage) {
     return (
       <p className="text-sm text-muted-foreground">
-        You don&apos;t have permission to act on this ticket.
+        {tActions("permissionDenied")}
       </p>
     );
   }
@@ -81,7 +81,7 @@ export function TicketActions({ ticket, canManage }: TicketActionsProps) {
             size="sm"
           >
             <UserPlus className="h-4 w-4 me-1.5" aria-hidden="true" />
-            Take ticket
+            {tActions("take")}
           </ActionButton>
         )}
 
@@ -93,7 +93,7 @@ export function TicketActions({ ticket, canManage }: TicketActionsProps) {
             size="sm"
           >
             <CheckCircle className="h-4 w-4 me-1.5" aria-hidden="true" />
-            Resolve
+            {tActions("resolve")}
           </ActionButton>
         )}
 
@@ -111,21 +111,21 @@ export function TicketActions({ ticket, canManage }: TicketActionsProps) {
             size="sm"
           >
             <UsersIcon className="h-4 w-4 me-1.5" aria-hidden="true" />
-            Reassign
+            {tActions("reassign")}
           </ActionButton>
         )}
       </div>
 
       <div className="space-y-2 pt-2 border-t border-border">
         <label className="text-sm font-medium" htmlFor="ticket-comment">
-          Add comment
+          {tActions("addCommentLabel")}
         </label>
         <Textarea
           id="ticket-comment"
           value={commentDraft}
           onChange={(e) => setCommentDraft(e.target.value)}
           rows={2}
-          placeholder="Add a comment..."
+          placeholder={tActions("addCommentPlaceholder")}
           maxLength={500}
         />
         <div className="flex justify-end">
@@ -148,7 +148,7 @@ export function TicketActions({ ticket, canManage }: TicketActionsProps) {
             size="sm"
           >
             <MessageSquarePlus className="h-4 w-4 me-1.5" aria-hidden="true" />
-            Post comment
+            {tActions("postComment")}
           </ActionButton>
         </div>
       </div>

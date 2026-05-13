@@ -5,7 +5,7 @@ import { renderWithIntl } from "@/lib/test-utils/intl";
 import type { ReactNode } from "react";
 
 const render = (node: ReactNode) =>
-  renderWithIntl(node as React.ReactElement);
+  renderWithIntl(node as React.ReactElement, { locale: "en" });
 import { TicketActions } from "./ticket-actions";
 import type { TicketDetail } from "@/lib/modules/helpdesk/types";
 
@@ -195,6 +195,6 @@ describe("TicketActions", () => {
     // ConfirmActionDialog renders its content. The mutation should NOT have fired.
     expect(mutateCalls.resolve).not.toHaveBeenCalled();
     // Dialog body text from RESOLVE_ACTION
-    expect(screen.getByText(/האם אתה בטוח שברצונך לסגור/)).toBeTruthy();
+    expect(screen.getByText(/Are you sure you want to close/i)).toBeTruthy();
   });
 });

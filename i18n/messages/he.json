@@ -1280,7 +1280,14 @@
     },
     "actions": {
       "close": "סגור קריאה",
-      "closeConfirm": "האם אתה בטוח שברצונך לסגור את הקריאה? פעולה זו ניתנת להחזרה רק ע״י מנהל."
+      "closeConfirm": "האם אתה בטוח שברצונך לסגור את הקריאה? פעולה זו ניתנת להחזרה רק ע״י מנהל.",
+      "take": "קח קריאה",
+      "resolve": "סגור",
+      "reassign": "העבר",
+      "addCommentLabel": "הוסף תגובה",
+      "addCommentPlaceholder": "כתוב תגובה…",
+      "postComment": "פרסם תגובה",
+      "permissionDenied": "אין לך הרשאה לפעול על קריאה זו."
     }
   },
   "selfServiceAi": {

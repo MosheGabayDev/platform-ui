@@ -1280,7 +1280,14 @@
     },
     "actions": {
       "close": "Close ticket",
-      "closeConfirm": "Are you sure you want to close this ticket? Only an admin can reopen it."
+      "closeConfirm": "Are you sure you want to close this ticket? Only an admin can reopen it.",
+      "take": "Take ticket",
+      "resolve": "Resolve",
+      "reassign": "Reassign",
+      "addCommentLabel": "Add comment",
+      "addCommentPlaceholder": "Add a comment…",
+      "postComment": "Post comment",
+      "permissionDenied": "You don't have permission to act on this ticket."
     }
   },
   "selfServiceAi": {

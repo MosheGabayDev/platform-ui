@@ -264,6 +264,29 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-twenty-second batch — TicketActions i18n
+
+7 inline English strings in `TicketActions` — the helpdesk ticket
+detail-page action panel (Take / Resolve / Reassign / comment):
+
+- "Take ticket" / "Resolve" / "Reassign" buttons
+- "Add comment" label + "Add a comment…" textarea placeholder
+- "Post comment" button
+- "You don't have permission to act on this ticket."
+  permission-denied paragraph
+
+All routed through new `helpdesk.actions.{take,resolve,reassign,
+addCommentLabel,addCommentPlaceholder,postComment,permissionDenied}`
+keys. Hebrew: קח קריאה / סגור / העבר / הוסף תגובה / כתוב תגובה… /
+פרסם תגובה / "אין לך הרשאה לפעול על קריאה זו.".
+
+Test updated to use `locale: "en"` so the assertion regexes
+(`/Take ticket/`, `/don't have permission/`, etc.) stay stable.
+The previous Hebrew "ברצונך לסגור" assertion swapped to English
+"Are you sure you want to close" to match the new locale.
+
+Full suite: 1300/1300 ✓. Typecheck clean.
+
 ### 2026-05-12 — One-hundred-and-twenty-first batch — DataTable selection aria i18n
 
 Two inline aria-labels in the shared `DataTable` primitive:
