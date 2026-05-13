@@ -14,6 +14,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ShieldAlert, ShieldCheck, Skull } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -27,20 +28,22 @@ import {
   runActionExecutor,
 } from "@/lib/platform/ai-actions/executors";
 
-const LEVEL_META: Record<
-  CapabilityLevel,
-  { icon: LucideIcon; label: string; tone: string }
-> = {
-  READ: { icon: ShieldCheck, label: "Read-only", tone: "text-emerald-600 dark:text-emerald-400 border-emerald-500/30 bg-emerald-500/10" },
-  WRITE_LOW: { icon: ShieldCheck, label: "Write (low risk)", tone: "text-cyan-600 dark:text-cyan-400 border-cyan-500/30 bg-cyan-500/10" },
-  WRITE_HIGH: { icon: ShieldAlert, label: "Write (high risk)", tone: "text-amber-600 dark:text-amber-400 border-amber-500/30 bg-amber-500/10" },
-  DESTRUCTIVE: { icon: Skull, label: "Destructive", tone: "text-rose-600 dark:text-rose-400 border-rose-500/30 bg-rose-500/10" },
+// Labels resolved via `shell.aiAssistant.actionPreview.capabilityLevels.<key>`
+// at render — meta is pure icon+tone descriptor.
+const LEVEL_META: Record<CapabilityLevel, { icon: LucideIcon; tone: string }> = {
+  READ: { icon: ShieldCheck, tone: "text-emerald-600 dark:text-emerald-400 border-emerald-500/30 bg-emerald-500/10" },
+  WRITE_LOW: { icon: ShieldCheck, tone: "text-cyan-600 dark:text-cyan-400 border-cyan-500/30 bg-cyan-500/10" },
+  WRITE_HIGH: { icon: ShieldAlert, tone: "text-amber-600 dark:text-amber-400 border-amber-500/30 bg-amber-500/10" },
+  DESTRUCTIVE: { icon: Skull, tone: "text-rose-600 dark:text-rose-400 border-rose-500/30 bg-rose-500/10" },
 };
 
-function formatRemaining(ms: number): string {
-  if (ms <= 0) return "expired";
+function formatRemaining(
+  ms: number,
+  t: (key: string, params?: Record<string, string | number>) => string,
+): string {
+  if (ms <= 0) return t("tokenExpired");
   const s = Math.ceil(ms / 1000);
-  return `${s}s`;
+  return t("tokenSeconds", { s });
 }
 
 interface ActionPreviewCardProps {
@@ -48,6 +51,8 @@ interface ActionPreviewCardProps {
 }
 
 function ActionPreviewCardInner({ proposal }: ActionPreviewCardProps) {
+  const t = useTranslations("shell.aiAssistant.actionPreview");
+  const tLevels = useTranslations("shell.aiAssistant.actionPreview.capabilityLevels");
   const confirmAction = useAssistantSession((s) => s.confirmAction);
   const rejectAction = useAssistantSession((s) => s.rejectAction);
   const expireConfirmation = useAssistantSession((s) => s.expireConfirmation);
@@ -128,21 +133,21 @@ function ActionPreviewCardInner({ proposal }: ActionPreviewCardProps) {
             "text-xs px-2 py-0.5 rounded border",
             remaining <= 5_000 ? "border-rose-500/40 text-rose-600 dark:text-rose-400" : "border-border text-muted-foreground",
           )}
-          aria-label={`Token expires in ${formatRemaining(remaining)}`}
+          aria-label={t("tokenAria", { remaining: formatRemaining(remaining, t) })}
         >
-          {formatRemaining(remaining)}
+          {formatRemaining(remaining, t)}
         </div>
       </div>
 
       <div className="text-xs">
         <span className={cn("inline-block rounded px-2 py-0.5 border", meta.tone)}>
-          {meta.label}
+          {tLevels(proposal.capabilityLevel)}
         </span>
       </div>
 
       {Object.keys(proposal.params).length > 0 && (
         <details className="text-xs">
-          <summary className="cursor-pointer text-muted-foreground">Parameters</summary>
+          <summary className="cursor-pointer text-muted-foreground">{t("parameters")}</summary>
           <pre className="mt-1 overflow-auto rounded bg-muted p-2">
             {JSON.stringify(proposal.params, null, 2)}
           </pre>
@@ -156,7 +161,7 @@ function ActionPreviewCardInner({ proposal }: ActionPreviewCardProps) {
           onClick={() => rejectAction(proposal.tokenId)}
           disabled={isExecuting || remaining <= 0}
         >
-          Reject
+          {t("reject")}
         </Button>
         <Button
           variant="default"
@@ -164,7 +169,7 @@ function ActionPreviewCardInner({ proposal }: ActionPreviewCardProps) {
           onClick={() => void handleConfirm()}
           disabled={isExecuting || remaining <= 0}
         >
-          {isExecuting ? "Executing…" : "Confirm"}
+          {isExecuting ? t("executing") : t("confirm")}
         </Button>
       </div>
     </div>

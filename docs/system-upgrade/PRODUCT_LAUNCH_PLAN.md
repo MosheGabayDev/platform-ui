@@ -264,6 +264,35 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — One-hundred-and-nineteenth batch — ActionPreviewCard i18n
+
+8 inline English strings in the AI shell's `ActionPreviewCard` —
+the confirmation dialog every AI-proposed action flows through:
+
+- 4 `CapabilityLevel` labels in `LEVEL_META` (Read-only / Write
+  (low risk) / Write (high risk) / Destructive).
+- `Token expires in ${...}` aria template.
+- "expired" / `${s}s` countdown formatters.
+- "Parameters" details summary.
+- "Reject" / "Confirm" / "Executing…" buttons.
+
+New scope `shell.aiAssistant.actionPreview` (he/en) with sub-
+scopes `capabilityLevels` (4 keys) + flat keys (tokenAria,
+tokenExpired, tokenSeconds with ICU `{s}`, parameters, reject,
+confirm, executing). Hebrew: קריאה בלבד / כתיבה (סיכון נמוך) /
+כתיבה (סיכון גבוה) / הרסני; דחה / אשר / מבצע…; פרמטרים; פג.
+
+`LEVEL_META.label` field dropped; labels resolve via `tLevels(
+proposal.capabilityLevel)` at render.
+
+`formatRemaining()` now takes a translator param to read the
+"expired"/"{s}s" keys.
+
+Test updated to use `renderWithIntl(..., { locale: "en" })` —
+label assertions stay stable.
+
+Full suite: 1300/1300 ✓. Typecheck clean.
+
 ### 2026-05-12 — One-hundred-and-eighteenth batch — sidebar brand strings i18n
 
 Sidebar header carried 3 inline brand strings: monogram "PE",

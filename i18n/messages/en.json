@@ -1707,6 +1707,23 @@
       "tagline": "AI-Powered Platform",
       "monogram": "PE"
     },
+    "aiAssistant": {
+      "actionPreview": {
+        "capabilityLevels": {
+          "READ": "Read-only",
+          "WRITE_LOW": "Write (low risk)",
+          "WRITE_HIGH": "Write (high risk)",
+          "DESTRUCTIVE": "Destructive"
+        },
+        "tokenAria": "Token expires in {remaining}",
+        "tokenExpired": "expired",
+        "tokenSeconds": "{s}s",
+        "parameters": "Parameters",
+        "reject": "Reject",
+        "confirm": "Confirm",
+        "executing": "Executing…"
+      }
+    },
     "notifications": {
       "title": "Notifications",
       "markAllRead": "Mark all as read",

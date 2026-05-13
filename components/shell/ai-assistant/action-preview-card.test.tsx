@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { render, screen, fireEvent, cleanup, act } from "@testing-library/react";
+import { screen, fireEvent, cleanup, act } from "@testing-library/react";
+import { renderWithIntl } from "@/lib/test-utils/intl";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import type { ReactNode } from "react";
+import type { ReactElement, ReactNode } from "react";
 import { ActionPreviewCard } from "./action-preview-card";
 import {
   useAssistantSession,
@@ -41,11 +42,17 @@ function resetStore() {
   });
 }
 
-function withQueryClient(node: ReactNode): ReactNode {
+function withQueryClient(node: ReactNode): ReactElement {
   const qc = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
   return <QueryClientProvider client={qc}>{node}</QueryClientProvider>;
+}
+
+// Use English locale so label assertions stay stable. Hebrew rendering
+// covered by the i18n catalog parity invariants.
+function render(node: ReactNode) {
+  return renderWithIntl(withQueryClient(node) as ReactElement, { locale: "en" });
 }
 
 beforeEach(() => {
@@ -59,7 +66,7 @@ afterEach(() => {
 
 describe("ActionPreviewCard (AI-shell-C)", () => {
   it("renders nothing when there is no pending proposal", () => {
-    const { container } = render(withQueryClient(<ActionPreviewCard />));
+    const { container } = render(<ActionPreviewCard />);
     expect(container.firstChild).toBeNull();
   });
 
@@ -79,7 +86,7 @@ describe("ActionPreviewCard (AI-shell-C)", () => {
       pendingProposal: proposal,
     });
 
-    render(withQueryClient(<ActionPreviewCard />));
+    render(<ActionPreviewCard />);
     expect(screen.getByText("Take ticket #1002")).toBeTruthy();
     expect(screen.getByText(/Assign helpdesk ticket/)).toBeTruthy();
     expect(screen.getByText(/Write \(low risk\)/i)).toBeTruthy();
@@ -104,7 +111,7 @@ describe("ActionPreviewCard (AI-shell-C)", () => {
       pendingProposal: proposal,
     });
 
-    render(withQueryClient(<ActionPreviewCard />));
+    render(<ActionPreviewCard />);
     expect(screen.getByText(/Write \(high risk\)/i)).toBeTruthy();
   });
 
@@ -124,7 +131,7 @@ describe("ActionPreviewCard (AI-shell-C)", () => {
       pendingProposal: proposal,
     });
 
-    render(withQueryClient(<ActionPreviewCard />));
+    render(<ActionPreviewCard />);
     fireEvent.click(screen.getByRole("button", { name: /Reject/i }));
 
     const s = useAssistantSession.getState();
@@ -148,7 +155,7 @@ describe("ActionPreviewCard (AI-shell-C)", () => {
       pendingProposal: proposal,
     });
 
-    render(withQueryClient(<ActionPreviewCard />));
+    render(<ActionPreviewCard />);
     // "30s" or "29s" depending on timing
     const text = screen.getByLabelText(/Token expires/i).textContent ?? "";
     expect(text).toMatch(/^(2\d|30)s$/);
@@ -170,7 +177,7 @@ describe("ActionPreviewCard (AI-shell-C)", () => {
       pendingProposal: proposal,
     });
 
-    render(withQueryClient(<ActionPreviewCard />));
+    render(<ActionPreviewCard />);
     // The <pre> with the JSON dump must contain ticketId
     expect(screen.getByText(/"ticketId": 1002/)).toBeTruthy();
   });
@@ -192,7 +199,7 @@ describe("ActionPreviewCard (AI-shell-C)", () => {
       pendingProposal: proposal,
     });
 
-    render(withQueryClient(<ActionPreviewCard />));
+    render(<ActionPreviewCard />);
     // Advance past the TTL — the 500ms tick will eventually mark it expired.
     await act(async () => {
       await vi.advanceTimersByTimeAsync(2_000);

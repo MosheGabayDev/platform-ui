@@ -1707,6 +1707,23 @@
       "tagline": "פלטפורמה מבוססת AI",
       "monogram": "PE"
     },
+    "aiAssistant": {
+      "actionPreview": {
+        "capabilityLevels": {
+          "READ": "קריאה בלבד",
+          "WRITE_LOW": "כתיבה (סיכון נמוך)",
+          "WRITE_HIGH": "כתיבה (סיכון גבוה)",
+          "DESTRUCTIVE": "הרסני"
+        },
+        "tokenAria": "ה-token פג בעוד {remaining}",
+        "tokenExpired": "פג",
+        "tokenSeconds": "{s}ש",
+        "parameters": "פרמטרים",
+        "reject": "דחה",
+        "confirm": "אשר",
+        "executing": "מבצע…"
+      }
+    },
     "notifications": {
       "title": "התראות",
       "markAllRead": "סמן הכל כנקרא",
