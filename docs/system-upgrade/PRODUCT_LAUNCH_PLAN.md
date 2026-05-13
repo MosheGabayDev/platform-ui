@@ -264,6 +264,26 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — Ninety-second batch — extend i18n debt gate to components/modules
+
+Followup on batch 91. `audit-i18n-debt.mjs` previously only scanned
+`app/(dashboard)/**/page.tsx` — that's why the `AuditCategoryBadge`
+debt slipped through. Extended the walker to also cover
+`components/modules/**/*.tsx` (the per-module consumer surfaces;
+`components/ui/` shadcn primitives and `components/shell/` chrome
+deliberately not in scope).
+
+Verification:
+- Current code → 0/0 flagged.
+- Synthetic violation in `components/modules/_violation_test/bad.tsx`
+  with 5 capitalized strings → gate exit 1, lists the file.
+
+Now both `(dashboard)` pages and `components/modules` are locked
+in. The gate runs as preflight step 5/7 and CI step 5 — drift in
+either surface fails before push.
+
+Full suite: 1300/1300 ✓.
+
 ### 2026-05-12 — Ninety-first batch — AuditCategory i18n debt + parity extension
 
 **i18n debt fixed:** `components/modules/audit/category-badge.tsx`

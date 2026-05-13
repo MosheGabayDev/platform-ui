@@ -20,16 +20,37 @@
 import fs from "node:fs";
 import path from "node:path";
 
-function walk(dir, out = []) {
+function walkPages(dir, out = []) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const p = path.join(dir, entry.name).split(path.sep).join("/");
-    if (entry.isDirectory()) walk(p, out);
+    if (entry.isDirectory()) walkPages(p, out);
     else if (entry.name === "page.tsx") out.push(p);
   }
   return out;
 }
 
-const pages = walk("app/(dashboard)");
+// Module-level components (consumer surfaces, not shadcn primitives or
+// shell chrome). Batch 92 added this dimension after AuditCategoryBadge
+// shipped with inlined English labels that the page-only walker missed.
+function walkComponents(dir, out = []) {
+  if (!fs.existsSync(dir)) return out;
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const p = path.join(dir, entry.name).split(path.sep).join("/");
+    if (entry.isDirectory()) walkComponents(p, out);
+    else if (
+      entry.name.endsWith(".tsx") &&
+      !entry.name.endsWith(".test.tsx")
+    ) {
+      out.push(p);
+    }
+  }
+  return out;
+}
+
+const pages = [
+  ...walkPages("app/(dashboard)"),
+  ...walkComponents("components/modules"),
+];
 const results = [];
 
 for (const file of pages) {
