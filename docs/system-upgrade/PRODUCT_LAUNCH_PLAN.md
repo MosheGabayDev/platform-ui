@@ -264,6 +264,35 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-thirty-third batch — users.reset_password closes the loop
+
+Final non-WhatsApp ai_callable skill executor lands:
+
+- **New API client** `lib/api/users.ts` `requestPasswordReset(id)` →
+  `RequestPasswordResetResponse` (success / message / `user_id` +
+  `email_queued_at`). MOCK_MODE returns a synthetic queued
+  response. Backend POST `/api/proxy/users/<id>/reset-password`
+  reserved for R042.
+- **New executor** `users.reset_password` in
+  `lib/platform/ai-actions/executors.ts` — wraps the client.
+  No cache invalidation (out-of-band email side-effect).
+- **New grammar regex** `RESET_PASSWORD_RE = /\breset\s+password
+  \s+(?:for\s+)?user\s+#?(\d{1,8})\b/i` → proposes
+  `users.reset_password` with WRITE_LOW capability + 60s TTL.
+
+Batch-87 grammar↔skill invariant test extended: 8 → 9 phrases
+(including "reset password for user 9").
+
+**Executor registry: 8 → 9.** AI-callable skills without
+executors: 4 → 3 — all 3 remaining are whatsapp.session.{link,
+relink,unlink}, owned by the parallel WhatsApp agent.
+
+The user-management AI surface is now end-to-end functional:
+search / deactivate / reset_password all flow proposal → confirm
+→ execute → audit.
+
+Full suite: 1300/1300 ✓. Typecheck clean.
+
 ### 2026-05-14 — One-hundred-and-thirty-second batch — mock LLM grammar for 3 new actions
 
 `lib/api/ai.ts` mock intent grammar gained 3 new patterns matching

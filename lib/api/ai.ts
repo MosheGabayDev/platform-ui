@@ -64,6 +64,7 @@ const CANCEL_MAINTENANCE_RE = /\bcancel\s+maintenance\s+#?(\d{3,6})\b/i;
 const CANCEL_BATCH_RE = /\bcancel\s+batch\s+#?(\d{3,6})\b/i;
 const SEARCH_USERS_RE = /\bsearch\s+users?\s+(?:for\s+)?["']?([\w@. .-]+?)["']?\s*$/i;
 const DEACTIVATE_USER_RE = /\bdeactivate\s+user\s+#?(\d{1,8})\b/i;
+const RESET_PASSWORD_RE = /\breset\s+password\s+(?:for\s+)?user\s+#?(\d{1,8})\b/i;
 // note: "create note <title> | <body>" — pipe separates title from body.
 const CREATE_NOTE_RE = /\bcreate\s+note\s+(.+?)\s*\|\s*(.+)$/i;
 // "add bookmark <title> https://..."
@@ -156,6 +157,23 @@ function extractIntent(message: string): MockIntent {
         capabilityLevel: "READ",
         expiresAt: Date.now() + 60_000,
         params: { query },
+      },
+    };
+  }
+
+  const resetPassword = message.match(RESET_PASSWORD_RE);
+  if (resetPassword) {
+    const userId = Number(resetPassword[1]);
+    return {
+      text: `Send a password-reset email to user #${userId}? They'll receive a one-time link.`,
+      proposal: {
+        tokenId: makeTokenId(),
+        actionId: "users.reset_password",
+        label: `Reset password for user #${userId}`,
+        targetSummary: `Email password-reset link to user account #${userId}`,
+        capabilityLevel: "WRITE_LOW",
+        expiresAt: Date.now() + 60_000,
+        params: { userId },
       },
     };
   }

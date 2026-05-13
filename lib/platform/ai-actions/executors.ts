@@ -21,7 +21,7 @@ import {
 } from "@/lib/api/helpdesk";
 import { cancelMaintenanceWindow } from "@/lib/api/helpdesk.maintenance";
 import { cancelBatchTask } from "@/lib/api/helpdesk.batch";
-import { fetchUsers, setUserActive } from "@/lib/api/users";
+import { fetchUsers, setUserActive, requestPasswordReset } from "@/lib/api/users";
 import { addNote } from "@/lib/api/notes";
 import { addBookmark } from "@/lib/api/bookmarks";
 import { queryKeys } from "@/lib/api/query-keys";
@@ -92,6 +92,12 @@ const EXECUTORS: Record<string, ActionExecutor> = {
     await queryClient.invalidateQueries({ queryKey: queryKeys.users.all() });
     await queryClient.invalidateQueries({ queryKey: queryKeys.users.detail(userId) });
     return { message: `User #${userId} deactivated.` };
+  },
+  "users.reset_password": async (params) => {
+    const userId = asNumber(params.userId, "userId");
+    const res = await requestPasswordReset(userId);
+    // No cache invalidation — this is an out-of-band email side effect.
+    return { message: res.message };
   },
   "notes.create": async (params, queryClient) => {
     const title = asString(params.title, "title");

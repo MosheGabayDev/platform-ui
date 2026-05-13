@@ -258,6 +258,34 @@ export async function updateUser(id: number, input: EditUserInput): Promise<User
   return apiFetch<UserMutationResponse>(`/${id}`, { method: "PATCH", body: JSON.stringify(input) });
 }
 
+/**
+ * Trigger a password-reset email for a user. Admin (or self).
+ *
+ * MOCK_MODE: returns a synthetic "email queued" response without
+ * dispatching anything. Backend POST `/api/proxy/users/<id>/reset-password`
+ * will mint a token + email it via the SES path once R042 lands.
+ */
+export interface RequestPasswordResetResponse {
+  success: boolean;
+  message: string;
+  data: { user_id: number; email_queued_at: string };
+}
+export async function requestPasswordReset(
+  id: number,
+): Promise<RequestPasswordResetResponse> {
+  if (MOCK_MODE) {
+    return {
+      success: true,
+      message: `(mock) password-reset email queued for user ${id}`,
+      data: { user_id: id, email_queued_at: new Date().toISOString() },
+    };
+  }
+  return apiFetch<RequestPasswordResetResponse>(`/${id}/reset-password`, {
+    method: "POST",
+    body: JSON.stringify({}),
+  });
+}
+
 /** Activate or deactivate a user. Admin only. */
 export async function setUserActive(
   id: number,

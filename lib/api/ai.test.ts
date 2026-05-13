@@ -152,6 +152,7 @@ describe("sendChatMessage (mock mode)", () => {
       "cancel batch 1004",
       "search users for alice",
       "deactivate user 7",
+      "reset password for user 9",
       "create note Standup recap | We discussed Q2 priorities.",
       "add bookmark Postmortem template https://wiki.example/pm-template",
     ];
@@ -163,6 +164,6 @@ describe("sendChatMessage (mock mode)", () => {
     }
     const orphans = [...seen].filter((id) => !skillIds.has(id));
     expect(orphans).toEqual([]);
-    expect(seen.size).toBe(8);
+    expect(seen.size).toBe(9);
   });
 });
