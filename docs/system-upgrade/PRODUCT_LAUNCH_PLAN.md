@@ -264,6 +264,28 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — One-hundred-and-eighth batch — admin toast labels i18n
+
+6 inlined English `toast.success/info/error` calls across three
+admin pages → i18n. Each catches Hebrew users mid-flow with
+English notifications.
+
+- `/admin/policies` line 147: `Policy ${enabled ? "disabled" : "enabled"}.`
+  → `admin.policies.actions.{enabled,disabled}` (Policy הופעל /
+  Policy הושבת).
+- `/admin/ai-providers`: `"Saved."`, `Connected — ${model} (${latency}ms)`,
+  `Connection failed: ${error ?? "unknown"}` →
+  `admin.aiProviders.toasts.{saved,connected,connectionFailed,errorUnknown}`
+  with ICU `{model}` / `{latency}` / `{error}` params.
+- `/settings/ai`: `"AI settings saved."`, `"Reverted unsaved changes."`
+  → `selfServiceAi.toasts.{saved,reverted}`.
+
+`tested_model: string | null` + `latency_ms: number | null` →
+coerced to empty string / 0 for ICU param contract
+(`string | number | Date`).
+
+Full suite: 1300/1300 ✓. Typecheck clean.
+
 ### 2026-05-12 — One-hundred-and-seventh batch — extend audit-i18n-debt to meta-record labels
 
 `audit-i18n-debt.mjs`'s 2+ word heuristic kept missing single-word

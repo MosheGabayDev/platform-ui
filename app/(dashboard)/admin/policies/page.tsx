@@ -144,7 +144,7 @@ function PolicyCard({ policy }: { policy: Policy }) {
     mutationFn: ({ id, enabled }: { id: string; enabled: boolean }) =>
       setPolicyEnabled(id, enabled),
     onSuccess: () => {
-      toast.success(`Policy ${policy.enabled ? "disabled" : "enabled"}.`);
+      toast.success(tActions(policy.enabled ? "disabled" : "enabled"));
       void queryClient.invalidateQueries({ queryKey: queryKeys.policies.all() });
     },
   });

@@ -135,7 +135,9 @@
         "deleteConfirmTitle": "מחק policy",
         "deleteConfirmDescription": "פעולה זו תמחק את ה-policy לצמיתות. רישומי audit ימשיכו להפנות אליו לפי id.",
         "deleteNotImplemented": "מחיקת policy עדיין לא נתמכת ב-backend.",
-        "copied": "הועתק {value}"
+        "copied": "הועתק {value}",
+        "enabled": "Policy הופעל.",
+        "disabled": "Policy הושבת."
       }
     },
     "aiProviders": {
@@ -159,6 +161,12 @@
         "testConnection": "בדוק חיבור",
         "save": "שמור",
         "cancel": "ביטול"
+      },
+      "toasts": {
+        "saved": "נשמר.",
+        "connected": "התחבר — {model} ({latency}ms)",
+        "connectionFailed": "החיבור נכשל: {error}",
+        "errorUnknown": "לא ידוע"
       },
       "states": {
         "verified": "מאומת",
@@ -1207,7 +1215,11 @@
     "title": "תצורת AI",
     "subtitle": "הגדרת התנהגות סייען ה-AI עבור הארגון",
     "loading": "טוען…",
-    "permissionDescription": "נדרש תפקיד org_admin או system_admin להגדרת AI."
+    "permissionDescription": "נדרש תפקיד org_admin או system_admin להגדרת AI.",
+    "toasts": {
+      "saved": "הגדרות AI נשמרו.",
+      "reverted": "השינויים שלא נשמרו בוטלו."
+    }
   },
   "onboarding": {
     "title": "ברוך הבא — נגדיר יחד את הפלטפורמה",

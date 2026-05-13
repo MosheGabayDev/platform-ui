@@ -118,7 +118,7 @@ function AISettingsInner() {
       return { success: true } as const;
     },
     onSuccess: () => {
-      toast.success("AI settings saved.");
+      toast.success(t("toasts.saved"));
       void queryClient.invalidateQueries({ queryKey: queryKeys.settings.all() });
     },
   });
@@ -151,7 +151,7 @@ function AISettingsInner() {
         default_model: defaultModel.setting.value,
         max_tokens_per_message: maxTokens.setting.value,
       });
-      toast.info("Reverted unsaved changes.");
+      toast.info(t("toasts.reverted"));
     }
   }
 

@@ -135,7 +135,9 @@
         "deleteConfirmTitle": "Delete policy",
         "deleteConfirmDescription": "This permanently removes the policy. Audit entries reference it by id.",
         "deleteNotImplemented": "Policy deletion is not yet supported by the backend.",
-        "copied": "Copied {value}"
+        "copied": "Copied {value}",
+        "enabled": "Policy enabled.",
+        "disabled": "Policy disabled."
       }
     },
     "aiProviders": {
@@ -159,6 +161,12 @@
         "testConnection": "Test connection",
         "save": "Save",
         "cancel": "Cancel"
+      },
+      "toasts": {
+        "saved": "Saved.",
+        "connected": "Connected — {model} ({latency}ms)",
+        "connectionFailed": "Connection failed: {error}",
+        "errorUnknown": "unknown"
       },
       "states": {
         "verified": "Verified",
@@ -1207,7 +1215,11 @@
     "title": "AI configuration",
     "subtitle": "Configure how your AI assistant behaves for your org",
     "loading": "Loading…",
-    "permissionDescription": "You need org_admin or system_admin role to configure AI."
+    "permissionDescription": "You need org_admin or system_admin role to configure AI.",
+    "toasts": {
+      "saved": "AI settings saved.",
+      "reverted": "Reverted unsaved changes."
+    }
   },
   "onboarding": {
     "title": "Welcome — let's set up your platform",

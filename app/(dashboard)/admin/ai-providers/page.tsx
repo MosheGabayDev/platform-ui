@@ -106,10 +106,11 @@ function ProviderCard({
     credentials: {},
   });
 
+  const tToasts = useTranslations("admin.aiProviders.toasts");
   const update = usePlatformMutation({
     mutationFn: updateProviderConfig,
     onSuccess: () => {
-      toast.success("Saved.");
+      toast.success(tToasts("saved"));
       setEditing(false);
       setDraft((d) => ({ ...d, credentials: {} }));
       onSaved();
@@ -120,9 +121,18 @@ function ProviderCard({
     mutationFn: () => testProviderConnection(provider.id),
     onSuccess: (res) => {
       if (res.data.ok) {
-        toast.success(`Connected — ${res.data.tested_model} (${res.data.latency_ms}ms)`);
+        toast.success(
+          tToasts("connected", {
+            model: res.data.tested_model ?? "",
+            latency: res.data.latency_ms ?? 0,
+          }),
+        );
       } else {
-        toast.error(`Connection failed: ${res.data.error ?? "unknown"}`);
+        toast.error(
+          tToasts("connectionFailed", {
+            error: res.data.error ?? tToasts("errorUnknown"),
+          }),
+        );
       }
       onSaved();
     },
