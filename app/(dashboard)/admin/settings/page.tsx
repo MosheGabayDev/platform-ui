@@ -192,9 +192,13 @@ function SettingRow({
           </div>
           <p className="text-xs text-muted-foreground mt-1">{def.description}</p>
           <div className="text-[11px] text-muted-foreground mt-1">
-            <span>Source: <strong>{sourceLabel}</strong></span>
+            <span>
+              {t("sourceLabel")} <strong>{sourceLabel}</strong>
+            </span>
             <span className="mx-2">·</span>
-            <span>Scopes: {def.allowed_scopes.join(", ")}</span>
+            <span>
+              {t("scopesLabel")} {def.allowed_scopes.join(", ")}
+            </span>
           </div>
         </div>
         {!editing && (

@@ -264,6 +264,22 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — One-hundred-and-fifteenth batch — settings + ai-providers misc labels
+
+4 more inline labels:
+
+`/admin/settings`:
+- `Source:` + `Scopes:` per-row metadata → new
+  `admin.settings.{sourceLabel,scopesLabel}` (he: מקור: / Scopes:).
+
+`/admin/ai-providers`:
+- `Enabled` toggle label → `admin.aiProviders.enabledLabel`
+  (he: מופעל).
+- `Loading…` empty state → `admin.aiProviders.loading`
+  (he: טוען…).
+
+Full suite: 1300/1300 ✓. Typecheck clean.
+
 ### 2026-05-12 — One-hundred-and-fourteenth batch — three more admin string fixes
 
 Sweep of the remaining `title="X"` / `placeholder="X"` matches

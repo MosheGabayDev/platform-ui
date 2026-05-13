@@ -264,7 +264,7 @@ function ProviderCard({
         <div className="mt-3 space-y-3 border-t border-border/50 pt-3">
           {/* Enable toggle */}
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">Enabled</span>
+            <span className="text-xs text-muted-foreground">{t("enabledLabel")}</span>
             <Button
               size="sm"
               variant={draft.enabled ? "default" : "outline"}
@@ -486,7 +486,7 @@ function AIProvidersInner() {
           </div>
 
           {(catalog.isLoading || configs.isLoading) && (
-            <div className="text-sm text-muted-foreground">Loading…</div>
+            <div className="text-sm text-muted-foreground">{t("loading")}</div>
           )}
           {(catalog.error || configs.error) && (
             <EmptyState

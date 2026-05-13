@@ -76,6 +76,8 @@
       "stats": {
         "settingCount": "{count, plural, =1 {1 setting} other {# settings}}"
       },
+      "sourceLabel": "Source:",
+      "scopesLabel": "Scopes:",
       "clearOverrideAria": "Clear {scope}-scope override for {label}",
       "clearOverrideTitle": "Clear override at this scope",
       "errors": {
@@ -177,6 +179,8 @@
         "errorUnknown": "unknown"
       },
       "loadError": "Could not load AI provider catalog",
+      "loading": "Loading…",
+      "enabledLabel": "Enabled",
       "defaultModelLabel": "Default model:",
       "modelsAvailable": "{count, plural, =1 {1 model available} other {# models available}}",
       "credentialsExplainer": {

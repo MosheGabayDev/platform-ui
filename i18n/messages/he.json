@@ -76,6 +76,8 @@
       "stats": {
         "settingCount": "{count, plural, =1 {הגדרה אחת} other {# הגדרות}}"
       },
+      "sourceLabel": "מקור:",
+      "scopesLabel": "Scopes:",
       "clearOverrideAria": "נקה override ב-{scope} עבור {label}",
       "clearOverrideTitle": "נקה override ברמת ה-scope הזה",
       "errors": {
@@ -177,6 +179,8 @@
         "errorUnknown": "לא ידוע"
       },
       "loadError": "טעינת קטלוג ספקי ה-AI נכשלה",
+      "loading": "טוען…",
+      "enabledLabel": "מופעל",
       "defaultModelLabel": "מודל ברירת מחדל:",
       "modelsAvailable": "{count, plural, =1 {מודל אחד זמין} other {# מודלים זמינים}}",
       "credentialsExplainer": {
