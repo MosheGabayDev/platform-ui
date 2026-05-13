@@ -21,6 +21,7 @@ import {
 } from "@/lib/api/helpdesk";
 import { cancelMaintenanceWindow } from "@/lib/api/helpdesk.maintenance";
 import { cancelBatchTask } from "@/lib/api/helpdesk.batch";
+import { fetchUsers, setUserActive } from "@/lib/api/users";
 import { queryKeys } from "@/lib/api/query-keys";
 import { emitExecutorRun } from "./audit-emitter";
 
@@ -73,6 +74,22 @@ const EXECUTORS: Record<string, ActionExecutor> = {
     const res = await cancelBatchTask({ taskId, reason });
     await queryClient.invalidateQueries({ queryKey: queryKeys.helpdesk.all() });
     return { message: res.message };
+  },
+  "users.search": async (params) => {
+    const query = asString(params.query, "query");
+    const res = await fetchUsers({ search: query });
+    const count = res.data.users.length;
+    // No invalidation needed — search is a pure read. Surface count
+    // so the AI chat shows a useful confirmation message.
+    return { message: `Found ${count} user${count === 1 ? "" : "s"} matching "${query}".` };
+  },
+  "users.deactivate": async (params, queryClient) => {
+    const userId = asNumber(params.userId, "userId");
+    const reason = asString(params.reason, "reason", "Deactivated via AI assistant");
+    await setUserActive(userId, false, reason);
+    await queryClient.invalidateQueries({ queryKey: queryKeys.users.all() });
+    await queryClient.invalidateQueries({ queryKey: queryKeys.users.detail(userId) });
+    return { message: `User #${userId} deactivated.` };
   },
 };
 

@@ -264,6 +264,31 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-thirtieth batch — users.search + users.deactivate executors
+
+Closes 2 of the 8 ai_callable skills without executors flagged
+by the batch-77 parity invariant. New entries in
+`lib/platform/ai-actions/executors.ts`:
+
+- `users.search` — wraps `fetchUsers({ search })`. Read-only,
+  no cache invalidation; returns a "Found N user(s) matching X."
+  message for the AI confirmation.
+- `users.deactivate` — wraps `setUserActive(userId, false, reason)`
+  with cache invalidation on `users.all()` + `users.detail(id)`.
+  Reason defaults to "Deactivated via AI assistant" when the LLM
+  doesn't supply one.
+
+The mock LLM grammar (`lib/api/ai.ts`) already recognizes
+`search users for <q>` and proposes `users.search` — that path is
+now end-to-end functional. `users.deactivate` has no grammar
+phrase yet; will be added in a follow-up batch.
+
+Executor registry: 4 → 6. AI-callable skills without executors:
+8 → 6 (notes×1, bookmarks×1, whatsapp×3, users.reset_password —
+the latter awaits a `requestPasswordReset` API client).
+
+Full suite: 1300/1300 ✓. Typecheck clean.
+
 ### 2026-05-14 — One-hundred-and-twenty-ninth batch — bump components/shell coverage baseline
 
 `components/shell/` coverage drifted from 57.87 → 89.24 during the
