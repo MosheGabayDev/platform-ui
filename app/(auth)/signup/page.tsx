@@ -190,15 +190,16 @@ function SignupForm() {
 
 export default function SignupPage() {
   const t = useTranslations("signup");
+  const tBrand = useTranslations("shell.brand");
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center space-y-2">
           <div className="size-12 rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-bold text-xl mx-auto">
-            PE
+            {tBrand("monogram")}
           </div>
-          <h1 className="text-2xl font-bold">Platform Engineer</h1>
+          <h1 className="text-2xl font-bold">{tBrand("name")}</h1>
         </div>
 
         <SignupForm />

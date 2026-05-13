@@ -20,6 +20,7 @@ import {
 function LoginForm() {
   const t = useTranslations("login");
   const tErrors = useTranslations("login.errors");
+  const tBrand = useTranslations("shell.brand");
   const router = useRouter();
   const searchParams = useSearchParams();
   // Reject absolute URLs and protocol-relative URLs to prevent open redirect attacks.
@@ -63,9 +64,9 @@ function LoginForm() {
         {/* Logo */}
         <div className="text-center space-y-2">
           <div className="size-12 rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-bold text-xl mx-auto">
-            PE
+            {tBrand("monogram")}
           </div>
-          <h1 className="text-2xl font-bold">Platform Engineer</h1>
+          <h1 className="text-2xl font-bold">{tBrand("name")}</h1>
           <p className="text-muted-foreground text-sm">{t("tagline")}</p>
         </div>
 

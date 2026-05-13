@@ -264,6 +264,20 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-twenty-third batch — auth pages reuse shell.brand
+
+`/login` and `/signup` each hardcoded the "PE" monogram + "Platform
+Engineer" wordmark. Wired both to the existing `shell.brand` scope
+(introduced in batch 118) — no new keys, just consumers.
+
+The `shell.brand` scope lives outside `(dashboard)` namespace
+intentionally — usable from auth pages, legal pages, anywhere
+brand identity matters. Together with batch 118 this means **all**
+brand-strings in the codebase resolve through one i18n entry; a
+future white-label rename is one catalog edit.
+
+Full suite: 1300/1300 ✓. Typecheck clean.
+
 ### 2026-05-14 — One-hundred-and-twenty-second batch — TicketActions i18n
 
 7 inline English strings in `TicketActions` — the helpdesk ticket
