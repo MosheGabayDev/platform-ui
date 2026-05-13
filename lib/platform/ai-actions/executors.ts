@@ -24,6 +24,11 @@ import { cancelBatchTask } from "@/lib/api/helpdesk.batch";
 import { fetchUsers, setUserActive, requestPasswordReset } from "@/lib/api/users";
 import { addNote } from "@/lib/api/notes";
 import { addBookmark } from "@/lib/api/bookmarks";
+import {
+  linkWhatsappSession,
+  relinkWhatsappSession,
+  unlinkWhatsappSession,
+} from "@/lib/api/whatsapp";
 import { queryKeys } from "@/lib/api/query-keys";
 import { emitExecutorRun } from "./audit-emitter";
 
@@ -113,6 +118,24 @@ const EXECUTORS: Record<string, ActionExecutor> = {
     await queryClient.invalidateQueries({ queryKey: queryKeys.bookmarks.all() });
     return { message: `Bookmark added: ${title}` };
   },
+  "whatsapp.session.link": async (_params, queryClient) => {
+    const res = await linkWhatsappSession();
+    await queryClient.invalidateQueries({ queryKey: queryKeys.whatsapp.sessions() });
+    return { message: `WhatsApp linking started (session #${res.session_id}).` };
+  },
+  "whatsapp.session.relink": async (params, queryClient) => {
+    const sessionId = asNumber(params.sessionId, "sessionId");
+    await relinkWhatsappSession(sessionId);
+    await queryClient.invalidateQueries({ queryKey: queryKeys.whatsapp.sessions() });
+    await queryClient.invalidateQueries({ queryKey: queryKeys.whatsapp.sessionQr(sessionId) });
+    return { message: `Re-link requested for WhatsApp session #${sessionId}.` };
+  },
+  "whatsapp.session.unlink": async (params, queryClient) => {
+    const sessionId = asNumber(params.sessionId, "sessionId");
+    await unlinkWhatsappSession(sessionId);
+    await queryClient.invalidateQueries({ queryKey: queryKeys.whatsapp.sessions() });
+    return { message: `WhatsApp session #${sessionId} unlinked.` };
+  },
 };
 
 export function getActionExecutor(actionId: string): ActionExecutor | null {
@@ -200,6 +223,12 @@ function inferResourceHint(
   }
   if (actionId.startsWith("bookmarks.")) {
     return { resource_type: "bookmark" };
+  }
+  if (actionId.startsWith("whatsapp.session.")) {
+    return {
+      resource_type: "whatsapp_session",
+      resource_id: params.sessionId as number | undefined,
+    };
   }
   return {};
 }

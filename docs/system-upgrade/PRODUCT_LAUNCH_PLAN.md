@@ -264,6 +264,33 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-thirty-fourth batch — WhatsApp executors close the parity gap 🎯
+
+Final 3 ai_callable skills without executors wired:
+
+- `whatsapp.session.link` (zero-arg) → `linkWhatsappSession()`.
+- `whatsapp.session.relink({ sessionId })` →
+  `relinkWhatsappSession(sessionId)` + invalidates `sessionQr(id)`.
+- `whatsapp.session.unlink({ sessionId })` →
+  `unlinkWhatsappSession(sessionId)`.
+
+All 3 invalidate `queryKeys.whatsapp.sessions()` on success.
+`inferResourceHint` extended with `whatsapp.session.*` →
+`resource_type: "whatsapp_session"` + `resource_id: sessionId`.
+
+The WhatsApp module's UI is owned by a parallel agent; this
+batch only touches the shared `lib/platform/ai-actions/executors.ts`
+wiring + uses the API functions the WhatsApp agent already
+shipped (`linkWhatsappSession` / `relinkWhatsappSession` /
+`unlinkWhatsappSession`). No WhatsApp files modified.
+
+**🎯 Executor registry: 9 → 12. AI-callable skills without
+executors: 3 → 0.** The batch-77 parity gap is fully closed —
+every `ai_callable: true` skill in the registry has a matching
+runnable executor.
+
+Full suite: 1300/1300 ✓. Typecheck clean.
+
 ### 2026-05-14 — One-hundred-and-thirty-third batch — users.reset_password closes the loop
 
 Final non-WhatsApp ai_callable skill executor lands:
