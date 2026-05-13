@@ -219,7 +219,6 @@
       },
       "fields": {
         "parameters": "פרמטרים",
-        "riskLevel": "רמת סיכון",
         "estimatedCost": "עלות",
         "policy": "policy",
         "permissions": "הרשאות",
@@ -337,9 +336,7 @@
       "title": "יומן ביקורת",
       "subtitle": "מעקב אחר כל אירוע משמעותי בפלטפורמה",
       "kpi": {
-        "totalEvents": "סה\"כ אירועים",
         "last24h": "24 שעות אחרונות",
-        "securityEvents": "אירועי אבטחה",
         "aiActions": "פעולות AI",
         "last7d": "7 ימים אחרונים",
         "uniqueActors24h": "מבצעים ייחודיים (24 שעות)"
@@ -635,8 +632,7 @@
       "deactivate": "השבת חשבון",
       "deactivateTitle": "השבתת משתמש",
       "deactivateDescription": "המשתמש לא יוכל יותר להתחבר עד שהחשבון יופעל מחדש.",
-      "deactivateSuccess": "המשתמש {name} הושבת.",
-      "menuLabel": "פעולות על משתמש"
+      "deactivateSuccess": "המשתמש {name} הושבת."
     },
     "form": {
       "create": {
@@ -2133,7 +2129,6 @@
     "signIn": "התחברות",
     "legal": "בלחיצה על \"צור ארגון\" אתה מאשר את <terms>תנאי השימוש</terms> ואת <privacy>מדיניות הפרטיות</privacy>.",
     "errors": {
-      "orgNameRequired": "שם הארגון חובה",
       "orgNameTooShort": "שם הארגון חייב להיות לפחות 2 תווים",
       "emailInvalid": "כתובת אימייל לא תקינה",
       "passwordTooShort": "סיסמה חייבת להיות לפחות 8 תווים",

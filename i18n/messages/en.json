@@ -219,7 +219,6 @@
       },
       "fields": {
         "parameters": "Parameters",
-        "riskLevel": "Risk level",
         "estimatedCost": "cost",
         "policy": "policy",
         "permissions": "permissions",
@@ -337,9 +336,7 @@
       "title": "Audit log",
       "subtitle": "Searchable trail of every important platform event",
       "kpi": {
-        "totalEvents": "Total events",
         "last24h": "Last 24h",
-        "securityEvents": "Security events",
         "aiActions": "AI actions",
         "last7d": "Last 7d",
         "uniqueActors24h": "Unique actors (24h)"
@@ -635,8 +632,7 @@
       "deactivate": "Deactivate account",
       "deactivateTitle": "Deactivate user",
       "deactivateDescription": "The user will no longer be able to log in until the account is re-enabled.",
-      "deactivateSuccess": "User {name} deactivated.",
-      "menuLabel": "User actions"
+      "deactivateSuccess": "User {name} deactivated."
     },
     "form": {
       "create": {
@@ -2133,7 +2129,6 @@
     "signIn": "Sign in",
     "legal": "By clicking \"Create organization\" you agree to our <terms>Terms of Service</terms> and <privacy>Privacy Policy</privacy>.",
     "errors": {
-      "orgNameRequired": "Organization name is required",
       "orgNameTooShort": "Organization name must be at least 2 characters",
       "emailInvalid": "Invalid email address",
       "passwordTooShort": "Password must be at least 8 characters",

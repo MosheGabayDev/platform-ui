@@ -264,6 +264,29 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-twenty-seventh batch — i18n orphans 9 → 0 🎯
+
+Improved `audit-i18n-orphans.mjs` heuristic to match dotted-path
+suffixes inside quoted keys (e.g. `.last2"` / `.leaf"`). The
+batch-125 heuristic missed deep keys like
+`admin.auditLog.exportCsv.columns.actorId` because `last2 =
+columns.actorId` doesn't match the literal `"exportCsv.columns.actorId"`
+without the leading dot.
+
+Heuristic upgrade caught 4 more keys as actually-used; 5 were
+genuine orphans, now removed:
+- `users.actions.menuLabel` — duplicated by `users.table.actionsAria`.
+- `signup.errors.orgNameRequired` — Zod schema uses
+  `orgNameTooShort` (`min(2)`) which already covers required-via-length.
+- `admin.auditLog.kpi.totalEvents` + `securityEvents` — removed
+  from the page in some prior refactor but not from catalog.
+- `admin.aiSkills.fields.riskLevel` — never wired (page renders
+  risk badge directly).
+
+**i18n catalog orphans: 0/1626** 🎯
+
+Full suite: 1300/1300 ✓.
+
 ### 2026-05-14 — One-hundred-and-twenty-sixth batch — ai-skills card inline-string sweep
 
 `/admin/ai-skills` SkillCard had 6 more inline strings caught by

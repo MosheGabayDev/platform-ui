@@ -70,8 +70,15 @@ function looksUsed(key) {
   if (haystack.includes(`"${key}"`)) return true;
   if (haystack.includes(`"${last2}"`)) return true;
   if (haystack.includes(`'${last2}'`)) return true;
+  // Substring match for deeper paths (e.g. `t("a.b.c.leaf")` — last2 is
+  // `c.leaf` which appears inside the full quoted dotted path).
+  if (haystack.includes(`.${last2}"`)) return true;
+  if (haystack.includes(`.${last2}'`)) return true;
   if (haystack.includes(`"${leaf}"`)) return true;
   if (haystack.includes(`'${leaf}'`)) return true;
+  // Dotted-path quoted that ends with leaf — same fix for very deep keys.
+  if (haystack.includes(`.${leaf}"`)) return true;
+  if (haystack.includes(`.${leaf}'`)) return true;
   // Template-string call like t(`services.status${STATUS_KEY[status]}`)
   // is a dynamic lookup — we can't statically prove the leaf is reached.
   // Be lenient: if the parent scope's literal prefix appears inside a
