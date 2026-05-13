@@ -59,28 +59,25 @@ import type {
   ProviderConfig,
 } from "@/lib/modules/ai-providers/types";
 
+// Labels resolved via `admin.aiProviders.categories.<key>` — see batch 98.
 const CATEGORY_META: Record<
   ProviderCategory,
-  { icon: LucideIcon; label: string; tone: string }
+  { icon: LucideIcon; tone: string }
 > = {
   cloud: {
     icon: Cloud,
-    label: "Cloud",
     tone: "border-cyan-500/30 bg-cyan-500/15 text-cyan-700 dark:text-cyan-400",
   },
   hosted: {
     icon: Server,
-    label: "Hosted",
     tone: "border-violet-500/30 bg-violet-500/15 text-violet-700 dark:text-violet-400",
   },
   local: {
     icon: Cpu,
-    label: "Local",
     tone: "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
   },
   openai_compatible: {
     icon: Plug,
-    label: "OpenAI-compatible",
     tone: "border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-400",
   },
 };
@@ -94,6 +91,7 @@ function ProviderCard({
   config: ProviderConfig;
   onSaved: () => void;
 }) {
+  const tCat = useTranslations("admin.aiProviders.categories");
   const [editing, setEditing] = useState(false);
   // Draft state for non-sensitive + plaintext for sensitive (only used while editing).
   const [draft, setDraft] = useState<{
@@ -164,7 +162,7 @@ function ProviderCard({
             <span className="font-medium text-sm">{provider.name}</span>
             <Badge variant="outline" className={meta.tone}>
               <CatIcon className="h-3 w-3 me-1" aria-hidden="true" />
-              {meta.label}
+              {tCat(provider.category)}
             </Badge>
             <Badge variant="outline" className="text-[10px] border-muted text-muted-foreground">
               {provider.status}
@@ -369,6 +367,7 @@ function ProviderCard({
 
 function AIProvidersInner() {
   const t = useTranslations("admin.aiProviders");
+  const tCat = useTranslations("admin.aiProviders.categories");
   const queryClient = useQueryClient();
   const [activeCategory, setActiveCategory] = useState<ProviderCategory | "all">("all");
 
@@ -412,11 +411,11 @@ function AIProvidersInner() {
     availableActions: ["admin.ai_provider.update", "admin.ai_provider.test"],
   });
 
-  const filters: Array<{ value: ProviderCategory | "all"; label: string }> = [
-    { value: "all", label: "All" },
-    { value: "cloud", label: "Cloud" },
-    { value: "hosted", label: "Hosted" },
-    { value: "local", label: "Local" },
+  const filterValues: Array<ProviderCategory | "all"> = [
+    "all",
+    "cloud",
+    "hosted",
+    "local",
   ];
 
   return (
@@ -459,14 +458,14 @@ function AIProvidersInner() {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {filters.map((f) => (
+            {filterValues.map((value) => (
               <Button
-                key={f.value}
+                key={value}
                 size="sm"
-                variant={activeCategory === f.value ? "default" : "outline"}
-                onClick={() => setActiveCategory(f.value)}
+                variant={activeCategory === value ? "default" : "outline"}
+                onClick={() => setActiveCategory(value)}
               >
-                {f.label}
+                {tCat(value)}
               </Button>
             ))}
           </div>

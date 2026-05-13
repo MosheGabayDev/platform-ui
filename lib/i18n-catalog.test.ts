@@ -208,6 +208,12 @@ describe("i18n catalog parity (he ↔ en)", () => {
         values: ["read", "mutate", "destroy", "external", "compute"],
       },
       {
+        scope: "admin.aiProviders.categories",
+        // ProviderCategory values + the "all" filter option. Used by
+        // ProviderCard category badge and the category filter row.
+        values: ["all", "cloud", "hosted", "local", "openai_compatible"],
+      },
+      {
         scope: "admin.aiSkills.risk",
         // SkillRiskLevel values from lib/modules/ai-skills/types.ts
         values: ["low", "medium", "high", "critical"],

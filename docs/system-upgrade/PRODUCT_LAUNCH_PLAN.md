@@ -264,6 +264,30 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — Ninety-eighth batch — /admin/ai-providers categories i18n
+
+Sister to batch 97. Same pattern in `/admin/ai-providers`:
+- `CATEGORY_META.label` ("Cloud"/"Hosted"/"Local"/"OpenAI-compatible")
+  inlined per ProviderCategory row.
+- Filter dropdown `filters` array carried duplicate inline labels.
+
+Refactor:
+- Provider card badge → `tCat(provider.category)` reading from
+  `admin.aiProviders.categories.<key>`.
+- `filters` array → `filterValues: ProviderCategory | "all"[]`,
+  labels resolved via `tCat(value)` at render.
+- `CATEGORY_META` no longer carries `label` field.
+
+i18n catalogs gained the missing `openai_compatible` entry under
+the existing `admin.aiProviders.categories` block (he: "תואם
+OpenAI"). The catalog had 4 entries (all/cloud/hosted/local); now
+covers all 5 declared `ProviderCategory` values.
+
+**Parity invariant extended** to include `ProviderCategory` —
+locks the 5 keys against drift.
+
+Full suite: 1300/1300 ✓. Typecheck clean.
+
 ### 2026-05-12 — Ninety-seventh batch — /admin/ai-skills i18n (categories + risk + states.humanOnly)
 
 Three inlined English labels in `/admin/ai-skills` page now read

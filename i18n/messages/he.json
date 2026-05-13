@@ -138,7 +138,8 @@
         "all": "הכל",
         "cloud": "ענן",
         "hosted": "מארח",
-        "local": "מקומי"
+        "local": "מקומי",
+        "openai_compatible": "תואם OpenAI"
       },
       "buttons": {
         "configure": "הגדר",

@@ -138,7 +138,8 @@
         "all": "All",
         "cloud": "Cloud",
         "hosted": "Hosted",
-        "local": "Local"
+        "local": "Local",
+        "openai_compatible": "OpenAI-compatible"
       },
       "buttons": {
         "configure": "Configure",
