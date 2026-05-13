@@ -48,33 +48,27 @@ import type {
   ModuleStatus,
 } from "@/lib/modules/module-registry/types";
 
-const CATEGORY_META: Record<
-  ModuleCategory,
-  { icon: LucideIcon; label: string; tone: string }
-> = {
+// Labels resolved via `admin.modules.categories.<key>` at render time.
+// CATEGORY_META is pure icon+tone descriptor — no inline labels.
+const CATEGORY_META: Record<ModuleCategory, { icon: LucideIcon; tone: string }> = {
   core: {
     icon: Boxes,
-    label: "Core",
     tone: "border-slate-500/30 bg-slate-500/15 text-slate-700 dark:text-slate-400",
   },
   ai: {
     icon: Bot,
-    label: "AI",
     tone: "border-violet-500/30 bg-violet-500/15 text-violet-700 dark:text-violet-400",
   },
   operations: {
     icon: Layers,
-    label: "Operations",
     tone: "border-cyan-500/30 bg-cyan-500/15 text-cyan-700 dark:text-cyan-400",
   },
   growth: {
     icon: Sparkles,
-    label: "Growth",
     tone: "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
   },
   experimental: {
     icon: Cog,
-    label: "Experimental",
     tone: "border-rose-500/30 bg-rose-500/15 text-rose-700 dark:text-rose-400",
   },
 };

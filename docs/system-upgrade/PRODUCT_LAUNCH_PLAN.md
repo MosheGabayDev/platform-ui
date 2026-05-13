@@ -264,6 +264,41 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — One-hundredth batch — admin pages CATEGORY_META cleanup 🎯
+
+Triple cleanup pass across admin pages using the same pattern:
+
+1. **`/admin/modules`** — `CATEGORY_META.label` was already dead
+   code (page renders via `t(\`categories.${entry.manifest.category}\`)`).
+   Dropped the `label` field; descriptor is now pure icon+tone.
+2. **`/admin/policies`** — `EFFECT_META.label` ("Allow"/"Deny"/
+   "Approval") inlined per PolicyEffect row. Refactored to read
+   from new `admin.policies.effects.<effect>` scope. RuleRow now
+   reads `tEffect(rule.effect)`. EFFECT_META is pure tone-only.
+
+i18n catalogs gained the new `admin.policies.effects` block
+(he/en): allow=אישור/Allow, deny=דחייה/Deny, require_approval=
+מצריך אישור/Approval.
+
+**Parity invariant extended** to lock `PolicyEffect`. Now every
+category-style discriminated union the UI exposes is parity-locked:
+
+| Union | Scope |
+|---|---|
+| SettingCategory | admin.settings.categories |
+| ModuleCategory | admin.modules.categories |
+| AuditCategory | admin.auditLog.categories |
+| TicketStatus | helpdesk.tickets.status |
+| TicketPriority | helpdesk.tickets.priority |
+| JobStatus | jobStatus |
+| SkillCategory | admin.aiSkills.categories |
+| SkillRiskLevel | admin.aiSkills.risk |
+| ProviderCategory | admin.aiProviders.categories |
+| UsageEvent.outcome | admin.aiUsage.recent.outcomes |
+| PolicyEffect (this batch) | admin.policies.effects |
+
+🎯 **100 batches.** Full suite: 1300/1300 ✓. Typecheck clean.
+
 ### 2026-05-12 — Ninety-ninth batch — /admin/ai-usage OutcomeBadge i18n
 
 `OutcomeBadge` on `/admin/ai-usage` rendered 4 inline English

@@ -123,6 +123,11 @@
         "decision": "החלטה",
         "matchedRules": "כללים שהתאימו",
         "noMatch": "לא נמצאו כללים תואמים — דיפולט: allow"
+      },
+      "effects": {
+        "allow": "אישור",
+        "deny": "דחייה",
+        "require_approval": "מצריך אישור"
       }
     },
     "aiProviders": {

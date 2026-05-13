@@ -123,6 +123,11 @@
         "decision": "Decision",
         "matchedRules": "Matched rules",
         "noMatch": "No rules matched — default: allow"
+      },
+      "effects": {
+        "allow": "Allow",
+        "deny": "Deny",
+        "require_approval": "Approval"
       }
     },
     "aiProviders": {

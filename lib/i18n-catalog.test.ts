@@ -220,6 +220,12 @@ describe("i18n catalog parity (he ↔ en)", () => {
         values: ["success", "error", "cached", "cancelled"],
       },
       {
+        scope: "admin.policies.effects",
+        // PolicyEffect values from lib/modules/policies/types.ts —
+        // rendered by RuleRow on /admin/policies.
+        values: ["allow", "deny", "require_approval"],
+      },
+      {
         scope: "admin.aiSkills.risk",
         // SkillRiskLevel values from lib/modules/ai-skills/types.ts
         values: ["low", "medium", "high", "critical"],

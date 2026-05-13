@@ -54,31 +54,28 @@ import type {
   PolicyDecision,
 } from "@/lib/modules/policies/types";
 
-const EFFECT_META: Record<
-  PolicyEffect,
-  { tone: string; label: string }
-> = {
+// Labels resolved via `admin.policies.effects.<key>` at render — keep
+// the meta pure tone-only.
+const EFFECT_META: Record<PolicyEffect, { tone: string }> = {
   allow: {
     tone: "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
-    label: "Allow",
   },
   deny: {
     tone: "border-rose-500/30 bg-rose-500/15 text-rose-700 dark:text-rose-400",
-    label: "Deny",
   },
   require_approval: {
     tone: "border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-400",
-    label: "Approval",
   },
 };
 
 function RuleRow({ rule }: { rule: PolicyRule }) {
   const meta = EFFECT_META[rule.effect];
+  const tEffect = useTranslations("admin.policies.effects");
   return (
     <div className="border-t border-border/50 first:border-t-0 py-2 px-3 text-xs">
       <div className="flex items-center gap-2 flex-wrap">
         <Badge variant="outline" className={meta.tone}>
-          {meta.label}
+          {tEffect(rule.effect)}
         </Badge>
         <code className="font-mono text-[10px] text-muted-foreground">
           {rule.action_pattern}
