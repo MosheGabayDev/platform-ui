@@ -264,6 +264,31 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — Ninety-seventh batch — /admin/ai-skills i18n (categories + risk + states.humanOnly)
+
+Three inlined English labels in `/admin/ai-skills` page now read
+from i18n:
+
+- `cat.label` ("Read"/"Mutate"/"Destroy"/"External"/"Compute") →
+  `admin.aiSkills.categories.<key>`.
+- `skill.risk_level` raw string ("low"/"medium"/"high"/"critical")
+  → `admin.aiSkills.risk.<key>`.
+- "Human-only" badge → `admin.aiSkills.states.humanOnly` (the
+  key already existed in catalog).
+
+i18n catalogs gained 9 new keys under `admin.aiSkills.categories`
++ `admin.aiSkills.risk`. Hebrew translations: קריאה / שינוי / מחיקה
+/ חיצוני / חישוב, and נמוך / בינוני / גבוה / קריטי.
+
+CATEGORY_META no longer carries a `label` field — pure
+icon+tone descriptor.
+
+**Parity invariant extended** to cover both new scopes
+(SkillCategory + SkillRiskLevel). Now every category-style
+discriminated union the UI exposes is i18n-parity locked.
+
+Full suite: 1300/1300 ✓.
+
 ### 2026-05-12 — Ninety-sixth batch — JobStatus catalog parity lock-in
 
 Followup on batch 94. Extended the category-union ↔ i18n parity

@@ -175,6 +175,19 @@
         "parameters": "פרמטרים",
         "riskLevel": "רמת סיכון",
         "estimatedCost": "עלות מוערכת"
+      },
+      "categories": {
+        "read": "קריאה",
+        "mutate": "שינוי",
+        "destroy": "מחיקה",
+        "external": "חיצוני",
+        "compute": "חישוב"
+      },
+      "risk": {
+        "low": "נמוך",
+        "medium": "בינוני",
+        "high": "גבוה",
+        "critical": "קריטי"
       }
     },
     "aiUsage": {

@@ -175,6 +175,19 @@
         "parameters": "Parameters",
         "riskLevel": "Risk level",
         "estimatedCost": "Estimated cost"
+      },
+      "categories": {
+        "read": "Read",
+        "mutate": "Mutate",
+        "destroy": "Destroy",
+        "external": "External",
+        "compute": "Compute"
+      },
+      "risk": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High",
+        "critical": "Critical"
       }
     },
     "aiUsage": {

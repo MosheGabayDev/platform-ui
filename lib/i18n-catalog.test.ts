@@ -203,6 +203,16 @@ describe("i18n catalog parity (he ↔ en)", () => {
         values: ["all", "low", "medium", "high", "critical"],
       },
       {
+        scope: "admin.aiSkills.categories",
+        // SkillCategory values from lib/modules/ai-skills/types.ts
+        values: ["read", "mutate", "destroy", "external", "compute"],
+      },
+      {
+        scope: "admin.aiSkills.risk",
+        // SkillRiskLevel values from lib/modules/ai-skills/types.ts
+        values: ["low", "medium", "high", "critical"],
+      },
+      {
         scope: "jobStatus",
         // JobStatus union from lib/modules/job-runner/types.ts — 17
         // known statuses + the "unknown" fallback used by JobStatusBadge.

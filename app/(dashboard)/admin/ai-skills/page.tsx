@@ -54,30 +54,26 @@ import type {
   SkillEntry,
 } from "@/lib/modules/ai-skills/types";
 
-const CATEGORY_META: Record<SkillCategory, { icon: LucideIcon; label: string; tone: string }> = {
+// Labels resolved via `admin.aiSkills.categories.<key>` — see batch 97.
+const CATEGORY_META: Record<SkillCategory, { icon: LucideIcon; tone: string }> = {
   read: {
     icon: Eye,
-    label: "Read",
     tone: "border-cyan-500/30 bg-cyan-500/15 text-cyan-700 dark:text-cyan-400",
   },
   mutate: {
     icon: Pencil,
-    label: "Mutate",
     tone: "border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-400",
   },
   destroy: {
     icon: Trash2,
-    label: "Destroy",
     tone: "border-rose-500/30 bg-rose-500/15 text-rose-700 dark:text-rose-400",
   },
   external: {
     icon: Plug,
-    label: "External",
     tone: "border-violet-500/30 bg-violet-500/15 text-violet-700 dark:text-violet-400",
   },
   compute: {
     icon: Cpu,
-    label: "Compute",
     tone: "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
   },
 };
@@ -103,6 +99,9 @@ const RISK_META: Record<SkillRiskLevel, { icon: LucideIcon; tone: string }> = {
 
 function SkillCard({ entry }: { entry: SkillEntry }) {
   const queryClient = useQueryClient();
+  const t = useTranslations("admin.aiSkills");
+  const tCat = useTranslations("admin.aiSkills.categories");
+  const tRisk = useTranslations("admin.aiSkills.risk");
   const skillActions = useMemo<RecordAction<SkillEntry>[]>(
     () => [
       {
@@ -158,11 +157,11 @@ function SkillCard({ entry }: { entry: SkillEntry }) {
             <code className="text-[10px] text-muted-foreground font-mono">{skill.id}</code>
             <Badge variant="outline" className={cat.tone}>
               <CatIcon className="h-3 w-3 me-1" aria-hidden="true" />
-              {cat.label}
+              {tCat(skill.category)}
             </Badge>
             <Badge variant="outline" className={risk.tone}>
               <RiskIcon className="h-3 w-3 me-1" aria-hidden="true" />
-              {skill.risk_level}
+              {tRisk(skill.risk_level)}
             </Badge>
             {!skill.ai_callable && (
               <Badge
@@ -170,7 +169,7 @@ function SkillCard({ entry }: { entry: SkillEntry }) {
                 className="text-[10px] border-muted text-muted-foreground"
               >
                 <CircleHelp className="h-3 w-3 me-1" aria-hidden="true" />
-                Human-only
+                {t("states.humanOnly")}
               </Badge>
             )}
             {available_to_ai ? (
