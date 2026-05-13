@@ -5,10 +5,12 @@
  * AI-shell-B Story 2.3. ≤ 100 LOC budget.
  */
 import { useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { useAssistantSession } from "@/lib/hooks/use-assistant-session";
 import { Message } from "./message";
 
 export function ChatTranscript() {
+  const t = useTranslations("shell.aiAssistant");
   const transcript = useAssistantSession((s) => s.transcript);
   const state = useAssistantSession((s) => s.state);
   const endRef = useRef<HTMLDivElement>(null);
@@ -27,7 +29,7 @@ export function ChatTranscript() {
       className="flex flex-col gap-3"
       role="log"
       aria-live="polite"
-      aria-label="Chat transcript"
+      aria-label={t("chatTranscriptAria")}
     >
       {transcript.map((m) => (
         <Message key={m.id} message={m} />
@@ -36,7 +38,7 @@ export function ChatTranscript() {
         <div className="flex gap-2" data-testid="sending-indicator">
           <div className="h-7 w-7 shrink-0 rounded-full bg-muted" aria-hidden="true" />
           <div className="rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
-            <span className="inline-flex gap-1" aria-label="AI is thinking">
+            <span className="inline-flex gap-1" aria-label={t("thinkingAria")}>
               <span className="animate-pulse">·</span>
               <span className="animate-pulse [animation-delay:200ms]">·</span>
               <span className="animate-pulse [animation-delay:400ms]">·</span>

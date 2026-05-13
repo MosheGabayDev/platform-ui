@@ -7,7 +7,13 @@
  *   - retry contract on StaleContextError (HTTP 409)
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
+import { screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
+import { renderWithIntl } from "@/lib/test-utils/intl";
+import type { ReactElement } from "react";
+
+function render(ui: ReactElement) {
+  return renderWithIntl(ui, { locale: "en" });
+}
 
 const aiMocks = vi.hoisted(() => {
   class StaleErr extends Error {}

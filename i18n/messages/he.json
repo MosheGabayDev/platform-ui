@@ -1708,6 +1708,22 @@
       "monogram": "PE"
     },
     "aiAssistant": {
+      "openAria": "פתח את סייען ה-AI",
+      "chatTranscriptAria": "תמליל שיחה",
+      "thinkingAria": "ה-AI חושב",
+      "drawer": {
+        "title": "סייען AI",
+        "description": "שאל את הסייען על הדף הנוכחי (מצב mock).",
+        "emptyState": "הקלד למטה כדי להתחיל שיחה."
+      },
+      "messageInput": {
+        "voiceAria": "מצב קולי (AI-shell-D)",
+        "voiceTitle": "מצב קולי (בקרוב)",
+        "placeholder": "שאל את הסייען…",
+        "inputAria": "תיבת הודעה",
+        "sendAria": "שלח הודעה",
+        "actionFailed": "הפעולה נכשלה"
+      },
       "actionPreview": {
         "capabilityLevels": {
           "READ": "קריאה בלבד",

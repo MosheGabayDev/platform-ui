@@ -8,7 +8,8 @@
  *   - sending state shows the animated indicator
  */
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { screen, cleanup } from "@testing-library/react";
+import { renderWithIntl as render } from "@/lib/test-utils/intl";
 import { ChatTranscript } from "./chat-transcript";
 import { useAssistantSession, type Message } from "@/lib/hooks/use-assistant-session";
 
@@ -37,7 +38,7 @@ afterEach(cleanup);
 
 describe("ChatTranscript", () => {
   it("renders nothing when transcript is empty AND not sending", () => {
-    const { container } = render(<ChatTranscript />);
+    const { container } = render(<ChatTranscript />, { locale: "en" });
     expect(container.firstChild).toBeNull();
   });
 
@@ -45,7 +46,7 @@ describe("ChatTranscript", () => {
     useAssistantSession.setState({
       transcript: [mkMessage({ content: "Hello there" })],
     });
-    render(<ChatTranscript />);
+    render(<ChatTranscript />, { locale: "en" });
     expect(screen.getByRole("log", { name: /Chat transcript/i })).toBeTruthy();
     expect(screen.getByText("Hello there")).toBeTruthy();
   });
@@ -58,7 +59,7 @@ describe("ChatTranscript", () => {
         mkMessage({ id: "3", content: "third" }),
       ],
     });
-    render(<ChatTranscript />);
+    render(<ChatTranscript />, { locale: "en" });
     expect(screen.getByText("first")).toBeTruthy();
     expect(screen.getByText("second")).toBeTruthy();
     expect(screen.getByText("third")).toBeTruthy();
@@ -69,7 +70,7 @@ describe("ChatTranscript", () => {
       state: { kind: "chatting_sending" },
       transcript: [mkMessage({ content: "ping" })],
     });
-    render(<ChatTranscript />);
+    render(<ChatTranscript />, { locale: "en" });
     expect(screen.getByTestId("sending-indicator")).toBeTruthy();
   });
 
@@ -78,7 +79,7 @@ describe("ChatTranscript", () => {
       state: { kind: "chatting_sending" },
       transcript: [],
     });
-    render(<ChatTranscript />);
+    render(<ChatTranscript />, { locale: "en" });
     // Container exists; sending-indicator present; no message bubbles.
     expect(screen.getByTestId("sending-indicator")).toBeTruthy();
     expect(screen.queryAllByText(/Hello|ping/i)).toHaveLength(0);
@@ -89,7 +90,7 @@ describe("ChatTranscript", () => {
       state: { kind: "chatting_idle" } as never,
       transcript: [mkMessage({ content: "hi" })],
     });
-    render(<ChatTranscript />);
+    render(<ChatTranscript />, { locale: "en" });
     expect(screen.queryByTestId("sending-indicator")).toBeNull();
   });
 });

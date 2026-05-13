@@ -1,6 +1,12 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { screen, cleanup } from "@testing-library/react";
+import { renderWithIntl } from "@/lib/test-utils/intl";
+import type { ReactElement } from "react";
 import { AIDrawer } from "./drawer";
+
+function render(ui: ReactElement) {
+  return renderWithIntl(ui, { locale: "en" });
+}
 import { useAssistantSession } from "@/lib/hooks/use-assistant-session";
 
 const resetStore = () =>

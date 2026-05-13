@@ -264,6 +264,29 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — One-hundred-and-twentieth batch — AI assistant chrome i18n
+
+The four remaining ai-assistant components — `FloatingAIButton`,
+`AIDrawer`, `ChatTranscript`, `MessageInput` — carried 12 inline
+English strings: aria-labels (Open AI assistant / Chat transcript /
+AI is thinking / Message input / Send message / Voice mode aria +
+title), the drawer title ("AI Assistant"), description, empty-state
+message, and the textarea placeholder ("Ask the assistant…").
+
+New keys under `shell.aiAssistant`:
+- top-level: `openAria` / `chatTranscriptAria` / `thinkingAria`.
+- `drawer.{title,description,emptyState}`.
+- `messageInput.{voiceAria,voiceTitle,placeholder,inputAria,sendAria,actionFailed}`.
+
+Hebrew: פתח את סייען ה-AI / תמליל שיחה / ה-AI חושב / סייען AI /
+שאל את הסייען… / שלח הודעה / מצב קולי (AI-shell-D) / ...
+
+Test files for all four components migrated to
+`renderWithIntl(..., { locale: "en" })`. 42/42 in ai-assistant
+folder. Whole AI shell is now locale-aware end-to-end.
+
+Full suite: 1300/1300 ✓. Typecheck clean.
+
 ### 2026-05-12 — One-hundred-and-nineteenth batch — ActionPreviewCard i18n
 
 8 inline English strings in the AI shell's `ActionPreviewCard` —

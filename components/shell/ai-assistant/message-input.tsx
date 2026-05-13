@@ -8,6 +8,7 @@
  */
 import { useCallback, useState } from "react";
 import { Send, Mic } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAssistantSession } from "@/lib/hooks/use-assistant-session";
@@ -16,6 +17,7 @@ import { sendChatMessage, StaleContextError } from "@/lib/api/ai";
 const CHAR_LIMIT = 2000;
 
 export function MessageInput() {
+  const t = useTranslations("shell.aiAssistant.messageInput");
   const state = useAssistantSession((s) => s.state);
   const draft = useAssistantSession((s) => s.inFlightDraft);
   const setDraft = useAssistantSession((s) => s.setDraft);
@@ -93,8 +95,8 @@ export function MessageInput() {
           size="icon"
           variant="ghost"
           disabled
-          aria-label="Voice mode (coming in AI-shell-D)"
-          title="Voice mode (coming soon)"
+          aria-label={t("voiceAria")}
+          title={t("voiceTitle")}
           className="shrink-0"
         >
           <Mic className="h-4 w-4" />
@@ -103,19 +105,19 @@ export function MessageInput() {
           value={draft}
           onChange={(e) => setDraft(e.target.value.slice(0, CHAR_LIMIT))}
           onKeyDown={onKeyDown}
-          placeholder="Ask the assistant…"
+          placeholder={t("placeholder")}
           rows={1}
           maxLength={CHAR_LIMIT}
           disabled={disabled}
           className="resize-none min-h-9 max-h-32"
-          aria-label="Message input"
+          aria-label={t("inputAria")}
         />
         <Button
           type="button"
           size="icon"
           onClick={() => void handleSubmit()}
           disabled={disabled || !draft.trim()}
-          aria-label="Send message"
+          aria-label={t("sendAria")}
           className="shrink-0"
         >
           <Send className="h-4 w-4" />

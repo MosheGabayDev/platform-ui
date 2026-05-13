@@ -13,6 +13,7 @@
  *       docs/system-upgrade/10-tasks/AI-shell-B-chat-llm/epic.md
  */
 import { Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   Sheet,
   SheetContent,
@@ -27,6 +28,7 @@ import { MessageInput } from "./message-input";
 import { ActionPreviewCard } from "./action-preview-card";
 
 export function AIDrawer() {
+  const t = useTranslations("shell.aiAssistant.drawer");
   const drawerOpen = useAssistantSession((s) => s.drawerOpen);
   const closeDrawer = useAssistantSession((s) => s.closeDrawer);
   const transcriptLength = useAssistantSession((s) => s.transcript.length);
@@ -51,10 +53,10 @@ export function AIDrawer() {
         <SheetHeader className="px-4 pt-4">
           <SheetTitle id="ai-drawer-title" className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
-            AI Assistant
+            {t("title")}
           </SheetTitle>
           <SheetDescription id="ai-drawer-desc">
-            Ask the assistant about the current page (mock mode).
+            {t("description")}
           </SheetDescription>
         </SheetHeader>
 
@@ -63,7 +65,7 @@ export function AIDrawer() {
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <Sparkles className="h-10 w-10 text-muted-foreground mb-3" aria-hidden="true" />
               <p className="text-sm text-muted-foreground">
-                Type below to start a conversation.
+                {t("emptyState")}
               </p>
             </div>
           )}

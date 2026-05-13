@@ -1708,6 +1708,22 @@
       "monogram": "PE"
     },
     "aiAssistant": {
+      "openAria": "Open AI assistant",
+      "chatTranscriptAria": "Chat transcript",
+      "thinkingAria": "AI is thinking",
+      "drawer": {
+        "title": "AI Assistant",
+        "description": "Ask the assistant about the current page (mock mode).",
+        "emptyState": "Type below to start a conversation."
+      },
+      "messageInput": {
+        "voiceAria": "Voice mode (coming in AI-shell-D)",
+        "voiceTitle": "Voice mode (coming soon)",
+        "placeholder": "Ask the assistant…",
+        "inputAria": "Message input",
+        "sendAria": "Send message",
+        "actionFailed": "Action failed"
+      },
       "actionPreview": {
         "capabilityLevels": {
           "READ": "Read-only",

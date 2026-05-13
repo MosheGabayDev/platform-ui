@@ -9,10 +9,12 @@
  */
 import { Sparkles } from "lucide-react";
 import { m } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { useAssistantSession } from "@/lib/hooks/use-assistant-session";
 
 export function FloatingAIButton() {
+  const t = useTranslations("shell.aiAssistant");
   const drawerOpen = useAssistantSession((s) => s.drawerOpen);
   const openDrawer = useAssistantSession((s) => s.openDrawer);
 
@@ -30,7 +32,7 @@ export function FloatingAIButton() {
         type="button"
         size="icon"
         onClick={openDrawer}
-        aria-label="Open AI assistant"
+        aria-label={t("openAria")}
         className="h-12 w-12 rounded-full shadow-lg hover:shadow-xl bg-primary text-primary-foreground hover:bg-primary/90"
       >
         <Sparkles className="h-5 w-5" aria-hidden="true" />
