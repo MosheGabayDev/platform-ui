@@ -285,6 +285,23 @@ describe("i18n catalog parity (he ↔ en)", () => {
         values: ["paid", "pending", "failed"],
       },
       {
+        scope: "helpdesk.maintenance.impact",
+        // MaintenanceImpact values rendered by the impact badge on
+        // the /helpdesk/maintenance DataTable.
+        values: ["none", "low", "medium", "high"],
+      },
+      {
+        scope: "whatsapp.states",
+        // WhatsAppSessionState values rendered by stateLabel() on
+        // /whatsapp/sessions.
+        values: ["needs_qr", "connecting", "ready", "disconnected", "failed", "unlinked"],
+      },
+      {
+        scope: "help.capability",
+        // AICapabilityLevel values rendered by AIShortcutRow on /help.
+        values: ["READ", "WRITE_LOW", "WRITE_HIGH", "DESTRUCTIVE"],
+      },
+      {
         scope: "admin.aiSkills.risk",
         // SkillRiskLevel values from lib/modules/ai-skills/types.ts
         values: ["low", "medium", "high", "critical"],

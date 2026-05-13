@@ -264,6 +264,25 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — One-hundred-and-fourth batch — maint impact + wa-state + help.capability
+
+Three more discriminated unions locked + one i18n debt fixed:
+
+- `helpdesk.maintenance.impact` (4 keys: none/low/medium/high) —
+  MaintenanceImpact badge in the maintenance DataTable. Already
+  populated; gate added.
+- `whatsapp.states` (6 keys) — WhatsAppSessionState label on
+  /whatsapp/sessions. Already populated; gate added.
+- `help.capability` (4 keys: READ/WRITE_LOW/WRITE_HIGH/DESTRUCTIVE)
+  — **new scope this batch.** `AIShortcutRow` on /help previously
+  rendered the raw enum string (`shortcut.capability_level`).
+  Refactored to `t(\`help.capability.${...}\`)`. Hebrew: קריאה /
+  כתיבה — נמוכה / כתיבה — גבוהה / הרסני.
+
+Running tally: **24 discriminated unions** parity-locked.
+
+Full suite: 1300/1300 ✓.
+
 ### 2026-05-12 — One-hundred-and-third batch — feedback + billing parity (4 more)
 
 Four more discriminated unions locked:

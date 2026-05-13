@@ -1309,6 +1309,12 @@
     "subtitle": "Search the docs, browse module quick-starts, find AI and keyboard shortcuts.",
     "searchPlaceholder": "Search docs, AI phrases, shortcuts…",
     "searchAria": "Search documentation",
+    "capability": {
+      "READ": "Read",
+      "WRITE_LOW": "Write — low",
+      "WRITE_HIGH": "Write — high",
+      "DESTRUCTIVE": "Destructive"
+    },
     "tabs": {
       "all": "All",
       "quickStart": "Quick starts",

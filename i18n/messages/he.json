@@ -1309,6 +1309,12 @@
     "subtitle": "חיפוש בתיעוד, מדריכי התחלה למודולים, קיצורי AI ומקלדת.",
     "searchPlaceholder": "חיפוש בתיעוד, פקודות AI, קיצורים…",
     "searchAria": "חיפוש בתיעוד",
+    "capability": {
+      "READ": "קריאה",
+      "WRITE_LOW": "כתיבה — נמוכה",
+      "WRITE_HIGH": "כתיבה — גבוהה",
+      "DESTRUCTIVE": "הרסני"
+    },
     "tabs": {
       "all": "הכל",
       "quickStart": "התחלה מהירה",

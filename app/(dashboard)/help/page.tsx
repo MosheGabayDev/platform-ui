@@ -107,7 +107,7 @@ function AIShortcutRow({ shortcut }: { shortcut: AIShortcut }) {
         </div>
         <p className="text-xs text-muted-foreground">{t(shortcut.descriptionKey)}</p>
         <Badge variant="outline" className={cn("text-[10px]", CAPABILITY_TONE[shortcut.capability_level])}>
-          {shortcut.capability_level}
+          {t(`help.capability.${shortcut.capability_level}`)}
         </Badge>
       </div>
     </div>
