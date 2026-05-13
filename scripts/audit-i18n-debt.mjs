@@ -52,6 +52,10 @@ const pages = [
   ...walkComponents("components/modules"),
 ];
 const results = [];
+// Batch 107: even a single inline `label: "X"` in a discriminated-union
+// meta record is the canonical drift pattern this arc has been chasing.
+// Surface those as separate "meta-record" hits at a lower threshold (1).
+const metaHits = [];
 
 for (const file of pages) {
   const src = fs.readFileSync(file, "utf8");
@@ -66,6 +70,18 @@ for (const file of pages) {
   for (const m of src.matchAll(/header:\s*"([A-Z][a-z]+(?:\s+[a-zA-Z]+)*)"/g))
     matches.push(m[1]);
   if (matches.length >= 5) results.push({ file, count: matches.length });
+
+  // Meta-record single-word labels: matches inside a `Record<...>` block
+  // typed at the top of a file. Even one is a problem — examples that
+  // slipped past the 2+ words heuristic: "Low"/"High"/"OK"/"Cached" etc.
+  const metaBlockRe = /Record<[A-Za-z][\w.]*,[\s\S]*?>\s*=\s*\{([\s\S]*?)^\};?/gm;
+  for (const block of src.matchAll(metaBlockRe)) {
+    const body = block[1] ?? "";
+    const labels = [...body.matchAll(/\blabel:\s*"([A-Z][a-zA-Z][^"]*)"/g)].map(
+      (m) => m[1],
+    );
+    if (labels.length > 0) metaHits.push({ file, labels });
+  }
 }
 
 results.sort((a, b) => b.count - a.count);
@@ -79,9 +95,19 @@ console.log(
   `Total flagged strings: ${results.reduce((sum, r) => sum + r.count, 0)}`,
 );
 
-if (process.argv.includes("--gate") && results.length > 0) {
+if (metaHits.length > 0) {
+  console.log();
+  console.log("Record<...> blocks with inline `label: \"X\"` fields:");
+  for (const h of metaHits)
+    console.log(`  ${h.file} → ${h.labels.join(", ")}`);
+}
+
+if (
+  process.argv.includes("--gate") &&
+  (results.length > 0 || metaHits.length > 0)
+) {
   console.error(
-    "\n✗ i18n debt gate: hardcoded English strings detected on the pages above.",
+    "\n✗ i18n debt gate: hardcoded English strings detected on the surfaces above.",
   );
   console.error(
     "  Move them to i18n/messages/{he,en}.json and use useTranslations().",

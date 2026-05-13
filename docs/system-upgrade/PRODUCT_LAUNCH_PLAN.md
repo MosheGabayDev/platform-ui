@@ -264,6 +264,32 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — One-hundred-and-seventh batch — extend audit-i18n-debt to meta-record labels
+
+`audit-i18n-debt.mjs`'s 2+ word heuristic kept missing single-word
+inline labels in `Record<XxxUnion, { ... label: "Low" ... }>` meta
+blocks — the canonical drift pattern this arc has been chasing
+across ~12 admin pages. Caught those by hand in batches 91, 93,
+94, 97, 98, 100, 104. New code lands → same pattern slips through
+the gate again.
+
+New detector: scans every `Record<...>` block declared in
+dashboard pages + module components for `label: "<English>"`
+fields. ANY occurrence fails the gate (threshold = 1, not 5).
+Block boundaries detected via greedy `};` scan from the `Record<`
+header.
+
+Verified:
+- Current code → clean.
+- Synthetic violation (`Record<Lvl, { label: "Low" / "High" }>`)
+  → gate exit 1, lists each label.
+
+Together with batches 100–106 this fully closes the inline-label
+drift class. Future similar patterns will fail the gate before
+push.
+
+Full suite: 1300/1300 ✓.
+
 ### 2026-05-12 — One-hundred-and-sixth batch — action-menu labels i18n (skills + policies)
 
 Four inlined English labels on action-menu rows fixed:
