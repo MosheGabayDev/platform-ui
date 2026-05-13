@@ -264,6 +264,32 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-thirty-first batch — notes.create + bookmarks.create executors
+
+Continues closing the batch-77 executor gap. New entries in
+`lib/platform/ai-actions/executors.ts`:
+
+- `notes.create` — wraps `addNote({ title, body })` with
+  `queryKeys.notes.all()` invalidation; success message includes
+  the note title.
+- `bookmarks.create` — wraps `addBookmark({ title, url })` with
+  `queryKeys.bookmarks.all()` invalidation; success message
+  includes the bookmark title.
+
+`inferResourceHint` extended with `notes.*` → `resource_type: "note"`
+and `bookmarks.*` → `resource_type: "bookmark"` so the audit
+emitter labels these correctly.
+
+Executor registry: 6 → 8. AI-callable skills without executors:
+6 → 4 (whatsapp×3 — owned by parallel agent + users.reset_password
+which awaits the `requestPasswordReset` API client).
+
+The mock LLM grammar doesn't yet recognize `create note` /
+`add bookmark` phrases — wiring the grammar to these executors
+is a follow-up batch.
+
+Full suite: 1300/1300 ✓. Typecheck clean.
+
 ### 2026-05-14 — One-hundred-and-thirtieth batch — users.search + users.deactivate executors
 
 Closes 2 of the 8 ai_callable skills without executors flagged

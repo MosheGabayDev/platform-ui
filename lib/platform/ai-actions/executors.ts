@@ -22,6 +22,8 @@ import {
 import { cancelMaintenanceWindow } from "@/lib/api/helpdesk.maintenance";
 import { cancelBatchTask } from "@/lib/api/helpdesk.batch";
 import { fetchUsers, setUserActive } from "@/lib/api/users";
+import { addNote } from "@/lib/api/notes";
+import { addBookmark } from "@/lib/api/bookmarks";
 import { queryKeys } from "@/lib/api/query-keys";
 import { emitExecutorRun } from "./audit-emitter";
 
@@ -90,6 +92,20 @@ const EXECUTORS: Record<string, ActionExecutor> = {
     await queryClient.invalidateQueries({ queryKey: queryKeys.users.all() });
     await queryClient.invalidateQueries({ queryKey: queryKeys.users.detail(userId) });
     return { message: `User #${userId} deactivated.` };
+  },
+  "notes.create": async (params, queryClient) => {
+    const title = asString(params.title, "title");
+    const body = asString(params.body, "body");
+    await addNote({ title, body });
+    await queryClient.invalidateQueries({ queryKey: queryKeys.notes.all() });
+    return { message: `Note created: ${title}` };
+  },
+  "bookmarks.create": async (params, queryClient) => {
+    const title = asString(params.title, "title");
+    const url = asString(params.url, "url");
+    await addBookmark({ title, url });
+    await queryClient.invalidateQueries({ queryKey: queryKeys.bookmarks.all() });
+    return { message: `Bookmark added: ${title}` };
   },
 };
 
@@ -172,6 +188,12 @@ function inferResourceHint(
   }
   if (actionId.startsWith("users.")) {
     return { resource_type: "user", resource_id: params.userId as number | undefined };
+  }
+  if (actionId.startsWith("notes.")) {
+    return { resource_type: "note" };
+  }
+  if (actionId.startsWith("bookmarks.")) {
+    return { resource_type: "bookmark" };
   }
   return {};
 }
