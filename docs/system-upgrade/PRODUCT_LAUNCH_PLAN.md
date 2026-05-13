@@ -264,6 +264,28 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-12 — One-hundred-and-fifth batch — /admin/settings dead-label cleanup
+
+Last admin page in the cleanup arc. `/admin/settings`:
+- `CATEGORY_META.label` (AI/Branding/Notifications/Rate limits/
+  Integrations/Experimental) was dead — page already rendered
+  category names via `t(\`categories.${...}\`)`. Dropped the
+  `label` field.
+- `CATEGORY_FILTERS` array was a `{value, label}` pair list; the
+  `label` was equally dead because the button rendered via the
+  same translator. Refactored to a bare `SettingCategory | "all"[]`.
+
+The "experimental" omission from the filter row is intentional —
+documented in a comment now: experimental settings only surface
+under "all", filter by name via search.
+
+This + batch 100 + batch 104 close the "CATEGORY_META.label dead
+field" cleanup that ran across all admin pages. Every admin
+landing now follows the pattern: meta = `{ icon, tone }` only,
+labels = `t(\`scope.<key>\`)`.
+
+Full suite: 1300/1300 ✓. Typecheck clean.
+
 ### 2026-05-12 — One-hundred-and-fourth batch — maint impact + wa-state + help.capability
 
 Three more discriminated unions locked + one i18n debt fixed:

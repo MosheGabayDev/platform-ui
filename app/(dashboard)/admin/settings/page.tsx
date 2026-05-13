@@ -59,48 +59,26 @@ import type {
   SettingCategory,
 } from "@/lib/modules/settings/types";
 
-const CATEGORY_META: Record<
-  SettingCategory,
-  { icon: LucideIcon; label: string; tone: string }
-> = {
-  ai: {
-    icon: Bot,
-    label: "AI",
-    tone: "border-violet-500/30 bg-violet-500/15 text-violet-700 dark:text-violet-400",
-  },
-  branding: {
-    icon: Palette,
-    label: "Branding",
-    tone: "border-cyan-500/30 bg-cyan-500/15 text-cyan-700 dark:text-cyan-400",
-  },
-  notifications: {
-    icon: Bell,
-    label: "Notifications",
-    tone: "border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-400",
-  },
-  rate_limits: {
-    icon: Gauge,
-    label: "Rate limits",
-    tone: "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
-  },
-  integrations: {
-    icon: Cog,
-    label: "Integrations",
-    tone: "border-slate-500/30 bg-slate-500/15 text-slate-700 dark:text-slate-400",
-  },
-  experimental: {
-    icon: Cog,
-    label: "Experimental",
-    tone: "border-rose-500/30 bg-rose-500/15 text-rose-700 dark:text-rose-400",
-  },
+// Labels resolved via `admin.settings.categories.<key>` at render time —
+// CATEGORY_META is pure icon+tone descriptor.
+const CATEGORY_META: Record<SettingCategory, { icon: LucideIcon; tone: string }> = {
+  ai: { icon: Bot, tone: "border-violet-500/30 bg-violet-500/15 text-violet-700 dark:text-violet-400" },
+  branding: { icon: Palette, tone: "border-cyan-500/30 bg-cyan-500/15 text-cyan-700 dark:text-cyan-400" },
+  notifications: { icon: Bell, tone: "border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-400" },
+  rate_limits: { icon: Gauge, tone: "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400" },
+  integrations: { icon: Cog, tone: "border-slate-500/30 bg-slate-500/15 text-slate-700 dark:text-slate-400" },
+  experimental: { icon: Cog, tone: "border-rose-500/30 bg-rose-500/15 text-rose-700 dark:text-rose-400" },
 };
 
-const CATEGORY_FILTERS: Array<{ value: SettingCategory | "all"; label: string }> = [
-  { value: "all", label: "All" },
-  { value: "ai", label: "AI" },
-  { value: "branding", label: "Branding" },
-  { value: "notifications", label: "Notifications" },
-  { value: "rate_limits", label: "Rate limits" },
+// Filter dropdown buttons. "experimental" intentionally omitted —
+// experimental settings only surface under "all". To filter to just
+// experimental, use search.
+const CATEGORY_FILTER_VALUES: Array<SettingCategory | "all"> = [
+  "all",
+  "ai",
+  "branding",
+  "notifications",
+  "rate_limits",
 ];
 
 function SettingRow({
@@ -473,14 +451,14 @@ function SettingsInner() {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {CATEGORY_FILTERS.map((f) => (
+            {CATEGORY_FILTER_VALUES.map((value) => (
               <Button
-                key={f.value}
+                key={value}
                 size="sm"
-                variant={activeCategory === f.value ? "default" : "outline"}
-                onClick={() => setActiveCategory(f.value)}
+                variant={activeCategory === value ? "default" : "outline"}
+                onClick={() => setActiveCategory(value)}
               >
-                {t(`categories.${f.value}`)}
+                {t(`categories.${value}`)}
               </Button>
             ))}
           </div>
