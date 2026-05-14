@@ -170,6 +170,45 @@ describe("sendChatMessage (mock mode)", () => {
     expect(seen.size).toBe(12);
   });
 
+  it("TTL bucket invariant — capability level dictates expiry window (batch 147)", { timeout: 15_000 }, async () => {
+    // Mock-LLM TTL contract (documented in lib/api/ai.ts extractIntent):
+    //   READ / WRITE_LOW → 60s window (safer ops can sit awaiting confirm)
+    //   WRITE_HIGH / DESTRUCTIVE → 30s window (riskier ops force a quick
+    //   decision so a stale token can't be misclicked minutes later).
+    // A future grammar phrase that picks the wrong bucket silently
+    // widens or shrinks the user's confirm window — locked here.
+    const phrases: Array<{ msg: string; expected: 30_000 | 60_000 }> = [
+      { msg: "take ticket 1001", expected: 60_000 },
+      { msg: "resolve ticket 1002", expected: 30_000 },
+      { msg: "cancel maintenance 1003", expected: 30_000 },
+      { msg: "cancel batch 1004", expected: 30_000 },
+      { msg: "search users for alice", expected: 60_000 },
+      { msg: "deactivate user 7", expected: 30_000 },
+      { msg: "reset password for user 9", expected: 60_000 },
+      { msg: "create note Standup recap | We discussed Q2 priorities.", expected: 60_000 },
+      { msg: "add bookmark Postmortem template https://wiki.example/pm-template", expected: 60_000 },
+      { msg: "link whatsapp", expected: 60_000 },
+      { msg: "relink whatsapp 3", expected: 60_000 },
+      { msg: "unlink whatsapp session 4", expected: 30_000 },
+    ];
+    const offenders: string[] = [];
+    for (const { msg, expected } of phrases) {
+      const before = Date.now();
+      const res = await sendChatMessage({ message: msg, context: null });
+      const after = Date.now();
+      // sendChatMessage adds a mock latency (~400ms) BEFORE returning, so
+      // expiresAt = timeAtExtract + bucket. `after - before` captures the
+      // full request time; ttl-relative-to-`before` should be in
+      // [bucket, bucket + requestLatency]. Allow extra slack for slow CI.
+      const ttl = res.actionProposal!.expiresAt - before;
+      const latency = after - before;
+      if (ttl < expected || ttl > expected + latency + 200) {
+        offenders.push(`${msg}: expected ${expected} (+ up to ${latency}ms latency), got ${ttl}`);
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+
   it("every proposal has non-empty label, targetSummary, tokenId, params (batch 146)", { timeout: 15_000 }, async () => {
     // Action-preview-card renders proposal.label as the card title and
     // proposal.targetSummary as the subtitle. An empty string slips

@@ -264,6 +264,19 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-forty-seventh batch — TTL bucket invariant per capability level
+
+Locks the mock-LLM TTL contract:
+`READ` / `WRITE_LOW` → 60 s, `WRITE_HIGH` / `DESTRUCTIVE` → 30 s.
+A future grammar phrase that picks the wrong bucket silently widens
+or shrinks the user's confirmation window — riskier ops getting a
+longer TTL is the worse direction (stale token → late misclick).
+Parametric test over all 12 phrases asserts the actual TTL falls in
+`[bucket, bucket + measuredLatency + 200ms]` slack window.
+
+Tests: `npx vitest run` → **1316 passed (was 1315 — +1)**,
+`tsc --noEmit` clean.
+
 ### 2026-05-14 — One-hundred-and-forty-sixth batch — proposal-shape invariant for every grammar phrase
 
 Action-preview-card renders `proposal.label` as title and
