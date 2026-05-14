@@ -136,6 +136,49 @@ describe("ai-skills client (mock mode)", () => {
     expect(res.data.valid).toBe(true);
   });
 
+  it("_validateOne covers number/maximum/enum/boolean branches (batch 153)", async () => {
+    // No callable skill in the registry uses `number`, `maximum`,
+    // `enum`, or `boolean` today — but the validator must still
+    // catch those if a future skill adds them. Exercise each branch
+    // directly so a regression in the safety layer surfaces here,
+    // not in production when a BE skill ships using them.
+    const { _validateOne } = await import("./ai-skills");
+
+    // number type — accepts numbers, rejects strings
+    expect(_validateOne(3.14, { type: "number" }, "x")).toEqual([]);
+    expect(_validateOne("nope", { type: "number" }, "x")).toEqual([
+      { path: "x", message: "must be number" },
+    ]);
+    expect(
+      _validateOne(101, { type: "number", maximum: 100 }, "x")[0]?.message,
+    ).toMatch(/≤ 100/);
+    expect(
+      _validateOne(-1, { type: "number", minimum: 0 }, "x")[0]?.message,
+    ).toMatch(/≥ 0/);
+
+    // integer maximum
+    expect(
+      _validateOne(11, { type: "integer", maximum: 10 }, "x")[0]?.message,
+    ).toMatch(/≤ 10/);
+
+    // string enum
+    const enumErrs = _validateOne(
+      "purple",
+      { type: "string", enum: ["red", "blue"] },
+      "color",
+    );
+    expect(enumErrs[0]?.message).toMatch(/one of red, blue/);
+    expect(
+      _validateOne("blue", { type: "string", enum: ["red", "blue"] }, "color"),
+    ).toEqual([]);
+
+    // boolean
+    expect(_validateOne(true, { type: "boolean" }, "x")).toEqual([]);
+    expect(_validateOne("yes", { type: "boolean" }, "x")).toEqual([
+      { path: "x", message: "must be boolean" },
+    ]);
+  });
+
   it("validateSkillInvocation surfaces policy decision for high-risk skill", async () => {
     // helpdesk.maintenance.cancel has risk=high. The policy engine will
     // attach matched rules.

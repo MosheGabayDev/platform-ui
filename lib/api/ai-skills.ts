@@ -93,7 +93,8 @@ interface ListFilter {
 // Parameter validation (JSON-Schema subset)
 // ---------------------------------------------------------------------------
 
-function validateOne(value: unknown, def: ParameterDef, path: string): ValidationError[] {
+/** Test helper — direct access to per-field validation logic. */
+export function _validateOne(value: unknown, def: ParameterDef, path: string): ValidationError[] {
   const errors: ValidationError[] = [];
   if (def.type === "integer") {
     if (typeof value !== "number" || !Number.isInteger(value)) {
@@ -138,7 +139,7 @@ function validateParams(
   }
   for (const [key, def] of Object.entries(schema.properties)) {
     if (params[key] === undefined) continue;
-    errors.push(...validateOne(params[key], def, key));
+    errors.push(..._validateOne(params[key], def, key));
   }
   return errors;
 }

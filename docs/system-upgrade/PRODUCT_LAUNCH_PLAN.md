@@ -264,6 +264,27 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-fifty-third batch — full coverage of skill param validator branches
+
+Covered the remaining untested branches in `_validateOne`
+(renamed from `validateOne` for direct test access, single underscore
+denotes test-only export — consistent with `_resetAISkillsMockState`):
+
+- **number** type — accepts number, rejects string
+- **number maximum** / **integer maximum**
+- **string enum** — accepts member, rejects non-member, message lists allowed values
+- **boolean** type — accepts bool, rejects string
+
+Today no callable skill in the registry uses `number`, `maximum`,
+`enum`, or `boolean` — but a future BE skill might, and the safety
+layer between LLM-proposed params and the executor MUST catch the
+mismatch before the executor runs. Lifted `lib/api/ai-skills.ts`
+line coverage from **78.74% → 92.18%**.
+
+Tests: `npx vitest run` → **1322 passed (was 1321 — +1)**,
+`tsc --noEmit` clean, coverage gate passes
+(lib/api 93.69% vs baseline 94.33%, well above 90% target floor).
+
 ### 2026-05-14 — One-hundred-and-fifty-second batch — string-pattern validation coverage on validateSkillInvocation
 
 Coverage gap: `lib/api/ai-skills.ts` line 120-121 (string `pattern`
