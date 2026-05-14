@@ -264,6 +264,29 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-fifty-fifth batch — DataTable render tests + baseline bump
+
+`DataTable` is the cross-cutting shared primitive every admin /
+list page uses, but coverage was at **47.5%** — only its sibling
+`TableSkeleton` + `TablePagination` had tests. Added
+`data-table.test.tsx` with 7 cases:
+
+- renders rows from data
+- empty state with custom message
+- loading skeleton rows
+- error state surfaces the error message
+- row-selection checkbox toggles the id
+- select-all-on-page toggles every row id
+- `onRowClick` fires with the row payload
+
+Bumped two baselines per `baseline_update_rule: ≥5pp gain locks new floor`:
+- `components/shared/`: 70.45 → 79.89 (DataTable tests + i18n arc carryover)
+- `lib/platform/`: 92.20 → 97.78 (ai-actions executor + audit-emitter
+  arc carryover, batches 137-153)
+
+Tests: `npx vitest run` → **1336 passed (was 1329 — +7)**,
+`tsc --noEmit` clean, coverage gate green.
+
 ### 2026-05-14 — One-hundred-and-fifty-fourth batch — real-fetch coverage for notes + bookmarks clients
 
 `lib/api/real-fetch.test.ts` exercises the apiFetch branches that

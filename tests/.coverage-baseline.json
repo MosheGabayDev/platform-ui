@@ -32,11 +32,11 @@
       "note": "TARGET FLOOR EXCEEDED. Lifted from 11.11% by gap-closure sprint — added schema validation tests (users, organizations, roles), groupPermissions helper test, useUserActivity hook test, useTakeTicket/useResolveTicket/useReassignTicket/useCommentOnTicket helpdesk hook tests, normalizeJobStatus extension. 2026-05-07."
     },
     "lib/platform/": {
-      "lines": 92.20,
+      "lines": 97.78,
       "branches": 0,
       "functions": 0,
       "target_floor": 70,
-      "note": "TARGET FLOOR EXCEEDED. Lifted from 62.41% by coverage sprint — added tests for request/context, formatting/format, actions/danger-level, permissions/rbac, ai-skills/registry. 2026-05-07."
+      "note": "Bumped 92.20 → 97.78 in batch 155 — incidental coverage from batches 137-153 (ai-actions executor smoke tests, audit-emitter parametric, inferResourceHint export, _validateOne export). Per baseline_update_rule: ≥5pp gain locks new floor. 2026-05-14."
     },
     "lib/utils/": {
       "lines": 100,
@@ -53,11 +53,11 @@
       "note": "Smoke test added in R-OPS-01 T01 — this file is the only fully-covered surface"
     },
     "components/shared/": {
-      "lines": 70.45,
+      "lines": 79.89,
       "branches": 0,
       "functions": 0,
       "target_floor": 70,
-      "note": "TARGET FLOOR EXCEEDED. Lifted from 34.09% by coverage sprint — added smoke tests for detail-view (BoolBadge/InfoRow/DetailSection/DetailHeaderCard/DetailLoadingSkeleton/DetailBackButton), stats (StatCard/StatsGrid/KpiCard), empty-state, error-state, skeleton-card, page-shell, form (PlatformForm/FormError/FormActions), error-boundary, permission-gate, feature-gate, data-table (TableSkeleton/TablePagination), timeline (PlatformTimeline/TimelineEventItem/TimelineSkeleton). 2026-05-07."
+      "note": "Bumped 70.45 → 79.89 in batch 155 — incidental coverage from batches 100s i18n arc + new DataTable render tests (data-table.test.tsx covers main primitive: render/empty/loading/error/selection/onRowClick). Per baseline_update_rule: ≥5pp gain locks new floor. 2026-05-14."
     },
     "components/shell/": {
       "lines": 85.0,
