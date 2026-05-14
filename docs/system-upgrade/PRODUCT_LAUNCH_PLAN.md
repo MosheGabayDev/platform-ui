@@ -264,6 +264,22 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-fifty-seventh batch — theme-store tests for accent action
+
+`lib/theme-store.ts` was at **37.5%** lines — the `setAccent` action
+wasn't exercised. The action writes 3 CSS custom properties
+(`--primary`, `--ring`, `--sidebar-primary`) on
+`document.documentElement`; a regression there silently breaks the
+accent-picker UX. Added 4 cases:
+
+- defaults to `indigo`
+- `setAccent` updates store state
+- `setAccent` writes the three CSS custom props with matching `oklch()`
+- `ACCENT_COLORS` exposes 6 known accents (label/oklch/hex shape)
+
+Tests: `npx vitest run` → **1341 passed (was 1337 — +4)**,
+`tsc --noEmit` clean, coverage gate green.
+
 ### 2026-05-14 — One-hundred-and-fifty-sixth batch — routing rule match-condition coverage
 
 `ruleMatches` in `lib/api/ai-providers.ts` checks 5 conditions:
