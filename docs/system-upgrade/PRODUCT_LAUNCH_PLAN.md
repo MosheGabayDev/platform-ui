@@ -264,6 +264,21 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-forty-ninth batch — fix help ↔ mock LLM capability_level drift
+
+Real drift caught: the help page advertised `take ticket` as
+**WRITE_HIGH** and `cancel batch` as **DESTRUCTIVE**, but the mock
+LLM (`lib/api/ai.ts`) emits **WRITE_LOW** and **WRITE_HIGH**
+respectively. Users would see one risk badge in the help dialog and
+a different one on the action preview card — confusing and erodes
+trust in the risk indicator. Help fixed to match runtime emission;
+locked with parametric invariant: for every aiShortcut in the docs
+catalog, the help's `capability_level` MUST equal whatever
+`sendChatMessage` actually emits for the matching grammar phrase.
+
+Tests: `npx vitest run` → **1318 passed (was 1317 — +1)**,
+`tsc --noEmit` clean.
+
 ### 2026-05-14 — One-hundred-and-forty-eighth batch — Hebrew label substitution on action preview card
 
 Mock LLM emits English-only labels like `Take ticket #1002`. Hebrew

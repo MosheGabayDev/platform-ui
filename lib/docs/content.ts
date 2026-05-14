@@ -317,7 +317,7 @@ const AI_SHORTCUTS: AIShortcut[] = [
     phrase: "take ticket NNNN",
     action_id: "helpdesk.ticket.take",
     descriptionKey: "help.aiShortcuts.takeTicket",
-    capability_level: "WRITE_HIGH",
+    capability_level: "WRITE_LOW",
   },
   {
     phrase: "resolve ticket NNNN",
@@ -335,7 +335,7 @@ const AI_SHORTCUTS: AIShortcut[] = [
     phrase: "cancel batch NNNN",
     action_id: "helpdesk.batch.cancel",
     descriptionKey: "help.aiShortcuts.cancelBatch",
-    capability_level: "DESTRUCTIVE",
+    capability_level: "WRITE_HIGH",
   },
   {
     phrase: "search users for <query>",

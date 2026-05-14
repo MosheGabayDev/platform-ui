@@ -94,6 +94,44 @@ describe("DOCS_CATALOG invariants", () => {
       expect(allowed.has(sc.capability_level)).toBe(true);
     }
   });
+
+  it("aiShortcut capability_level matches the mock LLM's actual emission (batch 149)", async () => {
+    // Drift caught: the help page advertised "take ticket" as
+    // WRITE_HIGH and "cancel batch" as DESTRUCTIVE, but the mock LLM
+    // (lib/api/ai.ts) emits WRITE_LOW and WRITE_HIGH respectively.
+    // Users would see one risk badge in the help dialog and a
+    // different one on the action preview card — eroding trust.
+    // Lock the help shortcut's `capability_level` to whatever
+    // sendChatMessage actually produces for the matching phrase.
+    const { sendChatMessage } = await import("@/lib/api/ai");
+    const phraseFor: Record<string, string> = {
+      "helpdesk.ticket.take": "take ticket 1001",
+      "helpdesk.ticket.resolve": "resolve ticket 1002",
+      "helpdesk.maintenance.cancel": "cancel maintenance 1003",
+      "helpdesk.batch.cancel": "cancel batch 1004",
+      "users.search": "search users for alice",
+      "users.deactivate": "deactivate user 7",
+      "users.reset_password": "reset password for user 9",
+      "notes.create": "create note T | B",
+      "bookmarks.create": "add bookmark T https://example.com/x",
+      "whatsapp.session.link": "link whatsapp",
+      "whatsapp.session.relink": "relink whatsapp 3",
+      "whatsapp.session.unlink": "unlink whatsapp session 4",
+    };
+    const mismatches: string[] = [];
+    for (const sc of DOCS_CATALOG.aiShortcuts) {
+      const phrase = phraseFor[sc.action_id];
+      if (!phrase) continue;
+      const res = await sendChatMessage({ message: phrase, context: null });
+      const actual = res.actionProposal?.capabilityLevel;
+      if (actual && actual !== sc.capability_level) {
+        mismatches.push(
+          `${sc.action_id}: help=${sc.capability_level}, mock LLM=${actual}`,
+        );
+      }
+    }
+    expect(mismatches).toEqual([]);
+  }, 15_000);
 });
 
 describe("DOCS_CATALOG translation coverage", () => {
