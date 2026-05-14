@@ -264,6 +264,23 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-fifty-eighth batch — TiltCard + CursorGlow hover-effect tests
+
+Both visual primitives were stuck at **27%/31%** because the
+mousemove/mouseleave handlers were untested. Stubbed
+`requestAnimationFrame` to flush synchronously and asserted:
+
+- **TiltCard**: renders children; mousemove writes a `perspective(800px)
+  rotateX/Y/scale3d(…)` transform; mouseleave resets to the neutral
+  pose (`rotateY(0) rotateX(0) scale3d(1,1,1)`)
+- **CursorGlow**: renders children; mousemove writes `--glow-x`,
+  `--glow-y`, `--glow-opacity=1` CSS custom properties relative to
+  the bounding rect; mouseleave sets opacity back to 0
+
+Tests: `npx vitest run` → **1347 passed (was 1341 — +6)**,
+`tsc --noEmit` clean, coverage gate green (overall lines
+85.76 → 86.30%).
+
 ### 2026-05-14 — One-hundred-and-fifty-seventh batch — theme-store tests for accent action
 
 `lib/theme-store.ts` was at **37.5%** lines — the `setAccent` action
