@@ -148,10 +148,17 @@ function AuditLogInner() {
       {
         accessorKey: "resource_type",
         header: t("table.resource"),
-        cell: ({ row }) =>
-          row.original.resource_type ? (
+        cell: ({ row }) => {
+          const rt = row.original.resource_type;
+          if (!rt) return <span className="text-xs text-muted-foreground">—</span>;
+          // t.has() guards unknown resource_types (forward-compatible: BE
+          // can introduce new ones without breaking this column).
+          const label = t.has(`resourceTypes.${rt}` as never)
+            ? t(`resourceTypes.${rt}` as never)
+            : rt;
+          return (
             <span className="text-xs">
-              <span className="text-muted-foreground">{row.original.resource_type}</span>
+              <span className="text-muted-foreground">{label}</span>
               {row.original.resource_id && (
                 <>
                   {" "}
@@ -159,9 +166,8 @@ function AuditLogInner() {
                 </>
               )}
             </span>
-          ) : (
-            <span className="text-xs text-muted-foreground">—</span>
-          ),
+          );
+        },
       },
       {
         accessorKey: "ip",

@@ -264,6 +264,23 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-forty-fourth batch — i18n labels for audit resource_type column
+
+The audit-log table column rendered raw `resource_type` strings like
+`whatsapp_session` / `batch_task` directly — fine in English, ugly
+in Hebrew, and a localization gap. Added `admin.auditLog.resourceTypes`
+to both en/he catalogs covering the 12 distinct resource types
+emitted by `inferResourceHint` plus the 5 historical fixture types.
+Page now uses `t.has(...) ? t(...) : rt` so an unknown BE-introduced
+type falls back to the raw string rather than throwing.
+
+Locked with a new invariant in `lib/i18n-catalog.test.ts`: every
+resource_type emitted by `inferResourceHint` MUST have a label in
+both locales. Future executors can't drift the audit UI silently.
+
+Tests: `npx vitest run` → **1314 passed (was 1313 — +1)**,
+`tsc --noEmit` clean, i18n-orphan audit 0/1639.
+
 ### 2026-05-14 — One-hundred-and-forty-third batch — audit-log fixture entries for new verticals
 
 Added three seeded entries (ids 1018–1020) to `lib/api/audit.ts`

@@ -367,6 +367,20 @@
         "category": "Category",
         "ip": "IP"
       },
+      "resourceTypes": {
+        "session": "Session",
+        "ticket": "Ticket",
+        "user": "User",
+        "role": "Role",
+        "ai_session": "AI session",
+        "ai_action_token": "AI action token",
+        "sla_policy": "SLA policy",
+        "maintenance_window": "Maintenance window",
+        "batch_task": "Batch task",
+        "note": "Note",
+        "bookmark": "Bookmark",
+        "whatsapp_session": "WhatsApp session"
+      },
       "securityBanner": "{count} security events detected in the last 24h",
       "actor": {
         "anonymous": "anonymous"

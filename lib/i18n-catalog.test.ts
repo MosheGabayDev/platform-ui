@@ -352,6 +352,37 @@ describe("i18n catalog parity (he ↔ en)", () => {
     expect(missing).toEqual([]);
   });
 
+  it("every resource_type emitted by inferResourceHint has an auditLog.resourceTypes label (batch 144)", async () => {
+    // The audit-log page renders resource_type via
+    // t("admin.auditLog.resourceTypes.<rt>"). A new executor that
+    // emits a resource_type without a corresponding i18n entry will
+    // fall back to the raw snake_case string in the UI, breaking the
+    // Hebrew experience silently. Lock this so the next vertical's
+    // inferResourceHint addition forces an i18n label.
+    const { _registeredActions, inferResourceHint } = await import(
+      "@/lib/platform/ai-actions/executors"
+    );
+    const enLabels = ((en as unknown as Catalog).admin as Catalog | undefined)
+      ?.auditLog as Catalog | undefined;
+    const heLabels = ((he as unknown as Catalog).admin as Catalog | undefined)
+      ?.auditLog as Catalog | undefined;
+    const enRT = enLabels?.resourceTypes as Record<string, string> | undefined;
+    const heRT = heLabels?.resourceTypes as Record<string, string> | undefined;
+    expect(enRT, "en admin.auditLog.resourceTypes missing").toBeDefined();
+    expect(heRT, "he admin.auditLog.resourceTypes missing").toBeDefined();
+    const emitted = new Set<string>();
+    for (const actionId of _registeredActions()) {
+      const rt = inferResourceHint(actionId, {}).resource_type;
+      if (rt) emitted.add(rt);
+    }
+    const missing: string[] = [];
+    for (const rt of emitted) {
+      if (!(rt in (enRT ?? {}))) missing.push(`en:${rt}`);
+      if (!(rt in (heRT ?? {}))) missing.push(`he:${rt}`);
+    }
+    expect(missing).toEqual([]);
+  });
+
   it("no leaf value is empty string in either locale", () => {
     function emptyLeaves(obj: Catalog, prefix = ""): string[] {
       const out: string[] = [];

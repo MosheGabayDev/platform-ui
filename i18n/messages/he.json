@@ -367,6 +367,20 @@
         "category": "קטגוריה",
         "ip": "IP"
       },
+      "resourceTypes": {
+        "session": "התחברות",
+        "ticket": "כרטיס",
+        "user": "משתמש",
+        "role": "תפקיד",
+        "ai_session": "שיחת AI",
+        "ai_action_token": "אסימון פעולת AI",
+        "sla_policy": "מדיניות SLA",
+        "maintenance_window": "חלון תחזוקה",
+        "batch_task": "משימת אצווה",
+        "note": "פתק",
+        "bookmark": "סימנייה",
+        "whatsapp_session": "שיחת WhatsApp"
+      },
       "securityBanner": "זוהו {count} אירועי אבטחה ב-24 שעות האחרונות",
       "actor": {
         "anonymous": "אנונימי"
