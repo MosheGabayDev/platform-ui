@@ -264,6 +264,56 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-fifty-ninth batch — WhatsApp module review + BE spec
+
+User requested professional review + BE blueprint for the WhatsApp
+module (parallel agent owns the implementation; this batch is
+read-only review + spec authoring, no module code touched).
+
+**Review findings** (full report in conversation):
+
+🔴 HIGH severity:
+1. `whatsapp.delete_by_subject` permission referenced by DSR admin
+   page but NOT registered in `lib/api/roles.ts` — non-admin users
+   cannot be granted it.
+2. ShareDialog trigger lacks `PermissionGate` — `whatsapp.share`
+   permission needs to exist and gate the button.
+3. `docs/modules/whatsapp/LEGACY_INVENTORY.md` + `E2E_COVERAGE.md`
+   missing — blocks "Done" per development-rules.md.
+4. No spec in `docs/system-upgrade/04-capabilities/` for the BE team.
+
+🟠 MED severity:
+5. Mock phone-hash is multiply-by-31 (NOT cryptographic); BE spec
+   MUST mandate SHA-256 + per-org pepper.
+6. Phone normalization happens client-side; BE MUST re-normalize
+   server-side, never trust client value.
+7. localStorage caches (`whatsapp:*:v1`) lack runtime guard after
+   MOCK_MODE flip → potential cross-tenant residue.
+8. QR polling has no max-attempt bound (infinite 3s loop).
+9. `media_url_endpoint` field is open-string; spec MUST enforce
+   relative path to prevent XSS / redirect attacks.
+10. `eraseReason` optional in self-erase dialog (audit-trail gap).
+
+**Deliverable:** Authored
+`docs/system-upgrade/04-capabilities/whatsapp-bridge-spec.md` —
+2900-line capability spec covering: threat model, architecture
+diagram, URL contract (5 surfaces, 19 endpoints), payload contracts
+mirroring `lib/modules/whatsapp/types.ts`, webhook bridge contract
+(HMAC + idempotency), error envelope with 13 canonical codes,
+permissions registry, audit emissions (10 actions), AI integration,
+feature flag, MOCK_MODE flip checklist (15 steps + sanity gates),
+security model (encryption / authn / authz / rate limits / PII /
+compliance), performance targets, open questions, FE backlog
+(P0/P1/P2 priorities).
+
+No code changes — parallel agent owns `lib/api/whatsapp.ts`,
+`lib/modules/whatsapp/*`, `app/(dashboard)/whatsapp/**`. Spec doc
+is the deliverable for BE team.
+
+Tests: not run (no code changes; parallel agent WIP currently has
+test failures in `whatsapp/sessions/page.test.tsx` unrelated to
+this batch).
+
 ### 2026-05-14 — One-hundred-and-fifty-eighth batch — TiltCard + CursorGlow hover-effect tests
 
 Both visual primitives were stuck at **27%/31%** because the
