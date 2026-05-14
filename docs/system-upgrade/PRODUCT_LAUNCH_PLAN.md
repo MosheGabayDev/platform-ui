@@ -264,6 +264,25 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-thirty-ninth batch — `bookmarks.create` end-to-end demo-slice test
+
+Companion to batch 138. Locks the full proposal → confirm →
+executor → audit chain for a second non-helpdesk vertical
+(`bookmarks.create`). Asserts:
+
+- mock LLM proposes `bookmarks.create` for `"add bookmark … https://…"`
+- executor returns `"Bookmark added: …"`
+- audit log gains `action="bookmarks.create"`,
+  `outcome="success"`, `resource_type="bookmark"`
+
+Two of the four new verticals (notes, bookmarks) now have full
+end-to-end demo-slice coverage. WhatsApp deferred — its three-step
+session lifecycle needs a different shape than the single-shot
+notes/bookmarks/helpdesk flows.
+
+Tests: `npx vitest run` → **1310 passed (was 1309 — +1)**,
+`tsc --noEmit` clean, `check-coverage-baseline.mjs` ✓.
+
 ### 2026-05-14 — One-hundred-and-thirty-eighth batch — `notes.create` end-to-end demo-slice test
 
 Upgraded the AI action coverage from unit-level (batch 137) to

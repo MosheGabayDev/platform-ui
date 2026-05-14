@@ -198,6 +198,54 @@ describe("AI demo slice — end-to-end (ADR-038)", () => {
     expect(entry).toBeDefined();
   });
 
+  it("bookmarks.create chain runs end-to-end and writes audit entry (batch 139)", async () => {
+    // Companion to the notes.create end-to-end test (batch 138).
+    // Locks in that a second non-helpdesk vertical's mutation flow
+    // travels the full proposal → confirm → executor → category=ai
+    // audit chain.
+    useAssistantSession.getState().openDrawer();
+    const chat = await sendChatMessage({
+      message: "add bookmark Runbook https://wiki.example/runbook",
+      context: null,
+    });
+    expect(chat.actionProposal).not.toBeNull();
+    expect(chat.actionProposal!.actionId).toBe("bookmarks.create");
+
+    useAssistantSession.getState().sendMessage("add bookmark Runbook ...");
+    useAssistantSession.getState().receiveResponse(chat.text);
+    useAssistantSession.getState().proposeAction(chat.actionProposal!);
+
+    const proposal = useAssistantSession.getState().pendingProposal!;
+    useAssistantSession.getState().confirmAction(proposal.tokenId);
+
+    const qc = new QueryClient();
+    const auditBefore = await fetchAuditLog({
+      page: 1,
+      per_page: 1000,
+      category: "ai",
+    });
+    const result = await runActionExecutor(
+      proposal.actionId,
+      proposal.params,
+      qc,
+    );
+    expect(result.message).toMatch(/Bookmark added/i);
+    await flush();
+    const auditAfter = await fetchAuditLog({
+      page: 1,
+      per_page: 1000,
+      category: "ai",
+    });
+    expect(auditAfter.data.total).toBeGreaterThan(auditBefore.data.total);
+    const entry = auditAfter.data.entries.find(
+      (e) =>
+        e.action === "bookmarks.create" &&
+        e.metadata.outcome === "success" &&
+        e.resource_type === "bookmark",
+    );
+    expect(entry).toBeDefined();
+  });
+
   it("executor failure surfaces audit entry with outcome=error", async () => {
     const qc = new QueryClient();
     const auditBefore = await fetchAuditLog({
