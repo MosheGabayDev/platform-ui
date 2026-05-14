@@ -1,8 +1,23 @@
 import { describe, it, expect } from "vitest";
 import { QueryClient } from "@tanstack/react-query";
-import { getActionExecutor, _registeredActions } from "./executors";
+import { getActionExecutor, _registeredActions, inferResourceHint } from "./executors";
 
 describe("AI action executors", () => {
+  it("every registered executor has an inferResourceHint mapping (batch 140)", () => {
+    // Invariant: a new executor whose actionId prefix doesn't appear
+    // in inferResourceHint() will silently emit audit entries with
+    // resource_type=undefined. That breaks the audit log filter UI
+    // and the bidirectional resource-hint ↔ skill parity invariant
+    // in batch 135. Lock it here so the next executor added forces
+    // an inferResourceHint() update.
+    const missing: string[] = [];
+    for (const actionId of _registeredActions()) {
+      const hint = inferResourceHint(actionId, {});
+      if (!hint.resource_type) missing.push(actionId);
+    }
+    expect(missing).toEqual([]);
+  });
+
   it("registers helpdesk.ticket.take and helpdesk.ticket.resolve", () => {
     const ids = _registeredActions();
     expect(ids).toContain("helpdesk.ticket.take");

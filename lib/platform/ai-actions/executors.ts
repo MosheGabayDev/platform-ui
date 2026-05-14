@@ -199,7 +199,7 @@ export async function runActionExecutor(
   }
 }
 
-function inferResourceHint(
+export function inferResourceHint(
   actionId: string,
   params: ActionParams,
 ): { resource_type?: string; resource_id?: string | number } {

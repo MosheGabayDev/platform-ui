@@ -264,6 +264,20 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-fortieth batch — executor ↔ inferResourceHint parity invariant
+
+Locks an invariant: every actionId in `_registeredActions()` must
+yield a non-empty `resource_type` from `inferResourceHint()`. Without
+this gate, a new executor with an unfamiliar prefix would silently
+emit audit entries with `resource_type=undefined`, breaking the
+audit-log filter UI and the bidirectional resource-hint ↔ skill
+parity check from batch 135.
+
+Exported `inferResourceHint` so the test can call it directly.
+
+Tests: `npx vitest run` → **1311 passed (was 1310 — +1)**,
+`tsc --noEmit` clean.
+
 ### 2026-05-14 — One-hundred-and-thirty-ninth batch — `bookmarks.create` end-to-end demo-slice test
 
 Companion to batch 138. Locks the full proposal → confirm →
