@@ -264,6 +264,18 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-forty-third batch — audit-log fixture entries for new verticals
+
+Added three seeded entries (ids 1018–1020) to `lib/api/audit.ts`
+for `notes.create`, `bookmarks.create`, `whatsapp.session.link` —
+all `category="ai"`, all `outcome=success`. Closes the demo-content
+gap: the audit-log filter UI now shows realistic activity for each
+of the new verticals wired in batches 131–134, not just helpdesk.
+PII fields stay redacted in metadata.
+
+Tests: `npx vitest run` → **1313 passed (unchanged — fixture-only
+change)**, `tsc --noEmit` clean.
+
 ### 2026-05-14 — One-hundred-and-forty-second batch — WhatsApp end-to-end demo-slice test
 
 Third non-helpdesk vertical end-to-end in `demo-slice.test.tsx`.
