@@ -264,6 +264,21 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-forty-fifth batch — extend resource_type i18n parity to fixture types
+
+Batch 144 locked `inferResourceHint` output against the i18n
+`resourceTypes` map but the audit-log fixtures also seed types no
+executor produces (session, ai_session, ai_action_token, sla_policy,
+role). Without the lock, a future fixture entry with a new
+`resource_type` would silently render as raw snake_case.
+
+Added `_mockFixtureResourceTypes()` test helper to `lib/api/audit.ts`
+and extended the batch-144 invariant to merge fixture types with
+executor types before checking both catalogs.
+
+Tests: `npx vitest run` → **1314 passed (unchanged — invariant
+already green)**, `tsc --noEmit` clean.
+
 ### 2026-05-14 — One-hundred-and-forty-fourth batch — i18n labels for audit resource_type column
 
 The audit-log table column rendered raw `resource_type` strings like

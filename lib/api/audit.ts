@@ -511,3 +511,12 @@ export async function recordAuditEntry(
 export function _mockEntryCount(): number {
   return MOCK_ENTRIES.length;
 }
+
+/** Test helper — distinct resource_type values across all seeded fixtures. */
+export function _mockFixtureResourceTypes(): string[] {
+  const set = new Set<string>();
+  for (const e of MOCK_ENTRIES) {
+    if (e.id < 100_000 && e.resource_type) set.add(e.resource_type);
+  }
+  return [...set].sort();
+}

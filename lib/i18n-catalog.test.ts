@@ -370,11 +370,16 @@ describe("i18n catalog parity (he ↔ en)", () => {
     const heRT = heLabels?.resourceTypes as Record<string, string> | undefined;
     expect(enRT, "en admin.auditLog.resourceTypes missing").toBeDefined();
     expect(heRT, "he admin.auditLog.resourceTypes missing").toBeDefined();
+    const { _mockFixtureResourceTypes } = await import("@/lib/api/audit");
     const emitted = new Set<string>();
     for (const actionId of _registeredActions()) {
       const rt = inferResourceHint(actionId, {}).resource_type;
       if (rt) emitted.add(rt);
     }
+    // Fixture entries seed types that no executor produces yet
+    // (session, ai_session, ai_action_token, sla_policy, role). Lock
+    // those too so the audit log doesn't render any raw snake_case.
+    for (const rt of _mockFixtureResourceTypes()) emitted.add(rt);
     const missing: string[] = [];
     for (const rt of emitted) {
       if (!(rt in (enRT ?? {}))) missing.push(`en:${rt}`);
