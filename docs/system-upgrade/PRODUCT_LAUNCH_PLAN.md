@@ -264,6 +264,23 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-fifty-sixth batch — routing rule match-condition coverage
+
+`ruleMatches` in `lib/api/ai-providers.ts` checks 5 conditions:
+`purpose`, `max_estimated_cost_usd`, `min_context_tokens`,
+`action_id_pattern`, and `enabled`. The seeded fixture rules cover
+the first two; the latter two were uncovered (lines 408-415). Added
+a parametric test that injects a rule using both
+`min_context_tokens >= 5000` AND `action_id_pattern = "helpdesk.*"`
+and asserts:
+
+- large context + matching action_id → rule fires
+- small context → guard rejects (min_context_tokens path)
+- absent action_id → guard rejects (action_id_pattern path)
+
+Tests: `npx vitest run` → **1337 passed (was 1336 — +1)**,
+`tsc --noEmit` clean, coverage gate green.
+
 ### 2026-05-14 — One-hundred-and-fifty-fifth batch — DataTable render tests + baseline bump
 
 `DataTable` is the cross-cutting shared primitive every admin /

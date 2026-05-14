@@ -128,6 +128,54 @@ describe("ai-providers client (mock mode)", () => {
     expect(res.data.provider_id).toBe("anthropic"); // primary enabled config
   });
 
+  it("resolveRouting honours min_context_tokens + action_id_pattern (batch 156)", async () => {
+    // Seeded rules cover purpose + max_estimated_cost_usd. The
+    // min_context_tokens and action_id_pattern branches in
+    // ruleMatches were uncovered — add a custom rule that uses both
+    // and verify it fires (and that smaller contexts fall through).
+    await updateProviderConfig({
+      provider_id: "anthropic",
+      enabled: true,
+      routing_rules: [
+        {
+          id: "rule-long-ctx",
+          description: "Long context + helpdesk → Sonnet",
+          enabled: true,
+          priority: 100, // higher than seeded
+          match: {
+            purpose: "chat",
+            min_context_tokens: 5000,
+            action_id_pattern: "helpdesk.*",
+          },
+          target: { provider_id: "anthropic", model: "claude-sonnet-4-5" },
+        },
+      ],
+    });
+    // Large context + matching action_id → rule fires
+    const hit = await resolveRouting({
+      purpose: "chat",
+      action_id: "helpdesk.ticket.take",
+      estimated_input_tokens: 4000,
+      estimated_output_tokens: 2000,
+    });
+    expect(hit.data.matched_rule_id).toBe("rule-long-ctx");
+    // Small context → rule skipped (min_context_tokens guard)
+    const miss = await resolveRouting({
+      purpose: "chat",
+      action_id: "helpdesk.ticket.take",
+      estimated_input_tokens: 10,
+      estimated_output_tokens: 10,
+    });
+    expect(miss.data.matched_rule_id).not.toBe("rule-long-ctx");
+    // No action_id at all → action_id_pattern guard rejects
+    const noAction = await resolveRouting({
+      purpose: "chat",
+      estimated_input_tokens: 4000,
+      estimated_output_tokens: 2000,
+    });
+    expect(noAction.data.matched_rule_id).not.toBe("rule-long-ctx");
+  });
+
   it("resolveRouting throws when no provider is enabled", async () => {
     // Disable every provider that earlier tests in this file may have enabled.
     const allProviders = (await fetchProviderCatalog()).data.providers.map((p) => p.id);
