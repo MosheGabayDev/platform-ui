@@ -169,4 +169,43 @@ describe("sendChatMessage (mock mode)", () => {
     expect(orphans).toEqual([]);
     expect(seen.size).toBe(12);
   });
+
+  it("every proposal has non-empty label, targetSummary, tokenId, params (batch 146)", { timeout: 15_000 }, async () => {
+    // Action-preview-card renders proposal.label as the card title and
+    // proposal.targetSummary as the subtitle. An empty string slips
+    // through TypeScript ("" is still a string) and shows up as a
+    // blank card in the UI. Lock that the mock LLM always populates
+    // these fields for every grammar phrase.
+    const phrases = [
+      "take ticket 1001",
+      "resolve ticket 1002",
+      "cancel maintenance 1003",
+      "cancel batch 1004",
+      "search users for alice",
+      "deactivate user 7",
+      "reset password for user 9",
+      "create note Standup recap | We discussed Q2 priorities.",
+      "add bookmark Postmortem template https://wiki.example/pm-template",
+      "link whatsapp",
+      "relink whatsapp 3",
+      "unlink whatsapp session 4",
+    ];
+    const offenders: string[] = [];
+    for (const phrase of phrases) {
+      const res = await sendChatMessage({ message: phrase, context: null });
+      const p = res.actionProposal;
+      if (!p) {
+        offenders.push(`${phrase}: no proposal`);
+        continue;
+      }
+      if (!p.label?.trim()) offenders.push(`${phrase}: empty label`);
+      if (!p.targetSummary?.trim()) offenders.push(`${phrase}: empty targetSummary`);
+      if (!p.tokenId?.trim()) offenders.push(`${phrase}: empty tokenId`);
+      if (!p.actionId?.trim()) offenders.push(`${phrase}: empty actionId`);
+      if (!p.params || typeof p.params !== "object") {
+        offenders.push(`${phrase}: missing params`);
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
 });

@@ -264,6 +264,19 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-forty-sixth batch — proposal-shape invariant for every grammar phrase
+
+Action-preview-card renders `proposal.label` as title and
+`proposal.targetSummary` as subtitle. An empty string passes
+TypeScript ("" is still a string) but renders as a blank card. Added
+a parametric test that runs all 12 grammar phrases and asserts
+`label`, `targetSummary`, `tokenId`, `actionId`, `params` are all
+populated. Catches future grammar additions that forget to set one
+of these fields.
+
+Tests: `npx vitest run` → **1315 passed (was 1314 — +1)**,
+`tsc --noEmit` clean.
+
 ### 2026-05-14 — One-hundred-and-forty-fifth batch — extend resource_type i18n parity to fixture types
 
 Batch 144 locked `inferResourceHint` output against the i18n
