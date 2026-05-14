@@ -23,6 +23,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { PermissionGate } from "@/components/shared/permission-gate";
 import { usePlatformMutation } from "@/lib/hooks/use-platform-mutation";
 import {
   fetchWhatsappChatShares,
@@ -144,14 +145,21 @@ export function WhatsAppShareDialog({ chat }: { chat: WhatsAppChat }) {
 
   if (sharesQuery.error) return null;
 
+  // Batch 160 — gate the Share trigger behind whatsapp.share (review HIGH #2).
+  // Previously the button rendered for anyone with whatsapp.access, which is
+  // overly permissive: a viewer-tier user could leak chat content cross-team
+  // without an admin restriction lever. PermissionGate renders nothing when
+  // denied — owners without the permission simply don't see the button, and
+  // the chat detail page continues to work for them as read-only.
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" disabled={sharesQuery.isLoading}>
-          <Share2 />
-          {t("button")}
-        </Button>
-      </DialogTrigger>
+    <PermissionGate permission="whatsapp.share">
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <Button variant="outline" size="sm" disabled={sharesQuery.isLoading}>
+            <Share2 />
+            {t("button")}
+          </Button>
+        </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{t("title")}</DialogTitle>
@@ -251,8 +259,9 @@ export function WhatsAppShareDialog({ chat }: { chat: WhatsAppChat }) {
             <Share2 />
             {shareMutation.isPending ? t("sharing") : t("share")}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </PermissionGate>
   );
 }

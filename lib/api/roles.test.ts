@@ -36,6 +36,41 @@ describe("roles client (mock mode)", () => {
     expect(res.data.permissions.length).toBeGreaterThan(0);
   });
 
+  it("permission catalog covers every permission referenced by skills + admin pages (batch 160)", async () => {
+    // Drift caught in batch 159 review: /whatsapp/admin/dsr referenced
+    // `whatsapp.delete_by_subject` and ShareDialog implicitly assumed
+    // `whatsapp.share`, but neither was registered. Lock the invariant:
+    // every permission string used by code MUST appear in the catalog
+    // so org admins can grant it to non-admin roles.
+    const res = await fetchAllPermissions();
+    const registered = new Set(res.data.permissions.map((p) => p.name));
+    // Permissions surfaced by skills (lib/modules/<module>/skills.ts) +
+    // page-level constants. Keep this list aligned with the canonical
+    // PermissionGate / required_permissions references in code.
+    const referenced: string[] = [
+      // helpdesk
+      "helpdesk.assign",
+      "helpdesk.approve",
+      "helpdesk.maintenance.manage",
+      "helpdesk.batch.manage",
+      // users
+      "users.view",
+      "users.create",
+      "users.edit",
+      "users.delete",
+      // notes / bookmarks
+      "notes.create",
+      "bookmarks.create",
+      // whatsapp (batch 160 added share + delete_by_subject)
+      "whatsapp.access",
+      "whatsapp.session.manage",
+      "whatsapp.share",
+      "whatsapp.delete_by_subject",
+    ];
+    const missing = referenced.filter((p) => !registered.has(p));
+    expect(missing).toEqual([]);
+  });
+
   it("createRole returns success", async () => {
     const res = await createRole({
       name: "test-role",

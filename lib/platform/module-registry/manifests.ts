@@ -361,7 +361,12 @@ const MANIFESTS: ModuleManifest[] = [
       "whatsapp.session.relink",
       "whatsapp.session.unlink",
     ],
-    permissions: ["whatsapp.access", "whatsapp.session.manage"],
+    permissions: [
+      "whatsapp.access",
+      "whatsapp.session.manage",
+      "whatsapp.share",
+      "whatsapp.delete_by_subject",
+    ],
     search_types: [],
     introduced_in_version: "0.50.0",
     status: "experimental",

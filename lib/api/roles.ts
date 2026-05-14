@@ -76,10 +76,19 @@ const MOCK_PERMISSIONS: RolePermission[] = [
   // Batch 78 — required by helpdesk.batch.cancel skill; was missing from the catalog so AI
   // confirmation flow would deny with no diagnosable reason.
   { id: 38, name: "helpdesk.batch.manage", description: "Schedule, edit, and cancel helpdesk batch operations", created_at: null },
+  // Batch 160 — WhatsApp bridge drift fixes (review HIGH #1, #2).
+  // `whatsapp.share` is required by the ShareDialog button (was previously
+  // implicitly gated by `whatsapp.access`, which is too permissive — a
+  // viewer-level user could share archive content cross-team).
+  // `whatsapp.delete_by_subject` is referenced by /whatsapp/admin/dsr but
+  // was missing from the catalog, so non-admin users couldn't be granted
+  // it (only is_admin shortcut worked). See whatsapp-bridge-spec.md §7.
+  { id: 39, name: "whatsapp.share", description: "Share own WhatsApp chats with same-org users", created_at: null },
+  { id: 40, name: "whatsapp.delete_by_subject", description: "Run GDPR delete-by-phone DSR jobs on WhatsApp archive", created_at: null },
 ];
 
 const MOCK_ROLES: RoleSummary[] = [
-  { id: 1, name: "system_admin", description: "Cross-tenant platform operator", permission_count: 38, user_count: 1, created_at: null, updated_at: null },
+  { id: 1, name: "system_admin", description: "Cross-tenant platform operator", permission_count: 40, user_count: 1, created_at: null, updated_at: null },
   { id: 2, name: "manager", description: "Org manager — team operations", permission_count: 8, user_count: 1, created_at: null, updated_at: null },
   { id: 3, name: "technician", description: "Operator — handles tickets", permission_count: 5, user_count: 1, created_at: null, updated_at: null },
   { id: 4, name: "viewer", description: "Read-only role", permission_count: 2, user_count: 0, created_at: null, updated_at: null },

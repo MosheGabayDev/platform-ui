@@ -264,6 +264,88 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-sixtieth batch — WhatsApp review HIGH fixes (boundary-safe)
+
+Executed all HIGH-severity review findings that don't touch files the
+parallel agent is actively editing. Parallel-agent-owned files
+(`lib/api/whatsapp.ts`, `app/(dashboard)/whatsapp/sessions/page.tsx`,
+`lib/api/whatsapp.test.ts`, `lib/api/query-keys.ts`, `i18n/messages/
+{en,he}.json`, `lib/modules/whatsapp/types.ts`, `app/(dashboard)/
+whatsapp/admin/*`) are NOT touched.
+
+**Fixes applied:**
+
+1. **🔴 HIGH #1 fixed — permission catalog drift.**
+   `lib/api/roles.ts`: added `whatsapp.share` (id 39) and
+   `whatsapp.delete_by_subject` (id 40). Bumped system_admin
+   `permission_count` 38 → 40. Closes the gap where `/whatsapp/admin/
+   dsr` referenced an unregistered permission (non-admin users could
+   not be granted it; only `is_admin` shortcut worked).
+
+2. **🔴 HIGH #2 fixed — ShareDialog ungated.**
+   `components/modules/whatsapp/share-dialog.tsx`: wrapped the
+   owner-side Share button + dialog in
+   `<PermissionGate permission="whatsapp.share">`. Recipient-side
+   "revoke my access" path untouched (recipients always need to be
+   able to revoke their own access). Previously anyone with
+   `whatsapp.access` could share — now requires the explicit
+   `whatsapp.share` permission.
+
+3. **🔴 HIGH #3 fixed — module docs missing.**
+   Created:
+   - `docs/modules/whatsapp/LEGACY_INVENTORY.md` (19 capabilities
+     tracked, 14 open issues catalogued by severity + ownership)
+   - `docs/modules/whatsapp/E2E_COVERAGE.md` (5 missing spec files
+     scoped + mobile/RTL requirements + post-BE-flip checklist)
+   - `docs/modules/whatsapp/AI_READINESS.md` (Level 3 declared,
+     read paths intentionally excluded, voice readiness, open Qs)
+
+4. **🟢 Invariant added — catalog ↔ code parity.**
+   `lib/api/roles.test.ts`: new test asserts every permission
+   referenced by code (helpdesk + users + notes + bookmarks +
+   whatsapp) is in `MOCK_PERMISSIONS`. Catches the next
+   `whatsapp.delete_by_subject`-style drift before merge. Companion
+   to the manifest ↔ catalog invariant in
+   `lib/platform/module-registry/manifests.test.ts:208`.
+
+5. **🟢 Manifest fix — orphan permission resolution.**
+   `lib/platform/module-registry/manifests.ts`: added
+   `whatsapp.share` + `whatsapp.delete_by_subject` to the whatsapp
+   manifest's `permissions[]` so the reverse-parity test (`every
+   RBAC catalog permission is referenced by some manifest or skill`)
+   stays green. Without this, the test fails — caught immediately.
+
+**Fixes deferred to parallel agent** (their files):
+
+- 🟠 #7 localStorage flip-guard — `lib/api/whatsapp.ts`
+- 🟠 #8 QR polling bound — `app/(dashboard)/whatsapp/sessions/page.tsx`
+- 🟠 #10 self-erase reason required — same file
+- 🟡 #13 wa_chat_id display — `app/(dashboard)/whatsapp/chats/[id]/page.tsx`
+- 🟡 #14 aria-live on QR dialog — sessions page
+
+**Deferred to BE team** (in spec):
+
+- 🟠 #5 SHA-256 phone hash + per-org pepper
+- 🟠 #6 server-side phone normalization
+- 🟠 #9 `media_url_endpoint` relative-only enforcement
+- 🟡 #11 `recovery_window_days` from Settings cap 16
+- 🟡 #12 self-approval forbid check
+
+**Test status:**
+
+- `npx vitest run --exclude app/(dashboard)/whatsapp/sessions/page.test.tsx`
+  → **1346 passed (145 files)** — every file I touched passes
+- Full run: **6 failed (all in `app/(dashboard)/whatsapp/sessions/page.test.tsx`)**
+  — these are the parallel agent's WIP failures, NOT introduced by
+  this batch. Their current working tree has uncommitted edits to
+  `sessions/page.tsx` + `whatsapp.ts` + `query-keys.ts` + types +
+  i18n. When they commit + re-align their test file, the failures
+  resolve.
+- `tsc --noEmit` clean.
+- Coverage gate: cannot evaluate (vitest doesn't write
+  coverage-summary.json on test failure) — will re-check after
+  parallel agent's commit lands.
+
 ### 2026-05-14 — One-hundred-and-fifty-ninth batch — WhatsApp module review + BE spec
 
 User requested professional review + BE blueprint for the WhatsApp
