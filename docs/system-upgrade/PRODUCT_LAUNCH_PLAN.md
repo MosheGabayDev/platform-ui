@@ -264,6 +264,22 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-fifty-first batch — E2E asserts audit resource_type column is localized
+
+Locks the batch-144 localization at the browser level. New
+Playwright test in `tests/e2e/audit-log/audit-log.spec.ts`:
+
+- Positive: a ticket row's resource cell renders as `Ticket #<id>`
+  (title-cased label, not raw `ticket`)
+- Negative: no cell contains the raw snake_case `whatsapp_session`
+  or `batch_task` — would regress to raw if the
+  `t.has() ? t() : rt` guard broke
+
+E2E runs in CI; vitest + typecheck remain green.
+
+Tests: `npx vitest run` → **1319 passed (unchanged — E2E-only
+batch)**, `tsc --noEmit` clean.
+
 ### 2026-05-14 — One-hundred-and-fiftieth batch — ai_callable skill requires non-empty label_he
 
 Companion lock to batch 148. The action preview card substitutes

@@ -58,4 +58,22 @@ test.describe("Audit log page", () => {
     await expect(cells.getByText(/^Login$/).first()).toBeVisible();
     await expect(cells.getByText(/^AI$/).first()).toBeVisible();
   });
+
+  test("resource_type column renders localized labels not raw snake_case (batch 151)", async ({ page }) => {
+    // Batch 144 added admin.auditLog.resourceTypes i18n keys; this
+    // test catches the regression where the page falls back to raw
+    // strings like "whatsapp_session" / "batch_task" in the Resource
+    // column.
+    await page.goto("/audit-log");
+    const cells = page.getByRole("cell");
+    // At least one fixture entry has resource_type=ticket — must
+    // render as the localized "Ticket" label, not the raw word
+    // exactly equal to "ticket" (lower case). The localized version
+    // is title-cased.
+    await expect(cells.getByText(/^Ticket(\s+#\d+)?$/).first()).toBeVisible();
+    // Negative assertion: a raw snake_case fixture should NOT appear
+    // (fixtures 1018-1020 seed note/bookmark/whatsapp_session).
+    await expect(cells.getByText(/^whatsapp_session(\s|$)/i)).toHaveCount(0);
+    await expect(cells.getByText(/^batch_task(\s|$)/i)).toHaveCount(0);
+  });
 });
