@@ -264,6 +264,21 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-forty-first batch — non-helpdesk executor audit resource_type lock
+
+Companion to the existing `helpdesk.ticket.take` audit assertion in
+`audit-emitter.test.ts`. Parametric case runs `users.deactivate`,
+`users.reset_password`, `notes.create`, `bookmarks.create` through
+`runActionExecutor` and asserts each audit entry has the expected
+`resource_type` (`user`/`note`/`bookmark`) plus `resource_id` where
+applicable. Locks the new-vertical audit emission shape end-to-end,
+not just at the demo-slice level.
+
+WhatsApp deferred — mock storage requires lifecycle sequencing.
+
+Tests: `npx vitest run` → **1312 passed (was 1311 — +1)**,
+`tsc --noEmit` clean.
+
 ### 2026-05-14 — One-hundred-and-fortieth batch — executor ↔ inferResourceHint parity invariant
 
 Locks an invariant: every actionId in `_registeredActions()` must

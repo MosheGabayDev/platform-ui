@@ -123,6 +123,41 @@ describe("Phase 2.4 — AI audit emission", () => {
     expect(exec!.metadata.outcome).toBe("success");
   });
 
+  it("non-helpdesk executors emit audit with matching resource_type (batch 141)", async () => {
+    // Companion to the helpdesk.ticket.take test above. Locks
+    // resource_type emission for the four new verticals wired in
+    // batches 131-134 (users.deactivate, users.reset_password,
+    // notes.create, bookmarks.create). WhatsApp left to a separate
+    // case because its mock storage requires lifecycle sequencing.
+    const qc = new QueryClient();
+    const cases: Array<{
+      actionId: string;
+      params: Record<string, unknown>;
+      resourceType: string;
+      resourceId?: string;
+    }> = [
+      { actionId: "users.deactivate", params: { userId: 1 }, resourceType: "user", resourceId: "1" },
+      { actionId: "users.reset_password", params: { userId: 1 }, resourceType: "user", resourceId: "1" },
+      { actionId: "notes.create", params: { title: "n1", body: "b1" }, resourceType: "note" },
+      { actionId: "bookmarks.create", params: { title: "b1", url: "https://example.com/x" }, resourceType: "bookmark" },
+    ];
+    for (const c of cases) {
+      await runActionExecutor(c.actionId, c.params, qc);
+    }
+    await flushAsync();
+    const recent = await fetchAuditLog({ page: 1, per_page: 50, category: "ai" });
+    for (const c of cases) {
+      const entry = recent.data.entries.find(
+        (e) => e.action === c.actionId && e.metadata.outcome === "success",
+      );
+      expect(entry, `audit entry missing for ${c.actionId}`).toBeDefined();
+      expect(entry!.resource_type).toBe(c.resourceType);
+      if (c.resourceId !== undefined) {
+        expect(entry!.resource_id).toBe(c.resourceId);
+      }
+    }
+  });
+
   it("runActionExecutor records error when executor throws", async () => {
     const qc = new QueryClient();
     await expect(
