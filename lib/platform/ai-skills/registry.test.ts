@@ -57,4 +57,17 @@ describe("ai-skills registry", () => {
     expect(getSkill("notes.create")).toBeDefined();
     expect(getSkill("bookmarks.create")).toBeDefined();
   });
+
+  it("every ai_callable skill has a non-empty label_he (batch 150)", () => {
+    // ActionPreviewCard (batch 148) substitutes skill.label_he when
+    // locale=he. A callable skill missing label_he falls back to the
+    // English mock-LLM label — silently degrading the Hebrew UX.
+    // Type-level `label_he?:` makes this optional; runtime contract
+    // for callable skills requires it.
+    const offenders = getAllSkills()
+      .filter((s) => s.ai_callable)
+      .filter((s) => !s.label_he?.trim())
+      .map((s) => s.id);
+    expect(offenders).toEqual([]);
+  });
 });

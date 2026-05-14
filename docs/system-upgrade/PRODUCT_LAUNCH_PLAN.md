@@ -264,6 +264,19 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-fiftieth batch — ai_callable skill requires non-empty label_he
+
+Companion lock to batch 148. The action preview card substitutes
+`skill.label_he` for he-locale; a callable skill missing it silently
+falls back to the English mock-LLM label, degrading Hebrew UX
+without any signal. Type-level `label_he?:` is optional for
+non-callable utility skills, but the runtime contract for
+`ai_callable: true` skills requires a non-empty Hebrew label. Locked
+in `registry.test.ts`.
+
+Tests: `npx vitest run` → **1319 passed (was 1318 — +1)**,
+`tsc --noEmit` clean.
+
 ### 2026-05-14 — One-hundred-and-forty-ninth batch — fix help ↔ mock LLM capability_level drift
 
 Real drift caught: the help page advertised `take ticket` as
