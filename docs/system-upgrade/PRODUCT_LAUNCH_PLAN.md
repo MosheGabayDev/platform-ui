@@ -264,6 +264,19 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-forty-second batch — WhatsApp end-to-end demo-slice test
+
+Third non-helpdesk vertical end-to-end in `demo-slice.test.tsx`.
+WhatsApp differs from notes/bookmarks: executor takes no params and
+mock storage only allows one active session. The test detects any
+pre-existing session and exercises `relink` instead of `link` — both
+paths land on `resource_type=whatsapp_session`, so the audit assertion
+is identical. All four new verticals (users, notes, bookmarks,
+whatsapp) now have at least one end-to-end demo-slice path locked.
+
+Tests: `npx vitest run` → **1313 passed (was 1312 — +1)**,
+`tsc --noEmit` clean.
+
 ### 2026-05-14 — One-hundred-and-forty-first batch — non-helpdesk executor audit resource_type lock
 
 Companion to the existing `helpdesk.ticket.take` audit assertion in

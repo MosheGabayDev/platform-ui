@@ -246,6 +246,62 @@ describe("AI demo slice — end-to-end (ADR-038)", () => {
     expect(entry).toBeDefined();
   });
 
+  it("whatsapp.session.link chain runs end-to-end and writes audit entry (batch 142)", async () => {
+    // Third non-helpdesk vertical end-to-end. WhatsApp differs from
+    // notes/bookmarks: the executor takes no params and the mock
+    // storage only allows one active session — so if a prior test
+    // left one, we exercise relink instead. Both paths land on the
+    // same whatsapp_session resource_type so the audit assertion is
+    // identical.
+    const { fetchWhatsappSessions } = await import("@/lib/api/whatsapp");
+    const existing = await fetchWhatsappSessions();
+    const active = existing.data.find((s) => s.session_state !== "unlinked");
+
+    useAssistantSession.getState().openDrawer();
+    const phrase = active
+      ? `relink whatsapp ${active.id}`
+      : "link whatsapp";
+    const chat = await sendChatMessage({ message: phrase, context: null });
+    expect(chat.actionProposal).not.toBeNull();
+    expect(chat.actionProposal!.actionId).toMatch(
+      /^whatsapp\.session\.(link|relink)$/,
+    );
+
+    useAssistantSession.getState().sendMessage(phrase);
+    useAssistantSession.getState().receiveResponse(chat.text);
+    useAssistantSession.getState().proposeAction(chat.actionProposal!);
+
+    const proposal = useAssistantSession.getState().pendingProposal!;
+    useAssistantSession.getState().confirmAction(proposal.tokenId);
+
+    const qc = new QueryClient();
+    const auditBefore = await fetchAuditLog({
+      page: 1,
+      per_page: 1000,
+      category: "ai",
+    });
+    const result = await runActionExecutor(
+      proposal.actionId,
+      proposal.params,
+      qc,
+    );
+    expect(result.message).toMatch(/whatsapp/i);
+    await flush();
+    const auditAfter = await fetchAuditLog({
+      page: 1,
+      per_page: 1000,
+      category: "ai",
+    });
+    expect(auditAfter.data.total).toBeGreaterThan(auditBefore.data.total);
+    const entry = auditAfter.data.entries.find(
+      (e) =>
+        e.action === proposal.actionId &&
+        e.metadata.outcome === "success" &&
+        e.resource_type === "whatsapp_session",
+    );
+    expect(entry).toBeDefined();
+  });
+
   it("executor failure surfaces audit entry with outcome=error", async () => {
     const qc = new QueryClient();
     const auditBefore = await fetchAuditLog({
