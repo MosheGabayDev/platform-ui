@@ -264,6 +264,29 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-fifty-fourth batch — real-fetch coverage for notes + bookmarks clients
+
+`lib/api/real-fetch.test.ts` exercises the apiFetch branches that
+run AFTER the `MOCK_MODE` flip lands per Phase 5A.22. notes and
+bookmarks were missing from this matrix — they were added later
+than the 2026-05-07 coverage sprint. Filled the gap:
+
+- notes: fetchNotes / addNote / updateNote / deleteNote — base GET,
+  POST body shape, PATCH `/<id>`, DELETE `/<id>`
+- bookmarks: fetchBookmarks / addBookmark / deleteBookmark — base
+  GET, POST body shape with normalized URL, DELETE `/<id>`
+
+Coverage lift:
+- `lib/api/notes.ts`: **82.45% → 94.73%**
+- `lib/api/bookmarks.ts`: **80.85% → 93.61%**
+
+Closes the apiFetch coverage gap for the two new verticals so the
+BE flip in Phase 5A is fully test-protected.
+
+Tests: `npx vitest run` → **1329 passed (was 1322 — +7)**,
+`tsc --noEmit` clean, coverage gate passes (lib/api 94.29% statements
+vs baseline 94.33%, well above 90% target floor).
+
 ### 2026-05-14 — One-hundred-and-fifty-third batch — full coverage of skill param validator branches
 
 Covered the remaining untested branches in `_validateOne`

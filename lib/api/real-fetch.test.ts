@@ -550,6 +550,65 @@ describe("module-registry, settings, feature-flags, policies, search, sample-dat
   });
 });
 
+describe("notes.ts real-fetch (batch 154)", () => {
+  it("fetchNotes GETs base path", async () => {
+    fetchMock.mockResolvedValue(okJson({ success: true, data: { items: [], total: 0 } }));
+    const { fetchNotes } = await import("./notes");
+    await fetchNotes();
+    expect(fetchMock.mock.calls[0]![0]).toContain("/api/proxy/notes");
+  });
+  it("addNote POSTs with title/body", async () => {
+    fetchMock.mockResolvedValue(okJson({ success: true, data: { items: [], total: 0 } }));
+    const { addNote } = await import("./notes");
+    await addNote({ title: "t", body: "b" });
+    expect(fetchMock.mock.calls[0]![1]!.method).toBe("POST");
+    expect(JSON.parse(fetchMock.mock.calls[0]![1]!.body as string)).toMatchObject({
+      title: "t",
+      body: "b",
+    });
+  });
+  it("updateNote PATCHes /<id>", async () => {
+    fetchMock.mockResolvedValue(okJson({ success: true, data: { items: [], total: 0 } }));
+    const { updateNote } = await import("./notes");
+    await updateNote("n-abc", { title: "new", body: "b" });
+    expect(fetchMock.mock.calls[0]![0]).toContain("/n-abc");
+    expect(fetchMock.mock.calls[0]![1]!.method).toBe("PATCH");
+  });
+  it("deleteNote DELETEs /<id>", async () => {
+    fetchMock.mockResolvedValue(okJson({ success: true, data: { items: [], total: 0 } }));
+    const { deleteNote } = await import("./notes");
+    await deleteNote("n-xyz");
+    expect(fetchMock.mock.calls[0]![0]).toContain("/n-xyz");
+    expect(fetchMock.mock.calls[0]![1]!.method).toBe("DELETE");
+  });
+});
+
+describe("bookmarks.ts real-fetch (batch 154)", () => {
+  it("fetchBookmarks GETs base path", async () => {
+    fetchMock.mockResolvedValue(okJson({ success: true, data: { items: [], total: 0 } }));
+    const { fetchBookmarks } = await import("./bookmarks");
+    await fetchBookmarks();
+    expect(fetchMock.mock.calls[0]![0]).toContain("/api/proxy/bookmarks");
+  });
+  it("addBookmark POSTs with normalized url", async () => {
+    fetchMock.mockResolvedValue(okJson({ success: true, data: { items: [], total: 0 } }));
+    const { addBookmark } = await import("./bookmarks");
+    await addBookmark({ title: "t", url: "https://example.com/x" });
+    expect(fetchMock.mock.calls[0]![1]!.method).toBe("POST");
+    expect(JSON.parse(fetchMock.mock.calls[0]![1]!.body as string)).toMatchObject({
+      title: "t",
+      url: "https://example.com/x",
+    });
+  });
+  it("deleteBookmark DELETEs /<id>", async () => {
+    fetchMock.mockResolvedValue(okJson({ success: true, data: { items: [], total: 0 } }));
+    const { deleteBookmark } = await import("./bookmarks");
+    await deleteBookmark("bm-1");
+    expect(fetchMock.mock.calls[0]![0]).toContain("/bm-1");
+    expect(fetchMock.mock.calls[0]![1]!.method).toBe("DELETE");
+  });
+});
+
 describe("error envelope handling (shared across all clients)", () => {
   it("non-OK response throws with backend error string", async () => {
     fetchMock.mockResolvedValue(errJson(403, { error: "denied" }));
