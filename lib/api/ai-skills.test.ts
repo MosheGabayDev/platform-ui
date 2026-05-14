@@ -115,6 +115,27 @@ describe("ai-skills client (mock mode)", () => {
     expect(res.data.skill_available).toBe(false);
   });
 
+  it("validateSkillInvocation reports pattern-violation on string fields (batch 152)", async () => {
+    // bookmarks.create.url has pattern=^https?:// in its schema. An
+    // LLM-proposed bad URL must be rejected by validateInvocation
+    // BEFORE it reaches the executor. Coverage previously missed
+    // ai-skills.ts:120-121 (string pattern branch).
+    const res = await validateSkillInvocation({
+      skill_id: "bookmarks.create",
+      params: { title: "x", url: "ftp://bad.example.com" },
+    });
+    expect(res.data.valid).toBe(false);
+    expect(res.data.errors.some((e) => /pattern/i.test(e.message))).toBe(true);
+  });
+
+  it("validateSkillInvocation accepts a string matching the pattern", async () => {
+    const res = await validateSkillInvocation({
+      skill_id: "bookmarks.create",
+      params: { title: "ok", url: "https://example.com/x" },
+    });
+    expect(res.data.valid).toBe(true);
+  });
+
   it("validateSkillInvocation surfaces policy decision for high-risk skill", async () => {
     // helpdesk.maintenance.cancel has risk=high. The policy engine will
     // attach matched rules.

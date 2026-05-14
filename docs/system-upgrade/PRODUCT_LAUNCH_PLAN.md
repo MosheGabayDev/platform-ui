@@ -264,6 +264,20 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-fifty-second batch — string-pattern validation coverage on validateSkillInvocation
+
+Coverage gap: `lib/api/ai-skills.ts` line 120-121 (string `pattern`
+validation) had no test. `bookmarks.create.url` uses
+`pattern=^https?://`, so an LLM-proposed `ftp://…` URL would slip
+through `validateSkillInvocation` without these branches being
+exercised. The safety layer between LLM-proposed params and the
+executor is exactly the part that MUST be covered. Added one
+positive + one negative test asserting the pattern path emits a
+human-readable "must match pattern …" message.
+
+Tests: `npx vitest run` → **1321 passed (was 1319 — +2)**,
+`tsc --noEmit` clean.
+
 ### 2026-05-14 — One-hundred-and-fifty-first batch — E2E asserts audit resource_type column is localized
 
 Locks the batch-144 localization at the browser level. New
