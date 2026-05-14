@@ -264,6 +264,21 @@ When a row changes status:
 
 Append-only. Newest entries at the top.
 
+### 2026-05-14 — One-hundred-and-forty-eighth batch — Hebrew label substitution on action preview card
+
+Mock LLM emits English-only labels like `Take ticket #1002`. Hebrew
+users saw the card in English. `ActionPreviewCard` now consults
+`useLocale()` and, when `he`, substitutes `skill.label_he` from the
+registry while re-attaching the trailing resource identifier (`#1002`,
+`"alice"`, `: ${title}`) so the user still sees what the proposal
+targets. Falls back to the English label when no `label_he` is
+registered or the trailing pattern doesn't match.
+
+This is a mock-mode polish. BE will localize natively in Phase 5A.16.
+
+Tests: `npx vitest run` → **1317 passed (was 1316 — +1)**,
+`tsc --noEmit` clean.
+
 ### 2026-05-14 — One-hundred-and-forty-seventh batch — TTL bucket invariant per capability level
 
 Locks the mock-LLM TTL contract:

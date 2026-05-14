@@ -92,6 +92,31 @@ describe("ActionPreviewCard (AI-shell-C)", () => {
     expect(screen.getByText(/Write \(low risk\)/i)).toBeTruthy();
   });
 
+  it("Hebrew locale substitutes skill.label_he and keeps the resource id (batch 148)", () => {
+    // Mock LLM emits English label "Take ticket #1002". For he-locale,
+    // the card looks up skill.label_he ("קח כרטיס") and re-attaches
+    // the trailing "#1002" so the Hebrew user still sees the
+    // identifier. BE will localize natively in Phase 5A.16+.
+    const proposal = makeProposal();
+    useAssistantSession.setState({
+      state: {
+        kind: "awaiting_action_confirmation",
+        tokenId: proposal.tokenId,
+        expiresAt: proposal.expiresAt,
+      },
+      drawerOpen: true,
+      transcript: [],
+      inFlightDraft: "",
+      pendingConfirmationTokenId: proposal.tokenId,
+      currentPageContext: null,
+      pendingProposal: proposal,
+    });
+    renderWithIntl(withQueryClient(<ActionPreviewCard />) as ReactElement, {
+      locale: "he",
+    });
+    expect(screen.getByText("קח כרטיס #1002")).toBeTruthy();
+  });
+
   it("renders WRITE_HIGH proposal with the high-risk label", () => {
     const proposal = makeProposal({
       capabilityLevel: "WRITE_HIGH",

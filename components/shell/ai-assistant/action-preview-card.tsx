@@ -14,7 +14,8 @@ import { useCallback, useEffect, useState } from "react";
 import { ShieldAlert, ShieldCheck, Skull } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { getSkill } from "@/lib/platform/ai-skills/registry";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -37,6 +38,27 @@ const LEVEL_META: Record<CapabilityLevel, { icon: LucideIcon; tone: string }> = 
   DESTRUCTIVE: { icon: Skull, tone: "text-rose-600 dark:text-rose-400 border-rose-500/30 bg-rose-500/10" },
 };
 
+// Hebrew users see the skill registry's label_he prefix + the resource
+// identifier already embedded in proposal.label. The mock LLM emits
+// English labels like "Take ticket #1002"; for Hebrew we substitute
+// the localized verb-phrase from the skill registry and re-attach any
+// trailing #id (or quoted value) from the original label so the
+// resource identifier stays visible. BE will localize natively in
+// Phase 5A.16+.
+function localizedLabel(
+  proposal: { actionId: string; label: string },
+  locale: string,
+): string {
+  if (locale !== "he") return proposal.label;
+  const skill = getSkill(proposal.actionId);
+  if (!skill?.label_he) return proposal.label;
+  // Extract a trailing "#N" or "\"…\"" tail from the English label —
+  // those are resource identifiers worth preserving in the Hebrew
+  // version (a Hebrew user still wants to see #1002 / "alice").
+  const tail = proposal.label.match(/(\s+#\d+|\s+"[^"]+"|:\s+.+)$/);
+  return tail ? `${skill.label_he}${tail[0]}` : skill.label_he;
+}
+
 function formatRemaining(
   ms: number,
   t: (key: string, params?: Record<string, string | number>) => string,
@@ -53,6 +75,7 @@ interface ActionPreviewCardProps {
 function ActionPreviewCardInner({ proposal }: ActionPreviewCardProps) {
   const t = useTranslations("shell.aiAssistant.actionPreview");
   const tLevels = useTranslations("shell.aiAssistant.actionPreview.capabilityLevels");
+  const locale = useLocale();
   const confirmAction = useAssistantSession((s) => s.confirmAction);
   const rejectAction = useAssistantSession((s) => s.rejectAction);
   const expireConfirmation = useAssistantSession((s) => s.expireConfirmation);
@@ -122,7 +145,7 @@ function ActionPreviewCardInner({ proposal }: ActionPreviewCardProps) {
             id={`action-${proposal.tokenId}-title`}
             className="text-sm font-semibold text-foreground"
           >
-            {proposal.label}
+            {localizedLabel(proposal, locale)}
           </div>
           <div className="text-xs text-muted-foreground truncate">
             {proposal.targetSummary}
