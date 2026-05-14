@@ -96,7 +96,14 @@ function ChatDetailInner({ chatId }: { chatId: number }) {
 
   const chat = messagesQuery.data?.chat;
   const messages = messagesQuery.data?.data ?? [];
-  const title = chat?.display_name ?? chat?.wa_chat_id ?? tDetail("title");
+  // Batch 161 review RV-159-13 — never expose raw `wa_chat_id` as the
+  // page title. The wa_chat_id format is `<E164-digits>@c.us` for
+  // private chats — leaking it as a page heading is a PII regression
+  // (search history, browser tab title, screenshare). Fall back to
+  // the generic "WhatsApp chat" label when no human display_name is
+  // available. wa_chat_id stays visible in the metadata badges below
+  // for the chat owner, where it has debugging value.
+  const title = chat?.display_name ?? tDetail("title");
 
   useRegisterPageContext({
     pageKey: "whatsapp.chat.detail",
