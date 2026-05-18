@@ -2333,6 +2333,7 @@
   "whatsapp": {
     "title": "WhatsApp",
     "subtitle": "חיבור אישי לארכיון ההודעות",
+    "liveNotice": "חיבור WhatsApp אמיתי פעיל. ה-QR ומצב החיבור מגיעים מהדיימון המקומי.",
     "disabledTitle": "WhatsApp לא מופעל",
     "disabledDescription": "מודול ה-WhatsApp אינו מופעל בארגון שלך.",
     "empty": {
@@ -2348,6 +2349,20 @@
       "relink": "חבר מחדש",
       "unlink": "נתק"
     },
+    "attention": {
+      "title": "החיבור דורש טיפול",
+      "state": "חבר את הסשן מחדש כדי לחדש את הלכידה.",
+      "heartbeat": "פעימת הלב של תהליך הלכידה לא עודכנה בזמן."
+    },
+    "erase": {
+      "cta": "מחק את הארכיון שלי",
+      "title": "למחוק את ארכיון WhatsApp?",
+      "body": "החיבור ינותק וארכיון WhatsApp שלך יוסתר ויעבור רדאקציה.",
+      "reason": "סיבה",
+      "confirmLabel": "אני מאשר את בקשת המחיקה.",
+      "cancel": "ביטול",
+      "confirm": "מחק ארכיון"
+    },
     "metrics": {
       "created": "נוצר",
       "updated": "עודכן",
@@ -2357,6 +2372,20 @@
       "none": "אין",
       "never": "אף פעם",
       "captureStatus": "מצב לכידה"
+    },
+    "prefs": {
+      "title": "התראות",
+      "channels": {
+        "push": "פוש",
+        "email": "אימייל"
+      },
+      "events": {
+        "session_stale": "סשן לא תקין",
+        "session_linked": "סשן חובר",
+        "share_received": "שיתוף התקבל",
+        "share_expiring_soon": "שיתוף עומד לפוג",
+        "erasure_done": "מחיקה הושלמה"
+      }
     },
     "states": {
       "needs_qr": "ממתין ל-QR",
@@ -2399,8 +2428,18 @@
       "media": "קובץ מצורף",
       "mediaReady": "מדיה זמינה",
       "bytes": "{bytes} בתים",
+      "openMedia": "פתח מדיה",
+      "loadingMedia": "טוען מדיה...",
+      "mediaUnavailable": "המדיה עדיין לא זמינה",
       "emptyTitle": "לא נלכדו הודעות",
-      "emptyDescription": "הודעות יופיעו כאן אחרי שהחיבור הפעיל ילכוד את הצ'אט הזה."
+      "emptyDescription": "הודעות יופיעו כאן אחרי שהחיבור הפעיל ילכוד את הצ'אט הזה.",
+      "composerPlaceholder": "כתוב הודעת WhatsApp",
+      "send": "שלח",
+      "sending": "שולח...",
+      "sent": "ההודעה נשלחה",
+      "sendFailed": "שליחת ההודעה נכשלה",
+      "emptyBody": "יש להזין תוכן הודעה",
+      "sendUnavailable": "לא ניתן לשלוח הודעה לצ'אט הזה"
     },
     "search": {
       "title": "חיפוש WhatsApp",
@@ -2444,6 +2483,66 @@
       "created": "הצ'אט שותף",
       "revoked": "השיתוף בוטל"
     },
+    "dsr": {
+      "title": "מחיקת נושא ב-WhatsApp",
+      "subtitle": "תצוגה מקדימה ופתיחת משימות מחיקה לפי טלפון",
+      "fields": {
+        "phone": "טלפון",
+        "phonePlaceholder": "+972501112222",
+        "reason": "סיבה",
+        "acknowledge": "אני מאשר שהבקשה מסירה תוכן WhatsApp תואם לאחר חלון השחזור."
+      },
+      "actions": {
+        "preview": "תצוגה מקדימה",
+        "delete": "בקש מחיקה",
+        "approve": "אשר מחיקה"
+      },
+      "preview": {
+        "title": "תצוגה מקדימה",
+        "secondApproval": "נדרש אישור שני"
+      },
+      "metrics": {
+        "messages": "הודעות",
+        "senderMatches": "התאמות שולח",
+        "chats": "צ'אטים",
+        "media": "מדיה",
+        "oldest": "הכי ישן",
+        "newest": "הכי חדש"
+      },
+      "status": {
+        "title": "מצב משימה",
+        "phone": "טלפון",
+        "recoveryUntil": "שחזור עד"
+      },
+      "history": {
+        "title": "היסטוריה",
+        "emptyTitle": "אין משימות DSR",
+        "emptyDescription": "משימות שנפתחו יופיעו כאן."
+      },
+      "states": {
+        "queued": "בתור",
+        "running": "רץ",
+        "awaiting_second_approval": "ממתין לאישור",
+        "soft_deleted": "נמחק רך",
+        "failed": "נכשל",
+        "cancelled": "בוטל"
+      },
+      "restricted": {
+        "title": "נדרשת הרשאה",
+        "subtitle": "פעולה מוגבלת",
+        "description": "התפקיד שלך אינו מאפשר מחיקת נושא ב-WhatsApp."
+      },
+      "toasts": {
+        "queued": "משימת DSR נפתחה",
+        "approved": "משימת DSR אושרה"
+      },
+      "errors": {
+        "preview": "נכשל בהצגת תצוגה מקדימה",
+        "delete": "נכשל בפתיחת בקשת מחיקה",
+        "approve": "נכשל באישור בקשת המחיקה"
+      },
+      "never": "אף פעם"
+    },
     "qrDialog": {
       "title": "QR של WhatsApp",
       "descriptionPrefix": "מצב חיבור: ",
@@ -2461,12 +2560,17 @@
       "unlinked": "החיבור נותק",
       "linked": "מחובר",
       "linkedAs": "מחובר בתור {phone}",
+      "eraseQueued": "מחיקת ארכיון WhatsApp התחילה",
+      "prefsSaved": "העדפות ההתראות נשמרו",
+      "liveNotice": "חיבור WhatsApp אמיתי פעיל. ה-QR ומצב החיבור מגיעים מהדיימון המקומי.",
       "backendNotice": "מצב הדגמה — נתונים נשמרים מקומית בדפדפן (localStorage)."
     },
     "errors": {
       "startFailed": "נכשל בהתחלת חיבור",
       "relinkFailed": "נכשל בחיבור מחדש",
       "unlinkFailed": "נכשל בניתוק",
+      "eraseFailed": "נכשל במחיקת הארכיון",
+      "prefsFailed": "נכשל בשמירת העדפות ההתראות",
       "shareFailed": "נכשל בשיתוף הצ'אט",
       "revokeShareFailed": "נכשל בביטול השיתוף"
     }

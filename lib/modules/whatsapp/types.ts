@@ -28,6 +28,8 @@ export interface WhatsAppSession {
   relink_requested_at: string | null;
   meta: Record<string, unknown>;
   created_at: string | null;
+  attention_required?: boolean;
+  attention_reason?: "session_state" | "heartbeat_stale" | null;
 }
 
 export interface WhatsAppSessionsResponse {
@@ -154,6 +156,14 @@ export interface WhatsAppMessagesResponse {
   meta: WhatsAppMessagesMeta;
 }
 
+export interface WhatsAppMediaUrlResponse {
+  status: "ok";
+  url: string;
+  mime: string | null;
+  size_bytes: number | null;
+  expires_in: number;
+}
+
 export interface WhatsAppMessageListParams {
   before_id?: number | null;
   page_size?: number;
@@ -194,4 +204,127 @@ export interface WhatsAppQrResponse extends WhatsAppSessionMutationResponse {
   connected_phone: string | null;
   last_qr_generated_at: string | null;
   qr?: string;
+}
+
+export type WhatsAppDsrJobState =
+  | "queued"
+  | "running"
+  | "awaiting_second_approval"
+  | "soft_deleted"
+  | "failed"
+  | "cancelled";
+
+export interface WhatsAppDsrPreviewRequest {
+  phone: string;
+}
+
+export interface WhatsAppDsrPreview {
+  phone_masked: string | null;
+  phone_hash: string | null;
+  message_count: number;
+  match_count_as_sender: number;
+  match_count_as_counterparty: number;
+  mentions: number;
+  reactions: number;
+  body_scan: number;
+  chats_involved: number;
+  media_count: number;
+  estimated_r2_bytes: number;
+  oldest_ts: string | null;
+  newest_ts: string | null;
+  high_risk: boolean;
+  requires_second_approval: boolean;
+  recovery_window_days: number;
+}
+
+export interface WhatsAppDsrPreviewResponse {
+  status: "ok";
+  preview: WhatsAppDsrPreview;
+}
+
+export interface WhatsAppDsrDeleteRequest extends WhatsAppDsrPreviewRequest {
+  reason: string;
+  acknowledge_irreversible: boolean;
+}
+
+export interface WhatsAppDsrApproveRequest extends WhatsAppDsrPreviewRequest {
+  job_id: string;
+}
+
+export interface WhatsAppDsrMutationResponse {
+  status: "ok";
+  job_id: string;
+  state: WhatsAppDsrJobState;
+  message?: string;
+}
+
+export interface WhatsAppSelfEraseRequest {
+  confirm: boolean;
+  reason?: string | null;
+}
+
+export interface WhatsAppSelfEraseResponse {
+  status: "ok";
+  job_id: string;
+  message: "erasure_started";
+}
+
+export type WhatsAppNotificationEvent =
+  | "session_stale"
+  | "session_linked"
+  | "share_received"
+  | "share_expiring_soon"
+  | "erasure_done";
+
+export type WhatsAppNotificationChannel = "push" | "email";
+
+export type WhatsAppNotificationPrefs = Record<
+  WhatsAppNotificationEvent,
+  Record<WhatsAppNotificationChannel, boolean>
+>;
+
+export interface WhatsAppPrefs {
+  user_id: number;
+  notifications: WhatsAppNotificationPrefs;
+  updated_at: string | null;
+}
+
+export interface WhatsAppPrefsResponse {
+  status: "ok";
+  data: WhatsAppPrefs;
+}
+
+export interface WhatsAppPrefsUpdateRequest {
+  notifications: Partial<
+    Record<WhatsAppNotificationEvent, Partial<Record<WhatsAppNotificationChannel, boolean>>>
+  >;
+}
+
+export interface WhatsAppDsrJob {
+  id: string;
+  state: WhatsAppDsrJobState;
+  job_type: "delete_by_phone";
+  phone_masked: string | null;
+  phone_hash: string | null;
+  requested_by_user_id: number | null;
+  second_approver_user_id: number | null;
+  reason: string | null;
+  preview_counts: WhatsAppDsrPreview | Record<string, unknown>;
+  result_counts: Record<string, unknown>;
+  recovery_until: string | null;
+  created_at: string | null;
+  started_at: string | null;
+  finished_at: string | null;
+  failed_reason: string | null;
+}
+
+export interface WhatsAppDsrHistoryResponse {
+  status: "ok";
+  data: WhatsAppDsrJob[];
+  meta: {
+    page: number;
+    page_size: number;
+    total: number;
+    has_more: boolean;
+  };
 }

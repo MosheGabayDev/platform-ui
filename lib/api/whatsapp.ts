@@ -36,16 +36,33 @@ import type {
   WhatsAppChatListParams,
   WhatsAppChatSharesResponse,
   WhatsAppChatsResponse,
+  WhatsAppDsrApproveRequest,
+  WhatsAppDsrDeleteRequest,
+  WhatsAppDsrHistoryResponse,
+  WhatsAppDsrJob,
+  WhatsAppDsrMutationResponse,
+  WhatsAppDsrPreview,
+  WhatsAppDsrPreviewRequest,
+  WhatsAppDsrPreviewResponse,
   WhatsAppMessage,
   WhatsAppMessageListParams,
+  WhatsAppMediaUrlResponse,
   WhatsAppMessageSearchParams,
   WhatsAppMessageSearchResponse,
   WhatsAppMessageSearchResult,
   WhatsAppMessagesResponse,
   WhatsAppQrResponse,
+  WhatsAppNotificationChannel,
+  WhatsAppNotificationEvent,
+  WhatsAppNotificationPrefs,
+  WhatsAppPrefs,
+  WhatsAppPrefsResponse,
+  WhatsAppPrefsUpdateRequest,
   WhatsAppShareChatInput,
   WhatsAppShareRecipientsResponse,
   WhatsAppShareUserOption,
+  WhatsAppSelfEraseRequest,
+  WhatsAppSelfEraseResponse,
   WhatsAppSession,
   WhatsAppSessionMutationResponse,
   WhatsAppSessionState,
@@ -63,7 +80,17 @@ export type {
   WhatsAppChatSharesResponse,
   WhatsAppChatsMeta,
   WhatsAppChatsResponse,
+  WhatsAppDsrApproveRequest,
+  WhatsAppDsrDeleteRequest,
+  WhatsAppDsrHistoryResponse,
+  WhatsAppDsrJob,
+  WhatsAppDsrJobState,
+  WhatsAppDsrMutationResponse,
+  WhatsAppDsrPreview,
+  WhatsAppDsrPreviewRequest,
+  WhatsAppDsrPreviewResponse,
   WhatsAppMessage,
+  WhatsAppMediaUrlResponse,
   WhatsAppMessageListParams,
   WhatsAppMessageSearchParams,
   WhatsAppMessageSearchResponse,
@@ -71,9 +98,17 @@ export type {
   WhatsAppMessagesMeta,
   WhatsAppMessagesResponse,
   WhatsAppQrResponse,
+  WhatsAppNotificationChannel,
+  WhatsAppNotificationEvent,
+  WhatsAppNotificationPrefs,
+  WhatsAppPrefs,
+  WhatsAppPrefsResponse,
+  WhatsAppPrefsUpdateRequest,
   WhatsAppShareChatInput,
   WhatsAppShareRecipientsResponse,
   WhatsAppShareUserOption,
+  WhatsAppSelfEraseRequest,
+  WhatsAppSelfEraseResponse,
   WhatsAppSession,
   WhatsAppSessionMutationResponse,
   WhatsAppSessionState,
@@ -83,8 +118,103 @@ export type {
 const BASE = "/api/proxy/whatsapp";
 const STORAGE_KEY = "whatsapp:sessions:v1";
 const SHARES_STORAGE_KEY = "whatsapp:shares:v1";
+const DSR_STORAGE_KEY = "whatsapp:dsr:v1";
+const PREFS_STORAGE_KEY = "whatsapp:prefs:v1";
 const STORAGE_VERSION = 1;
-export const MOCK_MODE = process.env.NEXT_PUBLIC_MOCK_API !== "false";
+export const MOCK_MODE =
+  (process.env.NEXT_PUBLIC_WHATSAPP_MOCK_API ?? process.env.NEXT_PUBLIC_MOCK_API) !== "false";
+export const WHATSAPP_LIVE_SESSIONS_MODE =
+  process.env.NEXT_PUBLIC_WHATSAPP_DEV_LIVE_SESSIONS === "true";
+const LIVE_CONTROL_BASE =
+  process.env.NEXT_PUBLIC_WHATSAPP_LIVE_CONTROL_URL || "http://127.0.0.1:3310";
+const LIVE_SESSION_ID = 1;
+
+type LiveQrPayload = {
+  status: WhatsAppSessionState | "starting" | "ok";
+  session_id: string;
+  qr?: string | null;
+  qrDataUrl?: string | null;
+};
+
+type LiveStatePayload = {
+  registryStatus: WhatsAppSessionState | "starting";
+  rawRegistryStatus?: string;
+  clientState?: string;
+  hasInfo?: boolean;
+  session_id: string;
+};
+
+type LiveMePayload = {
+  status: WhatsAppSessionState | "starting";
+  session_id: string;
+  info?: {
+    pushname?: string | null;
+    wid?: { user?: string | null; _serialized?: string | null };
+    me?: { user?: string | null; _serialized?: string | null };
+    platform?: string | null;
+  } | null;
+};
+
+async function liveFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(`${LIVE_CONTROL_BASE}${path}`, {
+    ...init,
+    headers: {
+      "content-type": "application/json",
+      ...(init?.headers ?? {}),
+    },
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(payload.error || response.statusText);
+  }
+  return payload as T;
+}
+
+function normalizeLiveState(state?: string | null): WhatsAppSessionState {
+  if (
+    state === "needs_qr" ||
+    state === "ready" ||
+    state === "disconnected" ||
+    state === "failed" ||
+    state === "unlinked"
+  ) {
+    return state;
+  }
+  if (state === "CONNECTED") return "ready";
+  if (state === "UNPAIRED") return "needs_qr";
+  return "connecting";
+}
+
+async function liveSession(): Promise<WhatsAppSession> {
+  const [state, me] = await Promise.all([
+    liveFetch<LiveStatePayload>("/api/state"),
+    liveFetch<LiveMePayload>("/api/me"),
+  ]);
+  const sessionState = normalizeLiveState(state.registryStatus || state.clientState);
+  const connectedPhone = me.info?.wid?.user || me.info?.me?.user || null;
+  return {
+    id: LIVE_SESSION_ID,
+    session_state: sessionState,
+    session_state_updated_at: new Date().toISOString(),
+    last_qr_generated_at: sessionState === "needs_qr" ? new Date().toISOString() : null,
+    connected_phone: connectedPhone,
+    last_heartbeat_at: new Date().toISOString(),
+    assigned_replica: "local-live-whatsapp",
+    lease_expires_at: null,
+    relink_requested_at: null,
+    meta: {
+      live: true,
+      source: LIVE_CONTROL_BASE,
+      account: me.info?.pushname || null,
+      platform: me.info?.platform || null,
+      raw_registry_status: state.rawRegistryStatus || null,
+      client_state: state.clientState || null,
+    },
+    created_at: null,
+    attention_required: sessionState !== "ready",
+    attention_reason: sessionState !== "ready" ? "session_state" : null,
+  };
+}
 
 const MOCK_CHATS: WhatsAppChat[] = [
   {
@@ -381,6 +511,14 @@ const MOCK_QR = `data:image/svg+xml;utf8,${encodeURIComponent(`
 
 const FIXTURE: WhatsAppSession[] = [];
 
+const DEFAULT_PREFS: WhatsAppNotificationPrefs = {
+  session_stale: { push: true, email: true },
+  session_linked: { push: true, email: false },
+  share_received: { push: true, email: true },
+  share_expiring_soon: { push: true, email: true },
+  erasure_done: { push: true, email: true },
+};
+
 function load(): WhatsAppSession[] {
   return loadMockState<WhatsAppSession[]>(STORAGE_KEY, STORAGE_VERSION, FIXTURE);
 }
@@ -399,6 +537,38 @@ function loadShares(): Record<number, WhatsAppChatShare[]> {
 
 function persistShares(items: Record<number, WhatsAppChatShare[]>): void {
   saveMockState(SHARES_STORAGE_KEY, STORAGE_VERSION, items);
+}
+
+function loadDsrJobs(): WhatsAppDsrJob[] {
+  return loadMockState<WhatsAppDsrJob[]>(DSR_STORAGE_KEY, STORAGE_VERSION, []);
+}
+
+function persistDsrJobs(items: WhatsAppDsrJob[]): void {
+  saveMockState(DSR_STORAGE_KEY, STORAGE_VERSION, items);
+}
+
+function loadPrefs(): WhatsAppPrefs {
+  return loadMockState<WhatsAppPrefs>(PREFS_STORAGE_KEY, STORAGE_VERSION, {
+    user_id: 42,
+    notifications: DEFAULT_PREFS,
+    updated_at: null,
+  });
+}
+
+function persistPrefs(prefs: WhatsAppPrefs): void {
+  saveMockState(PREFS_STORAGE_KEY, STORAGE_VERSION, prefs);
+}
+
+function withSessionAttention(session: WhatsAppSession): WhatsAppSession {
+  const heartbeatStale =
+    session.session_state === "ready" &&
+    (!session.last_heartbeat_at || Date.now() - new Date(session.last_heartbeat_at).getTime() > 10 * 60_000);
+  const stateStale = ["needs_qr", "disconnected", "failed"].includes(session.session_state);
+  return {
+    ...session,
+    attention_required: stateStale || heartbeatStale,
+    attention_reason: stateStale ? "session_state" : heartbeatStale ? "heartbeat_stale" : null,
+  };
 }
 
 function nowIso(): string {
@@ -501,6 +671,89 @@ function searchQueryString(params: WhatsAppMessageSearchParams): string {
   if (params.page_size) search.set("page_size", String(params.page_size));
   const encoded = search.toString();
   return encoded ? `?${encoded}` : "";
+}
+
+function dsrHistoryQueryString(params: { page?: number; page_size?: number } = {}): string {
+  const search = new URLSearchParams();
+  if (params.page) search.set("page", String(params.page));
+  if (params.page_size) search.set("page_size", String(params.page_size));
+  const encoded = search.toString();
+  return encoded ? `?${encoded}` : "";
+}
+
+function normalizePhone(raw: string): string {
+  const digits = raw.replace(/\D/g, "");
+  if (digits.length < 7) throw new Error("invalid_phone");
+  if (digits.startsWith("972")) return `+${digits}`;
+  if (digits.startsWith("0") && digits.length >= 9) return `+972${digits.slice(1)}`;
+  return raw.trim().startsWith("+") ? `+${digits}` : `+${digits}`;
+}
+
+function maskPhone(normalized: string): string {
+  const digits = normalized.replace(/\D/g, "");
+  if (digits.length <= 4) return "****";
+  return `+${digits.slice(0, 3)}***${digits.slice(-4)}`;
+}
+
+function mockPhoneHash(normalized: string): string {
+  let hash = 0;
+  for (const char of normalized) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+  return `mock-${hash.toString(16).padStart(8, "0")}`;
+}
+
+function buildDsrPreview(input: WhatsAppDsrPreviewRequest): WhatsAppDsrPreview {
+  const normalized = normalizePhone(input.phone);
+  const digits = normalized.replace(/\D/g, "");
+  const counterpartyChatIds = MOCK_CHATS.filter(
+    (chat) => chat.kind === "private" && chat.wa_chat_id === `${digits}@c.us`,
+  ).map((chat) => chat.id);
+  const allMessages = Object.values(MOCK_MESSAGES).flat();
+  const senderMessages = allMessages.filter(
+    (message) => message.sender_phone === normalized && !message.erased_at,
+  );
+  const counterpartyMessages = allMessages.filter(
+    (message) =>
+      counterpartyChatIds.includes(message.chat_id) &&
+      message.sender_phone !== normalized &&
+      !message.erased_at,
+  );
+  const messages = [...senderMessages, ...counterpartyMessages];
+  const chats = new Set(messages.map((message) => message.chat_id));
+  const mediaCount = messages.filter((message) => message.has_media).length;
+  const mediaBytes = messages.reduce((sum, message) => sum + (message.media_size_bytes ?? 0), 0);
+  const timestamps = messages
+    .map((message) => message.ts)
+    .filter((value): value is string => Boolean(value))
+    .sort();
+  const highRisk = messages.length >= 500 || chats.size >= 10 || mediaBytes >= 50_000_000;
+  return {
+    phone_masked: maskPhone(normalized),
+    phone_hash: mockPhoneHash(normalized),
+    message_count: messages.length,
+    match_count_as_sender: senderMessages.length,
+    match_count_as_counterparty: counterpartyMessages.length,
+    mentions: 0,
+    reactions: 0,
+    body_scan: 0,
+    chats_involved: chats.size,
+    media_count: mediaCount,
+    estimated_r2_bytes: mediaBytes,
+    oldest_ts: timestamps[0] ?? null,
+    newest_ts: timestamps[timestamps.length - 1] ?? null,
+    high_risk: highRisk,
+    requires_second_approval: highRisk,
+    recovery_window_days: 7,
+  };
+}
+
+function emitDsrAudit(action: string, jobId: string): void {
+  void recordAuditEntry({
+    action,
+    category: "delete",
+    resource_type: "whatsapp_dsr_job",
+    resource_id: jobId,
+    metadata: {},
+  }).catch(() => {});
 }
 
 function mockSearchResult(message: WhatsAppMessage, q: string): WhatsAppMessageSearchResult {
@@ -701,6 +954,40 @@ export async function fetchWhatsappChatMessages(
   );
 }
 
+/** Send a text message through the linked WhatsApp session. */
+export async function sendWhatsappTextMessage(input: {
+  to: string;
+  body: string;
+}): Promise<{ status: "ok"; data?: unknown }> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 60));
+    if (!input.to.trim()) throw new Error("missing_target");
+    if (!input.body.trim()) throw new Error("missing_body");
+    return { status: "ok", data: { sent: true } };
+  }
+  return apiFetch<{ status: "ok"; data?: unknown }>("/api/messages/send", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+/** Fetch a temporary signed URL for one owner-scoped WhatsApp media item. */
+export async function fetchWhatsappMediaUrl(messageId: number): Promise<WhatsAppMediaUrlResponse> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 60));
+    const message = Object.values(MOCK_MESSAGES).flat().find((item) => item.id === messageId);
+    if (!message?.has_media) throw new Error("media_not_available");
+    return {
+      status: "ok",
+      url: "data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='640'%20height='360'%20viewBox='0%200%20640%20360'%3E%3Crect%20width='640'%20height='360'%20fill='%23ecfeff'/%3E%3Cpath%20d='M80%20280h480L420%20120l-90%20110-58-70z'%20fill='%230f766e'/%3E%3Ccircle%20cx='180'%20cy='120'%20r='44'%20fill='%230ea5e9'/%3E%3C/svg%3E",
+      mime: message.media_mime,
+      size_bytes: message.media_size_bytes,
+      expires_in: 300,
+    };
+  }
+  return apiFetch<WhatsAppMediaUrlResponse>(`/api/media/${messageId}/url`);
+}
+
 /** Search owned WhatsApp messages. */
 export async function searchWhatsappMessages(
   params: WhatsAppMessageSearchParams = {},
@@ -736,15 +1023,56 @@ export async function searchWhatsappMessages(
 
 /** Fetch the current user's personal WhatsApp session rows. */
 export async function fetchWhatsappSessions(): Promise<WhatsAppSessionsResponse> {
+  if (WHATSAPP_LIVE_SESSIONS_MODE) {
+    return { status: "ok", data: [await liveSession()] };
+  }
   if (MOCK_MODE) {
     await new Promise((r) => setTimeout(r, 60));
-    return { status: "ok", data: load() };
+    return { status: "ok", data: load().map(withSessionAttention) };
   }
   return apiFetch<WhatsAppSessionsResponse>("/api/my/sessions");
 }
 
+/** Fetch current-user WhatsApp notification preferences. */
+export async function fetchWhatsappPrefs(): Promise<WhatsAppPrefsResponse> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 60));
+    return { status: "ok", data: loadPrefs() };
+  }
+  return apiFetch<WhatsAppPrefsResponse>("/api/my/prefs");
+}
+
+/** Update current-user WhatsApp notification preferences. */
+export async function updateWhatsappPrefs(
+  input: WhatsAppPrefsUpdateRequest,
+): Promise<WhatsAppPrefsResponse> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 60));
+    const current = loadPrefs();
+    const next: WhatsAppPrefs = {
+      ...current,
+      updated_at: nowIso(),
+      notifications: { ...current.notifications },
+    };
+    for (const [event, channels] of Object.entries(input.notifications)) {
+      const key = event as keyof WhatsAppNotificationPrefs;
+      next.notifications[key] = { ...next.notifications[key], ...channels };
+    }
+    persistPrefs(next);
+    return { status: "ok", data: next };
+  }
+  return apiFetch<WhatsAppPrefsResponse>("/api/my/prefs", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
 /** Start the user's personal WhatsApp QR linking flow. */
 export async function linkWhatsappSession(): Promise<WhatsAppSessionMutationResponse> {
+  if (WHATSAPP_LIVE_SESSIONS_MODE) {
+    const session = await liveSession();
+    return { status: "ok", session_id: session.id, session_state: session.session_state };
+  }
   if (MOCK_MODE) {
     await new Promise((r) => setTimeout(r, 60));
     const items = load();
@@ -763,6 +1091,8 @@ export async function linkWhatsappSession(): Promise<WhatsAppSessionMutationResp
       relink_requested_at: null,
       meta: { mock: true },
       created_at: nowIso(),
+      attention_required: true,
+      attention_reason: "session_state",
     };
     persist([session, ...items]);
     emitAudit("whatsapp.session.linked", "create", id);
@@ -776,6 +1106,22 @@ export async function linkWhatsappSession(): Promise<WhatsAppSessionMutationResp
 
 /** Poll QR/lifecycle state for one owned WhatsApp session. */
 export async function fetchWhatsappSessionQr(sessionId: number): Promise<WhatsAppQrResponse> {
+  if (WHATSAPP_LIVE_SESSIONS_MODE) {
+    if (sessionId !== LIVE_SESSION_ID) throw new Error("not_found");
+    const [qr, me] = await Promise.all([
+      liveFetch<LiveQrPayload>("/api/qr"),
+      liveFetch<LiveMePayload>("/api/me"),
+    ]);
+    const sessionState = normalizeLiveState(qr.status);
+    return {
+      status: "ok",
+      session_id: LIVE_SESSION_ID,
+      session_state: sessionState,
+      connected_phone: me.info?.wid?.user || me.info?.me?.user || null,
+      last_qr_generated_at: qr.qrDataUrl ? new Date().toISOString() : null,
+      qr: qr.qrDataUrl || undefined,
+    };
+  }
   if (MOCK_MODE) {
     await new Promise((r) => setTimeout(r, 60));
     const items = load();
@@ -800,6 +1146,15 @@ export async function fetchWhatsappSessionQr(sessionId: number): Promise<WhatsAp
 export async function relinkWhatsappSession(
   sessionId: number,
 ): Promise<WhatsAppSessionMutationResponse> {
+  if (WHATSAPP_LIVE_SESSIONS_MODE) {
+    if (sessionId !== LIVE_SESSION_ID) throw new Error("not_found");
+    const result = await liveFetch<{ status: string }>("/api/relink", { method: "POST" });
+    return {
+      status: "ok",
+      session_id: LIVE_SESSION_ID,
+      session_state: normalizeLiveState(result.status),
+    };
+  }
   if (MOCK_MODE) {
     await new Promise((r) => setTimeout(r, 60));
     const items = load();
@@ -829,6 +1184,15 @@ export async function relinkWhatsappSession(
 export async function unlinkWhatsappSession(
   sessionId: number,
 ): Promise<WhatsAppSessionMutationResponse> {
+  if (WHATSAPP_LIVE_SESSIONS_MODE) {
+    if (sessionId !== LIVE_SESSION_ID) throw new Error("not_found");
+    const result = await liveFetch<{ status: string }>("/api/unlink", { method: "POST" });
+    return {
+      status: "ok",
+      session_id: LIVE_SESSION_ID,
+      session_state: normalizeLiveState(result.status),
+    };
+  }
   if (MOCK_MODE) {
     await new Promise((r) => setTimeout(r, 60));
     const items = load();
@@ -856,4 +1220,184 @@ export async function unlinkWhatsappSession(
   return apiFetch<WhatsAppSessionMutationResponse>(`/api/my/sessions/${sessionId}`, {
     method: "DELETE",
   });
+}
+
+/** Enqueue self-service erasure for the current user's WhatsApp archive. */
+export async function eraseMyWhatsappData(
+  input: WhatsAppSelfEraseRequest,
+): Promise<WhatsAppSelfEraseResponse> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 60));
+    if (input.confirm !== true) throw new Error("confirmation_required");
+    const now = nowIso();
+    const preview = buildDsrPreview({ phone: "+972501112222" });
+    const jobId = `mock-self-erasure-${Date.now()}`;
+    persist([]);
+    persistShares({});
+    persistDsrJobs([
+      {
+        id: jobId,
+        state: "soft_deleted",
+        job_type: "delete_by_phone",
+        phone_masked: null,
+        phone_hash: null,
+        requested_by_user_id: 42,
+        second_approver_user_id: null,
+        reason: input.reason?.trim() || "self_service_erasure",
+        preview_counts: {
+          ...preview,
+          message_count: Object.values(MOCK_MESSAGES).flat().filter((message) => !message.erased_at).length,
+        },
+        result_counts: { messages_soft_deleted: Object.values(MOCK_MESSAGES).flat().length },
+        recovery_until: new Date(Date.now() + 30 * 86_400_000).toISOString(),
+        created_at: now,
+        started_at: now,
+        finished_at: now,
+        failed_reason: null,
+      },
+      ...loadDsrJobs(),
+    ]);
+    emitDsrAudit("whatsapp.self_erasure_requested", jobId);
+    return { status: "ok", job_id: jobId, message: "erasure_started" };
+  }
+  return apiFetch<WhatsAppSelfEraseResponse>("/api/my/erase", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+/** Preview a WhatsApp subject erasure request without changing data. */
+export async function previewWhatsappDsr(
+  input: WhatsAppDsrPreviewRequest,
+): Promise<WhatsAppDsrPreviewResponse> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 60));
+    return { status: "ok", preview: buildDsrPreview(input) };
+  }
+  return apiFetch<WhatsAppDsrPreviewResponse>("/admin/dsr/preview", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+/** Submit a WhatsApp delete-by-subject job. */
+export async function deleteWhatsappDsr(
+  input: WhatsAppDsrDeleteRequest,
+): Promise<WhatsAppDsrMutationResponse> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 60));
+    if (!input.reason.trim()) throw new Error("reason_required");
+    if (!input.acknowledge_irreversible) throw new Error("acknowledge_required");
+    const preview = buildDsrPreview(input);
+    const jobId = `mock-dsr-${Date.now()}`;
+    const now = nowIso();
+    const state = preview.requires_second_approval ? "awaiting_second_approval" : "soft_deleted";
+    const job: WhatsAppDsrJob = {
+      id: jobId,
+      state,
+      job_type: "delete_by_phone",
+      phone_masked: preview.phone_masked,
+      phone_hash: preview.phone_hash,
+      requested_by_user_id: 42,
+      second_approver_user_id: null,
+      reason: input.reason.trim(),
+      preview_counts: preview,
+      result_counts:
+        state === "soft_deleted"
+          ? { messages_soft_deleted: preview.message_count, media_tombstoned: preview.media_count }
+          : {},
+      recovery_until:
+        state === "soft_deleted"
+          ? new Date(Date.now() + preview.recovery_window_days * 86_400_000).toISOString()
+          : null,
+      created_at: now,
+      started_at: state === "soft_deleted" ? now : null,
+      finished_at: state === "soft_deleted" ? now : null,
+      failed_reason: null,
+    };
+    persistDsrJobs([job, ...loadDsrJobs()]);
+    emitDsrAudit("whatsapp.subject_erasure_requested", jobId);
+    return { status: "ok", job_id: jobId, state, message: "queued" };
+  }
+  return apiFetch<WhatsAppDsrMutationResponse>("/admin/dsr/delete", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+/** Second-approve a high-risk WhatsApp DSR job. */
+export async function approveWhatsappDsr(
+  input: WhatsAppDsrApproveRequest,
+): Promise<WhatsAppDsrMutationResponse> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 60));
+    const preview = buildDsrPreview({ phone: input.phone });
+    const jobs = loadDsrJobs();
+    const idx = jobs.findIndex((job) => job.id === input.job_id);
+    if (idx === -1) throw new Error("not_found");
+    const current = jobs[idx]!;
+    if (current.state !== "awaiting_second_approval") throw new Error("invalid_state");
+    if (current.phone_hash !== preview.phone_hash) throw new Error("phone_mismatch");
+    const now = nowIso();
+    const updated: WhatsAppDsrJob = {
+      ...current,
+      state: "soft_deleted",
+      second_approver_user_id: 43,
+      result_counts: {
+        messages_soft_deleted: preview.message_count,
+        media_tombstoned: preview.media_count,
+      },
+      recovery_until: new Date(Date.now() + preview.recovery_window_days * 86_400_000).toISOString(),
+      started_at: now,
+      finished_at: now,
+    };
+    const next = [...jobs];
+    next[idx] = updated;
+    persistDsrJobs(next);
+    emitDsrAudit("whatsapp.subject_erasure_approved", input.job_id);
+    return { status: "ok", job_id: input.job_id, state: updated.state, message: "erasure_started" };
+  }
+  const { job_id: jobId, ...body } = input;
+  return apiFetch<WhatsAppDsrMutationResponse>(`/admin/dsr/${encodeURIComponent(jobId)}/approve`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+/** Fetch one WhatsApp DSR job status. */
+export async function fetchWhatsappDsrStatus(jobId: string): Promise<WhatsAppDsrJob> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 60));
+    const job = loadDsrJobs().find((item) => item.id === jobId);
+    if (!job) throw new Error("not_found");
+    return job;
+  }
+  return apiFetch<WhatsAppDsrJob>(`/admin/dsr/${encodeURIComponent(jobId)}/status`);
+}
+
+/** Fetch recent WhatsApp DSR jobs. */
+export async function fetchWhatsappDsrHistory(
+  params: { page?: number; page_size?: number } = {},
+): Promise<WhatsAppDsrHistoryResponse> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 60));
+    const page = Math.max(1, params.page ?? 1);
+    const pageSize = Math.min(Math.max(1, params.page_size ?? 20), 100);
+    const jobs = loadDsrJobs();
+    const start = (page - 1) * pageSize;
+    const data = jobs.slice(start, start + pageSize);
+    return {
+      status: "ok",
+      data,
+      meta: {
+        page,
+        page_size: pageSize,
+        total: jobs.length,
+        has_more: start + data.length < jobs.length,
+      },
+    };
+  }
+  return apiFetch<WhatsAppDsrHistoryResponse>(
+    `/admin/api/dsr/history${dsrHistoryQueryString(params)}`,
+  );
 }

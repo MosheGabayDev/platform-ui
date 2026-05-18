@@ -2333,6 +2333,7 @@
   "whatsapp": {
     "title": "WhatsApp",
     "subtitle": "Personal archive connection",
+    "liveNotice": "Live WhatsApp session bridge is active. QR and session status come from the real local daemon.",
     "disabledTitle": "WhatsApp is not enabled",
     "disabledDescription": "The WhatsApp module is not enabled for your organization.",
     "empty": {
@@ -2348,6 +2349,20 @@
       "relink": "Re-link",
       "unlink": "Unlink"
     },
+    "attention": {
+      "title": "Session needs attention",
+      "state": "Reconnect this session to resume capture.",
+      "heartbeat": "The capture daemon heartbeat is stale."
+    },
+    "erase": {
+      "cta": "Erase my archive",
+      "title": "Erase WhatsApp archive?",
+      "body": "Your linked session will be unlinked and your WhatsApp archive will be hidden and redacted.",
+      "reason": "Reason",
+      "confirmLabel": "I confirm this erasure request.",
+      "cancel": "Cancel",
+      "confirm": "Erase archive"
+    },
     "metrics": {
       "created": "Created",
       "updated": "Updated",
@@ -2357,6 +2372,20 @@
       "none": "None",
       "never": "Never",
       "captureStatus": "Capture Status"
+    },
+    "prefs": {
+      "title": "Notifications",
+      "channels": {
+        "push": "Push",
+        "email": "Email"
+      },
+      "events": {
+        "session_stale": "Session stale",
+        "session_linked": "Session linked",
+        "share_received": "Share received",
+        "share_expiring_soon": "Share expiring",
+        "erasure_done": "Erasure done"
+      }
     },
     "states": {
       "needs_qr": "Needs QR",
@@ -2399,8 +2428,18 @@
       "media": "Media attachment",
       "mediaReady": "Media ready",
       "bytes": "{bytes} bytes",
+      "openMedia": "Open media",
+      "loadingMedia": "Loading media...",
+      "mediaUnavailable": "Media is not available yet",
       "emptyTitle": "No messages captured",
-      "emptyDescription": "Messages will appear here after the linked session captures this chat."
+      "emptyDescription": "Messages will appear here after the linked session captures this chat.",
+      "composerPlaceholder": "Write a WhatsApp message",
+      "send": "Send",
+      "sending": "Sending...",
+      "sent": "Message sent",
+      "sendFailed": "Failed to send message",
+      "emptyBody": "Message body is required",
+      "sendUnavailable": "This chat cannot receive messages"
     },
     "search": {
       "title": "Search WhatsApp",
@@ -2444,6 +2483,66 @@
       "created": "Chat shared",
       "revoked": "Share revoked"
     },
+    "dsr": {
+      "title": "WhatsApp subject erasure",
+      "subtitle": "Preview and request delete-by-phone jobs",
+      "fields": {
+        "phone": "Phone",
+        "phonePlaceholder": "+972501112222",
+        "reason": "Reason",
+        "acknowledge": "I acknowledge this request removes matching WhatsApp content after the recovery window."
+      },
+      "actions": {
+        "preview": "Preview",
+        "delete": "Request deletion",
+        "approve": "Approve deletion"
+      },
+      "preview": {
+        "title": "Preview",
+        "secondApproval": "Second approval required"
+      },
+      "metrics": {
+        "messages": "Messages",
+        "senderMatches": "Sender matches",
+        "chats": "Chats",
+        "media": "Media",
+        "oldest": "Oldest",
+        "newest": "Newest"
+      },
+      "status": {
+        "title": "Job status",
+        "phone": "Phone",
+        "recoveryUntil": "Recovery until"
+      },
+      "history": {
+        "title": "History",
+        "emptyTitle": "No DSR jobs",
+        "emptyDescription": "Submitted jobs will appear here."
+      },
+      "states": {
+        "queued": "Queued",
+        "running": "Running",
+        "awaiting_second_approval": "Awaiting approval",
+        "soft_deleted": "Soft-deleted",
+        "failed": "Failed",
+        "cancelled": "Cancelled"
+      },
+      "restricted": {
+        "title": "Permission required",
+        "subtitle": "Restricted action",
+        "description": "Your role does not allow WhatsApp subject erasure."
+      },
+      "toasts": {
+        "queued": "DSR job submitted",
+        "approved": "DSR job approved"
+      },
+      "errors": {
+        "preview": "Unable to preview deletion",
+        "delete": "Unable to submit deletion",
+        "approve": "Unable to approve deletion"
+      },
+      "never": "Never"
+    },
     "qrDialog": {
       "title": "WhatsApp QR",
       "descriptionPrefix": "Session state: ",
@@ -2461,12 +2560,17 @@
       "unlinked": "WhatsApp unlinked",
       "linked": "Linked",
       "linkedAs": "Linked as {phone}",
+      "eraseQueued": "WhatsApp archive erasure started",
+      "prefsSaved": "Notification preferences saved",
+      "liveNotice": "Live WhatsApp session bridge is active. QR and session status come from the real local daemon.",
       "backendNotice": "Demo mode — data persists locally in the browser (localStorage)."
     },
     "errors": {
       "startFailed": "Unable to start session",
       "relinkFailed": "Unable to relink session",
       "unlinkFailed": "Unable to unlink session",
+      "eraseFailed": "Unable to erase archive",
+      "prefsFailed": "Unable to save notification preferences",
       "shareFailed": "Unable to share chat",
       "revokeShareFailed": "Unable to revoke share"
     }

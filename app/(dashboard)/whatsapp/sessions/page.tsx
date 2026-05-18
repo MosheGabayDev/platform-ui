@@ -20,14 +20,18 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import {
   AlertCircle,
+  AlertTriangle,
+  Bell,
   MessageCircle,
   QrCode,
   RefreshCw,
   Smartphone,
+  Trash2,
   Unlink,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -44,12 +48,19 @@ import { PageShell } from "@/components/shared/page-shell";
 import { PermissionGate } from "@/components/shared/permission-gate";
 import { usePlatformMutation } from "@/lib/hooks/use-platform-mutation";
 import {
+  fetchWhatsappPrefs,
   fetchWhatsappSessionQr,
   fetchWhatsappSessions,
+  eraseMyWhatsappData,
   linkWhatsappSession,
   relinkWhatsappSession,
   unlinkWhatsappSession,
+  updateWhatsappPrefs,
   MOCK_MODE,
+  WHATSAPP_LIVE_SESSIONS_MODE,
+  type WhatsAppNotificationChannel,
+  type WhatsAppNotificationEvent,
+  type WhatsAppNotificationPrefs,
   type WhatsAppSession,
   type WhatsAppSessionState,
 } from "@/lib/api/whatsapp";
@@ -83,6 +94,17 @@ function formatDate(value: string | null, neverLabel: string): string {
 
 function MockNotice() {
   const t = useTranslations("whatsapp.toasts");
+  if (WHATSAPP_LIVE_SESSIONS_MODE) {
+    return (
+      <div
+        role="status"
+      className="flex items-center gap-2 rounded-md border border-emerald-500/30 bg-emerald-500/5 px-3 py-2 text-xs text-emerald-700 dark:text-emerald-400"
+    >
+      <Smartphone className="size-3.5 shrink-0" />
+      {t("liveNotice")}
+    </div>
+  );
+}
   if (!MOCK_MODE) return null;
   return (
     <div
@@ -102,10 +124,18 @@ function WhatsAppSessionsInner() {
   const queryClient = useQueryClient();
   const [qrSessionId, setQrSessionId] = useState<number | null>(null);
   const [unlinkTarget, setUnlinkTarget] = useState<number | null>(null);
+  const [eraseOpen, setEraseOpen] = useState(false);
+  const [eraseReason, setEraseReason] = useState("");
+  const [eraseConfirmed, setEraseConfirmed] = useState(false);
 
   const sessionsQuery = useQuery({
     queryKey: queryKeys.whatsapp.sessions(),
     queryFn: fetchWhatsappSessions,
+  });
+
+  const prefsQuery = useQuery({
+    queryKey: queryKeys.whatsapp.prefs(),
+    queryFn: fetchWhatsappPrefs,
   });
 
   const sessions = sessionsQuery.data?.data ?? [];
@@ -152,6 +182,25 @@ function WhatsAppSessionsInner() {
       setUnlinkTarget(null);
     },
     onError: (err) => toast.error(err.message ?? tErrors("unlinkFailed")),
+  });
+
+  const eraseMutation = usePlatformMutation({
+    mutationFn: eraseMyWhatsappData,
+    invalidateKeys: [queryKeys.whatsapp.all()],
+    onSuccess: () => {
+      toast.success(tToasts("eraseQueued"));
+      setEraseOpen(false);
+      setEraseReason("");
+      setEraseConfirmed(false);
+    },
+    onError: (err) => toast.error(err.message ?? tErrors("eraseFailed")),
+  });
+
+  const prefsMutation = usePlatformMutation({
+    mutationFn: updateWhatsappPrefs,
+    invalidateKeys: [queryKeys.whatsapp.prefs()],
+    onSuccess: () => toast.success(tToasts("prefsSaved")),
+    onError: (err) => toast.error(err.message ?? tErrors("prefsFailed")),
   });
 
   useEffect(() => {
@@ -239,6 +288,27 @@ function WhatsAppSessionsInner() {
               value={formatDate(activeSession?.last_heartbeat_at ?? null, t("metrics.never"))}
             />
           </dl>
+          <div className="mt-4 border-t border-border pt-4">
+            <PermissionGate permission="whatsapp.access">
+              <Button
+                type="button"
+                variant="destructive"
+                className="w-full"
+                onClick={() => setEraseOpen(true)}
+                data-testid="whatsapp-self-erase"
+              >
+                <Trash2 />
+                {t("erase.cta")}
+              </Button>
+            </PermissionGate>
+          </div>
+          <NotificationPrefsPanel
+            prefs={prefsQuery.data?.data.notifications ?? null}
+            busy={prefsMutation.isPending}
+            onToggle={(event, channel, value) =>
+              prefsMutation.mutate({ notifications: { [event]: { [channel]: value } } })
+            }
+          />
         </aside>
       </div>
 
@@ -302,6 +372,58 @@ function WhatsAppSessionsInner() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog
+        open={eraseOpen}
+        onOpenChange={(open) => {
+          setEraseOpen(open);
+          if (!open) setEraseConfirmed(false);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("erase.title")}</DialogTitle>
+            <DialogDescription>{t("erase.body")}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <label className="block space-y-1">
+              <span className="text-sm font-medium">{t("erase.reason")}</span>
+              <Textarea
+                value={eraseReason}
+                onChange={(event) => setEraseReason(event.target.value)}
+                rows={3}
+                className="resize-none"
+                data-testid="whatsapp-self-erase-reason"
+              />
+            </label>
+            <label className="flex items-start gap-2 text-sm">
+              <input
+                type="checkbox"
+                className="mt-1 size-4 rounded border-border"
+                checked={eraseConfirmed}
+                onChange={(event) => setEraseConfirmed(event.target.checked)}
+                data-testid="whatsapp-self-erase-confirm"
+              />
+              <span>{t("erase.confirmLabel")}</span>
+            </label>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEraseOpen(false)}>
+              {t("erase.cancel")}
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={!eraseConfirmed || eraseMutation.isPending}
+              onClick={() =>
+                eraseMutation.mutate({ confirm: eraseConfirmed, reason: eraseReason.trim() || null })
+              }
+              data-testid="whatsapp-self-erase-submit"
+            >
+              {t("erase.confirm")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </PageShell>
   );
 }
@@ -324,6 +446,22 @@ function SessionPanel({
   const t = useTranslations("whatsapp");
   return (
     <div className="space-y-4">
+      {session.attention_required && (
+        <div
+          role="alert"
+          className="flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-800 dark:text-amber-300"
+        >
+          <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+          <div>
+            <div className="font-medium">{t("attention.title")}</div>
+            <div className="text-xs">
+              {session.attention_reason === "heartbeat_stale"
+                ? t("attention.heartbeat")
+                : t("attention.state")}
+            </div>
+          </div>
+        </div>
+      )}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
@@ -377,6 +515,62 @@ function SessionPanel({
           label={t("metrics.heartbeat")}
           value={formatDate(session.last_heartbeat_at, t("metrics.never"))}
         />
+      </div>
+    </div>
+  );
+}
+
+const PREF_EVENTS: WhatsAppNotificationEvent[] = [
+  "session_stale",
+  "session_linked",
+  "share_received",
+  "share_expiring_soon",
+  "erasure_done",
+];
+
+const PREF_CHANNELS: WhatsAppNotificationChannel[] = ["push", "email"];
+
+function NotificationPrefsPanel({
+  prefs,
+  busy,
+  onToggle,
+}: {
+  prefs: WhatsAppNotificationPrefs | null;
+  busy: boolean;
+  onToggle: (
+    event: WhatsAppNotificationEvent,
+    channel: WhatsAppNotificationChannel,
+    value: boolean,
+  ) => void;
+}) {
+  const t = useTranslations("whatsapp");
+  if (!prefs) return null;
+  return (
+    <div className="mt-4 border-t border-border pt-4">
+      <div className="flex items-center gap-2 text-sm font-medium">
+        <Bell className="size-4 text-muted-foreground" />
+        {t("prefs.title")}
+      </div>
+      <div className="mt-3 space-y-3">
+        {PREF_EVENTS.map((event) => (
+          <div key={event} className="rounded-md border border-border bg-background p-3">
+            <div className="text-sm font-medium">{t(`prefs.events.${event}` as never)}</div>
+            <div className="mt-2 flex flex-wrap gap-3 text-sm">
+              {PREF_CHANNELS.map((channel) => (
+                <label key={channel} className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    className="size-4 rounded border-border"
+                    checked={prefs[event][channel]}
+                    disabled={busy}
+                    onChange={(e) => onToggle(event, channel, e.target.checked)}
+                  />
+                  <span>{t(`prefs.channels.${channel}` as never)}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

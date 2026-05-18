@@ -3,18 +3,26 @@
  */
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import {
+  approveWhatsappDsr,
+  eraseMyWhatsappData,
+  fetchWhatsappPrefs,
   fetchWhatsappChats,
   fetchWhatsappChatMessages,
   fetchWhatsappChatShares,
+  fetchWhatsappDsrHistory,
+  fetchWhatsappDsrStatus,
   fetchWhatsappSharedWithMe,
   fetchWhatsappSessions,
   fetchWhatsappSessionQr,
   linkWhatsappSession,
+  deleteWhatsappDsr,
+  previewWhatsappDsr,
   revokeWhatsappShare,
   relinkWhatsappSession,
   searchWhatsappShareRecipients,
   shareWhatsappChat,
   unlinkWhatsappSession,
+  updateWhatsappPrefs,
   searchWhatsappMessages,
   MOCK_MODE,
 } from "./whatsapp";
@@ -129,6 +137,23 @@ describe("whatsapp client (mock mode)", () => {
     expect(list.data.length).toBe(1);
     expect(list.data[0]!.session_state).toBe("needs_qr");
     expect(list.data[0]!.id).toBe(linked.session_id);
+    expect(list.data[0]!.attention_required).toBe(true);
+    expect(list.data[0]!.attention_reason).toBe("session_state");
+  });
+
+  it("fetch/update WhatsApp notification preferences persists locally", async () => {
+    const initial = await fetchWhatsappPrefs();
+    expect(initial.data.notifications.session_stale.push).toBe(true);
+
+    const updated = await updateWhatsappPrefs({
+      notifications: { session_stale: { push: false } },
+    });
+    expect(updated.data.notifications.session_stale.push).toBe(false);
+    expect(updated.data.notifications.session_stale.email).toBe(true);
+    expect(updated.data.updated_at).toBeTruthy();
+
+    const after = await fetchWhatsappPrefs();
+    expect(after.data.notifications.session_stale.push).toBe(false);
   });
 
   it("link refuses a second active session", async () => {
@@ -208,5 +233,195 @@ describe("whatsapp client (mock mode)", () => {
     const second = await linkWhatsappSession();
     expect(second.session_id).not.toBe(first.session_id);
     expect(second.session_state).toBe("needs_qr");
+  });
+
+  it("eraseMyWhatsappData clears mock sessions and records a self-erasure job", async () => {
+    await linkWhatsappSession();
+    await expect(eraseMyWhatsappData({ confirm: false })).rejects.toThrow(/confirmation_required/);
+
+    const erased = await eraseMyWhatsappData({ confirm: true, reason: "User request" });
+    expect(erased.status).toBe("ok");
+    expect(erased.job_id).toContain("mock-self-erasure-");
+
+    const sessions = await fetchWhatsappSessions();
+    expect(sessions.data).toEqual([]);
+
+    const history = await fetchWhatsappDsrHistory();
+    expect(history.data[0]!.id).toBe(erased.job_id);
+    expect(history.data[0]!.state).toBe("soft_deleted");
+  });
+
+  it("previews WhatsApp DSR without exposing the normalized phone", async () => {
+    const res = await previewWhatsappDsr({ phone: "050-111-2222" });
+    expect(res.status).toBe("ok");
+    expect(res.preview.message_count).toBe(3);
+    expect(res.preview.match_count_as_sender).toBe(2);
+    expect(res.preview.match_count_as_counterparty).toBe(1);
+    expect(res.preview.phone_masked).toContain("***");
+    expect(JSON.stringify(res.preview)).not.toContain("+972501112222");
+  });
+
+  it("creates a mock DSR job and returns it in history/status", async () => {
+    const created = await deleteWhatsappDsr({
+      phone: "0501112222",
+      reason: "GDPR request",
+      acknowledge_irreversible: true,
+    });
+    expect(created.status).toBe("ok");
+    expect(created.job_id).toContain("mock-dsr-");
+
+    const status = await fetchWhatsappDsrStatus(created.job_id);
+    expect(status.id).toBe(created.job_id);
+    expect(status.state).toBe("soft_deleted");
+    expect(JSON.stringify(status)).not.toContain("+972501112222");
+
+    const history = await fetchWhatsappDsrHistory();
+    expect(history.data[0]!.id).toBe(created.job_id);
+  });
+
+  it("requires reason and acknowledgement before mock DSR deletion", async () => {
+    await expect(
+      deleteWhatsappDsr({
+        phone: "0501112222",
+        reason: "",
+        acknowledge_irreversible: true,
+      }),
+    ).rejects.toThrow(/reason_required/);
+
+    await expect(
+      deleteWhatsappDsr({
+        phone: "0501112222",
+        reason: "GDPR request",
+        acknowledge_irreversible: false,
+      }),
+    ).rejects.toThrow(/acknowledge_required/);
+  });
+
+  it("approves a high-risk mock DSR job by matching the re-entered phone", async () => {
+    const preview = await previewWhatsappDsr({ phone: "0501112222" });
+    localStorage.setItem(
+      "whatsapp:dsr:v1",
+      JSON.stringify({
+        __v: 1,
+        data: [
+          {
+            id: "mock-dsr-approval",
+            state: "awaiting_second_approval",
+            job_type: "delete_by_phone",
+            phone_masked: preview.preview.phone_masked,
+            phone_hash: preview.preview.phone_hash,
+            requested_by_user_id: 42,
+            second_approver_user_id: null,
+            reason: "High risk request",
+            preview_counts: preview.preview,
+            result_counts: {},
+            recovery_until: null,
+            created_at: new Date().toISOString(),
+            started_at: null,
+            finished_at: null,
+            failed_reason: null,
+          },
+        ],
+      }),
+    );
+
+    await expect(
+      approveWhatsappDsr({ job_id: "mock-dsr-approval", phone: "0521234567" }),
+    ).rejects.toThrow(/phone_mismatch/);
+
+    const approved = await approveWhatsappDsr({
+      job_id: "mock-dsr-approval",
+      phone: "0501112222",
+    });
+    expect(approved.state).toBe("soft_deleted");
+
+    const status = await fetchWhatsappDsrStatus("mock-dsr-approval");
+    expect(status.second_approver_user_id).toBe(43);
+    expect(status.recovery_until).toBeTruthy();
+  });
+});
+
+describe("whatsapp client (live local session bridge)", () => {
+  it("uses the local daemon for sessions, QR, relink, and unlink when enabled", async () => {
+    const originalLive = process.env.NEXT_PUBLIC_WHATSAPP_DEV_LIVE_SESSIONS;
+    const originalControlUrl = process.env.NEXT_PUBLIC_WHATSAPP_LIVE_CONTROL_URL;
+    process.env.NEXT_PUBLIC_WHATSAPP_DEV_LIVE_SESSIONS = "true";
+    process.env.NEXT_PUBLIC_WHATSAPP_LIVE_CONTROL_URL = "http://wa-live.test";
+    vi.resetModules();
+
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url.endsWith("/api/state")) {
+        return new Response(JSON.stringify({
+          registryStatus: "ready",
+          rawRegistryStatus: "ready",
+          clientState: "CONNECTED",
+          session_id: "qr-smoke-1",
+        }));
+      }
+      if (url.endsWith("/api/me")) {
+        return new Response(JSON.stringify({
+          status: "ready",
+          session_id: "qr-smoke-1",
+          info: {
+            pushname: "Moshe",
+            wid: { user: "972507770369", _serialized: "972507770369@c.us" },
+            platform: "android",
+          },
+        }));
+      }
+      if (url.endsWith("/api/qr")) {
+        return new Response(JSON.stringify({
+          status: "needs_qr",
+          session_id: "qr-smoke-1",
+          qrDataUrl: "data:image/png;base64,qr",
+        }));
+      }
+      if (url.endsWith("/api/relink")) {
+        return new Response(JSON.stringify({ status: "needs_qr" }), { status: 202 });
+      }
+      if (url.endsWith("/api/unlink")) {
+        return new Response(JSON.stringify({ status: "unlinked" }), { status: 202 });
+      }
+      return new Response(JSON.stringify({ error: "unexpected" }), { status: 404 });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    try {
+      const live = await import("./whatsapp");
+      expect(live.WHATSAPP_LIVE_SESSIONS_MODE).toBe(true);
+
+      const sessions = await live.fetchWhatsappSessions();
+      expect(sessions.data[0]).toMatchObject({
+        id: 1,
+        session_state: "ready",
+        connected_phone: "972507770369",
+      });
+
+      const qr = await live.fetchWhatsappSessionQr(1);
+      expect(qr.qr).toBe("data:image/png;base64,qr");
+      expect(qr.session_state).toBe("needs_qr");
+
+      await expect(live.fetchWhatsappSessionQr(999)).rejects.toThrow(/not_found/);
+      await expect(live.relinkWhatsappSession(1)).resolves.toMatchObject({
+        session_state: "needs_qr",
+      });
+      await expect(live.unlinkWhatsappSession(1)).resolves.toMatchObject({
+        session_state: "unlinked",
+      });
+    } finally {
+      vi.unstubAllGlobals();
+      if (originalLive === undefined) {
+        delete process.env.NEXT_PUBLIC_WHATSAPP_DEV_LIVE_SESSIONS;
+      } else {
+        process.env.NEXT_PUBLIC_WHATSAPP_DEV_LIVE_SESSIONS = originalLive;
+      }
+      if (originalControlUrl === undefined) {
+        delete process.env.NEXT_PUBLIC_WHATSAPP_LIVE_CONTROL_URL;
+      } else {
+        process.env.NEXT_PUBLIC_WHATSAPP_LIVE_CONTROL_URL = originalControlUrl;
+      }
+      vi.resetModules();
+    }
   });
 });

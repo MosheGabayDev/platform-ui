@@ -13,6 +13,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { buildAuditHeaders } from "@/lib/api/request-context";
 
 const FLASK = process.env.FLASK_API_URL ?? "http://localhost:5000";
+const WHATSAPP_API = process.env.WHATSAPP_API_URL ?? "http://localhost:3320";
 
 /** Maps proxy path prefix → Flask URL prefix */
 const PATH_MAP: Record<string, string> = {
@@ -30,7 +31,11 @@ const PATH_MAP: Record<string, string> = {
   "organizations": "/api/organizations",
   "roles": "/api/roles",
   "notifications": "/api/notifications",
-  "whatsapp": "/whatsapp",
+  "whatsapp": "",
+};
+
+const UPSTREAM_BASE: Record<string, string> = {
+  whatsapp: WHATSAPP_API,
 };
 
 export async function GET(
@@ -86,8 +91,9 @@ async function proxy(req: NextRequest, params: { path: string[] }) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const flaskPrefix = PATH_MAP[prefix];
-  const downstream = `${FLASK}${flaskPrefix}${rest.length ? `/${rest.join("/")}` : ""}${req.nextUrl.search}`;
+  const downstreamPrefix = PATH_MAP[prefix];
+  const upstreamBase = UPSTREAM_BASE[prefix] ?? FLASK;
+  const downstream = `${upstreamBase}${downstreamPrefix}${rest.length ? `/${rest.join("/")}` : ""}${req.nextUrl.search}`;
 
   try {
     const auditHeaders = buildAuditHeaders({
@@ -101,6 +107,8 @@ async function proxy(req: NextRequest, params: { path: string[] }) {
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token.accessToken}`,
+        "x-wa-owner-user-id": String(token.user?.id ?? ""),
+        "x-wa-org-id": String(token.user?.org_id ?? ""),
         ...auditHeaders,
       },
       body: req.method !== "GET" && req.method !== "HEAD"

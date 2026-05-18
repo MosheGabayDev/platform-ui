@@ -56,6 +56,9 @@ export const queryKeys = {
     search:   (params?: object) => ["whatsapp", "search", params] as const,
     sessions: () => ["whatsapp", "sessions"]       as const,
     sessionQr: (id: number) => ["whatsapp", "sessions", id, "qr"] as const,
+    prefs: () => ["whatsapp", "prefs"] as const,
+    dsrHistory: (params?: object) => ["whatsapp", "dsr", "history", params] as const,
+    dsrStatus: (id: string) => ["whatsapp", "dsr", "status", id] as const,
   },
 
   // Platform-wide audit log (R046 service)

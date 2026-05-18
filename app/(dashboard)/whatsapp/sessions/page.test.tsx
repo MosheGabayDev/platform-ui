@@ -25,14 +25,21 @@ const fetchQrMock = vi.hoisted(() => vi.fn());
 const linkMock = vi.hoisted(() => vi.fn());
 const relinkMock = vi.hoisted(() => vi.fn());
 const unlinkMock = vi.hoisted(() => vi.fn());
+const fetchPrefsMock = vi.hoisted(() => vi.fn());
+const updatePrefsMock = vi.hoisted(() => vi.fn());
+const eraseMock = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/api/whatsapp", () => ({
   fetchWhatsappSessions: fetchSessionsMock,
   fetchWhatsappSessionQr: fetchQrMock,
+  fetchWhatsappPrefs: fetchPrefsMock,
+  updateWhatsappPrefs: updatePrefsMock,
+  eraseMyWhatsappData: eraseMock,
   linkWhatsappSession: linkMock,
   relinkWhatsappSession: relinkMock,
   unlinkWhatsappSession: unlinkMock,
   MOCK_MODE: true,
+  WHATSAPP_LIVE_SESSIONS_MODE: false,
 }));
 
 // FeatureGate reads the whatsapp.enabled flag via fetchFeatureFlag.
@@ -82,6 +89,23 @@ beforeEach(() => {
   linkMock.mockReset();
   relinkMock.mockReset();
   unlinkMock.mockReset();
+  fetchPrefsMock.mockReset();
+  updatePrefsMock.mockReset();
+  eraseMock.mockReset();
+  fetchPrefsMock.mockResolvedValue({
+    status: "ok",
+    data: {
+      user_id: 1,
+      notifications: {
+        session_stale: { push: true, email: true },
+        session_linked: { push: true, email: false },
+        share_received: { push: true, email: true },
+        share_expiring_soon: { push: true, email: true },
+        erasure_done: { push: true, email: true },
+      },
+      updated_at: null,
+    },
+  });
   sessionMock.status = "authenticated";
   sessionMock.data = {
     user: { id: 1, role: "user", is_admin: true, is_system_admin: true, permissions: [] },
