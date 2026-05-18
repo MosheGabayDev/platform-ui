@@ -519,15 +519,25 @@ const DEFAULT_PREFS: WhatsAppNotificationPrefs = {
   erasure_done: { push: true, email: true },
 };
 
+// Batch 163 — review RV-159-07. localStorage flip-guard. Every persist
+// helper short-circuits when MOCK_MODE is off so that after the
+// Phase 5A.WA flip (NEXT_PUBLIC_MOCK_API=false), even if a stray
+// caller routes through a mock-mode code path, the cap-A localStorage
+// keys (whatsapp:*:v1) stay untouched. Backend is then the only
+// source of truth — no cross-tenant residue from a previous demo.
+
 function load(): WhatsAppSession[] {
+  if (!MOCK_MODE) return FIXTURE;
   return loadMockState<WhatsAppSession[]>(STORAGE_KEY, STORAGE_VERSION, FIXTURE);
 }
 
 function persist(items: WhatsAppSession[]): void {
+  if (!MOCK_MODE) return;
   saveMockState(STORAGE_KEY, STORAGE_VERSION, items);
 }
 
 function loadShares(): Record<number, WhatsAppChatShare[]> {
+  if (!MOCK_MODE) return MOCK_SHARES_FIXTURE;
   return loadMockState<Record<number, WhatsAppChatShare[]>>(
     SHARES_STORAGE_KEY,
     STORAGE_VERSION,
@@ -536,26 +546,32 @@ function loadShares(): Record<number, WhatsAppChatShare[]> {
 }
 
 function persistShares(items: Record<number, WhatsAppChatShare[]>): void {
+  if (!MOCK_MODE) return;
   saveMockState(SHARES_STORAGE_KEY, STORAGE_VERSION, items);
 }
 
 function loadDsrJobs(): WhatsAppDsrJob[] {
+  if (!MOCK_MODE) return [];
   return loadMockState<WhatsAppDsrJob[]>(DSR_STORAGE_KEY, STORAGE_VERSION, []);
 }
 
 function persistDsrJobs(items: WhatsAppDsrJob[]): void {
+  if (!MOCK_MODE) return;
   saveMockState(DSR_STORAGE_KEY, STORAGE_VERSION, items);
 }
 
 function loadPrefs(): WhatsAppPrefs {
-  return loadMockState<WhatsAppPrefs>(PREFS_STORAGE_KEY, STORAGE_VERSION, {
+  const defaultPrefs: WhatsAppPrefs = {
     user_id: 42,
     notifications: DEFAULT_PREFS,
     updated_at: null,
-  });
+  };
+  if (!MOCK_MODE) return defaultPrefs;
+  return loadMockState<WhatsAppPrefs>(PREFS_STORAGE_KEY, STORAGE_VERSION, defaultPrefs);
 }
 
 function persistPrefs(prefs: WhatsAppPrefs): void {
+  if (!MOCK_MODE) return;
   saveMockState(PREFS_STORAGE_KEY, STORAGE_VERSION, prefs);
 }
 

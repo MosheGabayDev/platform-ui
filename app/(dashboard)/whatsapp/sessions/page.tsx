@@ -67,6 +67,12 @@ import {
 import { queryKeys } from "@/lib/api/query-keys";
 import { useRegisterPageContext } from "@/lib/hooks/use-register-page-context";
 
+// Batch 163 RV-159-08 — QR polling timeout. Bridge rotates the QR
+// every 30s; after 60s with no `ready` transition we stop polling
+// to avoid burning CPU and bridge rate-limit budget on a closed
+// or stalled session.
+const QR_POLL_MAX_MS = 60_000;
+
 const ACTIVE_STATES: WhatsAppSessionState[] = [
   "needs_qr",
   "connecting",
@@ -123,6 +129,11 @@ function WhatsAppSessionsInner() {
   const tErrors = useTranslations("whatsapp.errors");
   const queryClient = useQueryClient();
   const [qrSessionId, setQrSessionId] = useState<number | null>(null);
+  // Batch 163 RV-159-08 — bound QR polling. The 3s polling loop ran
+  // indefinitely until the user closed the dialog. Track the timestamp
+  // the dialog opened so we can stop polling after QR_POLL_MAX_MS
+  // (60s, matching the QR refresh cadence of the bridge service).
+  const [qrPollStartedAt, setQrPollStartedAt] = useState<number | null>(null);
   const [unlinkTarget, setUnlinkTarget] = useState<number | null>(null);
   const [eraseOpen, setEraseOpen] = useState(false);
   const [eraseReason, setEraseReason] = useState("");
@@ -144,21 +155,43 @@ function WhatsAppSessionsInner() {
     [sessions],
   );
 
+  // Polling stops when the dialog has been open for QR_POLL_MAX_MS.
+  // We compute `pollExpired` from a state-tick clock so a re-render
+  // wakes up the disable. Re-running `setQrSessionId(x)` resets
+  // `qrPollStartedAt` and resumes polling for a fresh window.
+  const [pollTick, setPollTick] = useState(0);
+  useEffect(() => {
+    if (qrPollStartedAt === null) return;
+    const id = setInterval(() => setPollTick((t) => t + 1), 1_000);
+    return () => clearInterval(id);
+  }, [qrPollStartedAt]);
+  const pollExpired =
+    qrPollStartedAt !== null && Date.now() - qrPollStartedAt > QR_POLL_MAX_MS;
+
+  // Helper: opens/closes the QR dialog AND (re)starts the poll clock.
+  // Always pair `setQrSessionId(...)` with this so the bound timer
+  // stays in lockstep.
+  const openQr = (id: number | null) => {
+    setQrSessionId(id);
+    setQrPollStartedAt(id === null ? null : Date.now());
+  };
+
   const qrQuery = useQuery({
     queryKey: qrSessionId
       ? queryKeys.whatsapp.sessionQr(qrSessionId)
       : ["whatsapp", "qr", "idle"],
     queryFn: () => fetchWhatsappSessionQr(qrSessionId as number),
-    enabled: qrSessionId !== null,
-    refetchInterval: qrSessionId !== null ? 3_000 : false,
+    enabled: qrSessionId !== null && !pollExpired,
+    refetchInterval: qrSessionId !== null && !pollExpired ? 3_000 : false,
   });
+  void pollTick; // referenced to keep the tick clock as a render dep
 
   const linkMutation = usePlatformMutation({
     mutationFn: linkWhatsappSession,
     invalidateKeys: [queryKeys.whatsapp.all()],
     onSuccess: (data) => {
       toast.success(tToasts("started"));
-      setQrSessionId(data.session_id);
+      openQr(data.session_id);
     },
     onError: (err) => toast.error(err.message ?? tErrors("startFailed")),
   });
@@ -168,7 +201,7 @@ function WhatsAppSessionsInner() {
     invalidateKeys: [queryKeys.whatsapp.all()],
     onSuccess: (data) => {
       toast.success(tToasts("relinkRequested"));
-      setQrSessionId(data.session_id);
+      openQr(data.session_id);
     },
     onError: (err) => toast.error(err.message ?? tErrors("relinkFailed")),
   });
@@ -178,7 +211,7 @@ function WhatsAppSessionsInner() {
     invalidateKeys: [queryKeys.whatsapp.all()],
     onSuccess: () => {
       toast.success(tToasts("unlinked"));
-      setQrSessionId(null);
+      openQr(null);
       setUnlinkTarget(null);
     },
     onError: (err) => toast.error(err.message ?? tErrors("unlinkFailed")),
@@ -207,7 +240,7 @@ function WhatsAppSessionsInner() {
     if (qrQuery.data?.session_state === "ready") {
       const phone = qrQuery.data.connected_phone;
       toast.success(phone ? tToasts("linkedAs", { phone }) : tToasts("linked"));
-      setQrSessionId(null);
+      openQr(null);
       void queryClient.invalidateQueries({ queryKey: queryKeys.whatsapp.all() });
     }
   }, [qrQuery.data?.session_state, qrQuery.data?.connected_phone, queryClient, tToasts]);
@@ -264,7 +297,7 @@ function WhatsAppSessionsInner() {
               busy={relinkMutation.isPending || unlinkMutation.isPending}
               onRelink={() => relinkMutation.mutate(activeSession.id)}
               onUnlink={() => setUnlinkTarget(activeSession.id)}
-              onShowQr={() => setQrSessionId(activeSession.id)}
+              onShowQr={() => openQr(activeSession.id)}
               stateLabel={stateLabel}
             />
           )}
@@ -314,12 +347,16 @@ function WhatsAppSessionsInner() {
 
       <Dialog
         open={qrSessionId !== null}
-        onOpenChange={(open) => !open && setQrSessionId(null)}
+        onOpenChange={(open) => !open && openQr(null)}
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>{t("qrDialog.title")}</DialogTitle>
-            <DialogDescription>
+            {/* Batch 163 RV-159-14 — aria-live so screen readers
+                announce session_state transitions
+                (connecting → ready / failed) without forcing the
+                user to re-focus the dialog. */}
+            <DialogDescription aria-live="polite" aria-atomic="true">
               {t("qrDialog.descriptionPrefix")}
               {qrQuery.data?.session_state
                 ? stateLabel(qrQuery.data.session_state)
@@ -413,9 +450,20 @@ function WhatsAppSessionsInner() {
             </Button>
             <Button
               variant="destructive"
-              disabled={!eraseConfirmed || eraseMutation.isPending}
+              // Batch 163 RV-159-10 — `reason` is now required, not
+              // optional. Self-erase is an irreversible mass-deletion;
+              // audit trail without a stated cause is a regulatory gap
+              // (and the spec §6 BE contract treats reason as required).
+              disabled={
+                !eraseConfirmed ||
+                !eraseReason.trim() ||
+                eraseMutation.isPending
+              }
               onClick={() =>
-                eraseMutation.mutate({ confirm: eraseConfirmed, reason: eraseReason.trim() || null })
+                eraseMutation.mutate({
+                  confirm: eraseConfirmed,
+                  reason: eraseReason.trim(),
+                })
               }
               data-testid="whatsapp-self-erase-submit"
             >
