@@ -8,7 +8,7 @@
  */
 import { useCallback, useState } from "react";
 import { Send, Mic } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAssistantSession } from "@/lib/hooks/use-assistant-session";
@@ -18,6 +18,9 @@ const CHAR_LIMIT = 2000;
 
 export function MessageInput() {
   const t = useTranslations("shell.aiAssistant.messageInput");
+  // Batch 167 — pass locale through to the mock LLM so Hebrew users
+  // get Hebrew replies + Hebrew grammar matching.
+  const locale = useLocale();
   const state = useAssistantSession((s) => s.state);
   const draft = useAssistantSession((s) => s.inFlightDraft);
   const setDraft = useAssistantSession((s) => s.setDraft);
@@ -40,6 +43,7 @@ export function MessageInput() {
         message: text,
         context,
         contextVersion,
+        locale,
       });
       setContextVersion(response.contextVersion);
       // Always show the assistant's text reply in transcript
@@ -58,6 +62,7 @@ export function MessageInput() {
             message: text,
             context,
             contextVersion: contextVersion + 1,
+            locale,
           });
           setContextVersion(retry.contextVersion);
           receiveResponse(retry.text);
@@ -78,6 +83,7 @@ export function MessageInput() {
     receiveResponse,
     proposeAction,
     failChat,
+    locale,
   ]);
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
