@@ -11,11 +11,12 @@
 | Surface | Spec file | Coverage |
 |---|---|---|
 | `/whatsapp/sessions` smoke | `tests/e2e/smoke/whatsapp.spec.ts` | renders title + Link CTA + capture sidebar; QR dialog opens; unlink uses confirm dialog (no native confirm) |
-| `/whatsapp` (archive list) | — | **MISSING** |
-| `/whatsapp/chats/[id]` | — | **MISSING** |
-| `/whatsapp/search` | — | **MISSING** |
-| `/whatsapp/admin/dsr` | — | **MISSING** |
-| Cross-tenant isolation | `tests/e2e/security/tenant-isolation-helpdesk.spec.ts` (helpdesk-only; needs whatsapp twin) | **MISSING** |
+| `/whatsapp` (archive list) | `tests/e2e/whatsapp/archive.spec.ts` | **ADDED batch 165** — title + search + 3 kind filters, kind filter narrowing, search filter, mobile-S RTL no overflow |
+| `/whatsapp/chats/[id]` | `tests/e2e/whatsapp/chat-detail.spec.ts` | **ADDED batch 165** — messages render, invalid id → ErrorState, shared-in banner, mobile-S RTL |
+| `/whatsapp/search` | `tests/e2e/whatsapp/search.spec.ts` | **ADDED batch 165** — idle state, query returns hits, non-matching empty state |
+| `/whatsapp/admin/dsr` | `tests/e2e/whatsapp/dsr.spec.ts` | **ADDED batch 165** — title + form + history sidebar, preview masked phone, delete-button gating, mock-mode banner |
+| ShareDialog flow | `tests/e2e/whatsapp/share.spec.ts` + `components/modules/whatsapp/share-dialog.test.tsx` | **ADDED batch 164/165** — owner sees Share, recipient sees revoke-my-access, dialog open with typeahead |
+| Cross-tenant isolation | `tests/e2e/security/tenant-isolation-helpdesk.spec.ts` (helpdesk-only; needs whatsapp twin) | **MISSING** — BE-blocked (needs 2 real test orgs) |
 
 ---
 
