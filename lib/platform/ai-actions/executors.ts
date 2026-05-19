@@ -27,6 +27,7 @@ import { addBookmark } from "@/lib/api/bookmarks";
 import {
   linkWhatsappSession,
   relinkWhatsappSession,
+  sendWhatsappChatMessage,
   unlinkWhatsappSession,
 } from "@/lib/api/whatsapp";
 import { queryKeys } from "@/lib/api/query-keys";
@@ -136,6 +137,22 @@ const EXECUTORS: Record<string, ActionExecutor> = {
     await queryClient.invalidateQueries({ queryKey: queryKeys.whatsapp.sessions() });
     return { message: `WhatsApp session #${sessionId} unlinked.` };
   },
+  // Batch 168 — outbound message send via AI.
+  // Permission `whatsapp.message.send` is checked by PermissionGate
+  // before the proposal even renders; policy engine then forces
+  // require_approval. Backend independently enforces (spec §3.1).
+  "whatsapp.message.send": async (params, queryClient) => {
+    const chatId = asNumber(params.chat_id, "chat_id");
+    const body = asString(params.body, "body");
+    const res = await sendWhatsappChatMessage(chatId, body);
+    await queryClient.invalidateQueries({
+      queryKey: queryKeys.whatsapp.chatMessages(chatId, {}),
+    });
+    await queryClient.invalidateQueries({ queryKey: queryKeys.whatsapp.all() });
+    return {
+      message: `Sent to chat #${chatId}: "${res.message.body?.slice(0, 60) ?? body.slice(0, 60)}".`,
+    };
+  },
 };
 
 export function getActionExecutor(actionId: string): ActionExecutor | null {
@@ -228,6 +245,12 @@ export function inferResourceHint(
     return {
       resource_type: "whatsapp_session",
       resource_id: params.sessionId as number | undefined,
+    };
+  }
+  if (actionId === "whatsapp.message.send") {
+    return {
+      resource_type: "whatsapp_message",
+      resource_id: params.chat_id as number | undefined,
     };
   }
   return {};

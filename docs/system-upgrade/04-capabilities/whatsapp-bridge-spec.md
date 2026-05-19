@@ -12,10 +12,10 @@
 
 ## 0. Purpose
 
-The WhatsApp Bridge is the platform's read-mostly archive of a user's
-WhatsApp Personal account. It is **not** a messaging-sending product
-(no outbound). It captures incoming + sent messages from the user's
-own WhatsApp session, indexes them, and exposes:
+The WhatsApp Bridge is the platform's archive + assisted-send surface
+for a user's WhatsApp Personal account. Outbound was originally out
+of scope; batch 168 added it behind admin-only permission + policy
+require_approval. Capabilities:
 
 1. **Per-user archive** — list chats, paginate messages, full-text search
 2. **Same-org sharing** — owner shares one chat read-only with a same-org colleague

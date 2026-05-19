@@ -34,17 +34,24 @@ can surface page-aware suggestions (Level 1 explanation support):
 
 ## AI skills (executable via assistant)
 
-All three are `ai_callable: true, default_enabled: false` — org admin
+All `ai_callable: true, default_enabled: false` — org admin
 must enable per organization via `/admin/ai-skills` (cap 5A.18).
 
-| Skill ID | Risk | Capability level (mock LLM emits) | Grammar phrase (mock) | Executor |
+| Skill ID | Risk | Capability level (mock LLM emits) | Grammar phrase (mock — EN + HE) | Executor |
 |---|---|---|---|---|
-| `whatsapp.session.link` | low | `WRITE_LOW` | "link whatsapp" | `lib/platform/ai-actions/executors.ts` |
-| `whatsapp.session.relink` | low | `WRITE_LOW` | "relink whatsapp NNNN" | `executors.ts` |
-| `whatsapp.session.unlink` | medium | `DESTRUCTIVE` | "unlink whatsapp session NNNN" | `executors.ts` |
+| `whatsapp.session.link` | low | `WRITE_LOW` | "link whatsapp" / "חבר ווצאפ" | `lib/platform/ai-actions/executors.ts` |
+| `whatsapp.session.relink` | low | `WRITE_LOW` | "relink whatsapp NNNN" / "חבר מחדש ווצאפ NNNN" | `executors.ts` |
+| `whatsapp.session.unlink` | medium | `DESTRUCTIVE` | "unlink whatsapp session NNNN" / "נתק ווצאפ NNNN" | `executors.ts` |
+| **`whatsapp.message.send`** | **high** | **`DESTRUCTIVE`** | **`send "X" to <name>` / `תשלח "X" ל<name>`** (batch 168) | `executors.ts` |
+
+The send skill is admin-only by default (permission
+`whatsapp.message.send`); admins grant per-user via the roles UI.
+Policy engine forces `require_approval` on every chat-driven
+proposal — outbound is irreversible, UI confirmation is mandatory.
 
 End-to-end demo-slice test: `lib/platform/ai-actions/demo-slice.test.tsx`
 batch 142 — covers `link` ↔ `relink` ↔ audit chain.
+Send-message grammar coverage: `lib/api/ai.test.ts` batch 168.
 
 ---
 

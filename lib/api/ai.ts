@@ -19,6 +19,7 @@ import type {
   PageContext,
   ActionProposal,
 } from "@/lib/hooks/use-assistant-session";
+import { resolveWhatsappRecipient } from "@/lib/api/whatsapp";
 
 export const MOCK_MODE = process.env.NEXT_PUBLIC_MOCK_API !== "false";
 
@@ -117,6 +118,34 @@ const ADD_BOOKMARK_RES = [
   /\badd\s+bookmark\s+(.+?)\s+(https?:\/\/\S+)\s*$/i,
   /(?:הוסף|תוסיף|צור|תצור)\s+(?:סימנייה|מועדף)\s+(.+?)\s+(https?:\/\/\S+)\s*$/i,
 ];
+// Batch 168 — outbound message send. Patterns capture body + recipient.
+// `order` declares whether group 1 is body-first (then recipient) or
+// recipient-first (then body), so we can normalize downstream.
+// Quote style accepts ", ', “”, „” to cover keyboards.
+const Q = `["'“”„‟]`;
+type SendMessagePattern = { re: RegExp; order: "body-recipient" | "recipient-body" };
+const SEND_MESSAGE_PATTERNS: SendMessagePattern[] = [
+  // EN: send "X" to Y
+  { re: new RegExp(`\\bsend\\s+${Q}(.+?)${Q}\\s+to\\s+(.+?)\\s*$`, "i"), order: "body-recipient" },
+  // EN: message Y "X"
+  { re: new RegExp(`\\bmessage\\s+(.+?)\\s+${Q}(.+?)${Q}\\s*$`, "i"), order: "recipient-body" },
+  // HE: שלח/תשלח [את ההודעה] "X" לY
+  { re: new RegExp(`(?:שלח|תשלח)\\s+(?:את\\s+)?(?:הודעה|ההודעה)?\\s*${Q}(.+?)${Q}\\s+ל(.+?)\\s*$`, "i"), order: "body-recipient" },
+  // HE: תכתוב/כתוב לY "X"
+  { re: new RegExp(`(?:תכתוב|כתוב)\\s+ל(.+?)\\s+${Q}(.+?)${Q}\\s*$`, "i"), order: "recipient-body" },
+];
+
+function matchSendMessage(message: string): { body: string; recipient: string } | null {
+  for (const p of SEND_MESSAGE_PATTERNS) {
+    const m = message.match(p.re);
+    if (!m) continue;
+    const [, g1, g2] = m;
+    if (!g1 || !g2) continue;
+    if (p.order === "body-recipient") return { body: g1.trim(), recipient: g2.trim() };
+    return { body: g2.trim(), recipient: g1.trim() };
+  }
+  return null;
+}
 
 function firstMatch(res: RegExp[], message: string): RegExpMatchArray | null {
   for (const re of res) {
@@ -217,6 +246,18 @@ const REPLIES = {
       `Start a new WhatsApp linking flow? You'll be prompted to scan a QR code.`,
     he: () =>
       `להתחיל זרימת חיבור WhatsApp חדשה? תתבקש/י לסרוק קוד QR.`,
+  },
+  sendMessage: {
+    en: (recipient: string, body: string) =>
+      `Send "${body}" to ${recipient}? This will deliver via your linked WhatsApp.`,
+    he: (recipient: string, body: string) =>
+      `לשלוח "${body}" ל${recipient}? ההודעה תישלח דרך חיבור ה-WhatsApp המקושר שלך.`,
+  },
+  sendMessageUnresolved: {
+    en: (recipient: string) =>
+      `I couldn't find an owned WhatsApp chat for "${recipient}". Try the exact display name from your archive.`,
+    he: (recipient: string) =>
+      `לא מצאתי שיחת WhatsApp בארכיון בשם "${recipient}". נסה/י את שם התצוגה המדויק מהארכיון.`,
   },
 };
 
@@ -406,6 +447,39 @@ function extractIntent(message: string, locale: "en" | "he"): MockIntent {
         capabilityLevel: "WRITE_LOW",
         expiresAt: Date.now() + 60_000,
         params: { sessionId },
+      },
+    };
+  }
+
+  // Batch 168 — outbound WhatsApp message send.
+  // Try recognized patterns before falling through to other intents.
+  const sendMatch = matchSendMessage(message);
+  if (sendMatch) {
+    const recipient = sendMatch.recipient;
+    const body = sendMatch.body;
+    const chat = resolveWhatsappRecipient(recipient);
+    if (!chat) {
+      // Recipient name didn't match any owned chat. Surface a helpful
+      // reply without a proposal so the user can retry with the
+      // exact name.
+      return {
+        text: REPLIES.sendMessageUnresolved[locale](recipient),
+        proposal: null,
+      };
+    }
+    return {
+      text: REPLIES.sendMessage[locale](chat.display_name ?? recipient, body),
+      proposal: {
+        tokenId: makeTokenId(),
+        actionId: "whatsapp.message.send",
+        label: `Send WhatsApp to ${chat.display_name ?? recipient}`,
+        targetSummary: `Deliver to chat #${chat.id} (${chat.display_name ?? chat.wa_chat_id})`,
+        // DESTRUCTIVE = irreversible side effect (message can't be
+        // un-sent, even with WA's revoke — recipient may already
+        // have read it). Forces the shortest TTL bucket.
+        capabilityLevel: "DESTRUCTIVE",
+        expiresAt: Date.now() + 30_000,
+        params: { chat_id: chat.id, body },
       },
     };
   }

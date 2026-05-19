@@ -96,6 +96,49 @@ describe("sendChatMessage (mock mode)", () => {
     expect(res.actionProposal?.params).toMatchObject({ windowId: 5511 });
   });
 
+  it("'send \"hi\" to <name>' → whatsapp.message.send DESTRUCTIVE proposal (batch 168)", async () => {
+    // Mock chats fixture has "Dana Levi" (id=11001). The mock LLM
+    // resolves the recipient name and proposes the action.
+    const res = await sendChatMessage({
+      message: 'send "hello there" to Dana Levi',
+      context: null,
+    });
+    expect(res.actionProposal).not.toBeNull();
+    expect(res.actionProposal!.actionId).toBe("whatsapp.message.send");
+    expect(res.actionProposal!.capabilityLevel).toBe("DESTRUCTIVE");
+    expect(res.actionProposal!.params).toMatchObject({
+      chat_id: 11001,
+      body: "hello there",
+    });
+  });
+
+  it("Hebrew: 'תשלח \"היי\" לDana Levi' → resolves and proposes send (batch 168)", async () => {
+    // Mock chats currently carry English display names only — Hebrew
+    // alias resolution is BE territory (phonebook). In the mock the
+    // recipient name must match the owned chat's display_name.
+    const res = await sendChatMessage({
+      message: 'תשלח "היי" לDana Levi',
+      context: null,
+    });
+    expect(res.actionProposal).not.toBeNull();
+    expect(res.actionProposal!.actionId).toBe("whatsapp.message.send");
+    expect(res.actionProposal!.params).toMatchObject({
+      chat_id: 11001,
+      body: "היי",
+    });
+    // Reply text is Hebrew because the message contains Hebrew chars.
+    expect(res.text).toMatch(/לשלוח/);
+  });
+
+  it("send-message to unknown recipient returns helpful text, no proposal (batch 168)", async () => {
+    const res = await sendChatMessage({
+      message: 'send "hi" to NobodyKnowsThisName',
+      context: null,
+    });
+    expect(res.actionProposal).toBeNull();
+    expect(res.text).toMatch(/couldn't find|לא מצאתי/i);
+  });
+
   it("'cancel batch NNNN' → WRITE_HIGH proposal", async () => {
     const res = await sendChatMessage({ message: "cancel batch 7788", context: null });
     expect(res.actionProposal?.actionId).toBe("helpdesk.batch.cancel");

@@ -63,6 +63,8 @@ import type {
   WhatsAppShareUserOption,
   WhatsAppSelfEraseRequest,
   WhatsAppSelfEraseResponse,
+  WhatsAppSendMessageInput,
+  WhatsAppSendMessageResponse,
   WhatsAppSession,
   WhatsAppSessionMutationResponse,
   WhatsAppSessionState,
@@ -109,6 +111,8 @@ export type {
   WhatsAppShareUserOption,
   WhatsAppSelfEraseRequest,
   WhatsAppSelfEraseResponse,
+  WhatsAppSendMessageInput,
+  WhatsAppSendMessageResponse,
   WhatsAppSession,
   WhatsAppSessionMutationResponse,
   WhatsAppSessionState,
@@ -985,6 +989,109 @@ export async function sendWhatsappTextMessage(input: {
     method: "POST",
     body: JSON.stringify(input),
   });
+}
+
+// Batch 168 — chat_id-based outbound send for the AI executor.
+// The AI resolves recipient name → chat_id (via MOCK_CHATS lookup or
+// BE typeahead), then calls this. In mock mode the message is
+// appended to MOCK_MESSAGES with sender_is_me=true so the chat
+// detail view immediately shows what was 'sent'. In live mode it
+// POSTs to /api/proxy/whatsapp/api/chats/:id/messages — the bridge
+// service handles the actual WhatsApp delivery.
+//
+// SECURITY: this is the outbound channel. Backend MUST enforce:
+//   1. The chat_id belongs to the requester's owned archive
+//   2. The requester's session is in `ready` state
+//   3. Rate limit (default 30/min per user — spec §12.6 to extend)
+//   4. WhatsApp ToS opt-in / consent if recipient is a non-user
+let __mockSentCounter = 99000;
+export async function sendWhatsappChatMessage(
+  chatId: number,
+  body: string,
+  quotedWaMessageId: string | null = null,
+): Promise<WhatsAppSendMessageResponse> {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 80));
+    if (!Number.isInteger(chatId) || chatId <= 0) throw new Error("invalid_chat");
+    const trimmed = body.trim();
+    if (trimmed.length === 0) throw new Error("missing_body");
+    if (trimmed.length > 4096) throw new Error("body_too_long");
+    const chat = MOCK_CHATS.find((c) => c.id === chatId);
+    if (!chat) throw new Error("chat_not_found");
+    const ts = nowIso();
+    const sent: WhatsAppMessage = {
+      id: ++__mockSentCounter,
+      wa_message_id: `mock-sent-${__mockSentCounter}`,
+      chat_id: chatId,
+      sender_contact_id: null,
+      sender_phone: null,
+      sender_is_me: true,
+      ts,
+      body: trimmed,
+      type: "chat",
+      has_media: false,
+      media_mime: null,
+      media_size_bytes: null,
+      media_sha256: null,
+      media_caption: null,
+      media_url_endpoint: null,
+      quoted_message_id: null,
+      mentions: [],
+      reactions: [],
+      edited_at: null,
+      revoked_at: null,
+      erased_at: null,
+      captured_at: ts,
+    };
+    if (!MOCK_MESSAGES[chatId]) MOCK_MESSAGES[chatId] = [];
+    MOCK_MESSAGES[chatId]!.unshift(sent);
+    // Bump the chat's last_message_at so the archive list reflects
+    // recency. (Won't survive page reload in mock — chats are
+    // in-memory fixtures unlike sessions/dsr which use mock-storage.)
+    chat.last_message_at = ts;
+    chat.last_seen_at = ts;
+    void recordAuditEntry({
+      action: "whatsapp.message.sent",
+      category: "create",
+      resource_type: "whatsapp_message",
+      resource_id: String(sent.id),
+      metadata: { chat_id: chatId, body_length: trimmed.length, via: "ai_assistant" },
+    }).catch(() => {});
+    return { status: "ok", message: sent };
+  }
+  return apiFetch<WhatsAppSendMessageResponse>(
+    `/api/chats/${chatId}/messages`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        body: body.trim(),
+        quoted_wa_message_id: quotedWaMessageId,
+      }),
+    },
+  );
+}
+
+/** Best-effort recipient lookup by display_name / phone digits. */
+export function resolveWhatsappRecipient(
+  needle: string,
+): WhatsAppChat | null {
+  const q = needle.trim().toLowerCase();
+  if (q.length === 0) return null;
+  if (!MOCK_MODE) return null; // BE resolves server-side
+  // Exact display_name match wins; fall back to substring.
+  const exact = MOCK_CHATS.find(
+    (c) =>
+      c.access_kind !== "shared" &&
+      (c.display_name?.toLowerCase() === q || c.wa_chat_id.includes(q)),
+  );
+  if (exact) return exact;
+  return (
+    MOCK_CHATS.find(
+      (c) =>
+        c.access_kind !== "shared" &&
+        c.display_name?.toLowerCase().includes(q),
+    ) ?? null
+  );
 }
 
 /** Fetch a temporary signed URL for one owner-scoped WhatsApp media item. */

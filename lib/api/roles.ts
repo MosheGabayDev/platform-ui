@@ -85,10 +85,14 @@ const MOCK_PERMISSIONS: RolePermission[] = [
   // it (only is_admin shortcut worked). See whatsapp-bridge-spec.md §7.
   { id: 39, name: "whatsapp.share", description: "Share own WhatsApp chats with same-org users", created_at: null },
   { id: 40, name: "whatsapp.delete_by_subject", description: "Run GDPR delete-by-phone DSR jobs on WhatsApp archive", created_at: null },
+  // Batch 168 — outbound message send via AI assistant. Admin-only by
+  // default; can be granted per-user via the roles UI. Each send is
+  // policy-gated to require human approval (see policies.ts).
+  { id: 41, name: "whatsapp.message.send", description: "Send WhatsApp outbound messages from the user's linked session (admin-only by default)", created_at: null },
 ];
 
 const MOCK_ROLES: RoleSummary[] = [
-  { id: 1, name: "system_admin", description: "Cross-tenant platform operator", permission_count: 40, user_count: 1, created_at: null, updated_at: null },
+  { id: 1, name: "system_admin", description: "Cross-tenant platform operator", permission_count: 41, user_count: 1, created_at: null, updated_at: null },
   { id: 2, name: "manager", description: "Org manager — team operations", permission_count: 8, user_count: 1, created_at: null, updated_at: null },
   { id: 3, name: "technician", description: "Operator — handles tickets", permission_count: 5, user_count: 1, created_at: null, updated_at: null },
   { id: 4, name: "viewer", description: "Read-only role", permission_count: 2, user_count: 0, created_at: null, updated_at: null },

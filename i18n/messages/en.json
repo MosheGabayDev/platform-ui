@@ -379,7 +379,10 @@
         "batch_task": "Batch task",
         "note": "Note",
         "bookmark": "Bookmark",
-        "whatsapp_session": "WhatsApp session"
+        "whatsapp_session": "WhatsApp session",
+        "whatsapp_message": "WhatsApp message",
+        "whatsapp_chat_share": "WhatsApp chat share",
+        "whatsapp_dsr_job": "WhatsApp DSR job"
       },
       "securityBanner": "{count} security events detected in the last 24h",
       "actor": {

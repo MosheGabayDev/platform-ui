@@ -379,7 +379,10 @@
         "batch_task": "משימת אצווה",
         "note": "פתק",
         "bookmark": "סימנייה",
-        "whatsapp_session": "שיחת WhatsApp"
+        "whatsapp_session": "שיחת WhatsApp",
+        "whatsapp_message": "הודעת WhatsApp",
+        "whatsapp_chat_share": "שיתוף שיחת WhatsApp",
+        "whatsapp_dsr_job": "משימת DSR של WhatsApp"
       },
       "securityBanner": "זוהו {count} אירועי אבטחה ב-24 שעות האחרונות",
       "actor": {

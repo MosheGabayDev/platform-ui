@@ -579,6 +579,41 @@ const MOCK_POLICIES: Policy[] = [
         priority: 80,
         enabled: true,
       },
+      // Batch 168 — outbound message send. Two rules:
+      //   1. Hard deny for non-admins (admin can grant
+      //      whatsapp.message.send permission per-user, but the
+      //      permission gate is necessary, not sufficient — policy
+      //      blocks until subject.is_admin OR explicit allow).
+      //   2. require_approval for everyone (admins included).
+      //      Outbound is irreversible — UI confirmation MUST happen.
+      {
+        id: "rule.whatsapp.require_approval_for_send",
+        description:
+          "AI-proposed whatsapp.message.send is DESTRUCTIVE (irreversible delivery, regulatory implications). Force UI approval — never auto-execute.",
+        resource_pattern: "*",
+        action_pattern: "whatsapp.message.send",
+        subject: null,
+        condition: null,
+        active_from: null,
+        active_until: null,
+        effect: "require_approval",
+        priority: 110,
+        enabled: true,
+      },
+      {
+        id: "rule.whatsapp.deny_send_burst",
+        description:
+          "Rate-limit outbound to 30/min per user — Meta/WhatsApp ToS abuse heuristics flag bursts.",
+        resource_pattern: "*",
+        action_pattern: "whatsapp.message.send",
+        subject: null,
+        condition: "user.recent_send_count_1m >= 30",
+        active_from: null,
+        active_until: null,
+        effect: "deny",
+        priority: 90,
+        enabled: true,
+      },
     ],
     enabled: true,
     created_at: "2026-05-19T00:00:00Z",

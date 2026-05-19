@@ -134,6 +134,7 @@ export interface WhatsAppMessage {
   media_sha256: string | null;
   media_caption: string | null;
   media_url_endpoint: string | null;
+  media_preview_url?: string | null;
   quoted_message_id: number | null;
   mentions: unknown[];
   reactions: unknown[];
@@ -192,6 +193,23 @@ export interface WhatsAppMessageSearchResponse {
     total: number;
     has_more: boolean;
   };
+}
+
+// Batch 168 — outbound message send. Skill `whatsapp.message.send`
+// proposes this shape after recipient resolution. BE endpoint:
+// POST /api/proxy/whatsapp/api/chats/:chat_id/messages.
+export interface WhatsAppSendMessageInput {
+  /** Resolved chat id from the user's archive. */
+  chat_id: number;
+  /** Plain text body, max 4096 chars (WhatsApp limit). */
+  body: string;
+  /** Optional reply-to message id (WA-native quoting). */
+  quoted_wa_message_id?: string | null;
+}
+
+export interface WhatsAppSendMessageResponse {
+  status: "ok";
+  message: WhatsAppMessage;
 }
 
 export interface WhatsAppSessionMutationResponse {
