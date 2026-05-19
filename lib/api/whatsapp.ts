@@ -988,6 +988,27 @@ export async function sendWhatsappTextMessage(input: {
 }
 
 /** Fetch a temporary signed URL for one owner-scoped WhatsApp media item. */
+// Batch 164 RV-159-09 defense — validate the `url` field returned by
+// fetchWhatsappMediaUrl before it lands in `<img src={...}>`. BE spec
+// §4.2 says the field MUST be either a relative path under
+// `/api/proxy/whatsapp/api/media/` OR a `data:image/<safe-mime>;base64`
+// URL. Anything else — `javascript:`, scheme-relative `//evil`,
+// external `https://attacker`, or a `data:text/html` — is a XSS or
+// redirect attack vector. Defense-in-depth (BE owns the real check).
+function isSafeMediaUrl(url: unknown): url is string {
+  if (typeof url !== "string" || url.length === 0) return false;
+  if (url.startsWith("/api/proxy/whatsapp/")) return true;
+  // Allow data: URLs only for known image MIMEs.
+  if (
+    /^data:image\/(?:png|jpe?g|gif|webp|svg\+xml);(?:base64|utf8|charset=[a-z0-9-]+),/i.test(
+      url,
+    )
+  ) {
+    return true;
+  }
+  return false;
+}
+
 export async function fetchWhatsappMediaUrl(messageId: number): Promise<WhatsAppMediaUrlResponse> {
   if (MOCK_MODE) {
     await new Promise((r) => setTimeout(r, 60));
@@ -1001,7 +1022,11 @@ export async function fetchWhatsappMediaUrl(messageId: number): Promise<WhatsApp
       expires_in: 300,
     };
   }
-  return apiFetch<WhatsAppMediaUrlResponse>(`/api/media/${messageId}/url`);
+  const res = await apiFetch<WhatsAppMediaUrlResponse>(`/api/media/${messageId}/url`);
+  if (!isSafeMediaUrl(res.url)) {
+    throw new Error("media_url_rejected");
+  }
+  return res;
 }
 
 /** Search owned WhatsApp messages. */

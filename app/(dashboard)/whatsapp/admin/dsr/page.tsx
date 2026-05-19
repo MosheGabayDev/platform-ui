@@ -8,6 +8,7 @@ import { FormEvent, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, Eraser, History, Loader2, ShieldAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -120,6 +121,13 @@ function JobRow({ job, onSelect }: { job: WhatsAppDsrJob; onSelect: (id: string)
 function WhatsAppDsrInner() {
   const t = useTranslations("whatsapp.dsr");
   const tRoot = useTranslations("whatsapp");
+  // Batch 164 RV-159-12 defense — read the current user id from
+  // next-auth session so we can hide the Approve button when the
+  // viewer IS the job's `requested_by_user_id`. BE still owns the
+  // authoritative `self_approval_forbidden` check (spec §3.4), but
+  // a UI that even offers the button is a discoverability bug.
+  const { data: session } = useSession();
+  const currentUserId = session?.user?.id ?? null;
   const [phone, setPhone] = useState("");
   const [reason, setReason] = useState("");
   const [acknowledged, setAcknowledged] = useState(false);
@@ -293,15 +301,31 @@ function WhatsAppDsrInner() {
                   </dl>
                   {statusQuery.data.state === "awaiting_second_approval" && (
                     <PermissionGate permission={PERMISSION}>
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        disabled={!phone.trim() || approveMutation.isPending}
-                        onClick={onApprove}
-                      >
-                        {approveMutation.isPending && <Loader2 className="animate-spin" />}
-                        {t("actions.approve")}
-                      </Button>
+                      {currentUserId !== null &&
+                      String(statusQuery.data.requested_by_user_id) ===
+                        String(currentUserId) ? (
+                        // Self-approval would be rejected server-side
+                        // (spec §3.4 self_approval_forbidden). Surface
+                        // a clear notice instead of an enabled button.
+                        <div
+                          role="status"
+                          className="rounded-md border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-400"
+                        >
+                          {t("status.selfApprovalBlocked")}
+                        </div>
+                      ) : (
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          disabled={!phone.trim() || approveMutation.isPending}
+                          onClick={onApprove}
+                        >
+                          {approveMutation.isPending && (
+                            <Loader2 className="animate-spin" />
+                          )}
+                          {t("actions.approve")}
+                        </Button>
+                      )}
                     </PermissionGate>
                   )}
                 </div>

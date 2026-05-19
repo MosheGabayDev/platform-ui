@@ -2512,7 +2512,8 @@
       "status": {
         "title": "Job status",
         "phone": "Phone",
-        "recoveryUntil": "Recovery until"
+        "recoveryUntil": "Recovery until",
+        "selfApprovalBlocked": "You requested this deletion — a different admin must approve it."
       },
       "history": {
         "title": "History",

@@ -2512,7 +2512,8 @@
       "status": {
         "title": "מצב משימה",
         "phone": "טלפון",
-        "recoveryUntil": "שחזור עד"
+        "recoveryUntil": "שחזור עד",
+        "selfApprovalBlocked": "ביקשת את המחיקה הזו — מנהל אחר חייב לאשר אותה."
       },
       "history": {
         "title": "היסטוריה",
