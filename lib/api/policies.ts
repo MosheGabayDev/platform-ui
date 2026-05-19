@@ -524,6 +524,209 @@ const MOCK_POLICIES: Policy[] = [
     created_by_user_id: null,
     updated_by_user_id: null,
   },
+  // Batch 165 — WhatsApp session policies. Closes the gap caught in
+  // the batch 159 review: the 3 ai_callable skills declared
+  // `policy_action_id: "whatsapp.session.*"` but no rule matched —
+  // every chat-driven proposal would have passed without an explicit
+  // gate.
+  {
+    id: "policy.system.whatsapp_session_safety",
+    name: "WhatsApp session safety",
+    description:
+      "Guards the AI-callable WhatsApp session lifecycle: rate-limit link, require approval for unlink, require admin for self-erase. Matches whatsapp-bridge-spec.md §12.6 + §3.4.",
+    category: "operational",
+    org_id: null,
+    rules: [
+      {
+        id: "rule.whatsapp.require_approval_for_unlink",
+        description:
+          "AI-proposed whatsapp.session.unlink (DESTRUCTIVE) must surface UI approval — never auto-execute even when the chat flow is otherwise allowed.",
+        resource_pattern: "*",
+        action_pattern: "whatsapp.session.unlink",
+        subject: null,
+        condition: null,
+        active_from: null,
+        active_until: null,
+        effect: "require_approval",
+        priority: 100,
+        enabled: true,
+      },
+      {
+        id: "rule.whatsapp.deny_link_burst",
+        description:
+          "Throttle WhatsApp session linking to 5/min per user (spec §12.6). A burst beyond that is treated as abuse and denied.",
+        resource_pattern: "*",
+        action_pattern: "whatsapp.session.link",
+        subject: null,
+        condition: "user.recent_link_count_1m >= 5",
+        active_from: null,
+        active_until: null,
+        effect: "deny",
+        priority: 80,
+        enabled: true,
+      },
+      {
+        id: "rule.whatsapp.deny_relink_burst",
+        description:
+          "Same throttle for relink — bridge bears the same Meta/Baileys API cost as link.",
+        resource_pattern: "*",
+        action_pattern: "whatsapp.session.relink",
+        subject: null,
+        condition: "user.recent_link_count_1m >= 5",
+        active_from: null,
+        active_until: null,
+        effect: "deny",
+        priority: 80,
+        enabled: true,
+      },
+    ],
+    enabled: true,
+    created_at: "2026-05-19T00:00:00Z",
+    updated_at: "2026-05-19T00:00:00Z",
+    created_by_user_id: null,
+    updated_by_user_id: null,
+  },
+  // Batch 165 — WhatsApp DSR + self-erase safety. These are the
+  // irreversible mass-deletion paths from /whatsapp/admin/dsr and the
+  // user-side erase dialog. Backend enforces self_approval_forbidden
+  // (spec §3.4) and recovery_window_days (spec §1); the policy gates
+  // here are the FE-engine-visible mirror so they show up in the
+  // policy tester + audit.
+  {
+    id: "policy.system.whatsapp_irreversible_delete",
+    name: "WhatsApp irreversible delete gating",
+    description:
+      "Require admin role + UI approval for DSR delete-by-subject and user-driven self-erase. Both paths drop messages permanently after recovery window.",
+    category: "compliance",
+    org_id: null,
+    rules: [
+      {
+        id: "rule.whatsapp.deny_dsr_for_non_admin",
+        description:
+          "Hard deny whatsapp.dsr.delete for non-admin users. UX-level PermissionGate is not enough; BE check is authoritative; this rule keeps the policy tester honest.",
+        resource_pattern: "*",
+        action_pattern: "whatsapp.dsr.*",
+        subject: { is_admin: false },
+        condition: null,
+        active_from: null,
+        active_until: null,
+        effect: "deny",
+        priority: 100,
+        enabled: true,
+      },
+      {
+        id: "rule.whatsapp.require_approval_for_self_erase",
+        description:
+          "User-driven self-erase (entire archive wipe) must go through the UI dialog with reason + acknowledge — never auto-approve from any chat or API flow.",
+        resource_pattern: "*",
+        action_pattern: "whatsapp.self_erase.*",
+        subject: null,
+        condition: null,
+        active_from: null,
+        active_until: null,
+        effect: "require_approval",
+        priority: 100,
+        enabled: true,
+      },
+    ],
+    enabled: true,
+    created_at: "2026-05-19T00:00:00Z",
+    updated_at: "2026-05-19T00:00:00Z",
+    created_by_user_id: null,
+    updated_by_user_id: null,
+  },
+  // Batch 165 — AI safety floor for the rest of the ai_callable
+  // surface. Closes the invariant "every ai_callable skill has at
+  // least one policy rule matching its policy_action_id". Previously
+  // 5 skills slipped through with no gate at all: helpdesk.ticket.take,
+  // helpdesk.maintenance.cancel, users.{search,deactivate,reset_password}.
+  // Each rule below is the minimum safety floor — narrower org-specific
+  // overrides can still raise the bar.
+  {
+    id: "policy.system.ai_callable_safety_floor",
+    name: "AI-callable safety floor",
+    description:
+      "Default gates for every ai_callable skill — ensures no chat-proposed action runs without an explicit policy decision (allow / deny / require_approval).",
+    category: "ai_safety",
+    org_id: null,
+    rules: [
+      {
+        id: "rule.allow_helpdesk_ticket_take",
+        description:
+          "helpdesk.ticket.take is WRITE_LOW; allow but surface in the policy tester so audit shows an explicit allow decision.",
+        resource_pattern: "*",
+        action_pattern: "helpdesk.ticket.take",
+        subject: null,
+        condition: null,
+        active_from: null,
+        active_until: null,
+        effect: "allow",
+        priority: 10,
+        enabled: true,
+      },
+      {
+        id: "rule.require_approval_maintenance_cancel",
+        description:
+          "helpdesk.maintenance.cancel is DESTRUCTIVE (windows already scheduled — cancellation has stakeholder impact). Force human approval, no auto-execute from chat.",
+        resource_pattern: "*",
+        action_pattern: "helpdesk.maintenance.cancel",
+        subject: null,
+        condition: null,
+        active_from: null,
+        active_until: null,
+        effect: "require_approval",
+        priority: 100,
+        enabled: true,
+      },
+      {
+        id: "rule.allow_users_search",
+        description:
+          "users.search is READ-only; allow explicitly.",
+        resource_pattern: "*",
+        action_pattern: "users.search",
+        subject: null,
+        condition: null,
+        active_from: null,
+        active_until: null,
+        effect: "allow",
+        priority: 10,
+        enabled: true,
+      },
+      {
+        id: "rule.require_approval_users_deactivate",
+        description:
+          "users.deactivate cuts off a user from the platform — DESTRUCTIVE. Require approval even when the requester has the permission.",
+        resource_pattern: "*",
+        action_pattern: "users.deactivate",
+        subject: null,
+        condition: null,
+        active_from: null,
+        active_until: null,
+        effect: "require_approval",
+        priority: 100,
+        enabled: true,
+      },
+      {
+        id: "rule.allow_users_reset_password",
+        description:
+          "users.reset_password is WRITE_LOW (sends out-of-band email). Allow, but rate-limit at the apiFetch layer in BE per spec §12.6.",
+        resource_pattern: "*",
+        action_pattern: "users.reset_password",
+        subject: null,
+        condition: null,
+        active_from: null,
+        active_until: null,
+        effect: "allow",
+        priority: 10,
+        enabled: true,
+      },
+    ],
+    enabled: true,
+    created_at: "2026-05-19T00:00:00Z",
+    updated_at: "2026-05-19T00:00:00Z",
+    created_by_user_id: null,
+    updated_by_user_id: null,
+  },
 ];
 
 function generateDecisionId(): string {

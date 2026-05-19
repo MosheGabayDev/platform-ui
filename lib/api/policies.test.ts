@@ -373,6 +373,42 @@ describe("policies API surface", () => {
     expect(res.data.decision.allowed).toBe(false);
   });
 
+  it("every ai_callable skill has at least one policy rule matching its policy_action_id (batch 165)", async () => {
+    // Reverse direction of the literal-resolves-to-skill invariant.
+    // Caught batch 165 in the WhatsApp review: skill declared
+    // policy_action_id="whatsapp.session.link" but no rule matched —
+    // every chat-driven proposal slipped through the policy engine
+    // unchecked. ai_callable skills MUST be gated; mutate/destroy
+    // need at least a require_approval or deny rule somewhere.
+    //
+    // Match logic: a rule "matches" a skill if its action_pattern
+    // equals the skill's policy_action_id literally, OR is a glob
+    // that the skill id matches (e.g. `whatsapp.session.*` for
+    // `whatsapp.session.link`).
+    const { getAllSkills } = await import("@/lib/platform/ai-skills/registry");
+    const res = await fetchPolicies();
+    function patternMatches(pattern: string, value: string): boolean {
+      if (pattern === value || pattern === "*") return true;
+      const re = new RegExp(
+        `^${pattern
+          .replace(/[.+^${}()|[\]\\]/g, "\\$&")
+          .replace(/\*/g, ".*")}$`,
+      );
+      return re.test(value);
+    }
+    const ungated: string[] = [];
+    for (const s of getAllSkills()) {
+      if (!s.ai_callable) continue;
+      const hasRule = res.data.policies.some((p) =>
+        p.rules.some(
+          (r) => r.enabled && patternMatches(r.action_pattern, s.policy_action_id),
+        ),
+      );
+      if (!hasRule) ungated.push(s.id);
+    }
+    expect(ungated).toEqual([]);
+  });
+
   it("every literal (non-glob) action_pattern resolves to a registered skill (batch 89)", async () => {
     // Cross-cut: policy rules use action_pattern (glob). Patterns
     // WITH wildcards (*) are intentional matchers; patterns WITHOUT
