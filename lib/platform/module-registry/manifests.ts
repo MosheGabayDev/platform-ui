@@ -403,6 +403,38 @@ const MANIFESTS: ModuleManifest[] = [
     default_landing: "/bookmarks",
     org_admin_can_toggle: true,
   },
+  {
+    key: "billing-automation",
+    label: "Billing Automation",
+    label_he: "אוטומציית חיוב",
+    description:
+      "Meteorit MSP monthly billing — vendor file ingest (Acronis/NCE/Azure/Keepit/Coro/SentinelOne/Actifile/Datacare/MeCloud/NetApp/Inforu), customer matching, pricing rules, Priority ERP export.",
+    category: "operations",
+    icon: "CreditCard",
+    base_route: "/billing-automation",
+    nav_entries: [
+      { label: "Billing Automation", label_he: "אוטומציית חיוב", href: "/billing-automation", icon: "CreditCard", order: 1 },
+      { label: "Imports", label_he: "ייבואים חודשיים", href: "/billing-automation", icon: "ClipboardList", order: 2 },
+      { label: "Customers", label_he: "לקוחות", href: "/billing-automation/customers", icon: "Users", order: 3 },
+      { label: "Pricing", label_he: "כללי תמחור", href: "/billing-automation/pricing", icon: "BarChart2", order: 4 },
+    ],
+    ai_actions: [],
+    permissions: [
+      "billing_automation.view",
+      "billing_automation.upload",
+      "billing_automation.approve",
+      "billing_automation.export",
+    ],
+    search_types: [],
+    introduced_in_version: "0.55.0",
+    status: "experimental",
+    required_flags: [],
+    required_plans: [],
+    conflicts_with: [],
+    dashboard_tile: { enabled: true, size: "md" },
+    default_landing: "/billing-automation",
+    org_admin_can_toggle: true,
+  },
 ];
 
 export function getAllManifests(): ModuleManifest[] {
