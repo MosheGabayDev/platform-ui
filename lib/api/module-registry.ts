@@ -46,6 +46,7 @@ const FIXTURE_ENABLEMENT: Array<[string, boolean]> = [
   ["notes", true],
   ["bookmarks", true],
   ["whatsapp", true],
+  ["billing-automation", false],
 ];
 
 // Mock per-org enablement. Defaults below match a "Pro" tenant.
