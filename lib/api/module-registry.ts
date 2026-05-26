@@ -46,6 +46,10 @@ const FIXTURE_ENABLEMENT: Array<[string, boolean]> = [
   ["notes", true],
   ["bookmarks", true],
   ["whatsapp", true],
+  // Billing automation module — owned by Meteorit MSP, served as a standalone
+  // container at https://meteorit.ai-data-platform.com (separate from web-api).
+  // Default OFF; enabled per-org via the admin UI for tenants that subscribe.
+  ["billing-automation", false],
 ];
 
 // Mock per-org enablement. Defaults below match a "Pro" tenant.

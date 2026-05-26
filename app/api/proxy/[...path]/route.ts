@@ -14,6 +14,11 @@ import { buildAuditHeaders } from "@/lib/api/request-context";
 
 const FLASK = process.env.FLASK_API_URL ?? "http://localhost:5000";
 const WHATSAPP_API = process.env.WHATSAPP_API_URL ?? "http://localhost:3320";
+// Meteorit billing-automation standalone Flask service (separate container).
+// In-cluster default: http://billing-automation.platform.svc.cluster.local:5001
+// Local dev override: BILLING_AUTOMATION_API_URL=http://localhost:5001
+const BILLING_AUTOMATION_API =
+  process.env.BILLING_AUTOMATION_API_URL ?? "http://billing-automation.platform.svc.cluster.local:5001";
 
 /** Maps proxy path prefix → Flask URL prefix */
 const PATH_MAP: Record<string, string> = {
@@ -32,10 +37,12 @@ const PATH_MAP: Record<string, string> = {
   "roles": "/api/roles",
   "notifications": "/api/notifications",
   "whatsapp": "",
+  "billing-automation": "/api/billing-automation",
 };
 
 const UPSTREAM_BASE: Record<string, string> = {
   whatsapp: WHATSAPP_API,
+  "billing-automation": BILLING_AUTOMATION_API,
 };
 
 export async function GET(
