@@ -44,6 +44,15 @@ const MOCK_ORGS: OrgSummary[] = [
     created_at: "2026-01-01T00:00:00Z",
     user_count: 3,
   },
+  {
+    id: 2,
+    name: "Meteorit MSP",
+    slug: "meteorit",
+    description: "Meteorit Computer & Communication — MSP using the billing-automation module (https://meteorit.ai-data-platform.com).",
+    is_active: true,
+    created_at: "2026-05-26T00:00:00Z",
+    user_count: 2,
+  },
 ];
 
 /** Fetch paginated, filterable organizations list. System admin only. */
