@@ -33,6 +33,8 @@ import {
   Bookmark as BookmarkIcon,
   MessageCircle,
   Search,
+  Receipt,
+  Tag,
 } from "lucide-react";
 
 export type NavItem = {
@@ -151,6 +153,19 @@ export const navGroups: NavGroup[] = [
     labelKey: "nav.groups.business",
     items: [
       { title: "חיוב", titleKey: "nav.items.billing", href: "/billing", icon: CreditCard },
+      {
+        title: "אוטומציית חיוב MSP",
+        titleKey: "nav.items.billingAutomation",
+        href: "/billing-automation",
+        icon: Receipt,
+        children: [
+          { title: "לוח בקרה", titleKey: "nav.items.billingAutomationDashboard", href: "/billing-automation", icon: BarChart2 },
+          { title: "לקוחות", titleKey: "nav.items.billingAutomationCustomers", href: "/billing-automation/customers", icon: Users },
+          { title: "תעריפים", titleKey: "nav.items.billingAutomationPricing", href: "/billing-automation/pricing", icon: CreditCard },
+          { title: "מיפוי SKU", titleKey: "nav.items.billingAutomationSkuMapping", href: "/billing-automation/sku-mapping", icon: Tag },
+          { title: "חשבוניות דוגמה", titleKey: "nav.items.billingAutomationSampleInvoices", href: "/billing-automation/sample-invoices", icon: FileText },
+        ],
+      },
       { title: "גיבויים", titleKey: "nav.items.backups", href: "/backups", icon: HardDrive },
       { title: "מפתחות API", titleKey: "nav.items.apiKeys", href: "/api-keys", icon: KeyRound },
     ],
@@ -202,6 +217,7 @@ const ROUTE_TO_MODULE: Record<string, string> = {
   "/metrics": "monitoring",
   "/billing": "billing",
   "/api-keys": "billing",
+  "/billing-automation": "billing-automation",
   "/data-sources": "data-sources",
 };
 
