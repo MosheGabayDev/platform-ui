@@ -46,6 +46,8 @@ export type NavItem = {
   icon: React.ElementType;
   badge?: string;
   children?: NavItem[];
+  /** Hide from non-admin users (role must be admin or system_admin). */
+  adminOnly?: boolean;
 };
 
 export type NavGroup = {
@@ -54,6 +56,8 @@ export type NavGroup = {
   /** Translation key under `nav.groups.*`. */
   labelKey: string;
   items: NavItem[];
+  /** Hide the entire group from non-admin users. */
+  adminOnly?: boolean;
 };
 
 /**
@@ -138,6 +142,7 @@ export const navGroups: NavGroup[] = [
   {
     label: "ניהול פלטפורמה",
     labelKey: "nav.groups.platformAdmin",
+    adminOnly: true,
     items: [
       { title: "מודולים", titleKey: "nav.items.modules", href: "/admin/modules", icon: Boxes },
       { title: "הגדרות פלטפורמה", titleKey: "nav.items.platformSettings", href: "/admin/settings", icon: Cog },
@@ -148,9 +153,10 @@ export const navGroups: NavGroup[] = [
         titleKey: "nav.items.securityAdmin",
         href: "/admin/security/users",
         icon: Shield,
+        adminOnly: true,
         children: [
-          { title: "משתמשים", titleKey: "nav.items.securityUsers", href: "/admin/security/users", icon: UserCog },
-          { title: "מדיניות סיסמאות", titleKey: "nav.items.securityPasswordPolicy", href: "/admin/security/password-policy", icon: Shield },
+          { title: "משתמשים", titleKey: "nav.items.securityUsers", href: "/admin/security/users", icon: UserCog, adminOnly: true },
+          { title: "מדיניות סיסמאות", titleKey: "nav.items.securityPasswordPolicy", href: "/admin/security/password-policy", icon: Shield, adminOnly: true },
         ],
       },
       { title: "ספקי AI", titleKey: "nav.items.aiProviders", href: "/admin/ai-providers", icon: Bot },
@@ -260,6 +266,24 @@ export function filterNavByEnabledModules(
     if (filteredItems.length > 0) {
       result.push({ ...group, items: filteredItems });
     }
+  }
+  return result;
+}
+
+/**
+ * Filter sidebar nav by the viewer's role. Non-admins (role="user") never see
+ * groups or items flagged `adminOnly`. Admin = role "admin" or "system_admin".
+ * Apply AFTER filterNavByEnabledModules.
+ */
+export function filterNavByRole(groups: NavGroup[], isAdmin: boolean): NavGroup[] {
+  if (isAdmin) return groups;
+  const result: NavGroup[] = [];
+  for (const group of groups) {
+    if (group.adminOnly) continue;
+    const items = group.items
+      .filter((it) => !it.adminOnly)
+      .map((it) => ({ ...it, children: it.children?.filter((c) => !c.adminOnly) }));
+    if (items.length > 0) result.push({ ...group, items });
   }
   return result;
 }
