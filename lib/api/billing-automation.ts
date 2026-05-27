@@ -61,9 +61,18 @@ export type AdminUser = {
   full_name: string | null;
   role: "user" | "admin" | "system_admin";
   is_active: boolean;
+  org_id: number;
   last_login_at: string | null;
   locked_until: string | null;
   password_changed_at: string | null;
+};
+
+export type Organization = {
+  id: number;
+  name: string;
+  slug: string;
+  description: string | null;
+  is_active: boolean;
 };
 
 export type PasswordPolicy = {
@@ -79,8 +88,13 @@ export type PasswordPolicy = {
 
 export const fetchAdminUsers = () => apiFetch<AdminUser[]>("/admin/users");
 
-export const createAdminUser = (vars: { email: string; full_name?: string; password: string; role: string }) =>
+export const createAdminUser = (vars: { email: string; full_name?: string; password: string; role: string; org_id?: number }) =>
   apiFetch<AdminUser>("/admin/users", { method: "POST", body: JSON.stringify(vars) });
+
+export const fetchOrganizations = () => apiFetch<Organization[]>("/admin/organizations");
+
+export const createOrganization = (vars: { name: string; slug: string; description?: string }) =>
+  apiFetch<{ id: number; name: string; slug: string }>("/admin/organizations", { method: "POST", body: JSON.stringify(vars) });
 
 export const updateAdminUser = (id: number, vars: Partial<{ is_active: boolean; role: string; full_name: string; password: string }>) =>
   apiFetch<AdminUser>(`/admin/users/${id}`, { method: "PATCH", body: JSON.stringify(vars) });

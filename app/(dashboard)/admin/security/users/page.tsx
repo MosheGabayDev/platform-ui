@@ -11,7 +11,7 @@
  * (see /admin/security/password-policy).
  */
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { UserPlus, Lock, Unlock, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -23,8 +23,8 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
-  fetchAdminUsers, createAdminUser, updateAdminUser, deleteAdminUser,
-  type AdminUser,
+  fetchAdminUsers, createAdminUser, updateAdminUser, deleteAdminUser, fetchOrganizations,
+  type AdminUser, type Organization,
 } from "@/lib/api/billing-automation";
 
 function NewUserDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -32,16 +32,32 @@ function NewUserDialog({ open, onClose }: { open: boolean; onClose: () => void }
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<"user" | "admin" | "system_admin">("user");
+  const [role, setRole] = useState<"user" | "admin" | "system_admin">("admin");
+  const [orgId, setOrgId] = useState<number | "">("");
   const [violations, setViolations] = useState<string[]>([]);
 
+  // Orgs the caller may assign to. system_admin → all active orgs; org-admin → only theirs.
+  const { data: orgs } = useQuery({
+    queryKey: ["billing-automation", "organizations"],
+    queryFn: fetchOrganizations,
+    enabled: open,
+  });
+
+  // Auto-select when only one org is available (org-admin case).
+  useEffect(() => {
+    if (orgs && orgs.length === 1 && orgId === "") setOrgId(orgs[0].id);
+  }, [orgs, orgId]);
+
   const create = useMutation({
-    mutationFn: () => createAdminUser({ email, full_name: fullName, password, role }),
+    mutationFn: () => createAdminUser({
+      email, full_name: fullName, password, role,
+      org_id: orgId === "" ? undefined : Number(orgId),
+    }),
     onSuccess: () => {
       toast.success("המשתמש נוסף בהצלחה");
       qc.invalidateQueries({ queryKey: ["billing-automation", "users"] });
       onClose();
-      setEmail(""); setFullName(""); setPassword(""); setRole("user"); setViolations([]);
+      setEmail(""); setFullName(""); setPassword(""); setRole("admin"); setOrgId(""); setViolations([]);
     },
     onError: (err: Error & { violations?: string[] }) => {
       try {
@@ -51,6 +67,8 @@ function NewUserDialog({ open, onClose }: { open: boolean; onClose: () => void }
       toast.error(err.message);
     },
   });
+
+  const multiOrg = (orgs?.length ?? 0) > 1;
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
@@ -72,6 +90,24 @@ function NewUserDialog({ open, onClose }: { open: boolean; onClose: () => void }
             <Input id="full_name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
           </div>
           <div>
+            <Label htmlFor="org">ארגון</Label>
+            <select
+              id="org"
+              value={orgId}
+              onChange={(e) => setOrgId(e.target.value === "" ? "" : Number(e.target.value))}
+              disabled={!multiOrg}
+              className="w-full px-3 py-2 border rounded-md bg-background disabled:opacity-70"
+            >
+              <option value="">— בחר ארגון —</option>
+              {(orgs ?? []).map((o) => (
+                <option key={o.id} value={o.id}>{o.name}</option>
+              ))}
+            </select>
+            <p className="text-xs text-muted-foreground mt-1">
+              המשתמש ישויך לארגון זה ויראה רק את הנתונים והשירותים שלו.
+            </p>
+          </div>
+          <div>
             <Label htmlFor="password">סיסמה</Label>
             <Input id="password" type="password" dir="ltr" value={password} onChange={(e) => setPassword(e.target.value)} required />
           </div>
@@ -83,9 +119,9 @@ function NewUserDialog({ open, onClose }: { open: boolean; onClose: () => void }
               onChange={(e) => setRole(e.target.value as "user" | "admin" | "system_admin")}
               className="w-full px-3 py-2 border rounded-md bg-background"
             >
-              <option value="user">משתמש</option>
-              <option value="admin">מנהל</option>
-              <option value="system_admin">מנהל מערכת</option>
+              <option value="user">משתמש (צפייה בלבד)</option>
+              <option value="admin">מנהל ארגון (ניהול הארגון בלבד)</option>
+              {multiOrg && <option value="system_admin">מנהל-על (כל הארגונים)</option>}
             </select>
           </div>
           {violations.length > 0 && (
@@ -100,7 +136,7 @@ function NewUserDialog({ open, onClose }: { open: boolean; onClose: () => void }
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>ביטול</Button>
-          <Button onClick={() => create.mutate()} disabled={create.isPending}>
+          <Button onClick={() => create.mutate()} disabled={create.isPending || orgId === ""}>
             {create.isPending ? "שומר…" : "הוסף"}
           </Button>
         </DialogFooter>
@@ -115,6 +151,12 @@ export default function UsersAdminPage() {
     queryKey: ["billing-automation", "users"],
     queryFn: fetchAdminUsers,
   });
+  const { data: orgs } = useQuery({
+    queryKey: ["billing-automation", "organizations"],
+    queryFn: fetchOrganizations,
+  });
+  const orgName = (id: number) => orgs?.find((o: Organization) => o.id === id)?.name ?? `org #${id}`;
+  const multiOrg = (orgs?.length ?? 0) > 1;
   const [open, setOpen] = useState(false);
 
   const toggle = useMutation({
@@ -155,6 +197,7 @@ export default function UsersAdminPage() {
             <TableRow>
               <TableHead>אימייל</TableHead>
               <TableHead>שם</TableHead>
+              {multiOrg && <TableHead>ארגון</TableHead>}
               <TableHead>תפקיד</TableHead>
               <TableHead>סטטוס</TableHead>
               <TableHead>כניסה אחרונה</TableHead>
@@ -163,15 +206,16 @@ export default function UsersAdminPage() {
           </TableHeader>
           <TableBody>
             {isLoading && Array.from({ length: 3 }).map((_, i) => (
-              <TableRow key={i}><TableCell colSpan={6}><Skeleton className="h-5" /></TableCell></TableRow>
+              <TableRow key={i}><TableCell colSpan={multiOrg ? 7 : 6}><Skeleton className="h-5" /></TableCell></TableRow>
             ))}
             {(data ?? []).map((u: AdminUser) => (
               <TableRow key={u.id}>
                 <TableCell className="font-mono">{u.email}</TableCell>
                 <TableCell>{u.full_name ?? "—"}</TableCell>
+                {multiOrg && <TableCell><Badge variant="outline">{orgName(u.org_id)}</Badge></TableCell>}
                 <TableCell>
                   <Badge variant={u.role === "system_admin" ? "default" : u.role === "admin" ? "secondary" : "outline"}>
-                    {u.role === "system_admin" ? "מנהל מערכת" : u.role === "admin" ? "מנהל" : "משתמש"}
+                    {u.role === "system_admin" ? "מנהל-על" : u.role === "admin" ? "מנהל ארגון" : "משתמש"}
                   </Badge>
                 </TableCell>
                 <TableCell>
@@ -197,7 +241,7 @@ export default function UsersAdminPage() {
               </TableRow>
             ))}
             {!isLoading && (data ?? []).length === 0 && (
-              <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">אין משתמשים</TableCell></TableRow>
+              <TableRow><TableCell colSpan={multiOrg ? 7 : 6} className="text-center text-muted-foreground py-8">אין משתמשים</TableCell></TableRow>
             )}
           </TableBody>
         </Table>
