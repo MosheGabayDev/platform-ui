@@ -1,7 +1,16 @@
 "use client";
 /**
- * @module app/(dashboard)/billing-automation/admin/password-policy
- * Password policy editor — admin only. Affects all new passwords + every login validation.
+ * @module app/(dashboard)/admin/security/password-policy
+ * Platform-level password policy — global setting, configured per-org.
+ *
+ * Each org has its own row in the platform's password policy table (keyed by
+ * org_id). When an admin loads this page, the backend returns the policy for
+ * `request.current_user.org_id` — admins of org A never see/modify org B's
+ * policy.
+ *
+ * Effect: every user creation, password change, and login validation in this
+ * org runs against these rules. Changing min_length or any toggle takes effect
+ * immediately for the NEXT password operation.
  */
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -57,7 +66,8 @@ export default function PasswordPolicyPage() {
       <div>
         <h1 className="text-2xl font-bold">מדיניות סיסמאות</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          חוקי מינימום לסיסמאות חדשות. כל יצירת/שינוי סיסמה תיבדק מול הכללים האלה.
+          הגדרה גלובלית של המערכת, נשמרת בנפרד לכל ארגון. אתה רואה ועורך רק את המדיניות של הארגון שאליו אתה משויך.
+          כל יצירת/שינוי סיסמה ב-<a href="/admin/security/users" className="text-primary underline">משתמשים</a> וכל ניסיון כניסה ייבדקו מול הכללים האלה.
         </p>
       </div>
 

@@ -1,10 +1,14 @@
 "use client";
 /**
- * @module app/(dashboard)/billing-automation/admin/users
- * User management — admin only. Lists users, lets you add/edit/lock/unlock/delete.
+ * @module app/(dashboard)/admin/security/users
+ * Platform-level user management — admin only.
  *
- * Only users with bcrypt password hash + role row in meteorit_users may login.
- * Password creation/change validates against the active meteorit_password_policy.
+ * Scoping: each user is bound to an org_id via the auth JWT; the backend
+ * filters the list by `request.current_user.org_id`. A system_admin of org A
+ * never sees users from org B — multi-tenant isolation enforced server-side.
+ *
+ * Password creation/change validates against the org's active password policy
+ * (see /admin/security/password-policy).
  */
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -134,7 +138,9 @@ export default function UsersAdminPage() {
         <div>
           <h1 className="text-2xl font-bold">משתמשים</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            רק משתמשים מאומתים ברשימה זו יכולים להיכנס. הסיסמה תיבדק מול מדיניות הסיסמאות.
+            ניהול משתמשי הארגון. רק משתמשים מאומתים ברשימה זו יכולים להיכנס.
+            הסיסמה תיבדק מול <a href="/admin/security/password-policy" className="text-primary underline">מדיניות הסיסמאות</a> של הארגון.
+            משתמש לא יראה משתמשים של ארגונים אחרים — הסינון מתבצע ב-backend לפי ה-JWT.
           </p>
         </div>
         <Button onClick={() => setOpen(true)}>
