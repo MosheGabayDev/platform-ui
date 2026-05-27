@@ -51,3 +51,44 @@ export const updateSkuMapping = (vars: { sku_name: string; bracket: string | nul
     "/extracted/sku-mapping/update",
     { method: "POST", body: JSON.stringify(vars) },
   );
+
+
+// ===== Admin: users + password policy =====
+
+export type AdminUser = {
+  id: number;
+  email: string;
+  full_name: string | null;
+  role: "user" | "admin" | "system_admin";
+  is_active: boolean;
+  last_login_at: string | null;
+  locked_until: string | null;
+  password_changed_at: string | null;
+};
+
+export type PasswordPolicy = {
+  min_length: number;
+  require_uppercase: boolean;
+  require_lowercase: boolean;
+  require_digit: boolean;
+  require_special: boolean;
+  max_age_days: number;
+  max_failed_attempts: number;
+  lockout_minutes: number;
+};
+
+export const fetchAdminUsers = () => apiFetch<AdminUser[]>("/admin/users");
+
+export const createAdminUser = (vars: { email: string; full_name?: string; password: string; role: string }) =>
+  apiFetch<AdminUser>("/admin/users", { method: "POST", body: JSON.stringify(vars) });
+
+export const updateAdminUser = (id: number, vars: Partial<{ is_active: boolean; role: string; full_name: string; password: string }>) =>
+  apiFetch<AdminUser>(`/admin/users/${id}`, { method: "PATCH", body: JSON.stringify(vars) });
+
+export const deleteAdminUser = (id: number) =>
+  apiFetch<{ ok: boolean }>(`/admin/users/${id}`, { method: "DELETE" });
+
+export const fetchPasswordPolicy = () => apiFetch<PasswordPolicy>("/admin/password-policy");
+
+export const updatePasswordPolicy = (vars: Partial<PasswordPolicy>) =>
+  apiFetch<PasswordPolicy>("/admin/password-policy", { method: "PUT", body: JSON.stringify(vars) });

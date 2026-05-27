@@ -562,6 +562,8 @@
       "billingAutomationPricing": "Tariffs",
       "billingAutomationSkuMapping": "SKU Mapping",
       "billingAutomationSampleInvoices": "Sample Invoices",
+      "billingAutomationUsers": "Users",
+      "billingAutomationPasswordPolicy": "Password Policy",
       "backups": "Backups",
       "apiKeys": "API keys",
       "settings": "Settings",

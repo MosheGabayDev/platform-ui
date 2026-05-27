@@ -562,6 +562,8 @@
       "billingAutomationPricing": "תעריפים",
       "billingAutomationSkuMapping": "מיפוי SKU",
       "billingAutomationSampleInvoices": "חשבוניות דוגמה",
+      "billingAutomationUsers": "משתמשים",
+      "billingAutomationPasswordPolicy": "מדיניות סיסמאות",
       "backups": "גיבויים",
       "apiKeys": "מפתחות API",
       "settings": "הגדרות",

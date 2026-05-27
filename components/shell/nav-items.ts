@@ -164,6 +164,8 @@ export const navGroups: NavGroup[] = [
           { title: "תעריפים", titleKey: "nav.items.billingAutomationPricing", href: "/billing-automation/pricing", icon: CreditCard },
           { title: "מיפוי SKU", titleKey: "nav.items.billingAutomationSkuMapping", href: "/billing-automation/sku-mapping", icon: Tag },
           { title: "חשבוניות דוגמה", titleKey: "nav.items.billingAutomationSampleInvoices", href: "/billing-automation/sample-invoices", icon: FileText },
+          { title: "משתמשים", titleKey: "nav.items.billingAutomationUsers", href: "/billing-automation/admin/users", icon: UserCog },
+          { title: "מדיניות סיסמאות", titleKey: "nav.items.billingAutomationPasswordPolicy", href: "/billing-automation/admin/password-policy", icon: Shield },
         ],
       },
       { title: "גיבויים", titleKey: "nav.items.backups", href: "/backups", icon: HardDrive },
