@@ -30,26 +30,34 @@ import {
 const STORAGE_KEY = "mock:module-registry:enablement";
 const STORAGE_VERSION = 1;
 
+// Meteorit deployment: only the billing-automation module + audit-log are wired
+// to a real backend in this cluster. Other modules call services (web-api,
+// whatsapp-sync, etc.) that aren't deployed here — keeping them enabled would
+// surface 502s when users navigate there. Toggle these in the admin UI when
+// you add more backends.
 const FIXTURE_ENABLEMENT: Array<[string, boolean]> = [
-  ["helpdesk", true],
-  ["audit-log", true],
-  ["users", true],
+  // Meteorit deployment: ONLY billing-automation is wired to a real backend.
+  // Everything else (users/roles/orgs/departments, notes, bookmarks, audit-log,
+  // helpdesk, AI, whatsapp, ...) is OFF — those modules' Flask services aren't
+  // deployed in this cluster and their data isn't org-isolated here.
+  // User + password-policy management lives at /admin/security/* (billing-automation
+  // backed, org-scoped), NOT the platform "users" module.
+  ["helpdesk", false],
+  ["audit-log", false],
+  ["users", false],
   ["ai-agents", false],
   ["ai-providers", false],
   ["knowledge", false],
   ["voice", false],
   ["automation", false],
-  ["integrations", true],
-  ["monitoring", true],
-  ["billing", true],
+  ["integrations", false],
+  ["monitoring", false],
+  ["billing", false],
   ["data-sources", false],
-  ["notes", true],
-  ["bookmarks", true],
-  ["whatsapp", true],
-  // Billing automation module — owned by Meteorit MSP, served as a standalone
-  // container at https://meteorit.ai-data-platform.com (separate from web-api).
-  // Default OFF; enabled per-org via the admin UI for tenants that subscribe.
-  ["billing-automation", false],
+  ["notes", false],
+  ["bookmarks", false],
+  ["whatsapp", false],
+  ["billing-automation", true],
 ];
 
 // Mock per-org enablement. Defaults below match a "Pro" tenant.
