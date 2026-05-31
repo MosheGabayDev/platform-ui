@@ -141,3 +141,27 @@ export type ValidationReport = {
 };
 
 export const fetchValidation = () => apiFetch<ValidationReport>("/extracted/validation");
+
+
+// ===== M/M baseline comparison =====
+
+export type BaselineComparison = {
+  summary: {
+    current: { customers: number; total_ils: number; month_label: string };
+    baseline: { customers: number; total_ils: number; month_label: string };
+    delta: { customers: number; total_ils: number; total_pct: number };
+    counts: {
+      new_customers: number;
+      lost_customers: number;
+      big_swings: number;
+      new_skus_for_existing: number;
+      lost_skus: number;
+      qty_swings: number;
+    };
+    threshold_pct: number;
+    is_synthetic_baseline: boolean;
+  };
+  findings: ValidationFinding[];
+};
+
+export const fetchBaselineComparison = () => apiFetch<BaselineComparison>("/extracted/baseline-comparison");

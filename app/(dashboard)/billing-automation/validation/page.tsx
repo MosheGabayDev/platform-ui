@@ -22,13 +22,20 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
   AlertOctagon, AlertTriangle, Info, CheckCircle2, ExternalLink,
-  Send, ArrowLeftRight,
+  Send, ArrowLeftRight, TrendingUp, TrendingDown, UserPlus, UserMinus,
+  Calendar,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { fetchValidation, type Severity, type ValidationFinding } from "@/lib/api/billing-automation";
+import {
+  fetchValidation, fetchBaselineComparison,
+  type Severity, type ValidationFinding,
+} from "@/lib/api/billing-automation";
+
+const ils = (n: number) =>
+  new Intl.NumberFormat("he-IL", { style: "currency", currency: "ILS", maximumFractionDigits: 0 }).format(n);
 
 const SEVERITY_META: Record<Severity, { label: string; cls: string; Icon: React.ElementType }> = {
   blocker: { label: "חוסם", cls: "bg-destructive/10 text-destructive border-destructive/30", Icon: AlertOctagon },
@@ -122,18 +129,71 @@ export default function ValidationPage() {
     queryKey: ["billing-automation", "validation"],
     queryFn: fetchValidation,
   });
+  const { data: baseline } = useQuery({
+    queryKey: ["billing-automation", "baseline"],
+    queryFn: fetchBaselineComparison,
+  });
   const [selectedCat, setSelectedCat] = useState<string | null>(null);
   const [selectedSev, setSelectedSev] = useState<Severity | null>(null);
 
+  // Merge validation findings + baseline M/M findings into a single feed.
+  const allFindings = useMemo(
+    () => [...(data?.findings ?? []), ...(baseline?.findings ?? [])],
+    [data, baseline],
+  );
+
   const filtered = useMemo(() => {
-    const list = data?.findings ?? [];
-    return list.filter((f) =>
+    return allFindings.filter((f) =>
       (!selectedCat || f.category === selectedCat) &&
       (!selectedSev || f.severity === selectedSev),
     );
-  }, [data, selectedCat, selectedSev]);
+  }, [allFindings, selectedCat, selectedSev]);
 
-  if (isLoading || !data) {
+  // Combined summary (static categories + M/M counts).
+  const combinedSummary = useMemo(() => {
+    const base = data?.summary;
+    const mom = baseline?.summary.counts;
+    if (!base) return null;
+    const momTotal = mom
+      ? (mom.new_customers + mom.lost_customers + mom.big_swings +
+         mom.new_skus_for_existing + mom.lost_skus + mom.qty_swings)
+      : 0;
+    const momByCat: Record<string, { total: number; blocker: number; warning: number; info: number }> = {};
+    for (const f of baseline?.findings ?? []) {
+      const c = momByCat[f.category] ?? { total: 0, blocker: 0, warning: 0, info: 0 };
+      c.total += 1;
+      c[f.severity] += 1;
+      momByCat[f.category] = c;
+    }
+    const sumSev = (s: "blocker" | "warning" | "info") =>
+      base[s] + (baseline?.findings ?? []).filter((f) => f.severity === s).length;
+    return {
+      ...base,
+      total: base.total + momTotal,
+      blocker: sumSev("blocker"),
+      warning: sumSev("warning"),
+      info: sumSev("info"),
+      export_blocked: sumSev("blocker") > 0,
+      by_category: { ...base.by_category, ...momByCat },
+    };
+  }, [data, baseline]);
+
+  const combinedCategories = useMemo(() => {
+    const cats = data?.categories ? [...data.categories] : [];
+    // M/M categories that exist in findings
+    const momCats = [
+      { key: "mom_new_customer", label: "לקוחות חדשים החודש" },
+      { key: "mom_lost_customer", label: "לקוחות שאבדו החודש" },
+      { key: "mom_total_delta", label: "שינוי בסך החיוב (חודש/חודש)" },
+      { key: "mom_new_sku", label: "שירותים חדשים ללקוח קיים" },
+      { key: "mom_lost_sku", label: "שירותים שהופסקו" },
+      { key: "mom_qty_delta", label: "שינוי כמות (חודש/חודש)" },
+    ];
+    const present = new Set((baseline?.findings ?? []).map((f) => f.category));
+    return [...cats, ...momCats.filter((c) => present.has(c.key))];
+  }, [data, baseline]);
+
+  if (isLoading || !data || !combinedSummary) {
     return (
       <div className="space-y-4">
         <Skeleton className="h-10 w-1/2" />
@@ -145,7 +205,8 @@ export default function ValidationPage() {
     );
   }
 
-  const { summary, categories } = data;
+  const summary = combinedSummary;
+  const categories = combinedCategories;
 
   return (
     <div className="space-y-6">
@@ -216,6 +277,79 @@ export default function ValidationPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* M/M baseline comparison panel */}
+      {baseline && (
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                השוואה לחודש קודם
+                {baseline.summary.is_synthetic_baseline && (
+                  <Badge variant="outline" className="text-xs text-orange-600 border-orange-500/40">
+                    baseline סינתטי - יוחלף בנתוני אמת כשפליקס יספק M-1
+                  </Badge>
+                )}
+              </CardTitle>
+              <div className="text-xs text-muted-foreground">
+                סף חריגה: {baseline.summary.threshold_pct}%
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {/* Top: month totals comparison */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div className="rounded-lg border bg-card p-3">
+                <div className="text-xs text-muted-foreground">{baseline.summary.baseline.month_label}</div>
+                <div className="text-xl font-bold mt-1">{ils(baseline.summary.baseline.total_ils)}</div>
+                <div className="text-xs text-muted-foreground mt-1">{baseline.summary.baseline.customers} לקוחות</div>
+              </div>
+              <div className="rounded-lg border bg-card p-3">
+                <div className="text-xs text-muted-foreground">{baseline.summary.current.month_label}</div>
+                <div className="text-xl font-bold mt-1">{ils(baseline.summary.current.total_ils)}</div>
+                <div className="text-xs text-muted-foreground mt-1">{baseline.summary.current.customers} לקוחות</div>
+              </div>
+              <div className={`rounded-lg border p-3 ${
+                Math.abs(baseline.summary.delta.total_pct) >= 0.2
+                  ? "border-orange-500/40 bg-orange-500/5"
+                  : "bg-card"
+              }`}>
+                <div className="text-xs text-muted-foreground">דלתא</div>
+                <div className={`text-xl font-bold mt-1 ${
+                  baseline.summary.delta.total_ils >= 0 ? "text-green-600" : "text-destructive"
+                }`}>
+                  {baseline.summary.delta.total_ils >= 0 ? "+" : ""}
+                  {ils(baseline.summary.delta.total_ils)}
+                  {" "}
+                  <span className="text-sm">({(baseline.summary.delta.total_pct * 100).toFixed(1)}%)</span>
+                </div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  {baseline.summary.delta.customers >= 0 ? "+" : ""}{baseline.summary.delta.customers} לקוחות
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom: 6 buckets of M/M anomaly counts */}
+            <div className="grid grid-cols-2 md:grid-cols-6 gap-2 text-center">
+              {[
+                { label: "לקוחות חדשים", value: baseline.summary.counts.new_customers, Icon: UserPlus, cls: "text-green-600" },
+                { label: "לקוחות שאבדו", value: baseline.summary.counts.lost_customers, Icon: UserMinus, cls: "text-destructive" },
+                { label: "שינויי סך-חיוב", value: baseline.summary.counts.big_swings, Icon: TrendingUp, cls: "text-orange-600" },
+                { label: "שירותים חדשים", value: baseline.summary.counts.new_skus_for_existing, Icon: TrendingUp, cls: "text-blue-600" },
+                { label: "שירותים שהופסקו", value: baseline.summary.counts.lost_skus, Icon: TrendingDown, cls: "text-orange-600" },
+                { label: "שינויי כמות", value: baseline.summary.counts.qty_swings, Icon: TrendingUp, cls: "text-orange-600" },
+              ].map((b) => (
+                <div key={b.label} className="rounded border bg-card px-2 py-2">
+                  <b.Icon className={`h-4 w-4 mx-auto mb-1 ${b.cls}`} />
+                  <div className={`text-lg font-bold ${b.cls}`}>{b.value}</div>
+                  <div className="text-[10px] text-muted-foreground leading-tight">{b.label}</div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Category filters */}
       <div className="space-y-2">
