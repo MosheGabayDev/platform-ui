@@ -562,6 +562,7 @@
       "billingAutomationPricing": "Tariffs",
       "billingAutomationSkuMapping": "SKU Mapping",
       "billingAutomationSampleInvoices": "Sample Invoices",
+      "billingAutomationValidation": "Pre-Export Validation",
       "securityAdmin": "Security",
       "securityUsers": "Users",
       "securityPasswordPolicy": "Password Policy",

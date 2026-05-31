@@ -562,6 +562,7 @@
       "billingAutomationPricing": "תעריפים",
       "billingAutomationSkuMapping": "מיפוי SKU",
       "billingAutomationSampleInvoices": "חשבוניות דוגמה",
+      "billingAutomationValidation": "חריגים לפני ייצוא",
       "securityAdmin": "אבטחה",
       "securityUsers": "משתמשים",
       "securityPasswordPolicy": "מדיניות סיסמאות",

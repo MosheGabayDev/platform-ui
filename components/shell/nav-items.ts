@@ -180,6 +180,7 @@ export const navGroups: NavGroup[] = [
           { title: "תעריפים", titleKey: "nav.items.billingAutomationPricing", href: "/billing-automation/pricing", icon: CreditCard },
           { title: "מיפוי SKU", titleKey: "nav.items.billingAutomationSkuMapping", href: "/billing-automation/sku-mapping", icon: Tag },
           { title: "חשבוניות דוגמה", titleKey: "nav.items.billingAutomationSampleInvoices", href: "/billing-automation/sample-invoices", icon: FileText },
+          { title: "חריגים לפני ייצוא", titleKey: "nav.items.billingAutomationValidation", href: "/billing-automation/validation", icon: ShieldCheck, badge: "חדש" },
         ],
       },
       { title: "גיבויים", titleKey: "nav.items.backups", href: "/backups", icon: HardDrive, adminOnly: true },

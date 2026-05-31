@@ -418,6 +418,7 @@ const MANIFESTS: ModuleManifest[] = [
       { label: "Tariffs", label_he: "תעריפים", href: "/billing-automation/pricing", icon: "CreditCard", order: 2 },
       { label: "SKU Mapping", label_he: "מיפוי SKU", href: "/billing-automation/sku-mapping", icon: "Tag", order: 3 },
       { label: "Sample Invoices", label_he: "חשבוניות דוגמה", href: "/billing-automation/sample-invoices", icon: "FileText", order: 4 },
+      { label: "Pre-export Validation", label_he: "חריגים לפני ייצוא", href: "/billing-automation/validation", icon: "ShieldCheck", order: 5 },
     ],
     ai_actions: [],
     permissions: ["billing_automation.view", "billing_automation.manage"],

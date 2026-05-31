@@ -106,3 +106,38 @@ export const fetchPasswordPolicy = () => apiFetch<PasswordPolicy>("/admin/passwo
 
 export const updatePasswordPolicy = (vars: Partial<PasswordPolicy>) =>
   apiFetch<PasswordPolicy>("/admin/password-policy", { method: "PUT", body: JSON.stringify(vars) });
+
+
+// ===== Validation report (pre-export gate) =====
+
+export type Severity = "blocker" | "warning" | "info";
+
+export type ValidationFinding = {
+  id: number;
+  category: string;
+  severity: Severity;
+  title: string;
+  description: string;
+  entity_type: "customer" | "sku" | "row" | "file";
+  entity_label: string;
+  suggested_action: string;
+  can_approve: boolean;
+  can_skip: boolean;
+  can_fix: boolean;
+  meta: Record<string, unknown>;
+};
+
+export type ValidationReport = {
+  summary: {
+    total: number;
+    blocker: number;
+    warning: number;
+    info: number;
+    export_blocked: boolean;
+    by_category: Record<string, { total: number; blocker: number; warning: number; info: number }>;
+  };
+  categories: { key: string; label: string }[];
+  findings: ValidationFinding[];
+};
+
+export const fetchValidation = () => apiFetch<ValidationReport>("/extracted/validation");
