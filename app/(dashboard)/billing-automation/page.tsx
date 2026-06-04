@@ -12,7 +12,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { FileText, Users, DollarSign, ListChecks, Tag, Receipt } from "lucide-react";
+import { FileText, Users, DollarSign, ListChecks, Tag, Receipt, ShieldCheck, Network } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchBillingDashboard } from "@/lib/api/billing-automation";
@@ -36,6 +36,8 @@ function Kpi({ icon: Icon, label, value, sub }: { icon: React.ElementType; label
 }
 
 const QUICK_LINKS = [
+  { href: "/billing-automation/validation", icon: ShieldCheck, label: "חריגים לפני ייצוא", desc: "כל מה שדורש סקירה אנושית לפני שדוחפים ל-Priority" },
+  { href: "/billing-automation/vendor-sources", icon: Network, label: "מקורות נתונים (21)", desc: "כל המקורות שמטאורית אוספת מהם נתונים חודשיים" },
   { href: "/billing-automation/customers", icon: Users, label: "לקוחות", desc: "תעריפים פר-לקוח וחשבוניות היסטוריות" },
   { href: "/billing-automation/sku-mapping", icon: Tag, label: "מיפוי SKU → Priority", desc: "טבלת המאסטר של בוריס" },
   { href: "/billing-automation/sample-invoices", icon: Receipt, label: "חשבוניות דוגמה", desc: "הפלט שבוריס מצפה לקבל" },

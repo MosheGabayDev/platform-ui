@@ -419,6 +419,7 @@ const MANIFESTS: ModuleManifest[] = [
       { label: "SKU Mapping", label_he: "מיפוי SKU", href: "/billing-automation/sku-mapping", icon: "Tag", order: 3 },
       { label: "Sample Invoices", label_he: "חשבוניות דוגמה", href: "/billing-automation/sample-invoices", icon: "FileText", order: 4 },
       { label: "Pre-export Validation", label_he: "חריגים לפני ייצוא", href: "/billing-automation/validation", icon: "ShieldCheck", order: 5 },
+      { label: "Vendor Sources", label_he: "מקורות נתונים", href: "/billing-automation/vendor-sources", icon: "Network", order: 6 },
     ],
     ai_actions: [],
     permissions: ["billing_automation.view", "billing_automation.manage"],

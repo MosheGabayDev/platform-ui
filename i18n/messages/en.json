@@ -563,6 +563,7 @@
       "billingAutomationSkuMapping": "SKU Mapping",
       "billingAutomationSampleInvoices": "Sample Invoices",
       "billingAutomationValidation": "Pre-Export Validation",
+      "billingAutomationVendorSources": "Vendor Sources",
       "securityAdmin": "Security",
       "securityUsers": "Users",
       "securityPasswordPolicy": "Password Policy",

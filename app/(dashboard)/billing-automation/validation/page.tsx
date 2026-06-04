@@ -30,7 +30,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  fetchValidation, fetchBaselineComparison,
+  fetchValidation, fetchBaselineComparison, fetchBorisOpenItems,
   type Severity, type ValidationFinding,
 } from "@/lib/api/billing-automation";
 
@@ -133,13 +133,17 @@ export default function ValidationPage() {
     queryKey: ["billing-automation", "baseline"],
     queryFn: fetchBaselineComparison,
   });
+  const { data: borisFindings } = useQuery({
+    queryKey: ["billing-automation", "boris-open"],
+    queryFn: fetchBorisOpenItems,
+  });
   const [selectedCat, setSelectedCat] = useState<string | null>(null);
   const [selectedSev, setSelectedSev] = useState<Severity | null>(null);
 
-  // Merge validation findings + baseline M/M findings into a single feed.
+  // Merge validation findings + baseline M/M findings + Boris's open items.
   const allFindings = useMemo(
-    () => [...(data?.findings ?? []), ...(baseline?.findings ?? [])],
-    [data, baseline],
+    () => [...(data?.findings ?? []), ...(baseline?.findings ?? []), ...(borisFindings ?? [])],
+    [data, baseline, borisFindings],
   );
 
   const filtered = useMemo(() => {
@@ -158,25 +162,27 @@ export default function ValidationPage() {
       ? (mom.new_customers + mom.lost_customers + mom.big_swings +
          mom.new_skus_for_existing + mom.lost_skus + mom.qty_swings)
       : 0;
-    const momByCat: Record<string, { total: number; blocker: number; warning: number; info: number }> = {};
-    for (const f of baseline?.findings ?? []) {
-      const c = momByCat[f.category] ?? { total: 0, blocker: 0, warning: 0, info: 0 };
+    const extraByCat: Record<string, { total: number; blocker: number; warning: number; info: number }> = {};
+    for (const f of [...(baseline?.findings ?? []), ...(borisFindings ?? [])]) {
+      const c = extraByCat[f.category] ?? { total: 0, blocker: 0, warning: 0, info: 0 };
       c.total += 1;
       c[f.severity] += 1;
-      momByCat[f.category] = c;
+      extraByCat[f.category] = c;
     }
+    const extraCount = (baseline?.findings ?? []).length + (borisFindings ?? []).length;
     const sumSev = (s: "blocker" | "warning" | "info") =>
-      base[s] + (baseline?.findings ?? []).filter((f) => f.severity === s).length;
+      base[s] + (baseline?.findings ?? []).filter((f) => f.severity === s).length
+      + (borisFindings ?? []).filter((f) => f.severity === s).length;
     return {
       ...base,
-      total: base.total + momTotal,
+      total: base.total - (base.by_category.unmapped_customers?.total ?? 0) + extraCount,
       blocker: sumSev("blocker"),
       warning: sumSev("warning"),
       info: sumSev("info"),
       export_blocked: sumSev("blocker") > 0,
-      by_category: { ...base.by_category, ...momByCat },
+      by_category: { ...base.by_category, ...extraByCat },
     };
-  }, [data, baseline]);
+  }, [data, baseline, borisFindings]);
 
   const combinedCategories = useMemo(() => {
     const cats = data?.categories ? [...data.categories] : [];
@@ -189,9 +195,17 @@ export default function ValidationPage() {
       { key: "mom_lost_sku", label: "שירותים שהופסקו" },
       { key: "mom_qty_delta", label: "שינוי כמות (חודש/חודש)" },
     ];
-    const present = new Set((baseline?.findings ?? []).map((f) => f.category));
-    return [...cats, ...momCats.filter((c) => present.has(c.key))];
-  }, [data, baseline]);
+    const present = new Set([
+      ...(baseline?.findings ?? []).map((f) => f.category),
+      ...(borisFindings ?? []).map((f) => f.category),
+    ]);
+    const borisCats = [
+      { key: "boris_missing_customer", label: "לקוחות חסרים (בוריס)" },
+      { key: "boris_missing_sku", label: "מק\"טים חסרים (בוריס)" },
+      { key: "boris_open_issue", label: "נושאים פתוחים (בוריס)" },
+    ];
+    return [...cats, ...momCats.filter((c) => present.has(c.key)), ...borisCats.filter((c) => present.has(c.key))];
+  }, [data, baseline, borisFindings]);
 
   if (isLoading || !data || !combinedSummary) {
     return (

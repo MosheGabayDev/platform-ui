@@ -165,3 +165,53 @@ export type BaselineComparison = {
 };
 
 export const fetchBaselineComparison = () => apiFetch<BaselineComparison>("/extracted/baseline-comparison");
+
+
+// ===== Vendor sources catalog (Boris's docx) =====
+
+export type VendorMethod = "auto_scheduled" | "email_from_vendor" | "manual_portal";
+export type VendorStatus = "working" | "blocked" | "needs_improvement";
+
+export type VendorSource = {
+  key: string;
+  name: string;
+  vendor: string;
+  method: VendorMethod;
+  status: VendorStatus;
+  url: string | null;
+  instructions: string;
+  owner: string;
+  notes: string;
+};
+
+export type OpenIssue = {
+  id: string;
+  severity: Severity;
+  topic: string;
+  title: string;
+  description: string;
+  owner: string;
+  status: "open" | "resolved";
+  resolved_date?: string;
+  resolution?: string;
+  affected_vendors?: string[];
+  affected_skus?: string[];
+  missing_customers?: string[];
+};
+
+export type VendorSourcesCatalog = {
+  source_doc: string;
+  source_doc_date: string;
+  author: string;
+  summary: {
+    total_sources: number;
+    auto_scheduled: number;
+    email_from_vendor: number;
+    manual_portal: number;
+  };
+  sources: VendorSource[];
+  open_issues: OpenIssue[];
+};
+
+export const fetchVendorSources = () => apiFetch<VendorSourcesCatalog>("/extracted/vendor-sources");
+export const fetchBorisOpenItems = () => apiFetch<ValidationFinding[]>("/extracted/boris-open-items");
