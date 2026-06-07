@@ -51,3 +51,167 @@ export const updateSkuMapping = (vars: { sku_name: string; bracket: string | nul
     "/extracted/sku-mapping/update",
     { method: "POST", body: JSON.stringify(vars) },
   );
+
+
+// ===== Admin: users + password policy =====
+
+export type AdminUser = {
+  id: number;
+  email: string;
+  full_name: string | null;
+  role: "user" | "admin" | "system_admin";
+  is_active: boolean;
+  org_id: number;
+  last_login_at: string | null;
+  locked_until: string | null;
+  password_changed_at: string | null;
+};
+
+export type Organization = {
+  id: number;
+  name: string;
+  slug: string;
+  description: string | null;
+  is_active: boolean;
+};
+
+export type PasswordPolicy = {
+  min_length: number;
+  require_uppercase: boolean;
+  require_lowercase: boolean;
+  require_digit: boolean;
+  require_special: boolean;
+  max_age_days: number;
+  max_failed_attempts: number;
+  lockout_minutes: number;
+};
+
+export const fetchAdminUsers = () => apiFetch<AdminUser[]>("/admin/users");
+
+export const createAdminUser = (vars: { email: string; full_name?: string; password: string; role: string; org_id?: number }) =>
+  apiFetch<AdminUser>("/admin/users", { method: "POST", body: JSON.stringify(vars) });
+
+export const fetchOrganizations = () => apiFetch<Organization[]>("/admin/organizations");
+
+export const createOrganization = (vars: { name: string; slug: string; description?: string }) =>
+  apiFetch<{ id: number; name: string; slug: string }>("/admin/organizations", { method: "POST", body: JSON.stringify(vars) });
+
+export const updateAdminUser = (id: number, vars: Partial<{ is_active: boolean; role: string; full_name: string; password: string }>) =>
+  apiFetch<AdminUser>(`/admin/users/${id}`, { method: "PATCH", body: JSON.stringify(vars) });
+
+export const deleteAdminUser = (id: number) =>
+  apiFetch<{ ok: boolean }>(`/admin/users/${id}`, { method: "DELETE" });
+
+export const fetchPasswordPolicy = () => apiFetch<PasswordPolicy>("/admin/password-policy");
+
+export const updatePasswordPolicy = (vars: Partial<PasswordPolicy>) =>
+  apiFetch<PasswordPolicy>("/admin/password-policy", { method: "PUT", body: JSON.stringify(vars) });
+
+
+// ===== Validation report (pre-export gate) =====
+
+export type Severity = "blocker" | "warning" | "info";
+
+export type ValidationFinding = {
+  id: number;
+  category: string;
+  severity: Severity;
+  title: string;
+  description: string;
+  entity_type: "customer" | "sku" | "row" | "file";
+  entity_label: string;
+  suggested_action: string;
+  can_approve: boolean;
+  can_skip: boolean;
+  can_fix: boolean;
+  meta: Record<string, unknown>;
+};
+
+export type ValidationReport = {
+  summary: {
+    total: number;
+    blocker: number;
+    warning: number;
+    info: number;
+    export_blocked: boolean;
+    by_category: Record<string, { total: number; blocker: number; warning: number; info: number }>;
+  };
+  categories: { key: string; label: string }[];
+  findings: ValidationFinding[];
+};
+
+export const fetchValidation = () => apiFetch<ValidationReport>("/extracted/validation");
+
+
+// ===== M/M baseline comparison =====
+
+export type BaselineComparison = {
+  summary: {
+    current: { customers: number; total_ils: number; month_label: string };
+    baseline: { customers: number; total_ils: number; month_label: string };
+    delta: { customers: number; total_ils: number; total_pct: number };
+    counts: {
+      new_customers: number;
+      lost_customers: number;
+      big_swings: number;
+      new_skus_for_existing: number;
+      lost_skus: number;
+      qty_swings: number;
+    };
+    threshold_pct: number;
+    is_synthetic_baseline: boolean;
+  };
+  findings: ValidationFinding[];
+};
+
+export const fetchBaselineComparison = () => apiFetch<BaselineComparison>("/extracted/baseline-comparison");
+
+
+// ===== Vendor sources catalog (Boris's docx) =====
+
+export type VendorMethod = "auto_scheduled" | "email_from_vendor" | "manual_portal";
+export type VendorStatus = "working" | "blocked" | "needs_improvement";
+
+export type VendorSource = {
+  key: string;
+  name: string;
+  vendor: string;
+  method: VendorMethod;
+  status: VendorStatus;
+  url: string | null;
+  instructions: string;
+  owner: string;
+  notes: string;
+};
+
+export type OpenIssue = {
+  id: string;
+  severity: Severity;
+  topic: string;
+  title: string;
+  description: string;
+  owner: string;
+  status: "open" | "resolved";
+  resolved_date?: string;
+  resolution?: string;
+  affected_vendors?: string[];
+  affected_skus?: string[];
+  missing_customers?: string[];
+};
+
+export type VendorSourcesCatalog = {
+  source_doc: string;
+  source_doc_date: string;
+  author: string;
+  summary: {
+    total_sources: number;
+    auto_scheduled: number;
+    email_from_vendor: number;
+    manual_portal: number;
+  };
+  sources: VendorSource[];
+  open_issues: OpenIssue[];
+};
+
+export const fetchVendorSources = () => apiFetch<VendorSourcesCatalog>("/extracted/vendor-sources");
+export const fetchBorisOpenItems = () => apiFetch<ValidationFinding[]>("/extracted/boris-open-items");

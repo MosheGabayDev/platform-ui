@@ -7,7 +7,7 @@ import {
   Pin, PinOff, Clock, ChevronRight,
 } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslations } from "next-intl";
@@ -332,7 +332,10 @@ export function AppSidebar() {
                   {mounted ? (theme === "dark" ? t("themeLight") : t("themeDark")) : t("themeFallback")}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="gap-2.5 text-destructive focus:text-destructive">
+                <DropdownMenuItem
+                  className="gap-2.5 text-destructive focus:text-destructive"
+                  onClick={() => signOut({ callbackUrl: "/login" })}
+                >
                   <LogOut className="size-3.5" />
                   {t("signOut")}
                 </DropdownMenuItem>

@@ -46,6 +46,8 @@ export type NavItem = {
   icon: React.ElementType;
   badge?: string;
   children?: NavItem[];
+  /** Hide from non-admin users (role must be admin or system_admin). */
+  adminOnly?: boolean;
 };
 
 export type NavGroup = {
@@ -54,6 +56,8 @@ export type NavGroup = {
   /** Translation key under `nav.groups.*`. */
   labelKey: string;
   items: NavItem[];
+  /** Hide the entire group from non-admin users. */
+  adminOnly?: boolean;
 };
 
 /**
@@ -138,11 +142,23 @@ export const navGroups: NavGroup[] = [
   {
     label: "ניהול פלטפורמה",
     labelKey: "nav.groups.platformAdmin",
+    adminOnly: true,
     items: [
       { title: "מודולים", titleKey: "nav.items.modules", href: "/admin/modules", icon: Boxes },
       { title: "הגדרות פלטפורמה", titleKey: "nav.items.platformSettings", href: "/admin/settings", icon: Cog },
       { title: "Feature flags", titleKey: "nav.items.featureFlags", href: "/admin/feature-flags", icon: Flag },
       { title: "Policy engine", titleKey: "nav.items.policyEngine", href: "/admin/policies", icon: Shield },
+      {
+        title: "אבטחה",
+        titleKey: "nav.items.securityAdmin",
+        href: "/admin/security/users",
+        icon: Shield,
+        adminOnly: true,
+        children: [
+          { title: "משתמשים", titleKey: "nav.items.securityUsers", href: "/admin/security/users", icon: UserCog, adminOnly: true },
+          { title: "מדיניות סיסמאות", titleKey: "nav.items.securityPasswordPolicy", href: "/admin/security/password-policy", icon: Shield, adminOnly: true },
+        ],
+      },
       { title: "ספקי AI", titleKey: "nav.items.aiProviders", href: "/admin/ai-providers", icon: Bot },
       { title: "כישורי AI", titleKey: "nav.items.aiSkills", href: "/admin/ai-skills", icon: Sparkles },
       { title: "צריכת AI", titleKey: "nav.items.aiUsage", href: "/admin/ai-usage", icon: BarChart2 },
@@ -164,10 +180,12 @@ export const navGroups: NavGroup[] = [
           { title: "תעריפים", titleKey: "nav.items.billingAutomationPricing", href: "/billing-automation/pricing", icon: CreditCard },
           { title: "מיפוי SKU", titleKey: "nav.items.billingAutomationSkuMapping", href: "/billing-automation/sku-mapping", icon: Tag },
           { title: "חשבוניות דוגמה", titleKey: "nav.items.billingAutomationSampleInvoices", href: "/billing-automation/sample-invoices", icon: FileText },
+          { title: "חריגים לפני ייצוא", titleKey: "nav.items.billingAutomationValidation", href: "/billing-automation/validation", icon: ShieldCheck, badge: "חדש" },
+          { title: "מקורות נתונים", titleKey: "nav.items.billingAutomationVendorSources", href: "/billing-automation/vendor-sources", icon: Network, badge: "21" },
         ],
       },
-      { title: "גיבויים", titleKey: "nav.items.backups", href: "/backups", icon: HardDrive },
-      { title: "מפתחות API", titleKey: "nav.items.apiKeys", href: "/api-keys", icon: KeyRound },
+      { title: "גיבויים", titleKey: "nav.items.backups", href: "/backups", icon: HardDrive, adminOnly: true },
+      { title: "מפתחות API", titleKey: "nav.items.apiKeys", href: "/api-keys", icon: KeyRound, adminOnly: true },
     ],
   },
   {
@@ -179,11 +197,12 @@ export const navGroups: NavGroup[] = [
         titleKey: "nav.items.settings",
         href: "/settings",
         icon: Settings,
+        adminOnly: true,
         children: [
-          { title: "AI", titleKey: "nav.items.aiSettings", href: "/settings/ai", icon: Bot },
-          { title: "כללי", titleKey: "nav.items.general", href: "/settings/general", icon: Settings },
-          { title: "אימייל", titleKey: "nav.items.email", href: "/settings/email", icon: Bell },
-          { title: "מגבלות שימוש", titleKey: "nav.items.usageLimits", href: "/settings/usage-limits", icon: Activity },
+          { title: "AI", titleKey: "nav.items.aiSettings", href: "/settings/ai", icon: Bot, adminOnly: true },
+          { title: "כללי", titleKey: "nav.items.general", href: "/settings/general", icon: Settings, adminOnly: true },
+          { title: "אימייל", titleKey: "nav.items.email", href: "/settings/email", icon: Bell, adminOnly: true },
+          { title: "מגבלות שימוש", titleKey: "nav.items.usageLimits", href: "/settings/usage-limits", icon: Activity, adminOnly: true },
         ],
       },
       { title: "עזרה", titleKey: "nav.items.help", href: "/help", icon: BookOpen },
@@ -250,6 +269,24 @@ export function filterNavByEnabledModules(
     if (filteredItems.length > 0) {
       result.push({ ...group, items: filteredItems });
     }
+  }
+  return result;
+}
+
+/**
+ * Filter sidebar nav by the viewer's role. Non-admins (role="user") never see
+ * groups or items flagged `adminOnly`. Admin = role "admin" or "system_admin".
+ * Apply AFTER filterNavByEnabledModules.
+ */
+export function filterNavByRole(groups: NavGroup[], isAdmin: boolean): NavGroup[] {
+  if (isAdmin) return groups;
+  const result: NavGroup[] = [];
+  for (const group of groups) {
+    if (group.adminOnly) continue;
+    const items = group.items
+      .filter((it) => !it.adminOnly)
+      .map((it) => ({ ...it, children: it.children?.filter((c) => !c.adminOnly) }));
+    if (items.length > 0) result.push({ ...group, items });
   }
   return result;
 }

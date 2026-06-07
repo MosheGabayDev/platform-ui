@@ -403,6 +403,36 @@ const MANIFESTS: ModuleManifest[] = [
     default_landing: "/bookmarks",
     org_admin_can_toggle: true,
   },
+  {
+    key: "billing-automation",
+    label: "MSP Billing Automation",
+    label_he: "אוטומציית חיוב MSP",
+    description:
+      "Meteorit MSP monthly billing: vendor file ingestion, customer matching, SKU→Priority mapping, invoice generation.",
+    category: "operations",
+    icon: "Receipt",
+    base_route: "/billing-automation",
+    nav_entries: [
+      { label: "Dashboard", label_he: "לוח בקרה", href: "/billing-automation", icon: "BarChart2", order: 0 },
+      { label: "Customers", label_he: "לקוחות", href: "/billing-automation/customers", icon: "Users", order: 1 },
+      { label: "Tariffs", label_he: "תעריפים", href: "/billing-automation/pricing", icon: "CreditCard", order: 2 },
+      { label: "SKU Mapping", label_he: "מיפוי SKU", href: "/billing-automation/sku-mapping", icon: "Tag", order: 3 },
+      { label: "Sample Invoices", label_he: "חשבוניות דוגמה", href: "/billing-automation/sample-invoices", icon: "FileText", order: 4 },
+      { label: "Pre-export Validation", label_he: "חריגים לפני ייצוא", href: "/billing-automation/validation", icon: "ShieldCheck", order: 5 },
+      { label: "Vendor Sources", label_he: "מקורות נתונים", href: "/billing-automation/vendor-sources", icon: "Network", order: 6 },
+    ],
+    ai_actions: [],
+    permissions: ["billing_automation.view", "billing_automation.manage"],
+    search_types: [],
+    introduced_in_version: "0.60.0",
+    status: "experimental",
+    required_flags: [],
+    required_plans: [],
+    conflicts_with: [],
+    dashboard_tile: null,
+    default_landing: "/billing-automation",
+    org_admin_can_toggle: true,
+  },
 ];
 
 export function getAllManifests(): ModuleManifest[] {
