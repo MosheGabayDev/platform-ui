@@ -30,39 +30,44 @@ import {
 const STORAGE_KEY = "mock:module-registry:enablement";
 const STORAGE_VERSION = 1;
 
-// Meteorit deployment: only the billing-automation module + audit-log are wired
-// to a real backend in this cluster. Other modules call services (web-api,
-// whatsapp-sync, etc.) that aren't deployed here — keeping them enabled would
-// surface 502s when users navigate there. Toggle these in the admin UI when
-// you add more backends.
+// Default mock enablement matches the "Pro tenant" demo experience.
+// Per-deployment narrowing: set NEXT_PUBLIC_MOCK_ONLY_MODULES (comma-separated
+// keys) to force ONLY those modules ON in MOCK mode — used by tenant-specific
+// deployments (e.g. Meteorit MSP) that only ship a subset of backends.
 const FIXTURE_ENABLEMENT: Array<[string, boolean]> = [
-  // Meteorit deployment: ONLY billing-automation is wired to a real backend.
-  // Everything else (users/roles/orgs/departments, notes, bookmarks, audit-log,
-  // helpdesk, AI, whatsapp, ...) is OFF — those modules' Flask services aren't
-  // deployed in this cluster and their data isn't org-isolated here.
-  // User + password-policy management lives at /admin/security/* (billing-automation
-  // backed, org-scoped), NOT the platform "users" module.
-  ["helpdesk", false],
-  ["audit-log", false],
-  ["users", false],
+  ["helpdesk", true],
+  ["audit-log", true],
+  ["users", true],
   ["ai-agents", false],
   ["ai-providers", false],
   ["knowledge", false],
   ["voice", false],
   ["automation", false],
-  ["integrations", false],
-  ["monitoring", false],
-  ["billing", false],
+  ["integrations", true],
+  ["monitoring", true],
+  ["billing", true],
   ["data-sources", false],
-  ["notes", false],
-  ["bookmarks", false],
-  ["whatsapp", false],
-  ["billing-automation", true],
+  ["notes", true],
+  ["bookmarks", true],
+  ["whatsapp", true],
+  // New module; opt-in per-org via admin UI (Meteorit deployment forces it on
+  // via NEXT_PUBLIC_MOCK_ONLY_MODULES=billing-automation).
+  ["billing-automation", false],
 ];
+
+/** Tenant-specific narrowing — listed keys are forced ON, everything else OFF. */
+function applyTenantNarrowing(entries: Array<[string, boolean]>): Array<[string, boolean]> {
+  const only = (process.env.NEXT_PUBLIC_MOCK_ONLY_MODULES ?? "").trim();
+  if (!only) return entries;
+  const allowed = new Set(only.split(",").map((k) => k.trim()).filter(Boolean));
+  return entries.map(([k]) => [k, allowed.has(k)] as [string, boolean]);
+}
 
 // Mock per-org enablement. Defaults below match a "Pro" tenant.
 const MOCK_ENABLEMENT = new Map<string, boolean>(
-  loadMockState<Array<[string, boolean]>>(STORAGE_KEY, STORAGE_VERSION, FIXTURE_ENABLEMENT),
+  loadMockState<Array<[string, boolean]>>(
+    STORAGE_KEY, STORAGE_VERSION, applyTenantNarrowing(FIXTURE_ENABLEMENT),
+  ),
 );
 
 function persistEnablement(): void {
@@ -72,7 +77,7 @@ function persistEnablement(): void {
 /** Test helper — restores fixtures + clears localStorage. */
 export function _resetModuleRegistryMockState(): void {
   MOCK_ENABLEMENT.clear();
-  for (const [k, v] of FIXTURE_ENABLEMENT) MOCK_ENABLEMENT.set(k, v);
+  for (const [k, v] of applyTenantNarrowing(FIXTURE_ENABLEMENT)) MOCK_ENABLEMENT.set(k, v);
   clearMockState("mock:module-registry:");
 }
 
